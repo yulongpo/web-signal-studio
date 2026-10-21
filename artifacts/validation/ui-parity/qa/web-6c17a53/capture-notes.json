@@ -1,0 +1,25 @@
+{
+  "id": "qa-web-6c17a53-narrowband",
+  "tip_web": "6c17a53d4731ca0984b43a1e3cb837ae5c6224f7",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "replaces": "qa/web-17937bb/06-narrowband.png",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g26_iq": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-meta",
+  "captures": [
+    "06-narrowband.png",
+    "06b-narrowband-page-switch.png",
+    "06c-narrowband-overflow.png",
+    "06d-narrowband-demodulation.png"
+  ],
+  "observations": {
+    "narrowband_stub_visible": false,
+    "workspace_narrowband_visible": true,
+    "demod_text_snippet": "解调工作区壳：无伪解调、无假比特流。真实 DDC/解调由 Bot-D 接入后填充。\n\n解调波形\n等待真实解调输出",
+    "demod_fake_claim": false,
+    "status_file": "0000000",
+    "status_workspace": "narrowband",
+    "before": "web-17937bb/06-narrowband.png showed workspace-narrowband-stub",
+    "after": "web-6c17a53 shows NarrowbandWorkspace four-tab stacked; stub count=0"
+  }
+}
