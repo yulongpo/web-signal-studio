@@ -1,30 +1,26 @@
-"""Capabilities BLOCKED without real models / GPU path."""
+"""Capabilities shape + BLOCKED detection without models."""
 
 from __future__ import annotations
 
 
-def test_capabilities_reports_blocked_backends(client, auth_headers):
+def test_capabilities_protocol_shape(client, auth_headers):
     r = client.get("/capabilities", headers=auth_headers)
     assert r.status_code == 200
     data = r.json()
+    assert data["protocolVersion"] == "0.1.0"
     assert data["bindAddressPolicy"] == "loopback-only"
-    assert data["bindHost"] == "127.0.0.1"
     assert data["authRequired"] is True
-    names = {b["name"]: b for b in data["detectionBackends"]}
-    assert "ffscn" in names
-    assert "scn" in names
-    for name in ("ffscn", "scn"):
-        b = names[name]
-        assert b["status"] == "BLOCKED"
-        assert b["productionEligible"] is False
-        assert isinstance(b["blockReasons"], list) and len(b["blockReasons"]) >= 1
-        # Must not claim inference is available
-        assert b["status"] != "available"
+    assert "dsp" in data
+    assert "detection" in data
+    assert "models" in data
+    det = data["detection"]
+    assert det["ffscn"] is False
+    assert det["scn"] is False
+    assert isinstance(det["reasons"], list) and len(det["reasons"]) >= 1
+    assert any("BLOCKED" in x for x in det["reasons"])
 
 
-def test_capabilities_has_gpu_and_version(client, auth_headers):
-    r = client.get("/capabilities", headers=auth_headers)
-    data = r.json()
-    assert "version" in data
-    assert "gpu" in data
-    assert "available" in data["gpu"]
+def test_capabilities_never_claims_detection_available(client, auth_headers):
+    data = client.get("/capabilities", headers=auth_headers).json()
+    assert data["detection"]["ffscn"] is False
+    assert data["detection"]["scn"] is False

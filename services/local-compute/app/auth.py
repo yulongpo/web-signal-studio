@@ -1,4 +1,4 @@
-"""Session token authentication for local-compute."""
+"""Session token authentication (Authorization: Bearer)."""
 
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ _AUTH: AuthState | None = None
 
 
 def init_auth() -> AuthState:
-    """Load LOCAL_COMPUTE_TOKEN from env or generate a random one at startup."""
+    """Load LOCAL_COMPUTE_TOKEN from env or generate a random one at startup (shown once)."""
     global _AUTH
     env = (os.environ.get("LOCAL_COMPUTE_TOKEN") or "").strip()
     if env:
@@ -37,22 +37,17 @@ def get_auth() -> AuthState:
 
 async def require_token(
     authorization: str | None = Header(default=None),
-    x_local_compute_token: str | None = Header(default=None, alias="X-Local-Compute-Token"),
 ) -> None:
-    """Reject unauthenticated requests. Token required on every route."""
+    """Reject unauthenticated requests. Protocol: Authorization: Bearer <session-token>."""
     expected = get_auth().token
     provided: str | None = None
     if authorization:
         parts = authorization.split(" ", 1)
         if len(parts) == 2 and parts[0].lower() == "bearer":
             provided = parts[1].strip()
-        else:
-            provided = authorization.strip()
-    if not provided and x_local_compute_token:
-        provided = x_local_compute_token.strip()
     if not provided or not secrets.compare_digest(provided, expected):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or missing local-compute session token",
+            detail="Invalid or missing Bearer session token",
             headers={"WWW-Authenticate": "Bearer"},
         )
