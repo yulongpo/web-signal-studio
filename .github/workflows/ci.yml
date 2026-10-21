@@ -30,6 +30,8 @@ jobs:
       #   b66413b (run 39584274930) and tip 585d9d1 (run 39584380863)
       # - LCV via require.resolve('@tailwindcss/node/package.json') crashed on
       #   eba42f4 (run 39584927890): ERR_PACKAGE_PATH_NOT_EXPORTED under Node 22
+      # - @tailwindcss/oxide-linux-x64-gnu: vitest failed loading vite.config.ts on
+      #   tip 121cc66 (run 39585371028) and tip 100c5be (run 39585505963)
       - name: ensure linux native bindings
         working-directory: apps/web
         run: |
@@ -45,10 +47,18 @@ jobs:
           else
             echo "lightningcss package.json not found"; exit 1
           fi
+          # Resolve @tailwindcss/oxide via filesystem (same optional-deps class)
+          OXIDEV=""
+          if [ -f node_modules/@tailwindcss/oxide/package.json ]; then
+            OXIDEV="$(node -p "require('./node_modules/@tailwindcss/oxide/package.json').version")"
+          else
+            echo "@tailwindcss/oxide package.json not found"; exit 1
+          fi
           npm install --no-save \
             "@oxlint/binding-linux-x64-gnu@${OXV}" \
             "@rolldown/binding-linux-x64-gnu@${RDV}" \
-            "lightningcss-linux-x64-gnu@${LCV}"
+            "lightningcss-linux-x64-gnu@${LCV}" \
+            "@tailwindcss/oxide-linux-x64-gnu@${OXIDEV}"
       - name: lint
         run: npm run lint -w @wss/web
       - name: typecheck
@@ -83,10 +93,17 @@ jobs:
           else
             echo "lightningcss package.json not found"; exit 1
           fi
+          OXIDEV=""
+          if [ -f node_modules/@tailwindcss/oxide/package.json ]; then
+            OXIDEV="$(node -p "require('./node_modules/@tailwindcss/oxide/package.json').version")"
+          else
+            echo "@tailwindcss/oxide package.json not found"; exit 1
+          fi
           npm install --no-save \
             "@oxlint/binding-linux-x64-gnu@${OXV}" \
             "@rolldown/binding-linux-x64-gnu@${RDV}" \
-            "lightningcss-linux-x64-gnu@${LCV}"
+            "lightningcss-linux-x64-gnu@${LCV}" \
+            "@tailwindcss/oxide-linux-x64-gnu@${OXIDEV}"
       - working-directory: apps/web
         run: npx playwright install --with-deps chromium
       - working-directory: apps/web

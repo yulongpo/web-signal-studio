@@ -25,3 +25,13 @@ Root cause class: optional platform bindings omitted from cross-platform lock (n
 ## Base
 
 Commit parent: `27f71e8` (origin/main tip after Bot-F project-io merge; includes eba42f4). Branch: `work/bot-g-qa`. Worktree-only; no push from Bot-G.
+
+## Oxide follow-up (run 39585371028 / 39585505963)
+
+After lightningcss binding was ensured, unit still failed loading `vite.config.ts`:
+
+`Cannot find module '@tailwindcss/oxide-linux-x64-gnu'` / `./tailwindcss-oxide.linux-x64-gnu.node` from `@tailwindcss/oxide`.
+
+Same optional-deps class (npm/cli#4828). Scan of `@tailwindcss/*` under `apps/web/node_modules` showed only `oxide` carries platform optionals; `node`/`vite` have none beyond nested lightningcss (already covered).
+
+Fix: filesystem probe `node_modules/@tailwindcss/oxide/package.json` for `OXIDEV`, then also force-install `@tailwindcss/oxide-linux-x64-gnu@${OXIDEV}` in the same `ensure linux native bindings` step (apps-web + e2e). Base: tip `610a79c` on `work/bot-g-qa`.
