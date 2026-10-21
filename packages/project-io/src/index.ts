@@ -80,8 +80,14 @@ export {
 export {
   engineeringTreeFromProject,
   engineeringTreeFromSummary,
+  engineeringTreeFromSession,
+  listMarkNodes,
+  summarizeLoadedProjectTree,
+  ANNOTATION_SOURCE_TREE_COLORS,
+  ANNOTATION_SOURCE_TREE_LABELS,
   type EngineeringTreeKind,
   type EngineeringTreeNode,
+  type EngineeringTreeBuildOptions,
 } from './engineering-tree.js';
 
 export {
