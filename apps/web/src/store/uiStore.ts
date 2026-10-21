@@ -4,6 +4,13 @@
  */
 
 import { create } from 'zustand';
+import type { ProjectDocumentJson } from '@wss/contracts';
+import {
+  openProjectFromJsonText,
+  saveProjectToJsonText,
+  summarizeLoadedProject,
+  type ProjectSessionSummary,
+} from '@wss/project-io';
 import type {
   ActiveTool,
   AuxChartKind,
@@ -14,6 +21,11 @@ import type {
   TempLayerId,
   WorkspaceMode,
 } from '../types/provisional';
+import {
+  DEFAULT_DETECT_SAMPLE_RANGE,
+  DEFAULT_LOCAL_COMPUTE_BASE_URL,
+  resolveLocalComputeBaseUrl,
+} from '../localCompute/client';
 
 const DEFAULT_LEVEL: LevelSettings = {
   refLevelDb: -20,
@@ -26,6 +38,22 @@ const DEFAULT_DISPLAY: DisplaySettings = {
   showGrid: true,
   showColorScale: true,
 };
+
+function envLocalComputeUrl(): string | undefined {
+  try {
+    return import.meta.env?.VITE_LOCAL_COMPUTE_URL as string | undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function envLocalComputeToken(): string {
+  try {
+    return (import.meta.env?.VITE_LOCAL_COMPUTE_TOKEN as string | undefined) ?? '';
+  } catch {
+    return '';
+  }
+}
 
 export interface UiState {
   activeTool: ActiveTool;
@@ -46,6 +74,17 @@ export interface UiState {
   statusFileLabel: string;
   statusChannelLabel: string;
   projectHasSample: boolean;
+
+  /** Loaded native project (null = none). */
+  projectDocument: ProjectDocumentJson | null;
+  projectSummary: ProjectSessionSummary | null;
+  projectError: string | null;
+  projectSource: 'none' | 'sample' | 'json';
+
+  /** Detection sample range stub — decimal strings only. */
+  detectSampleRange: { start: string; end: string };
+  localComputeBaseUrl: string;
+  localComputeToken: string;
 
   setActiveTool: (tool: ActiveTool) => void;
   setRightPage: (page: RightPage) => void;
@@ -68,6 +107,11 @@ export interface UiState {
   setStatusCursor: (timeLabel: string, freqLabel: string) => void;
   loadSampleProject: () => void;
   clearProject: () => void;
+  openProjectFromText: (text: string) => { ok: true } | { ok: false; error: string };
+  saveProjectJsonText: () => string | null;
+  setLocalComputeToken: (token: string) => void;
+  setLocalComputeBaseUrl: (url: string) => void;
+  setDetectSampleRange: (range: { start: string; end: string }) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -89,6 +133,15 @@ export const useUiStore = create<UiState>((set, get) => ({
   statusChannelLabel: '—',
   projectHasSample: false,
 
+  projectDocument: null,
+  projectSummary: null,
+  projectError: null,
+  projectSource: 'none',
+
+  detectSampleRange: { ...DEFAULT_DETECT_SAMPLE_RANGE },
+  localComputeBaseUrl: resolveLocalComputeBaseUrl(envLocalComputeUrl(), null),
+  localComputeToken: envLocalComputeToken(),
+
   setActiveTool: (tool) => set({ activeTool: tool }),
   setRightPage: (page) => set({ rightPage: page }),
   toggleRightPanel: () =>
@@ -97,7 +150,6 @@ export const useUiStore = create<UiState>((set, get) => ({
 
   openLayer: (layer) => {
     const s = get();
-    // Opening another closes previous (revert its draft).
     if (s.openTempLayer && s.openTempLayer !== layer) {
       get().closeTempLayer({ revertDraft: true });
     }
@@ -147,7 +199,6 @@ export const useUiStore = create<UiState>((set, get) => ({
   commitLevelDraft: () => {
     const draft = get().levelDraft;
     if (!draft) return;
-    // Legal draft stub: dynamic range > 0
     if (!(draft.dynamicRangeDb > 0)) return;
     set({ level: { ...draft }, levelDraft: null, openTempLayer: null });
   },
@@ -165,15 +216,76 @@ export const useUiStore = create<UiState>((set, get) => ({
   loadSampleProject: () =>
     set({
       projectHasSample: true,
+      projectSource: 'sample',
+      projectDocument: null,
+      projectSummary: null,
+      projectError: null,
       statusFileLabel: 'demo_wideband.iq',
       statusChannelLabel: 'CH0',
       statusCursor: { timeLabel: '0.000 s', freqLabel: '915.000 MHz' },
     }),
+
   clearProject: () =>
     set({
       projectHasSample: false,
+      projectSource: 'none',
+      projectDocument: null,
+      projectSummary: null,
+      projectError: null,
       statusFileLabel: 'No file',
       statusChannelLabel: '—',
       statusCursor: { timeLabel: '—', freqLabel: '—' },
+      detectSampleRange: { ...DEFAULT_DETECT_SAMPLE_RANGE },
+    }),
+
+  openProjectFromText: (text) => {
+    try {
+      const opened = openProjectFromJsonText(text);
+      const summary = summarizeLoadedProject(opened);
+      const activeFile =
+        summary.files.find((f) => f.id === summary.activeFileId) ?? summary.files[0];
+      const sampleEnd = activeFile?.sampleCount ?? DEFAULT_DETECT_SAMPLE_RANGE.end;
+      set({
+        projectDocument: opened.document,
+        projectSummary: summary,
+        projectError: null,
+        projectSource: 'json',
+        projectHasSample: false,
+        statusFileLabel: activeFile?.name ?? summary.name,
+        statusChannelLabel: summary.activeChannelId ?? '—',
+        statusCursor: { timeLabel: '0.000 s', freqLabel: '—' },
+        detectSampleRange: { start: '0', end: sampleEnd },
+      });
+      return { ok: true as const };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      set({ projectError: message });
+      return { ok: false as const, error: message };
+    }
+  },
+
+  saveProjectJsonText: () => {
+    const doc = get().projectDocument;
+    if (!doc) return null;
+    try {
+      return saveProjectToJsonText(doc, { pretty: true });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      set({ projectError: message });
+      return null;
+    }
+  },
+
+  setLocalComputeToken: (token) => set({ localComputeToken: token }),
+  setLocalComputeBaseUrl: (url) =>
+    set({
+      localComputeBaseUrl: resolveLocalComputeBaseUrl(null, url) || DEFAULT_LOCAL_COMPUTE_BASE_URL,
+    }),
+  setDetectSampleRange: (range) =>
+    set({
+      detectSampleRange: {
+        start: String(range.start),
+        end: String(range.end),
+      },
     }),
 }));

@@ -1,0 +1,22 @@
+{
+  "schema": "signal-studio-native-project",
+  "version": 6,
+  "name": "tiny-fixture",
+  "activeFileId": "file-1",
+  "files": [
+    {
+      "metadata": {
+        "id": "file-1",
+        "name": "tiny.iq",
+        "path": "tiny.iq",
+        "sampleRateHz": 1000000,
+        "centerFrequencyHz": 915000000,
+        "sampleCount": "1048576"
+      },
+      "view": {
+        "time": { "begin": "0", "end": "1048576" },
+        "frequency": { "lowerHz": 900000000, "upperHz": 930000000 }
+      }
+    }
+  ]
+}

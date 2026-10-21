@@ -4,10 +4,10 @@
 import { useUiStore } from '../store/uiStore';
 import type { RightPage } from '../types/provisional';
 import { SHELL_RAIL_PAGES } from '../shellRail';
+import { DetectPage } from './DetectPage';
 
-const PAGE_BODY: Record<RightPage, string> = {
+const PAGE_BODY: Record<Exclude<RightPage, 'detect'>, string> = {
   display: '显示参数（临时设置层对话后入库）',
-  detect: '检测首项＜模板 / 门限 / 范围 / 结果',
   marker: '三来源标记列表（占位）',
   channel: '窄带通道（真实 DDC 后续）',
 };
@@ -50,12 +50,16 @@ export function RightRail() {
           aria-expanded={!collapsed}
           onClick={toggleRightPanel}
         >
-          {collapsed ? '⟩' : '⟨'}
+          {collapsed ? '«' : '»'}
         </button>
       </div>
       {!collapsed ? (
         <div className="rail-body" data-testid={`rail-page-${rightPage}`}>
-          <p>{PAGE_BODY[rightPage]}</p>
+          {rightPage === 'detect' ? (
+            <DetectPage />
+          ) : (
+            <p>{PAGE_BODY[rightPage]}</p>
+          )}
         </div>
       ) : null}
     </aside>

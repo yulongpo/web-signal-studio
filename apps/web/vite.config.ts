@@ -6,6 +6,8 @@ import tailwindcss from '@tailwindcss/vite'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 const chartsSrc = path.resolve(rootDir, '../../packages/charts/src')
+const projectIoSrc = path.resolve(rootDir, '../../packages/project-io/src')
+const contractsSrc = path.resolve(rootDir, '../../packages/contracts/src')
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -16,6 +18,8 @@ export default defineConfig({
       '@wss/charts/lut/colormaps': path.resolve(chartsSrc, 'lut/colormaps.ts'),
       '@wss/charts/react': path.resolve(chartsSrc, 'react'),
       '@wss/charts': chartsSrc,
+      '@wss/project-io': path.resolve(projectIoSrc, 'index.ts'),
+      '@wss/contracts': path.resolve(contractsSrc, 'index.ts'),
     },
   },
   server: {

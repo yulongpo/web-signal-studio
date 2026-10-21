@@ -40,6 +40,12 @@
       ],
       "@wss/charts/lut/colormaps": [
         "../../packages/charts/src/lut/colormaps.ts"
+      ],
+      "@wss/project-io": [
+        "../../packages/project-io/src/index.ts"
+      ],
+      "@wss/contracts": [
+        "../../packages/contracts/src/index.ts"
       ]
     },
     "ignoreDeprecations": "6.0"
