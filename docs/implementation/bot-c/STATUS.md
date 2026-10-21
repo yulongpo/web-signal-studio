@@ -4,7 +4,7 @@ Updated: 2026-10-21 Asia/Shanghai
 Branch: `work/bot-c-charts`  
 Worktree: `D:\project\wss-wt-c` only (do not write shared `web_signal_studio` tree).  
 Synced main tip: `8e4bf5f` (includes Bot-B MainChartHost + SpectrumChart wiring)
-Latest Bot-C commit on work/bot-c-charts: report via CAO (see git log -1).
+Latest Bot-C commit on `work/bot-c-charts`: `694dc10` (`694dc104d4d0f58a19afce77d7fbc8c29bf39802`).
 Commit (this package): `b5b03d5` (`b5b03d5cc40595cd919a324a8cf618b29542b9ca`)
 
 ## Embed API for Bot-B (`apps/web`)
@@ -134,5 +134,6 @@ Probe evidence:
 - Bot-C owns `packages/charts` and `docs/implementation/bot-c/`.
 - Bot-B owns `apps/web` shell; consume embeddable exports only — **do not rewrite apps/web from Bot-C**.
 - Forbidden: echarts / plotly / chart.js / uPlot as primary renderer.
+
 
 
