@@ -1,3 +1,13 @@
+> Bot-A `2026-10-21 23:12` Asia/Shanghai: Web **`f4c67be`** vs desktop `17471a6` — G11/G17/G06 PARTIAL deepened (C OpenHand `363744f`, E full param grid `f87b94b`, D G06 BLOCKED re-affirm `e3b86f0` + G07→B handoff); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f4c67be.md`. **No PASS.**
+
+| ID | Prior (`8733cc1`) | Now (`f4c67be`) | Note |
+|----|-------------------|-----------------|------|
+| **G11** | PARTIAL 加深（OpenHandCursor 缺） | **PARTIAL 加深** | `363744f` OpenHand/ClosedHand on axes；Navigation overview / mark-edge 残 → **未 CLOSED** |
+| **G17** | PARTIAL 加深（全参 Qt 网格缺） | **PARTIAL 加深** | `f87b94b` full DetectionCard param grid + TRT honor；AdaptiveValueEdit / ROI chrome / recognition BLOCKED → **未 CLOSED** |
+| **G06** | PARTIAL（eye/bitstream BLOCKED） | **PARTIAL（BLOCKED 笔记加深）** | `e3b86f0` eye/bitstream 诚实 BLOCKED 再确认；无假眼图/比特流 → **未 CLOSED** |
+| **G07** | PARTIAL | **PARTIAL（handoff）** | 残项归属 **Bot-B**（`BOT_D_G07_HANDOFF_TO_B.md`）→ **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_f4c67be.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-21 23:00` Asia/Shanghai: Web **`8733cc1`** vs desktop `17471a6` — G17/G19/G11 PARTIAL deepened (E DetectionCard+`.engine`, B CN chrome, C axis-only pan); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_8733cc1.md`. **No PASS.**
 
 
