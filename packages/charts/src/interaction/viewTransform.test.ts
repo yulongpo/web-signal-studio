@@ -9,6 +9,8 @@ import {
   domainsEqual,
   viewFromPhysicalBox,
   BOX_ZOOM_MIN_DIAGONAL_PX,
+  BOX_ZOOM_MIN_EDGE_PX,
+  isBoxZoomLargeEnough,
   boxDiagonalPx,
 } from "./viewTransform.js";
 
@@ -67,6 +69,11 @@ describe("viewTransform", () => {
     expect(viewFromPhysicalBox(view, { xMin: 1, xMax: 1, yMin: 0, yMax: 1 })).toBeNull();
     expect(boxDiagonalPx(6, 8)).toBe(10);
     expect(BOX_ZOOM_MIN_DIAGONAL_PX).toBe(8);
+    expect(BOX_ZOOM_MIN_EDGE_PX).toBe(8);
+    // Desktop ZoomBox: both edges >= 8 (a 20x4 drag must NOT zoom).
+    expect(isBoxZoomLargeEnough(20, 4)).toBe(false);
+    expect(isBoxZoomLargeEnough(8, 8)).toBe(true);
+    expect(isBoxZoomLargeEnough(7.9, 100)).toBe(false);
   });
 
   it("zoomViewAt can zoom a single axis", () => {

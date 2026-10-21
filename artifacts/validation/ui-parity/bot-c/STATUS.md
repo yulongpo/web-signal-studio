@@ -1,33 +1,32 @@
-# Bot-C G11/G14/G02/G13 STATUS (WIP — do not self-claim PASS)
+# Bot-C G11/G02 residual STATUS (WIP — do not self-claim PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-21 22:25 |
-| Base tip | cf1b3f8 (origin/main; CAO bump from c63f1de) |
+| Asia/Shanghai | 2026-10-21 22:42 |
+| Base tip | e9153b8 (origin/main; CAO bump from ef89727) |
 | Branch | work/bot-c-charts |
-| Scope | G11 navigate box-zoom; G14 Detection ROI header + retire select; G02 physical caption; G13 mark handles / continuous create |
-| Out of scope | Bot-B chrome polish beyond ROI entry remap; Wave raw IQ (Bot-D); short-window aux=176 |
-| Desktop对照 | signal_studio_rebuild @ 17471a6 |
+| Scope | G11 navigate/box-zoom residual; G02 physical caption toward desktop axis units |
+| Out of scope | **G18** display-summary / 「参考」「动态」 — **Bot-B chrome**, not charts |
+| Desktop对照 | signal_studio_rebuild @ 17471a6 (also f9f05bb strip labels = Bot-B) |
 | Push | tip on origin/work/bot-c-charts |
 
 ## Landed (honest)
 
-| ID | Landed | Known gap |
-|----|--------|-----------|
-| G11 | `navigate` → HeatmapCanvas `zoom-box` (≥8px); NavigationChart click outside keeps span (`data-nav-click-keeps-span`) | Axis-only pan still the plot-body pan substitute; no middle-button pan. Nav create-drag still resizes window (by design). |
-| G14 | Header `btn-header-detection-roi`; overflow/MenuBar/NavChrome → `detection-roi`; confirmation bar Enter/Esc unchanged; `select` no longer writes ROI | `ActiveTool` union still lists `select` (Bot-B provisional type); leftover callers get a note, not ROI. |
-| G02 | Charts-side `chart-physical-caption` on HeatmapCanvas (live physical X/Y + units); axis overlay labels unchanged | Caption is overlay text, not f9f05bb control-widget captions; Bot-B strip chrome remains Bot-B. |
-| G13 | Four corner handles + live pointermove resize; Ctrl/Shift multi-select kept; `data-continuous-create` while marker tool active | Undo/redo list sync still via existing M06 session; waterfall mark CSS mapping still STFT-oriented (pre-existing). |
+| ID | Landed | Known gap / note |
+|----|--------|------------------|
+| G11 | Box-zoom commit rule aligned to desktop: **both** CSS edges `>= 8` via `isBoxZoomLargeEnough` (was diagonal hypot). `data-box-zoom-min-edge-px`. Crosshair cursor on zoom-box/box. Navigate still maps to `zoom-box`; axis drag still pans. | Middle-button pan: **N/A on desktop 17471a6** (no MiddleButton handler in plot_widget). Plot-body pan under navigate remains intentionally replaced by box-zoom. Nav chart create-drag still resizes window (by design). |
+| G02 | Charts-side `chart-physical-caption` uses `formatPhysicalCaptionPair` — zh 频率/时间 titles + auto MHz/kHz/Hz / s/ms/us scaling mirroring desktop `displayUnit`. Scaled data-* attrs for probes. | **Not** f9f05bb `ChartControlStrip` QLabel captions / 「更多设置」 overflow — that remains **Bot-B** strip chrome. Axis overlay tick drawing unchanged. |
+| G18 | **Skipped (not charts-owned).** Acceptance: `display-summary` 参考/动态 + Welch/Bartlett — right-rail display chrome → **Bot-B**. | — |
 
 ## Evidence
-- artifacts/validation/ui-parity/bot-c/STATUS.md (+ this dual-write)
-- apps/web/e2e/chart-gestures.spec.ts (navigate zoom / caption / header ROI)
-- Prior G03–G05 pngs retained
+- artifacts/validation/ui-parity/bot-c/STATUS.md (+ this dual-write under docs/acceptance/ui-parity/bot-c/)
+- packages/charts/src/axis/physicalCaption.ts (+ unit tests)
+- packages/charts/src/interaction/viewTransform.ts (`BOX_ZOOM_MIN_EDGE_PX` / `isBoxZoomLargeEnough`)
+- apps/web/e2e/chart-gestures.spec.ts (edge attr + caption unit attrs)
 
 ## Tests
-- charts: `npm run typecheck` + `npm test` → 62 passed
-- web: `npm run typecheck` + `npm test` → 61 passed
-- e2e (filtered once): navigate zoom / physical caption / header ROI → 3 passed (ANGLE+SwiftShader)
-- e2e full suite re-run hit `ERR_CONNECTION_REFUSED` on webServer — not treated as product fail; not a PASS claim
+- charts: `npm run typecheck` + `npm test` — 67 passed (incl. physicalCaption + box-zoom edge rule)
+- web: `npm run typecheck` — ok
+- e2e filtered: not re-run this tip (prior navigate/caption coverage retained; attrs extended)
 
 **No self-PASS.**
