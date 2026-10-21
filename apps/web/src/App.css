@@ -1333,3 +1333,22 @@ body,
 .menubar-submenu:focus-within > .menubar-submenu-panel {
   display: flex;
 }
+
+/* Bot-D G06 demod / constellation */
+.nb-demod-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px 8px;
+}
+.nb-constellation-wrap {
+  width: 100%;
+  height: 100%;
+  min-height: 140px;
+}
+.nb-constellation-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

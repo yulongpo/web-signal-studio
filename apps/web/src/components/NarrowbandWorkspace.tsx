@@ -1,12 +1,19 @@
 /**
  * Bot-B G06 NarrowbandWorkspace — stacked multi-page shell vs rebuild NarrowbandWorkspace.
  * Settings live in uiStore so STFT N / grid / frequency persist across page + overflow (a64117e).
- * No fake demod / no invented candidates. Channel data awaits real DDC path (Bot-D).
+ * Observe/modulation/demod DSP feeds from Bot-D (sigmf_data_demo→DDC).
+ * Recognition / eye / bitstream stay BLOCKED — no fake scores or bits.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
 import type { NarrowbandPageId, NarrowbandWaveformMode } from '../types/provisional';
 import { NarrowbandObserveCharts } from './NarrowbandObserveCharts';
+import { NarrowbandModulationCharts } from './NarrowbandModulationCharts';
+import { NarrowbandDemodCharts } from './NarrowbandDemodCharts';
+import {
+  computeNarrowbandRecognition,
+  NARROWBAND_RECOGNITION_BLOCKED,
+} from '../dsp/narrowbandPageDspContracts';
 
 const FFT_OPTIONS = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536] as const;
 
@@ -76,10 +83,8 @@ export function NarrowbandWorkspace() {
       channelLabel !== '' &&
       channelLabel !== '–');
   const dataStatus = hasChannel
-    ? `通道 ${channelLabel} · 文件 ${fileLabel} · 观察页：sigmf_data_demo→DDC（不伪解调）`
-    : '观察页可用 sigmf_data_demo→DDC；通道未选时仍用 demo 源（不生成伪候选）';
-  const chartStatus = hasChannel ? '通道已选 · 等待真实 DDC/STFT 帧' : '等待通道数据';
-
+    ? `通道 ${channelLabel} · 文件 ${fileLabel} · G06：observe/mod/demod←DDC；识别 BLOCKED`
+    : '观察/调制/解调可用 sigmf_data_demo→DDC；识别页 BLOCKED（不生成伪候选）';
   const onStftChange = (n: number) => {
     setStftFft(n);
     setStftN(n);
@@ -244,38 +249,52 @@ export function NarrowbandWorkspace() {
             <NarrowbandObserveCharts />
           </div>
         ) : null}
-        {page === 'modulation' ? (
+                {page === 'modulation' ? (
           <div className="nb-page nb-page-modulation" data-testid="workspace-narrowband-modulation">
             <p className="nb-honest" data-testid="nb-modulation-note">
-              调制分析页壳：未执行真实调制判决；无合成星座/眼图伪结果。
+              调制分析：星座/时频来自 sigmf_data_demo→DDC；眼图 BLOCKED（无定时同步）；无调制判决分数。
             </p>
-            <div className="nb-mod-grid">
-              <ChartPanel title="星座" testId="nb-panel-constellation" status="等待真实调制分析" />
-              <ChartPanel title="眼图" testId="nb-panel-eye" status="等待真实定时同步" />
-              <ChartPanel title="时频谱" testId="nb-panel-mod-stft" status={chartStatus} />
-            </div>
+            <NarrowbandModulationCharts />
           </div>
         ) : null}
         {page === 'deepLearning' ? (
           <div className="nb-page nb-page-dl" data-testid="workspace-narrowband-deep-learning">
             <p className="nb-honest" data-testid="nb-dl-note">
-              识别页壳：不运行演示推理、不生成伪分数；模型路径由 Bot-E/Detect 页约束。
+              {NARROWBAND_RECOGNITION_BLOCKED.reasonZh}
             </p>
             <div className="nb-dl-layout">
               <aside className="nb-dl-config" data-testid="nb-dl-config">
                 <h3>识别配置</h3>
-                <p className="muted">配置保留在会话 store；切页不丢失。不加载权重。</p>
+                <p className="muted">
+                  BLOCKED: {NARROWBAND_RECOGNITION_BLOCKED.reasonCode} · 配置可留在 store；不加载权重、不生成伪分数。
+                </p>
+                <p className="muted" data-testid="nb-dl-blocked-code">
+                  {computeNarrowbandRecognition({
+                    tuning: {
+                      loOffsetHz: 0,
+                      interpolation: 1,
+                      decimation: 1,
+                      sampleBegin: 0n,
+                      sampleEnd: 0n,
+                    },
+                    source: { sourceLabel: 'sigmf_data_demo', kind: 'sigmf_data_demo' },
+                  }).reasonCode}
+                </p>
               </aside>
-              <ChartPanel title="识别时频" testId="nb-panel-dl-stft" status="等待真实识别任务" />
+              <ChartPanel
+                title="识别时频"
+                testId="nb-panel-dl-stft"
+                status={`BLOCKED: ${NARROWBAND_RECOGNITION_BLOCKED.reasonCode}`}
+              />
             </div>
           </div>
         ) : null}
         {page === 'demodulation' ? (
           <div className="nb-page nb-page-demod" data-testid="workspace-narrowband-demodulation">
             <p className="nb-honest" data-testid="nb-demod-note">
-              解调工作区壳：无伪解调、无假比特流。真实 DDC/解调由 Bot-D 接入后填充。
+              解调工作区：AM/FM/RMS 包络预览来自 sigmf_data_demo→DDC；比特流/协议解调 BLOCKED（不伪造比特）。
             </p>
-            <ChartPanel title="解调波形" testId="nb-panel-demod-wave" status="等待真实解调输出" />
+            <NarrowbandDemodCharts />
           </div>
         ) : null}
       </div>
