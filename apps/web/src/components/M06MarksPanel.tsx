@@ -25,6 +25,7 @@ function readHookState(): {
   marks: MarkRow[];
   selected: string[];
   active: string | null;
+  hovered: string | null;
   channelHasSnapshot: boolean;
   channelAnnotationId?: string;
 } {
@@ -35,6 +36,7 @@ function readHookState(): {
       marks: [],
       selected: [],
       active: null,
+      hovered: null,
       channelHasSnapshot: false,
     };
   }
