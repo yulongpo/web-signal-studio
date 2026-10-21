@@ -164,23 +164,32 @@ export function ChartMarkOverlay({
       {marks.map((mark) => {
         const box = rectFor(mark);
         if (!box) return null;
-        const isActive = active === mark.id || selected.includes(mark.id);
+        const isSelected = selected.includes(mark.id);
+        const isCurrent = active === mark.id;
         return (
           <div
             key={mark.id}
-            className="chart-mark-rect"
+            className={`chart-mark-rect${isCurrent ? ' chart-mark-current' : ''}${isSelected ? ' chart-mark-selected' : ''}`}
             data-testid={`chart-mark-${mark.id}`}
             data-start={String(mark.start)}
             data-end={String(mark.end)}
-            data-selected={isActive ? 'true' : 'false'}
+            data-selected={isSelected ? 'true' : 'false'}
+            data-current={isCurrent ? 'true' : 'false'}
+            data-annotation-paint="desktop-multi"
             style={{ left: box.left, top: box.top, width: box.width, height: box.height }}
             onPointerDown={(event) => {
               event.stopPropagation();
               event.preventDefault();
               selectMark(mark.id, event.ctrlKey || event.metaKey || event.shiftKey);
             }}
+            onPointerEnter={(event) => {
+              event.currentTarget.dataset.hovered = 'true';
+            }}
+            onPointerLeave={(event) => {
+              event.currentTarget.dataset.hovered = 'false';
+            }}
           >
-            {active === mark.id
+            {isCurrent
               ? CORNERS.map((c) => (
                   <button
                     key={c.id}

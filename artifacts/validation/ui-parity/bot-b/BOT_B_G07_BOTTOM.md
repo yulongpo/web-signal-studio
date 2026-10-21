@@ -1,16 +1,18 @@
-# Bot-B G07 residual — dock hosts (WIP / NOT PASS)
+# BOT_B G07 — AnnotationPanel / DetectionPanel shell (WIP / NOT PASS)
 
 | Field | Value |
 |-------|-------|
-| Status | **WIP evidence** — not ACCEPTANCE PASS |
-| Base | `5d33611` / INCREMENTAL_ba868e4 |
+| Base | 379fa84 onto main tip with `e3b86f0` handoff |
+| Handoff | `artifacts/validation/bot-d/BOT_D_G07_HANDOFF_TO_B.md` (Bot-D @ `e3b86f0`) |
+| matrix_pass_claimed | **false** |
 
 ## Landed
 
-- Annotation dock host: layer chips + mark list from `__wssM06` (no invented marks)
-- Detection dock host: open Detect rail + empty honest run list
-- Prior 29/150 tabs / task / log retained
+- AnnotationPanel dock: multi-select paint (current/selected/hover), 已选 summary, 全选可见, `data-annotation-paint=desktop-multi`
+- DetectionPanel dock: shell columns (运行 / 详情), honest empty run list, disabled refresh/cancel (no fake DSP)
+- `data-panel-shell` on both hosts
 
-## Residuals
+## Not claimed
 
-- Full Qt AnnotationPanel / DetectionPanel widget port still open.
+- Full Qt table columns / paging / quality menu / live Detect Worker feeds
+- ACCEPTANCE PASS

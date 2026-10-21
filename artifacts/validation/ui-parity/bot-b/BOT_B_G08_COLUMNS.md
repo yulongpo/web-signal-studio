@@ -1,15 +1,17 @@
-# Bot-B G08 shell columns (WIP / NOT PASS)
+# BOT_B G08 — column widths + resize (WIP / NOT PASS)
 
 | Field | Value |
 |-------|-------|
-| Status | **WIP evidence** — not ACCEPTANCE PASS |
-| Desktop | resourceWidth **278** / propertyWidth **390** (`17471a6`) |
+| Base | `379fa84` |
+| Desktop | resourceWidth **278** (190–450) / propertyWidth **390** (320–650) |
+| matrix_pass_claimed | **false** |
 
 ## Landed
 
-- `.app-shell-body` grid `278px 1fr 390px` (collapsed right 48px)
-- `data-shell-columns="278-390"`
+- Defaults 278 / 390 via CSS vars + `data-shell-columns`
+- Drag handles `shell-col-resize-left/right`
+- Persist `localStorage wss.shellColumns.v1`
 
 ## Residuals
 
-- Resize handles / saved UI state not ported.
+- Bottom panel height resize not in this tip
