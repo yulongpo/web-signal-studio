@@ -83,3 +83,29 @@ export function resolvePointerDragMode(opts: {
   // gesture === "pan"
   return axisOnlyPan ? "none" : "pan-both";
 }
+
+/** CSS cursor matching Qt chart_feedback::cursor @ 17471a6. */
+export type InteractionCursor = "grab" | "grabbing" | "crosshair" | "default";
+
+/**
+ * Match chart_feedback::cursor(Zone, pan, selecting) @ 17471a6:
+ * - pan → ClosedHandCursor → grabbing
+ * - selecting || Plot → CrossCursor → crosshair
+ * - XAxis / YAxis → OpenHandCursor → grab
+ * - else → ArrowCursor → default
+ *
+ * Plot ZoomBox keeps crosshair; axis pan regions use open-hand on hover
+ * and closed-hand while dragging.
+ */
+export function resolveInteractionCursor(opts: {
+  zone: ChartHitZone;
+  pan?: boolean;
+  selecting?: boolean;
+}): InteractionCursor {
+  const { zone, pan = false, selecting = false } = opts;
+  if (pan) return "grabbing";
+  if (selecting || zone === "plot") return "crosshair";
+  if (zone === "x-axis" || zone === "y-axis") return "grab";
+  return "default";
+}
+

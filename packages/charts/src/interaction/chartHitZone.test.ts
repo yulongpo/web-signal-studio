@@ -2,6 +2,7 @@
 import {
   hitChartZone,
   resolvePointerDragMode,
+  resolveInteractionCursor,
 } from "./chartHitZone.js";
 
 const M = { left: 52, right: 12, top: 10, bottom: 36 };
@@ -88,3 +89,26 @@ describe("resolvePointerDragMode axis-only pan", () => {
     ).toBe("none");
   });
 });
+
+describe("resolveInteractionCursor OpenHand/ClosedHand (17471a6)", () => {
+  it("axis hover → grab (OpenHand)", () => {
+    expect(resolveInteractionCursor({ zone: "x-axis" })).toBe("grab");
+    expect(resolveInteractionCursor({ zone: "y-axis" })).toBe("grab");
+  });
+
+  it("axis pan drag → grabbing (ClosedHand)", () => {
+    expect(resolveInteractionCursor({ zone: "x-axis", pan: true })).toBe("grabbing");
+    expect(resolveInteractionCursor({ zone: "y-axis", pan: true })).toBe("grabbing");
+    expect(resolveInteractionCursor({ zone: "plot", pan: true })).toBe("grabbing");
+  });
+
+  it("plot / selecting → crosshair (ZoomBox)", () => {
+    expect(resolveInteractionCursor({ zone: "plot" })).toBe("crosshair");
+    expect(resolveInteractionCursor({ zone: "x-axis", selecting: true })).toBe("crosshair");
+  });
+
+  it("none → default", () => {
+    expect(resolveInteractionCursor({ zone: "none" })).toBe("default");
+  });
+});
+
