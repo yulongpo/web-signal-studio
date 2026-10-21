@@ -3,6 +3,9 @@
 Until real FFSCN/SCN engines exist, detection runs step a labeled stub,
 respect cancel bound to the exact runId, and finish as BLOCKED with
 no fabricated candidates. Never invents inference outputs.
+
+Cancel reliability: RunHandle.cancel_event is checked between steps;
+cancel_task also joins briefly so GET sees a stable terminal state.
 """
 
 from __future__ import annotations
@@ -37,6 +40,14 @@ def stub_steps() -> int:
         return 8
 
 
+def cancel_join_timeout_s() -> float:
+    raw = (os.environ.get("LOCAL_COMPUTE_CANCEL_JOIN_MS") or "500").strip()
+    try:
+        return max(0.0, float(raw) / 1000.0)
+    except ValueError:
+        return 0.5
+
+
 class RunHandle:
     """Cancel + join handle for one exact runId."""
 
@@ -44,13 +55,20 @@ class RunHandle:
         self.run_id = run_id
         self.cancel_event = threading.Event()
         self.thread: threading.Thread | None = None
+        self.finished = threading.Event()
 
     def request_cancel(self) -> None:
         self.cancel_event.set()
 
-    def join(self, timeout: float | None = None) -> None:
+    def join(self, timeout: float | None = None) -> bool:
+        """Wait for worker thread exit. Returns True if finished."""
         if self.thread is not None and self.thread.is_alive():
             self.thread.join(timeout=timeout)
+        if self.finished.is_set():
+            return True
+        if self.thread is None:
+            return True
+        return not self.thread.is_alive()
 
 
 _handles_lock = threading.Lock()
@@ -108,7 +126,7 @@ def start_stub_worker(
                 progress=0.0,
                 message=f"{STUB_ENGINE_LABEL}: worker started (kind={kind})",
                 message_zh=f"{STUB_ENGINE_LABEL}: \u5de5\u4f5c\u7ebf\u7a0b\u5df2\u542f\u52a8 (kind={kind})",
-                evidence_notes=f"engine={STUB_ENGINE_LABEL}",
+                evidence_notes=f"engine={STUB_ENGINE_LABEL}; status=queued->running",
             )
             for i in range(steps):
                 if handle.cancel_event.is_set():
@@ -119,9 +137,28 @@ def start_stub_worker(
                         message="Cancelled by client (exact runId)",
                         message_zh="\u5df2\u7531\u5ba2\u6237\u7aef\u53d6\u6d88\uff08\u7cbe\u786e runId\uff09",
                         clear_result=True,
+                        evidence_notes=(
+                            f"engine={STUB_ENGINE_LABEL}; "
+                            "cancel observed mid-step; status->cancelled"
+                        ),
                     )
                     return
                 time.sleep(delay)
+                # Re-check immediately after sleep so cancel latency stays low.
+                if handle.cancel_event.is_set():
+                    apply_update(
+                        run_id,
+                        status=TaskStatus.CANCELLED,
+                        progress=(i / steps),
+                        message="Cancelled by client (exact runId)",
+                        message_zh="\u5df2\u7531\u5ba2\u6237\u7aef\u53d6\u6d88\uff08\u7cbe\u786e runId\uff09",
+                        clear_result=True,
+                        evidence_notes=(
+                            f"engine={STUB_ENGINE_LABEL}; "
+                            "cancel observed after step sleep; status->cancelled"
+                        ),
+                    )
+                    return
                 apply_update(
                     run_id,
                     status=TaskStatus.RUNNING,
@@ -138,6 +175,10 @@ def start_stub_worker(
                     message="Cancelled by client (exact runId)",
                     message_zh="\u5df2\u7531\u5ba2\u6237\u7aef\u53d6\u6d88\uff08\u7cbe\u786e runId\uff09",
                     clear_result=True,
+                    evidence_notes=(
+                        f"engine={STUB_ENGINE_LABEL}; "
+                        "cancel won before terminal apply; status->cancelled"
+                    ),
                 )
                 return
 
@@ -169,7 +210,8 @@ def start_stub_worker(
                     clear_result=True,
                     evidence_notes=(
                         f"engine={STUB_ENGINE_LABEL}; "
-                        "result omitted by policy (never invent candidates)"
+                        "result omitted by policy (never invent candidates); "
+                        "status->BLOCKED"
                     ),
                 )
             else:
@@ -178,14 +220,20 @@ def start_stub_worker(
                     status=TaskStatus.SUCCEEDED,
                     progress=1.0,
                     message=f"{STUB_ENGINE_LABEL}: non-detection stub completed",
-                    message_zh=f"{STUB_ENGINE_LABEL}: \u975e\u68c0\u6d4b\u5360\u4f4d\u4efb\u52a1\u5df2\u5b8c\u6210",
+                    message_zh=(
+                        f"{STUB_ENGINE_LABEL}: "
+                        "\u975e\u68c0\u6d4b\u5360\u4f4d\u4efb\u52a1\u5df2\u5b8c\u6210"
+                    ),
                     result={
                         "stub": True,
                         "engine": STUB_ENGINE_LABEL,
                         "kind": kind,
                         "notes": "Metadata-only stub; not a detection payload",
                     },
-                    evidence_notes=f"engine={STUB_ENGINE_LABEL}; dsp-or-other stub",
+                    evidence_notes=(
+                        f"engine={STUB_ENGINE_LABEL}; dsp-or-other stub; "
+                        "status->succeeded"
+                    ),
                 )
         except Exception as exc:  # noqa: BLE001
             log.exception("stub worker failed for %s", run_id)
@@ -195,8 +243,10 @@ def start_stub_worker(
                 message=f"{STUB_ENGINE_LABEL}: worker error: {exc}",
                 message_zh=f"{STUB_ENGINE_LABEL}: \u5de5\u4f5c\u7ebf\u7a0b\u9519\u8bef: {exc}",
                 clear_result=True,
+                evidence_notes=f"engine={STUB_ENGINE_LABEL}; status->failed",
             )
         finally:
+            handle.finished.set()
             drop_handle(run_id)
 
     t = threading.Thread(

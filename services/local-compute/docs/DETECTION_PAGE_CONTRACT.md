@@ -125,3 +125,48 @@ Align with `@wss/contracts` `SampleIndex`: canonical unsigned decimal strings in
 3. On Detect: `POST /tasks` with decimal `sampleRange`.
 4. Poll `GET /tasks/{runId}` until terminal; if `BLOCKED`, show `messageZh`/`uiMessages`, do not draw fake boxes.
 5. Optional: `POST .../cancel` with the same `runId`.
+
+
+## Structured precheck (`gpu` / `runtime`) — v0.1.3
+
+`GET /capabilities` also returns:
+
+```json
+{
+  "gpu": {
+    "toolchainVisible": false,
+    "runtimeVerified": false,
+    "name": null,
+    "driverVersion": null,
+    "reason": "nvidia-smi not found (no GPU toolchain visible)",
+    "uiCode": "GPU_MISSING"
+  },
+  "runtime": {
+    "engine": "STUB_NON_TENSORRT",
+    "tensorrtVerified": false,
+    "cudaVerified": false,
+    "canInventResults": false,
+    "modelSearchRoots": [".../models"],
+    "ffscnPresent": false,
+    "scnPresent": false,
+    "ffscnReady": false,
+    "scnReady": false
+  }
+}
+```
+
+**UI rules (additive)**
+
+1. Prefer `detection.uiMessages` for banners; use `gpu.uiCode` / `runtime.engine` for debug chips.
+2. `runtime.canInventResults` is always `false`; never draw fake boxes when false.
+3. `runtime.ffscnReady` / `scnReady` mirror `detection.ffscn` / `scn` (false until real TRT).
+
+## Task status machine
+
+```
+queued -> running -> {succeeded | failed | cancelled | BLOCKED}
+```
+
+- `POST .../cancel` is bound to the **exact** `runId` and is **terminal**: late worker writes (including `BLOCKED`) cannot overwrite `cancelled`.
+- `GET /tasks/{runId}` may include `statusHistory` (e.g. `["queued","running","cancelled"]`) for clarity.
+- Detection stub paths always label evidence with `STUB_NON_TENSORRT` and never invent candidates.
