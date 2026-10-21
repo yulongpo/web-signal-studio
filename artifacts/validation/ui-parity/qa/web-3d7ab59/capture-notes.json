@@ -1,0 +1,50 @@
+{
+  "id": "qa-web-3d7ab59-gesture-roi-level",
+  "tip_web": "3d7ab591a0e4ee09b6a03286b528f32c3196a45d",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g26_iq": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-meta",
+  "captures": [
+    "01-zoom-box-drag.png",
+    "01b-zoom-box-applied.png",
+    "02-view-back-menu.png",
+    "02b-view-back-restored.png",
+    "03-roi-confirmation.png",
+    "03b-detect-range-from-roi.png",
+    "03c-detect-sample-range-crop.png",
+    "04-level-popover.png",
+    "04b-level-popover-crop.png",
+    "04c-level-applied.png"
+  ],
+  "observations": {
+    "status_file": "0000000",
+    "dsp_source": "file-stft-worker",
+    "zoom_box": {
+      "view_x_max_before": "0.0004192",
+      "view_x_max_after": "0.00021545474860335196",
+      "gesture": "zoom-box"
+    },
+    "view_back": {
+      "restored_view_x_max": "0.0004192",
+      "matches_pre_zoom": true
+    },
+    "roi_to_detect": {
+      "roi_start": "1030",
+      "roi_end": "3607",
+      "range_source": "roi",
+      "range_start": "1030",
+      "range_end": "3607",
+      "task_status": "idle"
+    },
+    "level": {
+      "ref_summary": "参考 -15.00 dB",
+      "range_summary": "动态 80.00 dB",
+      "ref_value": "-15",
+      "range_value": "80",
+      "panel": "temp-layer-level"
+    },
+    "desktop_compare": "Reference baseline/desktop @ 17471a6 (primary + archival); no fresh desktop re-capture this turn.",
+    "gaps": "No PASS. Desktop side-by-side interactive gestures not re-shot. G01 corner/File owned by Bot-B parallel."
+  }
+}

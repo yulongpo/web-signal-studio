@@ -109,3 +109,9 @@ Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. *
 - G01: `01-menubar-*.png`. NB filled: `06-narrowband-observe-ddc.png` + panel crops; `nb_charts_non_empty: true`.
 - Supersedes interim G01 `d9263ac`/`web-d8297d1` and empty-DDC `web-6c17a53` observe.
 - **ui_parity_pass_claimed: false**
+
+## Gesture / ROI / Level (Bot-G, Asia/Shanghai 2026-10-21)
+
+- Tip: `3d7ab59`. Evidence: `qa/web-3d7ab59/` (zoom-box, view-back, ROI→Detect, Level popover).
+- Desktop compare: baseline `17471a6` reference only.
+- **ui_parity_pass_claimed: false**
