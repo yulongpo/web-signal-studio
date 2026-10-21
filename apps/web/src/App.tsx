@@ -138,7 +138,7 @@ export default function App() {
         data-shell-right-collapse-min={String(RIGHT_COLLAPSE_MIN)}
         data-shell-resizable="true"
         data-shell-edge-pair="lr" data-shell-persist="wss.shellColumns.v1" data-shell-desktop-left="278" data-shell-desktop-right="390"
-        data-shell-reshot="wave8" data-shell-wave="wave9 wave11 wave14"
+        data-shell-reshot="wave8" data-shell-wave="wave9 wave11 wave14 wave17" data-shell-keyboard="wave17" data-shell-desktop-defaults="278/390"
         style={{
           gridTemplateColumns: collapsed
             ? `${leftColPx}px 6px 1fr 48px`
@@ -174,6 +174,28 @@ export default function App() {
               return { ...c, leftCollapsed: true, left: LEFT_COLLAPSE_MIN };
             });
           }}
+          onKeyDown={(e) => {
+            const step = e.shiftKey ? 24 : 8;
+            if (e.key === 'Escape') {
+              (e.currentTarget as HTMLElement).blur();
+              return;
+            }
+            if (e.key === 'Home') {
+              e.preventDefault();
+              setShellCols((c) => ({ ...c, leftCollapsed: false, left: LEFT_DEFAULT }));
+              return;
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+              e.preventDefault();
+              const dir = e.key === 'ArrowLeft' ? -step : step;
+              setShellCols((c) => {
+                const base = c.leftCollapsed ? LEFT_DEFAULT : c.left;
+                const next = Math.min(LEFT_MAX, Math.max(LEFT_MIN, base + dir));
+                return { ...c, left: next, leftCollapsed: false };
+              });
+            }
+          }}
+          data-shell-keydown="wave17"
           title="Drag resize; double-click collapse-to-min (8px)"
           data-collapse-min="true"
         />
@@ -266,6 +288,28 @@ defaultPx={auxDefaultPx}
               return { ...c, rightCollapsed: true, right: RIGHT_COLLAPSE_MIN };
             });
           }}
+          onKeyDown={(e) => {
+            const step = e.shiftKey ? 24 : 8;
+            if (e.key === 'Escape') {
+              (e.currentTarget as HTMLElement).blur();
+              return;
+            }
+            if (e.key === 'Home') {
+              e.preventDefault();
+              setShellCols((c) => ({ ...c, rightCollapsed: false, right: RIGHT_DEFAULT }));
+              return;
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+              e.preventDefault();
+              const dir = e.key === 'ArrowLeft' ? step : -step;
+              setShellCols((c) => {
+                const base = c.rightCollapsed ? RIGHT_DEFAULT : c.right;
+                const next = Math.min(RIGHT_MAX, Math.max(RIGHT_MIN, base + dir));
+                return { ...c, right: next, rightCollapsed: false };
+              });
+            }
+          }}
+          data-shell-keydown="wave17"
           title="Drag resize; double-click collapse-to-min (8px) + rail fold"
           data-collapse-min="true"
         />

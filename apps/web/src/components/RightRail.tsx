@@ -24,6 +24,8 @@ function DisplayPage() {
   const pinnedDwellIndex = useUiStore((s) => s.narrowbandPinnedDwellIndex);
   const setNarrowbandPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
   const setNarrowbandPinnedDwellIndex = useUiStore((s) => s.setNarrowbandPinnedDwellIndex);
+  const linkedCursor = useUiStore((s) => s.linkedCursor);
+  const clearLinkedCursor = useUiStore((s) => s.clearLinkedCursor);
   const openLayer = useUiStore((s) => s.openLayer);
   const [dwellDraft, setDwellDraft] = useState(
     () => (pinnedDwellIndex != null ? String(pinnedDwellIndex) : '0'),
@@ -60,10 +62,16 @@ function DisplayPage() {
     narrowbandPsdMode === 'frame' ? '驻留帧谱' : '统计谱';
   const pinLabel =
     pinnedDwellIndex == null ? '未钉住驻留' : `钉住驻留 #${pinnedDwellIndex}`;
+  const linkedCursorLabel = linkedCursor.pinned
+    ? `联动光标 t=${linkedCursor.timeSec.toFixed(6)}s f=${(linkedCursor.frequencyHz / 1e6).toFixed(6)}MHz${
+        linkedCursor.selectedFrame != null ? ` frame#${linkedCursor.selectedFrame}` : ''
+      }`
+    : '联动光标未钉住';
   const summary = [
     `PSD N ${narrowbandPsdFft || '—'} · ${psdModeLabel}`,
     `STFT N ${stftN} · ${paletteId}`,
     pinLabel,
+    linkedCursorLabel,
     `参考 ${level.refLevelDb.toFixed(2)} dB`,
     `动态 ${level.dynamicRangeDb.toFixed(2)} dB`,
     level.autoAdapt ? '自动适应: 开' : '自动适应: 关',
@@ -90,11 +98,16 @@ function DisplayPage() {
   };
 
   return (
-    <div
+        <div
       className="rail-display-page"
       data-testid="rail-display-body"
       data-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
       data-dwell-pin-chrome="wave8" data-rail-scrubber="wave10" data-rail-scrubber-wave="wave11"
+      data-rail-linked-twin="wave17"
+      data-linked-cursor-pinned={linkedCursor.pinned ? 'true' : 'false'}
+      data-linked-selected-frame={
+        linkedCursor.selectedFrame == null ? '' : String(linkedCursor.selectedFrame)
+      }
     >
       <pre
         className="display-summary"
@@ -199,7 +212,50 @@ function DisplayPage() {
           </span>
         </div>
       </div>
-      <p className="rail-page-hint">显示参数（临时设置层对话后入库）</p>
+      
+      <div
+        className="rail-linked-cursor-twin"
+        data-testid="rail-linked-cursor-twin"
+        data-rail-linked-twin="wave17"
+        data-linked-cursor-pinned={linkedCursor.pinned ? 'true' : 'false'}
+      >
+        <span className="rail-linked-cursor-label" data-testid="rail-linked-cursor-readout">
+          {linkedCursor.pinned
+            ? `联动光标 · t=${linkedCursor.timeSec.toFixed(6)}s · f=${(
+                linkedCursor.frequencyHz / 1e6
+              ).toFixed(6)} MHz${
+                linkedCursor.selectedFrame != null
+                  ? ` · frame #${linkedCursor.selectedFrame}`
+                  : ''
+              }`
+            : '联动光标未钉住（图表 Main/Aux 点选钉住）'}
+        </span>
+        <button
+          type="button"
+          className="btn-ghost"
+          data-testid="rail-linked-cursor-follow-frame"
+          disabled={linkedCursor.selectedFrame == null}
+          title="用 linkedCursor.selectedFrame 钉住驻留（不触图内 scrubber）"
+          onClick={() => {
+            if (linkedCursor.selectedFrame == null) return;
+            setNarrowbandPinnedDwellIndex(linkedCursor.selectedFrame);
+            setNarrowbandPsdMode('frame');
+          }}
+        >
+          跟随选中帧
+        </button>
+        <button
+          type="button"
+          className="btn-ghost"
+          data-testid="rail-linked-cursor-clear"
+          disabled={!linkedCursor.pinned}
+          title="clearLinkedCursor"
+          onClick={() => clearLinkedCursor()}
+        >
+          清除联动光标
+        </button>
+      </div>
+<p className="rail-page-hint">显示参数（临时设置层对话后入库）</p>
       <button
         type="button"
         className="btn-ghost"

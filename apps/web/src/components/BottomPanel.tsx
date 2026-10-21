@@ -692,7 +692,7 @@ export function BottomPanel() {
       <div
         className="bottom-panel-resize"
         data-testid="bottom-panel-resize"
-        data-shell-edge="bottom" data-bottom-desktop-min="29" data-bottom-desktop-range="100-500" data-shell-reshot="wave8" data-edge-side="bottom" data-shell-focus="wave9" data-shell-wave="wave11 wave14" tabIndex={0}
+        data-shell-edge="bottom" data-bottom-desktop-min="29" data-bottom-desktop-range="100-500" data-shell-reshot="wave8" data-edge-side="bottom" data-shell-focus="wave9" data-shell-wave="wave11 wave14 wave17" data-shell-keyboard="wave17" tabIndex={0}
         data-hit-min-px="29"
         data-collapse-min="true"
         role="separator"
@@ -1411,7 +1411,7 @@ export function BottomPanel() {
                   className="bottom-detect-engine-slots"
                   data-testid="bottom-detect-engine-slots"
                   data-multi-engine="local-compute-caps"
-                  data-worker-chrome="wave14"
+                  data-worker-chrome="wave17"
                 >
                   <h4 className="bottom-detect-col-title">Worker / 引擎槽（仅真实 LocalCompute）</h4>
                   <div
@@ -1524,7 +1524,7 @@ export function BottomPanel() {
                   </div>
                   <div className="bottom-detect-col" data-testid="bottom-detect-col-detail">
                     <h4 className="bottom-detect-col-title">运行详情</h4>
-                                        <dl className="bottom-detect-inspector" data-testid="bottom-detect-inspector" data-worker-chrome="qt-residual">
+                                        <dl className="bottom-detect-inspector" data-testid="bottom-detect-inspector" data-worker-chrome="wave17">
                       <div>
                         <dt>kind</dt>
                         <dd data-testid="bottom-detect-inspector-engine">{selectedDetectRun?.kind ?? '—'}</dd>
@@ -1577,6 +1577,34 @@ export function BottomPanel() {
                               ? 'null (honest)'
                               : 'present'
                             : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>created</dt>
+                        <dd data-testid="bottom-detect-inspector-created">
+                          {selectedDetectRun?.createdAt ?? '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>updated</dt>
+                        <dd data-testid="bottom-detect-inspector-updated">
+                          {selectedDetectRun?.updatedAt ?? '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>uiMessages</dt>
+                        <dd data-testid="bottom-detect-inspector-ui-messages">
+                          {selectedDetectRun?.uiMessages?.length
+                            ? selectedDetectRun.uiMessages
+                                .map((m) => (typeof m === 'string' ? m : m.zh || m.en || m.code || JSON.stringify(m)))
+                                .join('; ')
+                            : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>feed</dt>
+                        <dd data-testid="bottom-detect-inspector-feed-size" data-empty={detectRunFeed.length === 0 ? 'true' : 'false'}>
+                          {detectRunFeed.length === 0 ? '— (empty feed)' : `${detectRunFeed.length} runs`}
                         </dd>
                       </div>
                     </dl>
