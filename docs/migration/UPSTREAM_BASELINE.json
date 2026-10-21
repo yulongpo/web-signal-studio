@@ -1,36 +1,43 @@
-﻿{
-    "webMainTipObserved":  "f6a40c23134b2940330c017737e03a0b4427ad1a",
-    "localRebuildPath":  "D:/project/signal_studio_rebuild",
-    "recordedAtAsiaShanghai":  "2026-10-21 17:50:03",
-    "openDeltas":  [
-                       "Web packages are stubs/placeholders vs native REAL features",
-                       "local rebuild c1f2cce != baseline 0f108d0 (ahead + dirty)",
-                       "TensorRT/models EXTERNAL not in git"
-                   ],
-    "lastVerifiedAtAsiaShanghai":  "2026-10-21 18:13:42",
-    "parityStatus":  "SKELETON_ENRICHED",
-    "localRebuildHeadObserved":  "c1f2ccede3649b2b1e73702630ca9f7c6ba18c85",
-    "verifiedBy":  "bot-a-audit",
-    "a143ProductDeliveryNote":  "Cited by a143-native DELIVERY/EXECUTION_STATUS as W6 product source; remote branch HEAD is the archive commit 0f108d0.",
-    "target":  {
-                   "defaultBranch":  "main",
-                   "remote":  "https://github.com/yulongpo/web-signal-studio"
-               },
-    "localRebuildNote":  "Read-only reference only; ahead of origin/rebuild/a143-native and dirty; never write; not the baseline.",
-    "webMainTipNote":  "CAO coordination: shared tree main tip at unfreeze; Bot-A did not checkout shared tree.",
-    "readonlyCloneHeadVerified":  "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
-    "source":  {
-                   "committedAt":  "2026-10-21T16:26:55+08:00",
-                   "shortHead":  "0f108d0",
-                   "subject":  "docs(ux): archive final native acceptance and delivery",
-                   "remote":  "https://github.com/yulongpo/signal_studio.git",
-                   "branch":  "rebuild/a143-native",
-                   "head":  "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af"
-               },
-    "schemaVersion":  1,
-    "a143ProductDeliveryCommitCitedInDocs":  "399b85e970f2f22432cd95277dc30e9075ca4cb4",
-    "workspaceRoot":  "D:/project/web_signal_studio",
-    "githubRemoteHeadVerified":  "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
-    "upstreamDrift":  false,
-    "readonlyClonePath":  "D:/project/web_signal_studio/.work/upstream-readonly"
+{
+  "schemaVersion": 1,
+  "recordedAtAsiaShanghai": "2026-10-21 21:25:00",
+  "lastVerifiedAtAsiaShanghai": "2026-10-21 21:28:00",
+  "verifiedBy": "bot-a-audit",
+  "parityStatus": "UI_INCREMENTAL_REFRESH_196db21",
+  "upstreamDrift": true,
+  "workspaceRoot": "D:/project/web_signal_studio",
+  "worktreePath": "D:/project/_wt_bot_a_audit",
+  "worktreeBranch": "work/bot-a-audit",
+  "source": {
+    "remote": "https://github.com/yulongpo/signal_studio.git",
+    "branch": "rebuild/a143-native",
+    "head": "17471a6488383b456281d12cb1a6d3d80290205d",
+    "shortHead": "17471a6",
+    "subject": "docs: retain build and native logs in tracked archive",
+    "committedAt": "2026-10-21T21:10:27+08:00"
+  },
+  "priorBaselineHead": "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
+  "githubRemoteHeadVerified": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "readonlyClonePath": "D:/project/web_signal_studio/.work/upstream-readonly",
+  "readonlyCloneHeadNote": "fetch updated origin/rebuild/a143-native to 17471a6; HEAD left at prior checkout to avoid shared-tree checkout; read tip via origin ref / local rebuild",
+  "localRebuildPath": "D:/project/signal_studio_rebuild",
+  "localRebuildHeadObserved": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "localRebuildNote": "Read-only reference; git fetch OK; HEAD matches remote tip 17471a6 after fetch; never write source; never push yulongpo/signal_studio",
+  "webMainTipObserved": "196db218cee37d2e212a6c3a20a409138e33d52a",
+  "webMainTipNote": "origin/main verified 196db21 (merge bot-c G03-G05 nav/aux/VerticalSplitter); prior incremental was vs 563458a; Bot-A did not checkout shared tree",
+  "target": {
+    "defaultBranch": "main",
+    "remote": "https://github.com/yulongpo/web-signal-studio"
+  },
+  "a143ProductDeliveryCommitCitedInDocs": "399b85e970f2f22432cd95277dc30e9075ca4cb4",
+  "a143ProductDeliveryNote": "Cited by a143-native DELIVERY/EXECUTION_STATUS as W6 product source; current remote branch HEAD is 17471a6 (docs archive + UI fixes after 0f108d0).",
+  "openDeltas": [
+    "Upstream tip remains 17471a6 (unchanged this patch)",
+    "Web main advanced 563458a -> 196db21: G03-G05 PARTIAL (Bot-C NavigationChart/WaveformChart/VerticalSplitter); defaults 36/160 not desktop 82/205; Wave=STFT envelope not raw IQ",
+    "Shell G01-G02/G06-G07 still OPEN; G11-G14/G19-G20/G26 remain PARTIAL as of prior 16abb2a audit",
+    "G02 still OPEN (SpectrumToolbar still between aux↔main on 196db21)",
+    "model_layout may still enumerate .pth/.onnx — G26 UI picker must not expose as PASS options"
+  ],
+  "iqConstraint": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo",
+  "modelConstraint": "TensorRT *.engine under rebuild tree only (e.g. out\\vs2026-qt611-release_bin\\detection-models\\...)"
 }
