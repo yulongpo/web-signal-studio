@@ -2167,20 +2167,58 @@ body,
 .tree-root[data-presentation='desktop-cn-chrome'] {
   font-size: 12px;
 }
-/* G19 AnnotationPanel multi-select paint 鈥?desktop 17471a6 */
+/* G19 AnnotationPanel multi-select paint — desktop 17471a6 */
+/* G11 unselected polish @ 17471a6: dashed 1px + low fill (alpha~23); selected 2px; current 3px feel */
+.chart-mark-rect[data-unselected='true'] {
+  border-style: dashed;
+  border-width: 1px;
+  border-color: #51c4e9;
+  background: rgba(81, 196, 233, 0.09);
+  box-shadow: none;
+}
 .chart-mark-rect[data-selected='true'],
 .chart-mark-rect.chart-mark-selected {
+  border-style: solid;
+  border-width: 2px;
   border-color: #96d6ef;
   background: rgba(24, 63, 89, 0.45);
 }
 .chart-mark-rect[data-current='true'],
 .chart-mark-rect.chart-mark-current {
+  border-style: solid;
+  border-width: 2px;
   border-color: #53bcf0;
   background: rgba(32, 93, 124, 0.55);
   box-shadow: inset 3px 0 0 #53bcf0;
 }
 .chart-mark-rect[data-hovered='true'] {
   outline: 1px solid #99d8f1;
+  z-index: 3;
+}
+.chart-mark-rect[data-unselected='true'][data-hovered='true'] {
+  /* Desktop hover glow rings (soft) */
+  box-shadow: 0 0 0 3px rgba(230, 251, 255, 0.09), 0 0 0 6px rgba(230, 251, 255, 0.05);
+  outline: 1px dotted #c4f7ff;
+}
+.chart-mark-hover-tip {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  z-index: 4;
+  max-width: calc(100% - 8px);
+  padding: 2px 8px;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #e2f9ff;
+  background: #10374f;
+  border: 1px solid #95e3ff;
+  pointer-events: none;
+}
+.chart-mark-layer[data-g11-unselected-polish='true'] {
+  /* probe: dashed unselected + hover tip wired */
 }
 
 .annotation-mark-table {

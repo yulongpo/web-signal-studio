@@ -1,38 +1,31 @@
-# Bot-C wave7 — G11 bounds/unselected hover + G18 pin chrome (WIP - no PASS)
+# Bot-C short tip — G11 unselected polish (no PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-22 00:25 |
-| Base tip | 701872b |
+| Asia/Shanghai | 2026-10-22 00:47 |
+| Base tip | 4c28588 |
 | Branch | work/bot-c-charts |
-| Desktop ref | 17471a6 PlotWidget updateHover + MarkEdit Move clamp; LinkedCursor framePsd |
-| Self-check | ChartMarkOverlay backticks=10 |
+| Desktop ref | 17471a6 PlotWidget mark paint + updateHover (dashed unselected, hover tip) |
+| Self-check | ChartMarkOverlay backticks preserved (was 10; +6 intentional new templates for title/tip) |
 
 ## Landed
 
 | ID | Landed | Note |
 |----|--------|------|
-| G11 view-bounds clamp | `applyMarkBodyDelta` tMin/tMax/fMin/fMax | Overlay passes axes domains |
-| G11 unselected hover | `resolveMarkBodyHoverCursor` → pointer / move / grabbing | Move only if already selected |
-| G18 STFT click pin | `nb-stft-pin-host` → `setNarrowbandPinnedDwellIndex` + `setNarrowbandPsdMode('frame')` | Alt-click clears |
-| G18 contextFramePsd chrome | `nb-btn-context-frame-psd` (disabled until pinned) | Clears via `nb-btn-clear-pinned-dwell` |
-| G18 store/DDC pin wire | On main via Bot-D `33bd755` / `701872b` | C does not re-own store |
+| G11 unselected polish | dashed 1px + low fill; hover tip name · click-to-select; title hint | data-g11-unselected-polish; PointingHand retained |
+| G11 selected/current contrast | solid selected; current inset retained | CSS hierarchy vs desktop alpha/pen widths |
 
 ## Honest gaps
 
 | Gap | Owner |
 |-----|-------|
-| Pin uses full chart width (no plot-margin exact sample map) | C follow-up |
-| Full-file sample bounds vs view-domain clamp | C (view clamp landed; file fullRange optional) |
-| Desktop linked-cursor pin scrubber polish | B/C |
-| DSP series / eye bitstream | D (BLOCKED untouched) |
+| Per-sourceKind stroke colors (Imported/Manual/Algorithm) | C later / light |
+| Hover sync into annotation table (setHoveredMark cross-panel) | B/C |
+| Right-rail scrubber twin / multi-chart linked-cursor | B/C |
 
 ## Evidence
-- apps/web/src/components/chartGesture.ts (+ tests)
-- packages/charts/src/interaction/chartHitZone.ts (+ tests)
 - apps/web/src/components/ChartMarkOverlay.tsx
-- apps/web/src/components/NarrowbandObserveCharts.tsx
-- apps/web/src/components/NarrowbandWorkspace.tsx
-- apps/web/src/components/RightRail.tsx
+- apps/web/src/App.css
+- artifacts/validation/ui-parity/bot-c/STATUS.md
 
 **matrix_pass_claimed: false. No PASS.**

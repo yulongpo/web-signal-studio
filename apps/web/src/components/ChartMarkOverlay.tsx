@@ -7,6 +7,7 @@
  * G11 body-drag: selected mark body Move uses SizeAll (hover) / ClosedHand
  * (grabbing) while dragging, matching PlotWidget updateHover + MarkEdit Move.
  * Unselected mark hover uses PointingHand (pointer); Move only when already selected.
+ * Unselected polish @ 17471a6: dashed stroke + low fill; hover tip name · click-to-select.
  * Body/edge Move clamps to file fullRange (navFullTime x spectrogram freq),
  * not only the current zoomed view (desktop MarkEdit fullRange).
  */
@@ -93,6 +94,8 @@ export function ChartMarkOverlay({
 }: Props) {
   const [tick, setTick] = useState(0);
   const [bodyDrag, setBodyDrag] = useState<BodyDrag | null>(null);
+  /** Desktop setHoveredMark — drives unselected hover tip polish. */
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   useEffect(() => {
     const id = window.setInterval(() => setTick((n) => n + 1), 200);
     return () => window.clearInterval(id);
@@ -279,6 +282,7 @@ export function ChartMarkOverlay({
       data-g11-bounds-clamp="true"
       data-g11-file-fullrange-clamp="true"
       data-g11-unselected-pointer="true"
+      data-g11-unselected-polish="true"
       data-body-dragging={bodyDrag ? 'true' : 'false'}
       data-body-drag-mark={bodyDrag?.id ?? ''}
     >
@@ -302,9 +306,16 @@ export function ChartMarkOverlay({
             data-end={String(mark.end)}
             data-selected={isSelected ? 'true' : 'false'}
             data-current={isCurrent ? 'true' : 'false'}
+            data-unselected={!isSelected ? 'true' : 'false'}
+            data-hovered={hoveredId === mark.id ? 'true' : 'false'}
             data-body-dragging={draggingThis ? 'true' : 'false'}
             data-body-drag-cursor={bodyCursor ?? ''}
             data-annotation-paint="desktop-multi"
+            title={
+              !isSelected
+                ? `${mark.name || mark.id}：单击选中 · 拖动空白区域放大`
+                : `${mark.name || mark.id}：拖动移动 · 边线和顶点调整`
+            }
             style={{
               left: box.left,
               top: box.top,
@@ -353,13 +364,22 @@ export function ChartMarkOverlay({
               window.addEventListener('pointermove', onMove);
               window.addEventListener('pointerup', onUp);
             }}
-            onPointerEnter={(event) => {
-              event.currentTarget.dataset.hovered = 'true';
+            onPointerEnter={() => {
+              setHoveredId(mark.id);
             }}
-            onPointerLeave={(event) => {
-              event.currentTarget.dataset.hovered = 'false';
+            onPointerLeave={() => {
+              setHoveredId((id) => (id === mark.id ? null : id));
             }}
           >
+            {!isSelected && hoveredId === mark.id ? (
+              <span
+                className="chart-mark-hover-tip"
+                data-testid="chart-mark-hover-tip"
+                data-mark-id={mark.id}
+              >
+                {`${mark.name || mark.id} · 点击选中`}
+              </span>
+            ) : null}
             {isCurrent
               ? HANDLES.map((c) => {
                   const cursor = resolveMarkEdgeCursor({ edge: c.id });
