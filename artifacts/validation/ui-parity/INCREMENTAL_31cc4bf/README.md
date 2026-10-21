@@ -76,7 +76,8 @@ Bot notes: `qa/web-762b876/notes.json` + `COMPARISON_NOTES.md` + `QA_CHECKLIST.m
 2. **G06 residual** — eye/bitstream **BLOCKED**
 3. **G19 residual** — **true native QFileDialog** (`=false`)
 4. **G18 residual** — recognition STFT panes
-5. **G07 residual** — full Qt Detect Worker beyond LocalCompute6. **G02 residual** — Multitaper/Burg **BLOCKED**; **non-PoT BLOCKED** (D formal); **STFT-DDC/decimate BLOCKED** (D formal); full Qt SpectralSettings
+5. **G07 residual** — full Qt Detect Worker beyond LocalCompute
+6. **G02 residual** — Multitaper/Burg **BLOCKED**; **non-PoT BLOCKED** (D formal); **STFT-DDC/decimate BLOCKED** (D formal); full Qt SpectralSettings
 7. **G08 residual** — desktop Qt pixel / full `buildMenus` parity
 8. **G11 residual** — PlotWidget paint *(or G09/G16 OPEN)*
 
