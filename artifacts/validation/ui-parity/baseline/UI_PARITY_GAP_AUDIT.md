@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 00:07` Asia/Shanghai: Web **`93de5db`** vs desktop `17471a6` — G11 PARTIAL deepened (C `612c8a1` body-drag ClosedHand helpers/CSS MET; **ChartMarkOverlay.tsx template-literal corruption BLOCKS runtime** → not CLOSED); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_93de5db.md`. **No PASS.**
+
+| ID | Prior (`91ae551`) | Now (`93de5db`) | Note |
+|----|-------------------|-----------------|------|
+| **G11** | PARTIAL 加深（body-drag ClosedHand 残） | **PARTIAL 加深** | `612c8a1` SizeAll/ClosedHand helpers+CSS+probes MET；Overlay 模板字面量被剥光（0 backticks）运行时 BLOCKED；bounds/unselected 残 → **不 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_93de5db.md`。**无矩阵 PASS**。
+
 > Bot-A `2026-10-22 00:05` Asia/Shanghai: Web **`91ae551`** vs desktop `17471a6` — G18/G17/G19/G07/G02/G08 PARTIAL deepened (D `0b6a113` PSD series; `1c7643d` adaptiveValue; B wave5 column matrix + detectRunFeed + chrome + collapse); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_91ae551.md` (supersedes draft INCREMENTAL_1c7643d). **No PASS.**
 
 | ID | Prior (`ee42717`) | Now (`91ae551`) | Note |
