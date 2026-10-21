@@ -20,6 +20,7 @@ function DisplayPage() {
   const paletteId = useUiStore((s) => s.paletteId);
   const narrowbandPsdFft = useUiStore((s) => s.narrowbandPsdFft);
   const narrowbandPsdMode = useUiStore((s) => s.narrowbandPsdMode);
+  const pinnedDwellIndex = useUiStore((s) => s.narrowbandPinnedDwellIndex);
   const openLayer = useUiStore((s) => s.openLayer);
   // G18: Bot-B owns STFT N/palette/level; Bot-C owns PSD mode label slot;
 // Bot-D owns frame vs statistical PSD series computation.
@@ -42,6 +43,10 @@ function DisplayPage() {
         data-testid="display-summary"
         data-psd-mode={narrowbandPsdMode}
         data-psd-mode-label={psdModeLabel}
+        data-context-frame-psd={
+          narrowbandPsdMode === 'frame' && pinnedDwellIndex != null ? 'true' : 'false'
+        }
+        data-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
         aria-live="polite"
       >
         {summary}

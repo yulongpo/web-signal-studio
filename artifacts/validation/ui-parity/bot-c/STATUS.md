@@ -1,32 +1,38 @@
-# Bot-C G18 UI->store narrowbandPsdMode STATUS (WIP - do not self-claim PASS)
+# Bot-C wave7 — G11 bounds/unselected hover + G18 pin chrome (WIP - no PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-22 00:11 |
-| Base tip | aeacc5f |
+| Asia/Shanghai | 2026-10-22 00:25 |
+| Base tip | 701872b |
 | Branch | work/bot-c-charts |
-| Scope | **G18** UI->store proof + STATUS; Charts->DDC already on main via Bot-D `08b424e` |
-| Out of scope | Overlay repair (Bot-B `85dab15`); new DSP; pinned dwell |
-| Desktop ref | 17471a6 narrowband_workspace / contextFramePsd |
-| Self-check | ChartMarkOverlay backticks=10 (matches 85dab15); no overlay commit |
+| Desktop ref | 17471a6 PlotWidget updateHover + MarkEdit Move clamp; LinkedCursor framePsd |
+| Self-check | ChartMarkOverlay backticks=10 |
 
-## Landed (honest)
+## Landed
 
-| ID | Landed | Known gap / note |
-|----|--------|------------------|
-| G18 UI->store | `nb-select-psd-mode` -> `setNarrowbandPsdMode` / `narrowbandPsdMode`; RightRail `data-psd-mode` | Unit proves setter updates store |
-| G18 store->DDC | On main via Bot-D `08b424e` / merge `aeacc5f` (`psdMode` kwarg in ObserveCharts) | C does not re-touch call site |
-| G18 DSP series | Bot-D | Pinned dwell / contextFramePsd residual remains D |
-| G11 Overlay | Bot-B restored templates on `85dab15` | C self-check only; no overlay commit |
+| ID | Landed | Note |
+|----|--------|------|
+| G11 view-bounds clamp | `applyMarkBodyDelta` tMin/tMax/fMin/fMax | Overlay passes axes domains |
+| G11 unselected hover | `resolveMarkBodyHoverCursor` → pointer / move / grabbing | Move only if already selected |
+| G18 STFT click pin | `nb-stft-pin-host` → `setNarrowbandPinnedDwellIndex` + `setNarrowbandPsdMode('frame')` | Alt-click clears |
+| G18 contextFramePsd chrome | `nb-btn-context-frame-psd` (disabled until pinned) | Clears via `nb-btn-clear-pinned-dwell` |
+| G18 store/DDC pin wire | On main via Bot-D `33bd755` / `701872b` | C does not re-own store |
+
+## Honest gaps
+
+| Gap | Owner |
+|-----|-------|
+| Pin uses full chart width (no plot-margin exact sample map) | C follow-up |
+| Full-file sample bounds vs view-domain clamp | C (view clamp landed; file fullRange optional) |
+| Desktop linked-cursor pin scrubber polish | B/C |
+| DSP series / eye bitstream | D (BLOCKED untouched) |
 
 ## Evidence
-- apps/web/src/components/NarrowbandWorkspace.tsx (`nb-select-psd-mode`)
-- apps/web/src/store/uiStore.ts (`narrowbandPsdMode`)
-- apps/web/src/store/uiStore.narrowbandPsdMode.test.ts
-- artifacts/validation/ui-parity/bot-c/G18-PSD-MODE-HANDOFF.md
-- artifacts/validation/ui-parity/bot-c/STATUS.md (+ docs dual-write)
+- apps/web/src/components/chartGesture.ts (+ tests)
+- packages/charts/src/interaction/chartHitZone.ts (+ tests)
+- apps/web/src/components/ChartMarkOverlay.tsx
+- apps/web/src/components/NarrowbandObserveCharts.tsx
+- apps/web/src/components/NarrowbandWorkspace.tsx
+- apps/web/src/components/RightRail.tsx
 
-## Tests
-- web unit: uiStore.narrowbandPsdMode (2 cases)
-
-**No self-PASS.**
+**matrix_pass_claimed: false. No PASS.**

@@ -153,7 +153,11 @@ export function markContains(
   );
 }
 
-/** Translate mark body by dt/df keeping span (desktop MarkEdit Move @ 17471a6). */
+/**
+ * Translate mark body by dt/df keeping span (desktop MarkEdit Move @ 17471a6).
+ * Optional bounds clamp keeps the full span inside [tMin,tMax] x [fMin,fMax]
+ * (view or file full-range), matching desktop offsetSample / std::clamp.
+ */
 export function applyMarkBodyDelta(opts: {
   t0: number;
   t1: number;
@@ -161,11 +165,37 @@ export function applyMarkBodyDelta(opts: {
   f1: number;
   dtSec: number;
   dfHz: number;
+  /** Inclusive time bounds (seconds). Omit to skip time clamp. */
+  tMin?: number;
+  tMax?: number;
+  /** Inclusive frequency bounds (Hz). Omit to skip freq clamp. */
+  fMin?: number;
+  fMax?: number;
 }): { t0: number; t1: number; f0: number; f1: number } {
   const spanT = opts.t1 - opts.t0;
   const spanF = opts.f1 - opts.f0;
-  const nextT0 = opts.t0 + opts.dtSec;
-  const nextF0 = opts.f0 + opts.dfHz;
+  let nextT0 = opts.t0 + opts.dtSec;
+  let nextF0 = opts.f0 + opts.dfHz;
+  if (
+    opts.tMin != null &&
+    opts.tMax != null &&
+    Number.isFinite(opts.tMin) &&
+    Number.isFinite(opts.tMax) &&
+    opts.tMax - opts.tMin >= spanT
+  ) {
+    const maxT0 = opts.tMax - spanT;
+    nextT0 = Math.min(Math.max(nextT0, opts.tMin), maxT0);
+  }
+  if (
+    opts.fMin != null &&
+    opts.fMax != null &&
+    Number.isFinite(opts.fMin) &&
+    Number.isFinite(opts.fMax) &&
+    opts.fMax - opts.fMin >= spanF
+  ) {
+    const maxF0 = opts.fMax - spanF;
+    nextF0 = Math.min(Math.max(nextF0, opts.fMin), maxF0);
+  }
   return {
     t0: nextT0,
     t1: nextT0 + spanT,

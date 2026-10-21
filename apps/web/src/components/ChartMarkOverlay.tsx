@@ -6,10 +6,12 @@
  * marker tool on MainChartHost (data-continuous-create).
  * G11 body-drag: selected mark body Move uses SizeAll (hover) / ClosedHand
  * (grabbing) while dragging, matching PlotWidget updateHover + MarkEdit Move.
+ * Unselected mark hover uses PointingHand (pointer); Move only when already selected.
+ * Body Move clamps to current view time/freq bounds (desktop fullRange clamp).
  */
 import { useEffect, useState } from 'react';
 import type { AnnotationJson } from '@wss/contracts';
-import { resolveMarkEdgeCursor, type MarkEdge } from '@wss/charts';
+import { resolveMarkEdgeCursor, resolveMarkBodyHoverCursor, type MarkEdge } from '@wss/charts';
 import {
   applyMarkBodyDelta,
   cssToValue,
@@ -233,6 +235,11 @@ export function ChartMarkOverlay({
       f1: drag.f1,
       dtSec: tNow - tStart,
       dfHz: fNow - fStart,
+      // View-bounds clamp (desktop MarkEdit Move clamps to fullRange).
+      tMin: axes.time.min,
+      tMax: axes.time.max,
+      fMin: axes.freq.min,
+      fMax: axes.freq.max,
     });
     commitRange(mark, next.t0, next.t1, next.f0, next.f1);
   };
@@ -247,6 +254,8 @@ export function ChartMarkOverlay({
       data-g13-handles="true"
       data-g11-mark-edge="true"
       data-g11-body-drag="true"
+      data-g11-bounds-clamp="true"
+      data-g11-unselected-pointer="true"
       data-body-dragging={bodyDrag ? 'true' : 'false'}
       data-body-drag-mark={bodyDrag?.id ?? ''}
     >
@@ -256,9 +265,11 @@ export function ChartMarkOverlay({
         const isSelected = selected.includes(mark.id);
         const isCurrent = active === mark.id;
         const draggingThis = bodyDrag?.id === mark.id;
-        const bodyCursor = isSelected
-          ? resolveMarkEdgeCursor({ edge: 'move', draggingMove: draggingThis })
-          : undefined;
+        // Desktop updateHover @ 17471a6: selected -> SizeAll/edge; else hit -> PointingHand.
+        const bodyCursor = resolveMarkBodyHoverCursor({
+          selected: isSelected,
+          draggingMove: draggingThis,
+        });
         return (
           <div
             key={mark.id}
@@ -282,9 +293,10 @@ export function ChartMarkOverlay({
               event.stopPropagation();
               event.preventDefault();
               const additive = event.ctrlKey || event.metaKey || event.shiftKey;
+              const alreadySelected = isSelected;
               selectMark(mark.id, additive);
               // Desktop: MarkEdit Move only when already-selected hit and not additive.
-              if (additive) return;
+              if (additive || !alreadySelected) return;
               const layer = event.currentTarget.closest('[data-testid="chart-mark-layer"]');
               if (!layer) return;
               const origin = rectFor(mark);

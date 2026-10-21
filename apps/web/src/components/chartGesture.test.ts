@@ -57,4 +57,33 @@ describe('chart gesture helpers', () => {
     expect(next).toEqual({ t0: 1.5, t1: 3.5, f0: 80, f1: 380 });
   });
 
+  it('clamps Move to view bounds keeping span (G11 desktop fullRange)', () => {
+    const next = applyMarkBodyDelta({
+      t0: 1,
+      t1: 3,
+      f0: 100,
+      f1: 400,
+      dtSec: 10,
+      dfHz: -500,
+      tMin: 0,
+      tMax: 5,
+      fMin: 0,
+      fMax: 1000,
+    });
+    // spanT=2 -> t0 max 3; spanF=300 -> f0 min 0
+    expect(next).toEqual({ t0: 3, t1: 5, f0: 0, f1: 300 });
+  });
+
+  it('does not clamp when bounds omitted', () => {
+    const next = applyMarkBodyDelta({
+      t0: 1,
+      t1: 2,
+      f0: 10,
+      f1: 20,
+      dtSec: 100,
+      dfHz: 100,
+    });
+    expect(next).toEqual({ t0: 101, t1: 102, f0: 110, f1: 120 });
+  });
+
 });

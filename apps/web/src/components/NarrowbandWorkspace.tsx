@@ -50,6 +50,8 @@ export function NarrowbandWorkspace() {
   const setPsdFft = useUiStore((s) => s.setNarrowbandPsdFft);
   const psdMode = useUiStore((s) => s.narrowbandPsdMode);
   const setPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
+  const pinnedDwellIndex = useUiStore((s) => s.narrowbandPinnedDwellIndex);
+  const setPinnedDwellIndex = useUiStore((s) => s.setNarrowbandPinnedDwellIndex);
   const stftFft = useUiStore((s) => s.narrowbandStftFft);
   const setStftFft = useUiStore((s) => s.setNarrowbandStftFft);
   const freqMode = useUiStore((s) => s.narrowbandFreqMode);
@@ -99,6 +101,8 @@ export function NarrowbandWorkspace() {
       data-nb-page={page}
       data-nb-psd-fft={psdFft}
       data-nb-psd-mode={psdMode}
+      data-nb-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
+      data-nb-context-frame-psd={psdMode === 'frame' && pinnedDwellIndex != null ? 'true' : 'false'}
       data-nb-stft-fft={stftFft}
       data-nb-freq-mode={freqMode}
       data-nb-grid={grid ? 'true' : 'false'}
@@ -169,6 +173,37 @@ export function NarrowbandWorkspace() {
             <option value="frame">驻留帧谱</option>
             <option value="statistical">统计谱</option>
           </select>
+        </label>
+                <label className="nb-field" data-testid="nb-field-context-frame-psd">
+          <span>contextFramePsd</span>
+          <button
+            type="button"
+            data-testid="nb-btn-context-frame-psd"
+            disabled={pinnedDwellIndex == null}
+            title={
+              pinnedDwellIndex == null
+                ? '先在时频谱上单击钉住驻留帧'
+                : '使用钉住帧谱（切换到驻留帧谱模式）'
+            }
+            onClick={() => {
+              // Desktop setFramePsd requires pinned; then frame mode.
+              if (pinnedDwellIndex == null) return;
+              setPsdMode('frame');
+            }}
+          >
+            钉住帧谱
+          </button>
+          <button
+            type="button"
+            data-testid="nb-btn-clear-pinned-dwell"
+            disabled={pinnedDwellIndex == null}
+            onClick={() => setPinnedDwellIndex(null)}
+          >
+            清除钉住
+          </button>
+          <span data-testid="nb-pinned-dwell-label">
+            {pinnedDwellIndex == null ? '未钉住' : `帧 ${pinnedDwellIndex}`}
+          </span>
         </label>
         <label className="nb-field">
           <span>STFT N</span>

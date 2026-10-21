@@ -5,6 +5,7 @@ import {
   resolveInteractionCursor,
   resolveNavigationOverviewCursor,
   resolveMarkEdgeCursor,
+  resolveMarkBodyHoverCursor,
 } from "./chartHitZone.js";
 
 const M = { left: 52, right: 12, top: 10, bottom: 36 };
@@ -156,6 +157,19 @@ describe("resolveMarkEdgeCursor (17471a6 edgeCursor)", () => {
     expect(resolveMarkEdgeCursor({ edge: "move", draggingMove: true })).toBe(
       "grabbing",
     );
+  });
+});
+
+describe("resolveMarkBodyHoverCursor (17471a6 updateHover)", () => {
+  it("unselected -> pointer (PointingHand)", () => {
+    expect(resolveMarkBodyHoverCursor({ selected: false })).toBe("pointer");
+  });
+
+  it("selected -> move (SizeAll); dragging -> grabbing (ClosedHand)", () => {
+    expect(resolveMarkBodyHoverCursor({ selected: true })).toBe("move");
+    expect(
+      resolveMarkBodyHoverCursor({ selected: true, draggingMove: true }),
+    ).toBe("grabbing");
   });
 });
 

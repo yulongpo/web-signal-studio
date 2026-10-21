@@ -187,3 +187,18 @@ export function resolveMarkEdgeCursor(opts: {
   }
 }
 
+/** CSS cursor for mark body hover (desktop updateHover @ 17471a6). */
+export type MarkBodyHoverCursor = MarkEdgeCursor | "pointer";
+
+/**
+ * Unselected hit -> PointingHand (pointer).
+ * Selected Move -> SizeAll (move) / ClosedHand (grabbing) while dragging.
+ */
+export function resolveMarkBodyHoverCursor(opts: {
+  selected: boolean;
+  draggingMove?: boolean;
+}): MarkBodyHoverCursor {
+  if (!opts.selected) return "pointer";
+  return resolveMarkEdgeCursor({ edge: "move", draggingMove: opts.draggingMove });
+}
+

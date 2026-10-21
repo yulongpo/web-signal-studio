@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @wss/charts — Bot-C public surface
  * Custom WebGL2 charts; no third-party chart library as primary path.
  */
@@ -103,11 +103,13 @@ export {
   resolveInteractionCursor,
   resolveNavigationOverviewCursor,
   resolveMarkEdgeCursor,
+  resolveMarkBodyHoverCursor,
   type ChartHitZone,
   type InteractionCursor,
   type NavigationOverviewCursor,
   type MarkEdge,
   type MarkEdgeCursor,
+  type MarkBodyHoverCursor,
   type ChartDragMode,
   type PlotMargin,
 } from "./interaction/chartHitZone.js";

@@ -56,6 +56,8 @@ export function NarrowbandObserveCharts() {
   const freqMode = useUiStore((s) => s.narrowbandFreqMode);
   const psdMode = useUiStore((s) => s.narrowbandPsdMode);
   const pinnedDwellIndex = useUiStore((s) => s.narrowbandPinnedDwellIndex);
+  const setPinnedDwellIndex = useUiStore((s) => s.setNarrowbandPinnedDwellIndex);
+  const setPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
 
   const [result, setResult] = useState<NarrowbandObserveDdcResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -196,9 +198,9 @@ export function NarrowbandObserveCharts() {
             'data-nb-psd-mode': psdMode,
             'data-nb-psd-series-kind': psdPlot?.kind,
             'data-nb-psd-bins': psdPlot?.y.length,
-            'data-nb-psd-frame-index': result?.psdFrameIndexUsed,
+            'data-nb-psd-frame-index': result?.psdFrameIndexUsed ?? undefined,
             'data-nb-psd-frame-count': result?.psdFrameCount,
-            'data-nb-psd-pinned-dwell': pinnedDwellIndex,
+            'data-nb-psd-pinned-dwell': pinnedDwellIndex ?? undefined,
           }}
         >
           {result && psdXDomain && psdPlot && psdPlot.y.length > 0 ? (
@@ -222,23 +224,57 @@ export function NarrowbandObserveCharts() {
         ready={ready && Boolean(result && result.stft.frameCount > 0)}
         extraAttrs={{
           'data-nb-stft-source': 'sigmf_data_demo-ddc',
+          'data-nb-stft-pin': 'true',
+          'data-nb-pinned-dwell': pinnedDwellIndex ?? undefined,
         }}
       >
-        {result &&
+                {result &&
         stftFreq &&
         result.stft.frameCount > 0 &&
         result.stft.binCount > 0 ? (
-          <SpectrumChart
-            power={result.stft.power}
-            binCount={result.stft.binCount}
-            frameCount={result.stft.frameCount}
-            mode="stft"
-            freqHz={stftFreq}
-            timeSec={result.stft.timeSec}
-            height="100%"
-            testId="nb-chart-stft"
-            interactionEnabled={false}
-          />
+          <div
+            className="nb-stft-pin-host"
+            data-testid="nb-stft-pin-host"
+            data-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
+            data-frame-count={result.stft.frameCount}
+            title="单击钉住驻留帧谱；Alt+单击清除"
+            style={{ width: '100%', height: '100%', position: 'relative' }}
+            onClick={(event) => {
+              // G18: STFT click pin / Alt-click clear → store + frame mode
+              if (event.altKey) {
+                setPinnedDwellIndex(null);
+                return;
+              }
+              const host = event.currentTarget.getBoundingClientRect();
+              if (!(host.width > 0) || result.stft.frameCount <= 0) return;
+              const x = event.clientX - host.left;
+              const t = Math.min(Math.max(x / host.width, 0), 0.999999);
+              const idx = Math.min(
+                result.stft.frameCount - 1,
+                Math.max(0, Math.floor(t * result.stft.frameCount)),
+              );
+              setPinnedDwellIndex(idx);
+              setPsdMode('frame');
+            }}
+            onContextMenu={(event) => {
+              // contextFramePsd menu: require pin, then switch to frame mode
+              event.preventDefault();
+              if (pinnedDwellIndex == null) return;
+              setPsdMode('frame');
+            }}
+          >
+            <SpectrumChart
+              power={result.stft.power}
+              binCount={result.stft.binCount}
+              frameCount={result.stft.frameCount}
+              mode="stft"
+              freqHz={stftFreq}
+              timeSec={result.stft.timeSec}
+              height="100%"
+              testId="nb-chart-stft"
+              interactionEnabled={false}
+            />
+          </div>
         ) : (
           <Waiting text={statusText ?? '等待真实 DDC 时频谱'} />
         )}
