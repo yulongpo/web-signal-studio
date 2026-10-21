@@ -17,5 +17,8 @@
   "summary": {
     "tests": 55
   },
-  "note": "vitest 55 after dualWriteEvidence + C-02 dual-write case; M-04/C-02 WIP"
+  "note": "C-P3: C-02 live extract + idle p95; C-02 WIP no PASS",
+  "vitestPassed": 60,
+  "vitestTotal": 60,
+  "updatedAt": "2026-10-21T11:31:46.523Z"
 }

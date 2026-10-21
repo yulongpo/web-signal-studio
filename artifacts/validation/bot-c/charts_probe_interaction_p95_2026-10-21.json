@@ -1,544 +1,672 @@
 {
   "bot": "bot-c",
-  "writtenAt": "2026-10-21T11:15:44.885Z",
+  "writtenAt": "2026-10-21T11:32:27.893Z",
   "package": "@wss/charts",
   "samples": [
     {
       "name": "preview-frame-0",
-      "durationMs": 5.125100000000112,
+      "durationMs": 1.4471000000000003,
       "meta": {
-        "frameMs": 5.125100000000112,
-        "extractMs": 4.975100000000111,
+        "frameMs": 1.4471000000000003,
+        "extractMs": 1.2971000000000004,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.826Z"
+      "ts": "2026-10-21T11:32:27.810Z"
     },
     {
       "name": "preview-frame-1",
-      "durationMs": 1.898399999999965,
+      "durationMs": 1.4429000000001633,
       "meta": {
-        "frameMs": 1.898399999999965,
-        "extractMs": 1.728399999999965,
+        "frameMs": 1.4429000000001633,
+        "extractMs": 1.2729000000001633,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.828Z"
+      "ts": "2026-10-21T11:32:27.811Z"
     },
     {
       "name": "preview-frame-2",
-      "durationMs": 1.7240000000001054,
+      "durationMs": 1.1784999999999308,
       "meta": {
-        "frameMs": 1.7240000000001054,
-        "extractMs": 1.5340000000001055,
+        "frameMs": 1.1784999999999308,
+        "extractMs": 0.9884999999999309,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.830Z"
+      "ts": "2026-10-21T11:32:27.812Z"
     },
     {
       "name": "preview-frame-3",
-      "durationMs": 1.9498000000000593,
+      "durationMs": 1.2128000000002066,
       "meta": {
-        "frameMs": 1.9498000000000593,
-        "extractMs": 1.7398000000000593,
+        "frameMs": 1.2128000000002066,
+        "extractMs": 1.0028000000002066,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.831Z"
+      "ts": "2026-10-21T11:32:27.813Z"
     },
     {
       "name": "preview-frame-4",
-      "durationMs": 1.9638999999999487,
+      "durationMs": 1.0625999999999567,
       "meta": {
-        "frameMs": 1.9638999999999487,
-        "extractMs": 1.7338999999999487,
+        "frameMs": 1.0625999999999567,
+        "extractMs": 0.8325999999999567,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.833Z"
+      "ts": "2026-10-21T11:32:27.814Z"
     },
     {
       "name": "preview-frame-5",
-      "durationMs": 2.0323000000000775,
+      "durationMs": 1.481999999999971,
       "meta": {
-        "frameMs": 2.0323000000000775,
-        "extractMs": 1.7823000000000775,
+        "frameMs": 1.481999999999971,
+        "extractMs": 1.231999999999971,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.835Z"
+      "ts": "2026-10-21T11:32:27.815Z"
     },
     {
       "name": "preview-frame-6",
-      "durationMs": 1.1382999999998629,
+      "durationMs": 1.5034999999998218,
       "meta": {
-        "frameMs": 1.1382999999998629,
-        "extractMs": 0.8682999999998628,
+        "frameMs": 1.5034999999998218,
+        "extractMs": 1.2334999999998217,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.836Z"
+      "ts": "2026-10-21T11:32:27.817Z"
     },
     {
       "name": "preview-frame-7",
-      "durationMs": 1.187099999999782,
+      "durationMs": 1.396399999999994,
       "meta": {
-        "frameMs": 1.187099999999782,
-        "extractMs": 1.037099999999782,
+        "frameMs": 1.396399999999994,
+        "extractMs": 1.2463999999999942,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.837Z"
+      "ts": "2026-10-21T11:32:27.818Z"
     },
     {
       "name": "preview-frame-8",
-      "durationMs": 1.1180000000000927,
+      "durationMs": 1.4542000000000552,
       "meta": {
-        "frameMs": 1.1180000000000927,
-        "extractMs": 0.9480000000000928,
+        "frameMs": 1.4542000000000552,
+        "extractMs": 1.2842000000000553,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.838Z"
+      "ts": "2026-10-21T11:32:27.819Z"
     },
     {
       "name": "preview-frame-9",
-      "durationMs": 1.0453999999999177,
+      "durationMs": 1.410199999999977,
       "meta": {
-        "frameMs": 1.0453999999999177,
-        "extractMs": 0.8553999999999178,
+        "frameMs": 1.410199999999977,
+        "extractMs": 1.220199999999977,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.839Z"
+      "ts": "2026-10-21T11:32:27.820Z"
     },
     {
       "name": "preview-frame-10",
-      "durationMs": 1.076800000000012,
+      "durationMs": 1.4850999999998384,
       "meta": {
-        "frameMs": 1.076800000000012,
-        "extractMs": 0.866800000000012,
+        "frameMs": 1.4850999999998384,
+        "extractMs": 1.2750999999998385,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.840Z"
+      "ts": "2026-10-21T11:32:27.822Z"
     },
     {
       "name": "preview-frame-11",
-      "durationMs": 1.0811999999998352,
+      "durationMs": 1.457200000000039,
       "meta": {
-        "frameMs": 1.0811999999998352,
-        "extractMs": 0.8511999999998352,
+        "frameMs": 1.457200000000039,
+        "extractMs": 1.227200000000039,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.841Z"
+      "ts": "2026-10-21T11:32:27.823Z"
     },
     {
       "name": "preview-frame-12",
-      "durationMs": 1.2518999999999778,
+      "durationMs": 1.4852999999998246,
       "meta": {
-        "frameMs": 1.2518999999999778,
-        "extractMs": 1.0018999999999778,
+        "frameMs": 1.4852999999998246,
+        "extractMs": 1.2352999999998246,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.842Z"
+      "ts": "2026-10-21T11:32:27.824Z"
     },
     {
       "name": "preview-frame-13",
-      "durationMs": 1.1380000000001655,
+      "durationMs": 1.5163000000000193,
       "meta": {
-        "frameMs": 1.1380000000001655,
-        "extractMs": 0.8680000000001655,
+        "frameMs": 1.5163000000000193,
+        "extractMs": 1.2463000000000193,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.843Z"
+      "ts": "2026-10-21T11:32:27.826Z"
     },
     {
       "name": "preview-frame-14",
-      "durationMs": 1.06800000000012,
+      "durationMs": 1.4211000000001603,
       "meta": {
-        "frameMs": 1.06800000000012,
-        "extractMs": 0.91800000000012,
+        "frameMs": 1.4211000000001603,
+        "extractMs": 1.2711000000001604,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.844Z"
+      "ts": "2026-10-21T11:32:27.827Z"
     },
     {
       "name": "preview-frame-15",
-      "durationMs": 1.1860000000000763,
+      "durationMs": 1.39629999999981,
       "meta": {
-        "frameMs": 1.1860000000000763,
-        "extractMs": 1.0160000000000764,
+        "frameMs": 1.39629999999981,
+        "extractMs": 1.22629999999981,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.845Z"
+      "ts": "2026-10-21T11:32:27.828Z"
     },
     {
       "name": "preview-frame-16",
-      "durationMs": 1.296899999999996,
+      "durationMs": 1.2087000000000807,
       "meta": {
-        "frameMs": 1.296899999999996,
-        "extractMs": 1.106899999999996,
+        "frameMs": 1.2087000000000807,
+        "extractMs": 1.0187000000000808,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.846Z"
+      "ts": "2026-10-21T11:32:27.829Z"
     },
     {
       "name": "preview-frame-17",
-      "durationMs": 1.1610999999999967,
+      "durationMs": 1.2876999999998224,
       "meta": {
-        "frameMs": 1.1610999999999967,
-        "extractMs": 0.9510999999999967,
+        "frameMs": 1.2876999999998224,
+        "extractMs": 1.0776999999998225,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.847Z"
+      "ts": "2026-10-21T11:32:27.830Z"
     },
     {
       "name": "preview-frame-18",
-      "durationMs": 1.1403999999999814,
+      "durationMs": 1.3685000000000218,
       "meta": {
-        "frameMs": 1.1403999999999814,
-        "extractMs": 0.9103999999999814,
+        "frameMs": 1.3685000000000218,
+        "extractMs": 1.1385000000000218,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.848Z"
+      "ts": "2026-10-21T11:32:27.831Z"
     },
     {
       "name": "preview-frame-19",
-      "durationMs": 1.2245000000000346,
+      "durationMs": 1.3197000000000116,
       "meta": {
-        "frameMs": 1.2245000000000346,
-        "extractMs": 0.9745000000000346,
+        "frameMs": 1.3197000000000116,
+        "extractMs": 1.0697000000000116,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.849Z"
+      "ts": "2026-10-21T11:32:27.833Z"
     },
     {
       "name": "preview-frame-20",
-      "durationMs": 1.2198000000000957,
+      "durationMs": 1.2751999999998316,
       "meta": {
-        "frameMs": 1.2198000000000957,
-        "extractMs": 0.9498000000000957,
+        "frameMs": 1.2751999999998316,
+        "extractMs": 1.0051999999998316,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.850Z"
+      "ts": "2026-10-21T11:32:27.834Z"
     },
     {
       "name": "preview-frame-21",
-      "durationMs": 1.0933999999998831,
+      "durationMs": 1.020200000000068,
       "meta": {
-        "frameMs": 1.0933999999998831,
-        "extractMs": 0.9433999999998832,
+        "frameMs": 1.020200000000068,
+        "extractMs": 0.870200000000068,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.851Z"
+      "ts": "2026-10-21T11:32:27.835Z"
     },
     {
       "name": "preview-frame-22",
-      "durationMs": 1.107900000000127,
+      "durationMs": 1.2694000000000596,
       "meta": {
-        "frameMs": 1.107900000000127,
-        "extractMs": 0.937900000000127,
+        "frameMs": 1.2694000000000596,
+        "extractMs": 1.0994000000000597,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.852Z"
+      "ts": "2026-10-21T11:32:27.836Z"
     },
     {
       "name": "preview-frame-23",
-      "durationMs": 1.405400000000045,
+      "durationMs": 1.1938999999999305,
       "meta": {
-        "frameMs": 1.405400000000045,
-        "extractMs": 1.215400000000045,
+        "frameMs": 1.1938999999999305,
+        "extractMs": 1.0038999999999305,
         "dpr": 2,
         "mode": "preview",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 400,
         "outH": 200,
-        "note": "synthetic-interaction-preview"
+        "note": "idle-settle-probe-preview"
       },
-      "ts": "2026-10-21T11:15:44.853Z"
+      "ts": "2026-10-21T11:32:27.837Z"
+    },
+    {
+      "name": "preview-frame-24",
+      "durationMs": 1.2342999999998119,
+      "meta": {
+        "frameMs": 1.2342999999998119,
+        "extractMs": 1.024299999999812,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.838Z"
+    },
+    {
+      "name": "preview-frame-25",
+      "durationMs": 1.3479999999999381,
+      "meta": {
+        "frameMs": 1.3479999999999381,
+        "extractMs": 1.1179999999999382,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.839Z"
+    },
+    {
+      "name": "preview-frame-26",
+      "durationMs": 1.1292000000000826,
+      "meta": {
+        "frameMs": 1.1292000000000826,
+        "extractMs": 0.8792000000000826,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.840Z"
+    },
+    {
+      "name": "preview-frame-27",
+      "durationMs": 1.2486999999998898,
+      "meta": {
+        "frameMs": 1.2486999999998898,
+        "extractMs": 0.9786999999998898,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.841Z"
+    },
+    {
+      "name": "preview-frame-28",
+      "durationMs": 0.9903000000000702,
+      "meta": {
+        "frameMs": 0.9903000000000702,
+        "extractMs": 0.8403000000000702,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.842Z"
+    },
+    {
+      "name": "preview-frame-29",
+      "durationMs": 1.089399999999996,
+      "meta": {
+        "frameMs": 1.089399999999996,
+        "extractMs": 0.919399999999996,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.843Z"
+    },
+    {
+      "name": "preview-frame-30",
+      "durationMs": 1.2878000000000065,
+      "meta": {
+        "frameMs": 1.2878000000000065,
+        "extractMs": 1.0978000000000065,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.844Z"
+    },
+    {
+      "name": "preview-frame-31",
+      "durationMs": 1.0414000000000305,
+      "meta": {
+        "frameMs": 1.0414000000000305,
+        "extractMs": 0.8314000000000306,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "idle-settle-probe-preview"
+      },
+      "ts": "2026-10-21T11:32:27.845Z"
     },
     {
       "name": "refine-frame-0",
-      "durationMs": 8.06329999999989,
+      "durationMs": 1.5089000000001307,
       "meta": {
-        "frameMs": 8.06329999999989,
-        "extractMs": 7.71329999999989,
+        "frameMs": 1.5089000000001307,
+        "extractMs": 1.1589000000001306,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.861Z"
+      "ts": "2026-10-21T11:32:27.886Z"
     },
     {
       "name": "refine-frame-1",
-      "durationMs": 4.425900000000074,
+      "durationMs": 1.4645999999999095,
       "meta": {
-        "frameMs": 4.425900000000074,
-        "extractMs": 4.045900000000074,
+        "frameMs": 1.4645999999999095,
+        "extractMs": 1.0845999999999094,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.865Z"
+      "ts": "2026-10-21T11:32:27.887Z"
     },
     {
       "name": "refine-frame-2",
-      "durationMs": 7.107999999999865,
+      "durationMs": 1.4804000000000634,
       "meta": {
-        "frameMs": 7.107999999999865,
-        "extractMs": 6.697999999999865,
+        "frameMs": 1.4804000000000634,
+        "extractMs": 1.0704000000000633,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.872Z"
+      "ts": "2026-10-21T11:32:27.888Z"
     },
     {
       "name": "refine-frame-3",
-      "durationMs": 5.124200000000146,
+      "durationMs": 1.519800000000205,
       "meta": {
-        "frameMs": 5.124200000000146,
-        "extractMs": 4.684200000000146,
+        "frameMs": 1.519800000000205,
+        "extractMs": 1.0798000000002048,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.877Z"
+      "ts": "2026-10-21T11:32:27.889Z"
     },
     {
       "name": "refine-frame-4",
-      "durationMs": 4.723999999999905,
+      "durationMs": 1.5321999999998481,
       "meta": {
-        "frameMs": 4.723999999999905,
-        "extractMs": 4.253999999999905,
+        "frameMs": 1.5321999999998481,
+        "extractMs": 1.062199999999848,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.881Z"
+      "ts": "2026-10-21T11:32:27.890Z"
     },
     {
       "name": "refine-frame-5",
-      "durationMs": 1.5954999999999928,
+      "durationMs": 1.4052000000000135,
       "meta": {
-        "frameMs": 1.5954999999999928,
-        "extractMs": 1.2454999999999927,
+        "frameMs": 1.4052000000000135,
+        "extractMs": 1.0552000000000135,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.882Z"
+      "ts": "2026-10-21T11:32:27.891Z"
     },
     {
       "name": "refine-frame-6",
-      "durationMs": 1.4846000000001187,
+      "durationMs": 1.506800000000003,
       "meta": {
-        "frameMs": 1.4846000000001187,
-        "extractMs": 1.1046000000001186,
+        "frameMs": 1.506800000000003,
+        "extractMs": 1.126800000000003,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.883Z"
+      "ts": "2026-10-21T11:32:27.892Z"
     },
     {
       "name": "refine-frame-7",
-      "durationMs": 2.1615000000000784,
+      "durationMs": 1.5128000000001158,
       "meta": {
-        "frameMs": 2.1615000000000784,
-        "extractMs": 1.7515000000000782,
+        "frameMs": 1.5128000000001158,
+        "extractMs": 1.1028000000001157,
         "dpr": 2,
         "mode": "refine",
         "bufferWidth": 1600,
         "bufferHeight": 800,
         "outW": 512,
         "outH": 256,
-        "note": "synthetic-interaction-refine"
+        "note": "idle-settle-probe-refine"
       },
-      "ts": "2026-10-21T11:15:44.885Z"
+      "ts": "2026-10-21T11:32:27.893Z"
     }
   ],
   "summary": {
-    "sampleCount": 32,
-    "totalDurationMs": 70.32060000000033,
+    "sampleCount": 40,
+    "totalDurationMs": 53.5945999999997,
     "modes": [
       "preview",
       "refine"
     ],
     "dpr": 2,
     "frameMs": {
-      "count": 32,
-      "min": 1.0453999999999177,
-      "max": 8.06329999999989,
-      "mean": 2.19751875000001,
-      "p50": 1.2743999999999869,
-      "p95": 6.017404999999999
+      "count": 40,
+      "min": 0.9903000000000702,
+      "max": 1.5321999999998481,
+      "mean": 1.3398649999999925,
+      "p50": 1.396349999999902,
+      "p95": 1.5164750000000287
     },
     "extractMs": {
-      "count": 32,
-      "min": 0.8511999999998352,
-      "max": 7.71329999999989,
-      "mean": 1.9440812500000106,
-      "p50": 1.0708499999999503,
-      "p95": 5.750404999999999
+      "count": 40,
+      "min": 0.8314000000000306,
+      "max": 1.2971000000000004,
+      "mean": 1.0951149999999927,
+      "p50": 1.091199999999958,
+      "p95": 1.2755549999998494
     }
   }
 }

@@ -176,3 +176,23 @@ export {
   type ContextRestoreProbePayload,
   type ContextRestoreTransition,
 } from "./probe/contextRestoreProbe.js";
+
+export {
+  runC02LiveDisplayOnlyExtractProbe,
+  buildLiveProbeSource,
+  C02_LIVE_EXTRACT_FILE,
+  type C02LiveExtractPayload,
+  type C02ExtractSummary,
+  type RunC02LiveExtractOptions,
+} from "./probe/c02DisplayOnlyExtractProbe.js";
+
+export {
+  runIdleSettleInteractionP95Probe,
+  solidifyInteractionP95Evidence,
+  writeCondensedInteractionP95,
+  INTERACTION_P95_FILE,
+  INTERACTION_P95_CONDENSED_FILE,
+  IDLE_REFINE_EVIDENCE_FILE,
+  type IdleSettleProbeOptions,
+} from "./probe/interactionP95Probe.js";
+

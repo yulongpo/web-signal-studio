@@ -1,0 +1,135 @@
+{
+  "bot": "bot-c",
+  "gate": "C-02",
+  "kind": "live-display-only-tile-extract",
+  "writtenAt": "2026-10-21T11:32:27.722Z",
+  "package": "@wss/charts",
+  "displayOnly": true,
+  "status": "WIP",
+  "note": "Live extractDisplayGrid + extractViewportTile + createSpectrogramTileSource.extractTile (preview+refine). Real buffers + extractMs + sourceWindow (source pixels only). Not schema-only. Dual-written docs+artifacts when repo root known. No PASS claim — WSS-QA-G owns PASS.",
+  "allowedKeys": [
+    "width",
+    "height",
+    "displayOnly",
+    "reduce",
+    "extractMs",
+    "sourceWindow",
+    "dataLength",
+    "dataPeak",
+    "dataMean",
+    "dataFnv1a",
+    "name"
+  ],
+  "forbiddenKeysAssertedAbsent": [
+    "hz",
+    "freqHz",
+    "frequencyHz",
+    "frequency",
+    "markerId",
+    "marker",
+    "markers",
+    "detectionId",
+    "detection",
+    "detections",
+    "timeSec",
+    "sampleIndex",
+    "businessCoords"
+  ],
+  "source": {
+    "grid": {
+      "width": 512,
+      "height": 256
+    },
+    "spectrogram": {
+      "binCount": 256,
+      "frameCount": 512,
+      "orientation": "stft"
+    }
+  },
+  "extracts": [
+    {
+      "name": "grid-full-peak-refine-size",
+      "width": 512,
+      "height": 256,
+      "displayOnly": true,
+      "reduce": "peak",
+      "extractMs": 1.5092999999999392,
+      "sourceWindow": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 256
+      },
+      "dataLength": 131072,
+      "dataPeak": 4.660640239715576,
+      "dataMean": 0.1596026678469945,
+      "dataFnv1a": 853761345
+    },
+    {
+      "name": "viewport-css-preview",
+      "width": 400,
+      "height": 200,
+      "displayOnly": true,
+      "reduce": "nearest",
+      "extractMs": 1.4722000000001572,
+      "sourceWindow": {
+        "x": 51,
+        "y": 25,
+        "w": 205,
+        "h": 103
+      },
+      "dataLength": 80000,
+      "dataPeak": 4.660130023956299,
+      "dataMean": 0.2591945840260968,
+      "dataFnv1a": 2542212096
+    },
+    {
+      "name": "spectrogram-tile-preview",
+      "width": 64,
+      "height": 48,
+      "displayOnly": true,
+      "reduce": "nearest",
+      "extractMs": 0.08200000000010732,
+      "sourceWindow": {
+        "x": 200,
+        "y": 100,
+        "w": 120,
+        "h": 40
+      },
+      "dataLength": 3072,
+      "dataPeak": 0.22535894811153412,
+      "dataMean": 0.0808340115023926,
+      "dataFnv1a": 2963082069
+    },
+    {
+      "name": "spectrogram-tile-refine",
+      "width": 160,
+      "height": 120,
+      "displayOnly": true,
+      "reduce": "peak",
+      "extractMs": 0.38609999999994216,
+      "sourceWindow": {
+        "x": 200,
+        "y": 100,
+        "w": 120,
+        "h": 40
+      },
+      "dataLength": 19200,
+      "dataPeak": 42,
+      "dataMean": 0.0884944021174741,
+      "dataFnv1a": 1414231807
+    }
+  ],
+  "assertions": {
+    "allDisplayOnly": true,
+    "noForbiddenKeysOnSummaries": true,
+    "noForbiddenKeysOnLiveResults": true,
+    "previewOutSmallerOrEqualRefine": true,
+    "everyExtractMsPositive": true,
+    "everyDataLengthMatchesWxH": true
+  },
+  "paths": {
+    "docs": "docs/acceptance/evidence/bot-c/c02_display_only_extract_live_2026-10-21.json",
+    "artifacts": "artifacts/validation/bot-c/c02_display_only_extract_live_2026-10-21.json"
+  }
+}

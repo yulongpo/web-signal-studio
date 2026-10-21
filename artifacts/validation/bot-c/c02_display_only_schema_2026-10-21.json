@@ -1,7 +1,7 @@
 {
   "bot": "bot-c",
   "gate": "C-02",
-  "writtenAt": "2026-10-21T11:15:44.536Z",
+  "writtenAt": "2026-10-21T11:32:27.187Z",
   "displayOnly": true,
   "allowedKeys": [
     "width",
@@ -33,7 +33,7 @@
     "height": 4,
     "displayOnly": true,
     "reduce": "peak",
-    "extractMs": 0.020099999999956708,
+    "extractMs": 0.010099999999965803,
     "sourceWindow": {
       "x": 0,
       "y": 0,

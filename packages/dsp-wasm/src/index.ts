@@ -34,6 +34,7 @@ export {
   createDspWorkerClient,
   createNodeDspWorkerClient,
   createBrowserDspWorkerClient,
+  createBrowserDspWorkerClientPreferWasmFft,
 } from './worker/dsp-client.js';
 export type { DspWorkerClientOptions } from './worker/dsp-client.js';
 export { InProcessAsyncBackend } from './worker/backends.js';
