@@ -80,3 +80,14 @@ Gaps: no PASS; desktop interactive not re-shot; G01 File corner parallel Bot-B.
 | File 菜单展开 | `03-file-menu-expanded.png`, `03b-file-menu-crop.png` |
 
 Gaps: web window controls are chrome stubs; no PASS.
+## Combined pack @ e134bb6 (Bot-G, NOT PASS)
+
+| Field | Value |
+|-------|--------|
+| Sync tip | `e134bb699232acf00ae4f9632b92d4b792302d32` |
+| Impl baseline | `ba868e4` (G11/G14/G13/G07/G06 chrome) |
+| Pack | `qa/web-e134bb6/` |
+| Desktop | `17471a6` |
+| **ui_parity_pass_claimed** | **false** |
+
+Shots: Detect caps/REAL_RUNTIME; G19 tree three-source/presentation; G07 bottom; G06 observe/mod/demod/BLOCKED; G11 zoom-box; G14 ROI header; G13 handles.
