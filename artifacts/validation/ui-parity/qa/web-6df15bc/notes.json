@@ -1,0 +1,46 @@
+{
+  "id": "qa-web-6df15bc-wave12-g11-polish-a130d078",
+  "tip_web_evidence": "6df15bcae8fe32d93213e91acb83a12a578e708f",
+  "tip_impl_b_wave12": "7d1a6ed",
+  "tip_impl_c_g11_polish": "58df6bf",
+  "tip_impl_a_130d078": "130d078",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-wave12-rail-pin-chrome.png",
+    "01b-wave12-rail-pin-crop.png",
+    "02-wave12-dwell-pin-live.png",
+    "02b-wave12-display-summary-pinned.png",
+    "03-g11-mark-layer-polish.png",
+    "04-rail-dwell-scrubber.png",
+    "fold-web-56233d2/* (10 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE12_PIN_ZINDEX.md",
+    "BOT_B_WAVE11_G19_EDITCELL_G02_G08.md",
+    "BOT_B_WAVE10_RAIL_SCRUBBER.md"
+  ],
+  "observations": {
+    "wave12_pin_hit": {
+      "ok": true,
+      "tag": "button",
+      "testid": "rail-dwell-pin-btn"
+    },
+    "wave12_pin_live": true,
+    "wave12_hit_ok": true,
+    "g11": {
+      "polish": true,
+      "hoverTip": false,
+      "unselectedAttr": false
+    },
+    "rail_scrubber_visible": true,
+    "stft_scrubber_present": false,
+    "psd_mode_select_present": false,
+    "a_130d078_in_history": true,
+    "a_130d078_subject": "audit INCREMENTAL_4c28588 B wave11 G19 editCell/export vs 17471a6"
+  },
+  "gaps": [
+    "G11: no unselected mark rect present without IQ; polish attr + CSS wiring captured"
+  ]
+}
