@@ -72,4 +72,26 @@ describe('resolveNbStftLinkedCursor', () => {
       }),
     ).toBeNull();
   });
+
+  it('STFT mod page pinned-only (no dwell) resolves from store', () => {
+    // modulationStft_ path: no local dwell scrubber — pinned store only
+    expect(
+      resolveNbStftLinkedCursor({
+        linkedPinned: true,
+        linkedTimeSec: 0.25,
+        linkedFrequencyHz: 1.5e6,
+        dwellTimeSec: null,
+        resolvedFreqHz: null,
+      }),
+    ).toEqual({ xValue: 0.25, yValue: 1.5e6, pinned: true });
+    expect(
+      resolveNbStftLinkedCursor({
+        linkedPinned: false,
+        linkedTimeSec: 0.25,
+        linkedFrequencyHz: 1.5e6,
+        dwellTimeSec: null,
+        resolvedFreqHz: null,
+      }),
+    ).toBeNull();
+  });
 });
