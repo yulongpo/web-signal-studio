@@ -94,6 +94,36 @@ describe('G18 narrowband PSD mode helpers', () => {
     expect(frameSel.y).toBe(frameDb);
     expect(statSel.y).toBe(statisticalDb);
   });
+
+  it('G18 pinned dwell index selects distinct STFT frames; statistical ignores pin', () => {
+    const binCount = 8;
+    const frameCount = 4;
+    const stft = new Float32Array(binCount * frameCount);
+    for (let f = 0; f < frameCount; f++) {
+      for (let k = 0; k < binCount; k++) {
+        stft[f * binCount + k] = (f + 1) * (k + 1) * 1e-3;
+      }
+    }
+    const welch = new Float32Array(binCount);
+    for (let k = 0; k < binCount; k++) welch[k] = (k + 1) * 5e-3;
+
+    const frame0 = buildFramePsdFromStft(stft, binCount, frameCount, 0);
+    const frameLast = buildFramePsdFromStft(stft, binCount, frameCount);
+    const frame2 = buildFramePsdFromStft(stft, binCount, frameCount, 2);
+    expect(frame0.length).toBe(binCount);
+    expect(Array.from(frame0)).not.toEqual(Array.from(frameLast));
+    expect(Array.from(frame2)).not.toEqual(Array.from(frame0));
+
+    const statisticalDb = buildStatisticalPsd(welch, stft, binCount, frameCount);
+    // Statistical series must stay Welch even if a pin index exists in UI.
+    const pinnedButStatistical = selectNarrowbandPsdSeries({
+      mode: 'statistical',
+      frameDb: frame2,
+      statisticalDb,
+    });
+    expect(pinnedButStatistical.kind).toBe('welch-statistical');
+    expect(pinnedButStatistical.y).toBe(statisticalDb);
+  });
 });
 
 describeDemo('narrowbandObserveDdc · sigmf_data_demo', () => {
@@ -231,6 +261,59 @@ describeDemo('narrowbandObserveDdc · sigmf_data_demo', () => {
       }
     }
     expect(sameValues).toBe(false);
+  });
+
+  it('G18 pinned dwell index changes frame PSD; statistical ignores pin', async () => {
+    const client = createDspWorkerClient({
+      backend: new InProcessAsyncBackend(),
+    });
+    clients.push(client);
+
+    const common = {
+      client,
+      waveformMode: 'rms' as const,
+      psdFftSize: 512,
+      stftFftSize: 256,
+      maxWavePoints: 64,
+      maxInputSamples: 8192,
+    };
+
+    const unpinned = await computeNarrowbandObserveDdc({
+      ...common,
+      psdMode: 'frame',
+    });
+    expect(unpinned.psdFrameCount).toBeGreaterThan(1);
+    expect(unpinned.psdFrameIndexUsed).toBe(unpinned.psdFrameCount - 1);
+
+    const pinned0 = await computeNarrowbandObserveDdc({
+      ...common,
+      psdMode: 'frame',
+      psdFrameIndex: 0,
+    });
+    expect(pinned0.psdFrameIndexUsed).toBe(0);
+    expect(Array.from(pinned0.psd.y)).toEqual(Array.from(pinned0.psdFrame));
+
+    // Distinct dwells must differ when STFT has multiple frames.
+    let differ = false;
+    const n = Math.min(unpinned.psd.y.length, pinned0.psd.y.length);
+    for (let i = 0; i < n; i++) {
+      if (Math.abs(unpinned.psd.y[i]! - pinned0.psd.y[i]!) > 1e-6) {
+        differ = true;
+        break;
+      }
+    }
+    expect(differ).toBe(true);
+
+    const statisticalPinned = await computeNarrowbandObserveDdc({
+      ...common,
+      psdMode: 'statistical',
+      psdFrameIndex: 0,
+    });
+    expect(statisticalPinned.psdFrameIndexUsed).toBeNull();
+    expect(statisticalPinned.psdSeriesKind).toBe('welch-statistical');
+    expect(Array.from(statisticalPinned.psd.y)).toEqual(
+      Array.from(statisticalPinned.psdStatistical),
+    );
   });
 
   it('respects AbortSignal', async () => {

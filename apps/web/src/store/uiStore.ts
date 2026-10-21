@@ -138,6 +138,8 @@ export interface UiState {
   narrowbandPsdFft: number;
   /** G18: 驻留帧谱/统计谱 UI slot; series computation owned by Bot-D. */
   narrowbandPsdMode: NarrowbandPsdMode;
+  /** G18 pinned dwell for frame PSD (null = default last STFT frame). Pin UI is B/C. */
+  narrowbandPinnedDwellIndex: number | null;
   narrowbandStftFft: number;
   narrowbandFreqMode: NarrowbandFreqMode;
   narrowbandGrid: boolean;
@@ -147,6 +149,7 @@ export interface UiState {
   setNarrowbandPage: (page: NarrowbandPageId) => void;
   setNarrowbandPsdFft: (n: number) => void;
   setNarrowbandPsdMode: (mode: NarrowbandPsdMode) => void;
+  setNarrowbandPinnedDwellIndex: (index: number | null) => void;
   setNarrowbandStftFft: (n: number) => void;
   setNarrowbandFreqMode: (mode: NarrowbandFreqMode) => void;
   setNarrowbandGrid: (on: boolean) => void;
@@ -271,6 +274,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   narrowbandPage: 'observe',
   narrowbandPsdFft: 4096,
   narrowbandPsdMode: 'statistical',
+  narrowbandPinnedDwellIndex: null,
   narrowbandStftFft: 1024,
   narrowbandFreqMode: 'baseband',
   narrowbandGrid: true,
@@ -432,6 +436,13 @@ export const useUiStore = create<UiState>((set, get) => ({
   setNarrowbandPage: (page) => set({ narrowbandPage: page }),
   setNarrowbandPsdFft: (n) => set({ narrowbandPsdFft: n }),
   setNarrowbandPsdMode: (mode) => set({ narrowbandPsdMode: mode }),
+  setNarrowbandPinnedDwellIndex: (index) =>
+    set({
+      narrowbandPinnedDwellIndex:
+        index == null || !Number.isFinite(index)
+          ? null
+          : Math.max(0, Math.floor(index)),
+    }),
   setNarrowbandStftFft: (n) => set({ narrowbandStftFft: n }),
   setNarrowbandFreqMode: (mode) => set({ narrowbandFreqMode: mode }),
   setNarrowbandGrid: (on) => set({ narrowbandGrid: on }),

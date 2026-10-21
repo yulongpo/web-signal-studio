@@ -69,6 +69,10 @@ export type NarrowbandObserveDdcResult = {
   /** Both series retained so mode switch can be proven to change data. */
   psdFrame: Float32Array;
   psdStatistical: Float32Array;
+  /** Resolved STFT frame used for frame PSD; null in statistical mode. */
+  psdFrameIndexUsed: number | null;
+  /** STFT dwell count available for pin chrome (B/C). */
+  psdFrameCount: number;
   stft: {
     power: Float32Array;
     binCount: number;
@@ -393,6 +397,13 @@ export async function computeNarrowbandObserveDdc(
     stftFramesEarly,
     frameIndexForMode,
   );
+  const psdFrameIndexUsed =
+    psdMode === 'frame' && stftFramesEarly > 0
+      ? frameIndexForMode == null
+        ? stftFramesEarly - 1
+        : Math.max(0, Math.min(stftFramesEarly - 1, Math.floor(frameIndexForMode)))
+      : null;
+  const psdFrameCount = stftFramesEarly;
   const psdStatistical = buildStatisticalPsd(
     welchLinear,
     stftLinEarly,
@@ -468,6 +479,8 @@ export async function computeNarrowbandObserveDdc(
     },
     psdFrame,
     psdStatistical,
+    psdFrameIndexUsed,
+    psdFrameCount,
     stft: {
       power: stftPower,
       binCount,
