@@ -24,7 +24,7 @@
 | M-01 | 工程打开 / 最近文件 | `packages/project-io` + `apps/web` | 单元 + E2E | TODO | |
 | M-02 | RAW / SigMF / WAV 分块读 | `packages/file-io` | 单测 + fixtures | TODO | |
 | M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | PASS | Bot-G @ tip `3ad9035` / CI [run 39589623844](https://github.com/yulongpo/web-signal-studio/actions/runs/39589623844)：ANGLE/SwiftShader 健康截图 + charts **52/52**；software GL / toDataURL；`docs/acceptance/evidence/bot-c/` |
-| M-04 | 物理轴 / DPR / 交互预览 | `packages/charts` + `apps/web` | Playwright | WIP | CI job `charts-playwright`（`apps/web/e2e/charts-qa-evidence.spec.ts`，无 `if:false`）；`docs/acceptance/evidence/bot-c/m04_playwright_pan_zoom_2026-10-21.json` + `artifacts/validation/bot-c/`；**非 PASS，待 QA** |
+| M-04 | 平移缩放 / DPR / 交互预览 | `packages/charts` + `apps/web` | Playwright | WIP | Bot-G @ tip `8a35dfc` / CI [run 39590792956](https://github.com/yulongpo/web-signal-studio/actions/runs/39590792956)：`charts-playwright` 已硬开（非 `if:false`）+ ANGLE/SwiftShader；M-03/M-04/C-04 用例绿且 CI 产物 `webglState=ok`；但 job **失败**（C-03 cssW 未随 viewport 变化，expect≠845）；**保持 WIP** |
 | M-05 | 宽窄带工作区布局 | `apps/web` | E2E + 对照截图 | TODO | |
 | M-06 | 标记 / 通道快照 / 撤销重做 | `packages/domain` + `project-io` | 单测 + E2E | TODO | |
 | M-07 | DDC / FIR / 有理重采样 | `packages/dsp-wasm` / local-compute | 数值对照 | TODO | |
@@ -35,12 +35,12 @@
 
 ## Bot-C 图谱引擎（实现证据）
 
-> PASS 仅由 WSS-QA-G 在独立核验证据后改写。M-04 / C-02 仍 WIP。
+> PASS 仅由 WSS-QA-G 独立证据复核后改写；M-04 / C-02 经 Bot-G @ `8a35dfc` 复核仍 WIP。
 
 | ID | 能力 | 落点 | 验收方式 | 状态 | 证据 |
 |----|------|------|----------|------|------|
 | C-01 | WebGL2 标量纹理 + 独立 LUT 热图 | `packages/charts` HeatmapRenderer / SpectrumChart | 单测 + 嵌入 demo | PASS | Bot-G @ `3ad9035` / run 39589623844：gpuAvailable + ANGLE/SwiftShader 健康截图；software GL / toDataURL；`BOT_C_PROBE_INDEX.md` |
-| C-02 | 显示态瓦片抽取（display-only） | `tile/displayExtract` | 单测 + probe | WIP | `docs/acceptance/evidence/bot-c/c02_display_only_schema_2026-10-21.json` 与 `artifacts/validation/bot-c/c02_display_only_schema_2026-10-21.json` 双写；forbiddenKeys 可断言；**非 PASS，待 QA** |
+| C-02 | 显示态切片提取（display-only） | `tile/displayExtract` | 单元 + probe | WIP | Bot-G @ tip `8a35dfc`：dualWrite 在 CI 产物中将 20 文件字节级一致写入 `docs/acceptance/evidence/bot-c/` **与** `artifacts/validation/bot-c/`；但 C-02 专证仍是 vitest schema（`c02_display_only_schema_*.json` status=WIP），非完整 display-only 提取证据；**保持 WIP** |
 | C-03 | DPR / canvas resize | `dpi/canvasSizing` | 单测 + probe dpr 字段 | PASS | Bot-G @ `3ad9035` / run 39589623844：dpr×css buffer 核验；tile/DPI probe；software GL |
 | C-04 | 拖拽/滚轮预览-细化 + WebGL context restore | `interaction/*` + `webgl/contextRestore` + SpectrumChart | 单测 + P50/P95 probe | PASS | Bot-G @ `3ad9035` / run 39589623844：live lose_context restore；`CONDENSED_interaction_p95.json`；software GL |
 
@@ -78,3 +78,4 @@
 | 2026-10-21 | Bot-C | QA-G evidence gaps M-03/M-04 + C-01..C-04 under `docs/acceptance/evidence/bot-c/` (**仍 WIP，不自报 PASS**); golden+Playwright+GPU/LUT/displayOnly/resize/restore probes |
 | 2026-10-21 | Bot-C | CI `charts-playwright` hard-enable + C-02 dual-write to `artifacts/validation/bot-c/` (**M-04/C-02 仍 WIP，不自报 PASS**) |
 | 2026-10-21 | WSS-QA-G | Bot-G 独立复核 @ tip `3ad9035` / CI run 39589623844：M-03/C-01/C-03/C-04 → **PASS**（ANGLE/SwiftShader；charts 52/52；software GL / toDataURL）；M-04/C-02 仍 WIP |
+| 2026-10-21 | WSS-QA-G | Bot-G 独立复核 @ tip `8a35dfc` / CI run 39590792956（failure）：M-04/C-02 **保持 WIP**（charts-playwright 硬开但失败；C-02 dualWrite 双路径 OK 但证据仍 schema-only）；charts unit **55/55**；祖先含 `389b135` |
