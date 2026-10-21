@@ -1,0 +1,12 @@
+﻿{
+    "ui_parity_pass_claimed":  false,
+    "blocker":  null,
+    "exe":  "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\SignalStudio.exe",
+    "matrix_pass_claimed":  false,
+    "captures":  [
+                     "ref-wideband-release.png (archival chart-rendering-final @ rebuild tip; reference only)",
+                     "ref-narrowband-release.png (archival chart-rendering-final @ rebuild tip; reference only)",
+                     "desktop-primary-screen.png"
+                 ],
+    "tip_desktop":  "17471a6488383b456281d12cb1a6d3d80290205d"
+}
