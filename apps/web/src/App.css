@@ -2978,3 +2978,27 @@ span[data-editable-col]:hover {
 }
 
 
+
+
+/* wave17 G08 keyboard shell + G07 worker + rail linked-cursor twin */
+.rail-linked-cursor-twin {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 8px 0;
+  padding: 6px;
+  border: 1px dashed #2a4058;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.rail-linked-cursor-label {
+  flex: 1 1 160px;
+  min-width: 0;
+  color: #9ed0da;
+}
+.shell-col-resize:focus-visible,
+.bottom-panel-resize:focus-visible {
+  outline: 1px solid #61c3ca;
+  outline-offset: 1px;
+}
