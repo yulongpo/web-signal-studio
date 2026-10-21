@@ -81,7 +81,9 @@ export function TempLayers() {
             </button>
           </header>
           <label className="temp-field">
-            <span>Ref level (dB)</span>
+            <span data-testid="level-ref-summary">
+              参考 {levelDraft.refLevelDb.toFixed(2)} dB
+            </span>
             <input
               type="number"
               data-testid="level-ref"
@@ -89,10 +91,13 @@ export function TempLayers() {
               onChange={(e) =>
                 updateLevelDraft({ refLevelDb: Number(e.target.value) })
               }
+              onWheel={(event) => event.currentTarget.blur()}
             />
           </label>
           <label className="temp-field">
-            <span>Dynamic range (dB)</span>
+            <span data-testid="level-range-summary">
+              动态 {levelDraft.dynamicRangeDb.toFixed(2)} dB
+            </span>
             <input
               type="number"
               data-testid="level-range"
@@ -100,6 +105,7 @@ export function TempLayers() {
               onChange={(e) =>
                 updateLevelDraft({ dynamicRangeDb: Number(e.target.value) })
               }
+              onWheel={(event) => event.currentTarget.blur()}
             />
           </label>
           <label className="temp-field temp-field-check">

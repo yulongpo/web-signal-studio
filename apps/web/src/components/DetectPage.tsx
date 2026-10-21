@@ -84,6 +84,8 @@ export function DetectPage() {
   const setToken = useUiStore((s) => s.setLocalComputeToken);
   const baseUrl = useUiStore((s) => s.localComputeBaseUrl);
   const sampleRange = useUiStore((s) => s.detectSampleRange);
+  const rangeSource = useUiStore((s) => s.detectSampleRangeSource);
+  const rangeRef = useRef<HTMLElement>(null);
 
   const iqEpoch = useSyncExternalStore(
     subscribeIqFileSession,
@@ -282,6 +284,14 @@ export function DetectPage() {
     return `${task.status}${progress}${msg ? ` — ${msg}` : ''}`;
   })();
 
+  const realRuntimeMsg =
+    caps?.detection.uiMessages?.find((message) => message.code === 'REAL_RUNTIME') ?? null;
+
+  useEffect(() => {
+    if (rangeSource !== 'roi') return;
+    rangeRef.current?.focus();
+  }, [rangeSource, sampleRange.start, sampleRange.end]);
+
   const runtime = caps?.runtime ?? null;
   const drawOk = shouldDrawDetectionCandidates(task, runtime);
   const drawCandidates = candidatesForDraw(task, runtime);
@@ -396,9 +406,40 @@ export function DetectPage() {
           ? iqSourcePath
           : '（未打开 — 检测入口已门控，仍可刷新 capabilities）'}
       </p>
-      <p className="detect-range muted" data-testid="detect-sample-range">
-        sampleRange: [{sampleRange.start}, {sampleRange.end})（十进制字符串）
-      </p>
+      {realRuntimeMsg ? (
+        <p
+          className="detect-real-runtime"
+          data-testid="detect-real-runtime"
+          data-code="REAL_RUNTIME"
+          data-can-invent={String(caps?.runtime?.canInventResults ?? false)}
+        >
+          <UiCodeChip code="REAL_RUNTIME" />{' '}
+          <span>{pickUiMessageText(realRuntimeMsg, 'zh')}</span>
+        </p>
+      ) : null}
+
+      <section
+        ref={rangeRef}
+        className="detect-range-card"
+        data-testid="detect-sample-range"
+        data-start={sampleRange.start}
+        data-end={sampleRange.end}
+        data-range-source={rangeSource}
+        tabIndex={-1}
+      >
+        <strong>检测采样范围</strong>
+        <p className="detect-range-values" data-testid="detect-sample-range-values">
+          [{sampleRange.start}, {sampleRange.end})
+        </p>
+        <p data-testid="detect-sample-range-source">
+          {rangeSource === 'roi'
+            ? '来自图上检测 ROI 确认。确认不会自动运行检测。'
+            : rangeSource === 'file'
+              ? '来自已打开工程的样本区间。'
+              : '默认区间。尚未确认图上检测 ROI。'}
+        </p>
+        <p className="muted">十进制字符串，半开区间。</p>
+      </section>
 
       <div className="detect-task" data-testid="detect-task-status">
         {statusLine}

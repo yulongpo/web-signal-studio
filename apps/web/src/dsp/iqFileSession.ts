@@ -22,10 +22,33 @@ export interface IqFileSession {
 
 let current: IqFileSession | null = null;
 let epoch = 0;
+let openDepth = 0;
+let openBusy = false;
 const listeners = new Set<() => void>();
 
 function notify(): void {
   for (const cb of listeners) cb();
+}
+
+function setOpenBusy(next: boolean): void {
+  if (openBusy === next) return;
+  openBusy = next;
+  notify();
+}
+
+/** Chart shows loading for the whole async open, not only after the session lands. */
+export function beginIqFileOpen(): void {
+  openDepth += 1;
+  setOpenBusy(true);
+}
+
+export function endIqFileOpen(): void {
+  openDepth = Math.max(0, openDepth - 1);
+  setOpenBusy(openDepth > 0);
+}
+
+export function getIqFileOpenBusy(): boolean {
+  return openBusy;
 }
 
 export function getIqFileSession(): IqFileSession | null {

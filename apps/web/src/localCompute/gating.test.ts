@@ -253,6 +253,28 @@ describe('detection gating', () => {
       result: { candidates: [{ score: 1 }] },
     });
     expect(shouldDrawDetectionCandidates(noRuntime, null)).toBe(false);
+
+    const trt = makeTask({
+      status: 'succeeded',
+      result: {
+        verifiedForward: true,
+        engine: 'TENSORRT_CUDA',
+        candidates: [{ score: 0.4 }],
+      },
+    });
+    expect(shouldDrawDetectionCandidates(trt, { ...stubRuntime, canInventResults: false })).toBe(true);
+    expect(candidatesForDraw(trt, stubRuntime)).toHaveLength(1);
+
+    const unverifiedTrt = makeTask({
+      status: 'succeeded',
+      result: {
+        verifiedForward: false,
+        engine: 'TENSORRT_CUDA',
+        candidates: [{ score: 0.99 }],
+      },
+    });
+    expect(shouldDrawDetectionCandidates(unverifiedTrt, stubRuntime)).toBe(false);
+    expect(candidatesForDraw(unverifiedTrt, stubRuntime)).toEqual([]);
   });
 });
 

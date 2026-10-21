@@ -94,6 +94,10 @@ const GATE_PREFER_FFSCN = [
   'WEIGHT_HASH_MISMATCH',
   'MODEL_HASH_UNAVAILABLE',
   'MODEL_LOAD_FAILED',
+  'ENGINE_MISSING',
+  'ENGINE_LOAD_FAILED',
+  'TENSORRT_RUNTIME_MISSING',
+  'TENSORRT_NA',
   'STUB_RUNTIME',
   'NO_FAKE_INFERENCE',
   'GPU_MISSING',
@@ -111,6 +115,10 @@ const GATE_PREFER_SCN = [
   'WEIGHT_HASH_MISMATCH',
   'MODEL_HASH_UNAVAILABLE',
   'MODEL_LOAD_FAILED',
+  'ENGINE_MISSING',
+  'ENGINE_LOAD_FAILED',
+  'TENSORRT_RUNTIME_MISSING',
+  'TENSORRT_NA',
   'STUB_RUNTIME',
   'NO_FAKE_INFERENCE',
   'GPU_MISSING',
@@ -180,7 +188,7 @@ export function gateDisableReason(
   };
 }
 
-function isPytorchEngine(engine: unknown): boolean {
+function isRealEngine(engine: unknown): boolean {
   if (typeof engine !== 'string') return false;
   return (LOCAL_COMPUTE_REAL_ENGINES as readonly string[]).includes(engine)
     || engine.startsWith('PYTORCH_');
@@ -189,8 +197,9 @@ function isPytorchEngine(engine: unknown): boolean {
 /**
  * Draw candidates only when the task succeeded with a verified real forward.
  * - BLOCKED / null result → never draw (ignore unexpected keys).
- * - Require result.verifiedForward === true and engine PYTORCH_*.
- * - Without verifiedForward, refuse when canInventResults is false/missing.
+ * - Require result.verifiedForward === true and a real engine
+ *   (PYTORCH_* or TENSORRT_CUDA).
+ * - Without verifiedForward, refuse. canInventResults is not a license to draw.
  */
 export function shouldDrawDetectionCandidates(
   task: LocalComputeTaskRecord | null | undefined,
@@ -203,7 +212,7 @@ export function shouldDrawDetectionCandidates(
   if (result == null || typeof result !== 'object') return false;
 
   const verified = result.verifiedForward === true;
-  const engineOk = isPytorchEngine(result.engine);
+  const engineOk = isRealEngine(result.engine);
 
   if (verified && engineOk) return true;
 
