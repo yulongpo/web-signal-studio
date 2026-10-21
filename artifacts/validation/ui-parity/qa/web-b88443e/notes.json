@@ -1,0 +1,64 @@
+{
+  "id": "qa-web-b88443e-g11-sourcekind-wave14-g02-g07-g08",
+  "tip_web_evidence": "b88443e308c99a18053b446d02d4ecf2f8b9cb73",
+  "tip_impl_c_g11": "b71010b",
+  "tip_impl_b_wave14": "b057d2d",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-g08-shell-wave14.png",
+    "02-g02-strip-wave14.png",
+    "02b-g02-strip-crop.png",
+    "03-g11-sourcekind-hover-layer.png",
+    "03b-g11-table-hover-sync.png",
+    "04-g07-blocked-gaps.png",
+    "04b-g07-blocked-gaps-crop.png",
+    "04c-g07-worker-slots.png",
+    "fold-web-6ada5b0/* (13 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE14_G02_G07_G08.md",
+    "BOT_C_STATUS.md"
+  ],
+  "observations": {
+    "g08": {
+      "shell_wave": "wave9 wave11 wave14",
+      "has_wave14": true,
+      "left_aria_valuemin": "8",
+      "left_aria_valuemax": "800",
+      "left_aria_valuenow": "278",
+      "left_shell_focus": "wave9"
+    },
+    "g02": {
+      "strip_wave": "wave11 wave14",
+      "has_wave14": true,
+      "freq_mode": 1,
+      "window": 1,
+      "overlap": 1,
+      "window_empty": "true",
+      "overlap_empty": "true"
+    },
+    "g11": {
+      "source_kind_attr": "true",
+      "hover_sync_attr": "true",
+      "polish_attr": "true",
+      "table_hover_sync_rows": 1,
+      "row_source_kind": null,
+      "row_hovered": null,
+      "live_row_sync_proven": false
+    },
+    "g07": {
+      "blocked_gaps_visible": true,
+      "honest_blocked": "g06-g17",
+      "eye_blocked": "true",
+      "bitstream_blocked": "true",
+      "demod_blocked": "true",
+      "worker_chrome": "wave14",
+      "worker_status_visible": true
+    }
+  },
+  "gaps": [
+    "G11 hover sync live: locator matched layer stamp (data-g11-hover-sync) but no mark-row data-source-kind/data-hovered (needs marks/IQ for chart<->table sync shot)"
+  ]
+}
