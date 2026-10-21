@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:02` Asia/Shanghai: Web **`42265bf`** vs desktop `17471a6` — G18 PARTIAL deepened (C mod STFT linkedCursor). Recognition STFT residual; G17 not elevated. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_42265bf.md`. **No PASS.**
+
+| ID | Prior (`d4f0943`) | Now (`42265bf`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（mod/recog 残） | **PARTIAL 加深** | mod STFT MET；recog panes → **未 CLOSED** |
+| **G17** | PARTIAL | **unchanged — BLOCKED** | 未抬升 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_42265bf.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:00` Asia/Shanghai: Web **`d4f0943`** vs desktop `17471a6` — evidence-only G web-d69fc93. No status flips. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d4f0943.md`. **No PASS.**
 
 | ID | Prior (`d69fc93`) | Now (`d4f0943`) | Note |
