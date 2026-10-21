@@ -1,6 +1,7 @@
 /**
  * G06 modulation charts: DDC IQ → constellation + STFT; eye stays BLOCKED.
  * Fills Bot-B modulation page slots — no fake classifier scores.
+ * G18: modulation STFT receives linkedCursor like desktop modulationStft_->setLinkedCursor.
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { SpectrumChart } from '@wss/charts/SpectrumChart';
@@ -11,6 +12,8 @@ import {
   type NarrowbandModulationDdcResult,
 } from '../dsp/narrowbandModulationDdc';
 import { ConstellationCanvas } from './ConstellationCanvas';
+import { cssToTimeFreq, frameIndexFromPlotX } from './chartGesture';
+import { resolveNbStftLinkedCursor } from './nbMultiViewLinked';
 
 function PanelShell({
   title,
@@ -52,6 +55,9 @@ export function NarrowbandModulationCharts() {
   const client = useDspWorkerClient();
   const stftFft = useUiStore((s) => s.narrowbandStftFft);
   const freqMode = useUiStore((s) => s.narrowbandFreqMode);
+  const linkedCursor = useUiStore((s) => s.linkedCursor);
+  const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
+  const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
 
   const [result, setResult] = useState<NarrowbandModulationDdcResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +107,16 @@ export function NarrowbandModulationCharts() {
       }
     : null;
 
+  // Desktop updateLinkedCursors: modulationStft_ gets same LinkedCursorState as observe STFT.
+  // Mod page has no local dwell scrubber — pinned store only (no invented dwell).
+  const stftLinkedCursor = resolveNbStftLinkedCursor({
+    linkedPinned: linkedCursor.pinned,
+    linkedTimeSec: linkedCursor.timeSec,
+    linkedFrequencyHz: linkedCursor.frequencyHz,
+    dwellTimeSec: null,
+    resolvedFreqHz: null,
+  });
+
   return (
     <>
       <div
@@ -149,30 +165,76 @@ export function NarrowbandModulationCharts() {
         </PanelShell>
 
         <PanelShell
-          title="时频谱"
+          title="时频图"
           testId="nb-panel-mod-stft"
           ready={ready && Boolean(result && result.stft.frameCount > 0)}
           extraAttrs={{
             'data-nb-stft-source': 'sigmf_data_demo-ddc',
+            'data-g18-nb-mod-stft-linked-cursor':
+              stftLinkedCursor == null ? 'false' : 'true',
+            'data-g18-linked-cursor': stftLinkedCursor == null ? 'false' : 'true',
           }}
         >
           {result &&
           stftFreq &&
           result.stft.frameCount > 0 &&
           result.stft.binCount > 0 ? (
-            <SpectrumChart
-              power={result.stft.power}
-              binCount={result.stft.binCount}
-              frameCount={result.stft.frameCount}
-              mode="stft"
-              freqHz={stftFreq}
-              timeSec={result.stft.timeSec}
-              height="100%"
-              testId="nb-chart-mod-stft"
-              interactionEnabled={false}
-            />
+            <div
+              className="nb-stft-pin-host"
+              data-testid="nb-mod-stft-pin-host"
+              data-frame-count={result.stft.frameCount}
+              data-g18-margin-map="true"
+              title="单击钉住联动光标；Alt+单击清除"
+              style={{ width: '100%', height: '100%', position: 'relative' }}
+              onClick={(event) => {
+                // Desktop bindGesture(modulationStft_): pin → updateLinkedCursors.
+                if (event.altKey) {
+                  clearActivePinnedCursor();
+                  return;
+                }
+                const host = event.currentTarget.getBoundingClientRect();
+                if (!(host.width > 0) || !(host.height > 0) || result.stft.frameCount <= 0)
+                  return;
+                const x = event.clientX - host.left;
+                const y = event.clientY - host.top;
+                const idx = frameIndexFromPlotX(x, host.width, result.stft.frameCount);
+                if (idx == null) return;
+                const { timeSec, freqHz } = cssToTimeFreq(
+                  x,
+                  y,
+                  host.width,
+                  host.height,
+                  'stft',
+                  result.stft.timeSec,
+                  stftFreq,
+                );
+                pinLinkedCursor({
+                  source: 'main',
+                  timeSec,
+                  frequencyHz: freqHz,
+                  selectedFrame: idx,
+                  centerTimeSec:
+                    result.stft.timeSec.min +
+                    (result.stft.timeSec.max - result.stft.timeSec.min) / 2,
+                  centerFrequencyHz: (stftFreq.min + stftFreq.max) / 2,
+                });
+              }}
+            >
+              <SpectrumChart
+                power={result.stft.power}
+                binCount={result.stft.binCount}
+                frameCount={result.stft.frameCount}
+                mode="stft"
+                freqHz={stftFreq}
+                timeSec={result.stft.timeSec}
+                height="100%"
+                testId="nb-chart-mod-stft"
+                interactionEnabled={false}
+                linkedCursor={stftLinkedCursor}
+              />
+            </div>
           ) : (
-            <Waiting text={statusText ?? '等待真实 DDC 时频谱'} />
+            <Waiting text={statusText ?? '等待真实 DDC 时频图'} />
           )}
         </PanelShell>
       </div>

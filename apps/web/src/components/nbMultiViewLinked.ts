@@ -1,7 +1,8 @@
 ﻿/**
  * G18 NB multi-view linked overlays beyond PSD vline / dwell-only freq.
  * Mirrors desktop NarrowbandWorkspace::updateLinkedCursors —
- * waveform_/psd_/stft_ all receive the same LinkedCursorState.
+ * waveform_/psd_/stft_/modulationStft_/recognitionStft_ all receive
+ * the same LinkedCursorState (recognition web pane still BLOCKED chrome).
  */
 export type NbStftLinkedCursor = {
   xValue: number;
