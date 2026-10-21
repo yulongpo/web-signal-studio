@@ -2644,3 +2644,21 @@ body,
 .rail-dwell-scrubber[data-scrubber-source='idle'] input[type='range'] {
   opacity: 0.45;
 }
+
+
+/* wave11 G19 editCell + export */
+.annotation-cell-edit {
+  width: 100%;
+  min-width: 48px;
+  background: #0d1725;
+  border: 1px solid #46a7d0;
+  color: #e8f3ff;
+  font-size: 11px;
+  padding: 1px 4px;
+}
+span[data-editable-col] {
+  cursor: text;
+}
+span[data-editable-col]:hover {
+  outline: 1px dashed #2a4058;
+}

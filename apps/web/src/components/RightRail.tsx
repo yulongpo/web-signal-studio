@@ -94,7 +94,7 @@ function DisplayPage() {
       className="rail-display-page"
       data-testid="rail-display-body"
       data-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
-      data-dwell-pin-chrome="wave8" data-rail-scrubber="wave10"
+      data-dwell-pin-chrome="wave8" data-rail-scrubber="wave10" data-rail-scrubber-wave="wave11"
     >
       <pre
         className="display-summary"
@@ -119,6 +119,7 @@ function DisplayPage() {
           <input
             type="number"
             min={0}
+            max={frameCount > 0 ? frameCount - 1 : undefined}
             step={1}
             data-testid="rail-dwell-index-input"
             value={dwellDraft}

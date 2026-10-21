@@ -147,7 +147,7 @@ export function SpecParamStrip() {
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9"
+      data-strip-nuance="wave9" data-strip-wave="wave11"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -331,6 +331,14 @@ export function SpecParamStrip() {
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-mode-caption" data-strip-nuance="wave9">
                 <span className="chart-strip-qlabel">主图模式</span>
                 <span className="chart-strip-qlabel-value">STFT / Waterfall</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-grid" data-strip-wave="wave11">
+                <span className="chart-strip-qlabel">网格</span>
+                <span className="chart-strip-qlabel-value" data-strip-unit="grid">on/off</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-ref-unit" data-strip-wave="wave11">
+                <span className="chart-strip-qlabel">参考单位</span>
+                <span className="chart-strip-qlabel-value" data-strip-unit="dB">dB</span>
               </div>
                             <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-level">
                 <span className="chart-strip-qlabel">参考 / 动态</span>

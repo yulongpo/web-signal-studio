@@ -137,8 +137,8 @@ export default function App() {
         data-shell-right-collapsed={shellCols.rightCollapsed ? 'true' : 'false'}
         data-shell-right-collapse-min={String(RIGHT_COLLAPSE_MIN)}
         data-shell-resizable="true"
-        data-shell-edge-pair="lr"
-        data-shell-reshot="wave8" data-shell-wave="wave9"
+        data-shell-edge-pair="lr" data-shell-persist="wss.shellColumns.v1"
+        data-shell-reshot="wave8" data-shell-wave="wave9 wave11"
         style={{
           gridTemplateColumns: collapsed
             ? `${leftColPx}px 6px 1fr 48px`

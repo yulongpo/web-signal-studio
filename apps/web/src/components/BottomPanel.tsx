@@ -65,6 +65,8 @@ export function BottomPanel() {
   const [editEndMs, setEditEndMs] = useState('');
   const [editLowerMhz, setEditLowerMhz] = useState('');
   const [editUpperMhz, setEditUpperMhz] = useState('');
+  /** G19 Qt-like editCell: col 1 name, 4 startMs, 5 endMs, 6 centerMHz, 7 bwKHz */
+  const [cellEdit, setCellEdit] = useState<null | { id: string; col: 1 | 4 | 5 | 6 | 7; draft: string }>(null);
   const resizeStart = useRef<{ y: number; h: number } | null>(null);
 
   useEffect(() => {
@@ -404,6 +406,172 @@ export function BottomPanel() {
     appendShellLog(`G19 segment ${offset < 0 ? 'prev' : 'next'} → ${segs[next].id.slice(0, 8)}`);
   };
 
+
+  const beginCellEdit = (id: string, col: 1 | 4 | 5 | 6 | 7, initial: string) => {
+    const hookNow = window.__wssM06;
+    if (!hookNow) return;
+    const ann = hookNow.session.annotations.annotations.find((a) => a.id === id);
+    if (!ann) return;
+    hookNow.setSelection({ activeMarkId: id, selectedMarkIds: [id] });
+    setCellEdit({ id, col, draft: initial === '—' ? '' : initial });
+    setM06Tick((n) => n + 1);
+  };
+
+  const cancelCellEdit = () => setCellEdit(null);
+
+  const finishCellEdit = (commit: boolean) => {
+    if (!cellEdit) return;
+    if (!commit) {
+      setCellEdit(null);
+      return;
+    }
+    const hookNow = window.__wssM06;
+    if (!hookNow) {
+      setCellEdit(null);
+      return;
+    }
+    const current = hookNow.session.annotations.annotations.find((a) => a.id === cellEdit.id);
+    if (!current) {
+      setCellEdit(null);
+      return;
+    }
+    const draft = cellEdit.draft.trim();
+    const sr = getIqFileSession()?.sampleRateHz ?? null;
+    const msToSample = (ms: string): string | undefined => {
+      if (!ms || !sr || !(sr > 0)) return undefined;
+      const n = Number(ms);
+      if (!Number.isFinite(n)) return undefined;
+      return String(Math.round((n / 1000) * sr));
+    };
+    if (cellEdit.col === 1) {
+      hookNow.session.replaceMark({
+        ...current,
+        name: draft || current.name || current.id,
+      });
+    } else if (cellEdit.col === 4 || cellEdit.col === 5) {
+      const sample = msToSample(draft);
+      if (sample == null) {
+        setCellEdit(null);
+        return;
+      }
+      const segs = current.segments ? [...current.segments] : [];
+      let next = { ...current };
+      if (segs.length > 0) {
+        const idx = Math.max(0, segs.findIndex((s) => s.id === current.activeSegmentId));
+        const ti = idx < 0 ? 0 : idx;
+        const target = { ...segs[ti] };
+        if (cellEdit.col === 4) target.start = sample;
+        else target.end = sample;
+        next = {
+          ...current,
+          segments: segs.map((s, i) => (i === ti ? target : s)),
+          ...(cellEdit.col === 4 ? { start: sample } : { end: sample }),
+        };
+      } else if (cellEdit.col === 4) {
+        next = { ...current, start: sample };
+      } else {
+        next = { ...current, end: sample };
+      }
+      hookNow.session.replaceMark(next);
+    } else if (cellEdit.col === 6 || cellEdit.col === 7) {
+      const n = Number(draft);
+      if (!Number.isFinite(n)) {
+        setCellEdit(null);
+        return;
+      }
+      const segs = current.segments ? [...current.segments] : [];
+      const lower = typeof current.lowerHz === 'number' ? current.lowerHz : 0;
+      const upper = typeof current.upperHz === 'number' ? current.upperHz : 0;
+      let nextLower = lower;
+      let nextUpper = upper;
+      if (cellEdit.col === 6) {
+        const bw = upper - lower;
+        const centerHz = n * 1e6;
+        nextLower = centerHz - bw / 2;
+        nextUpper = centerHz + bw / 2;
+      } else {
+        const center = (lower + upper) / 2;
+        const half = (n * 1e3) / 2;
+        nextLower = center - half;
+        nextUpper = center + half;
+      }
+      let next = { ...current, lowerHz: nextLower, upperHz: nextUpper };
+      if (segs.length > 0) {
+        const idx = Math.max(0, segs.findIndex((s) => s.id === current.activeSegmentId));
+        const ti = idx < 0 ? 0 : idx;
+        const target = { ...segs[ti], lowerHz: nextLower, upperHz: nextUpper };
+        next = { ...next, segments: segs.map((s, i) => (i === ti ? target : s)) };
+      }
+      hookNow.session.replaceMark(next);
+    }
+    appendShellLog(`G19 editCell col=${cellEdit.col} ${cellEdit.id.slice(0, 8)}`);
+    setCellEdit(null);
+    setM06Tick((n) => n + 1);
+  };
+
+  const exportAnnotationsJson = () => {
+    const hookNow = window.__wssM06;
+    if (!hookNow) return;
+    const { annotationsText } = hookNow.exportJson();
+    const blob = new Blob([annotationsText], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'annotations.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    appendShellLog('G19 export annotations.json via exportJson');
+  };
+
+  const exportAnnotationsCsv = () => {
+    const header = [
+      'name',
+      'annotationId',
+      'source',
+      'segment',
+      'start_ms',
+      'end_ms',
+      'center_mhz',
+      'bandwidth_khz',
+      'mean',
+      'quality',
+      'channel',
+    ];
+    const escape = (v: string) => {
+      if (/[",\n]/.test(v)) return `"${v.replace(/"/g, '""')}"`;
+      return v;
+    };
+    const lines = [header.join(',')];
+    for (const m of liveFiltered) {
+      if (m.deleted) continue;
+      lines.push(
+        [
+          m.name,
+          m.id,
+          m.sourceLabel,
+          m.segmentLabel,
+          m.startMs,
+          m.endMs,
+          m.centerMhz,
+          m.bandwidthKhz,
+          m.mean,
+          m.qualityLabel,
+          m.channelLabel,
+        ]
+          .map((x) => escape(String(x ?? '')))
+          .join(','),
+      );
+    }
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'annotations.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+    appendShellLog(`G19 export annotations.csv rows=${lines.length - 1}`);
+  };
+
   const selectionSummary = `匹配 ${liveFiltered.length} / 总数 ${marks.length} / 已选 ${selectedIds.length} · 页 ${safePage + 1}/${totalPages}`;
 
   return (
@@ -421,7 +589,7 @@ export function BottomPanel() {
       <div
         className="bottom-panel-resize"
         data-testid="bottom-panel-resize"
-        data-shell-edge="bottom" data-shell-reshot="wave8" data-edge-side="bottom" data-shell-focus="wave9" tabIndex={0}
+        data-shell-edge="bottom" data-shell-reshot="wave8" data-edge-side="bottom" data-shell-focus="wave9" data-shell-wave="wave11" tabIndex={0}
         data-hit-min-px="29"
         data-collapse-min="true"
         role="separator"
@@ -497,7 +665,7 @@ export function BottomPanel() {
               data-edit-selection={selectedIds.length === 1 ? 'single' : selectedIds.length === 0 ? 'empty' : 'multi'}
               data-edit-path="replaceMark"
               data-qt-reshot="wave8-annotation-panel"
-              data-qt-interactive="wave9"
+              data-qt-interactive="wave9" data-qt-editcell="wave11"
             >
               <p className="bottom-summary" data-testid="bottom-marks-summary">
                 {marksSummary}
@@ -613,6 +781,24 @@ export function BottomPanel() {
                       onClick={() => selectAdjacentSegment(1)}
                     >
                       下一段
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="bottom-btn-export-json"
+                      disabled={!hook}
+                      title="导出标记 JSON（exportJson）"
+                      onClick={exportAnnotationsJson}
+                    >
+                      JSON
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="bottom-btn-export-csv"
+                      disabled={liveFiltered.length === 0}
+                      title="导出 CSV（活动表行；非伪造）"
+                      onClick={exportAnnotationsCsv}
+                    >
+                      CSV
                     </button>
                   </div>
                   {selectedIds.length === 0 ? (
@@ -832,17 +1018,161 @@ export function BottomPanel() {
                             className={`annotation-mark-check${isSelected ? ' on' : ''}`}
                             aria-hidden
                           />
-                          <span className="annotation-mark-name col-name" title={m.nameCell}>
-                            {m.name}
-                          </span>
+                          {cellEdit?.id === m.id && cellEdit.col === 1 ? (
+                            <input
+                              className="annotation-mark-name col-name annotation-cell-edit"
+                              data-testid={`bottom-cell-edit-${m.id}-1`}
+                              data-edit-col="1"
+                              autoFocus
+                              value={cellEdit.draft}
+                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
+                              onBlur={() => finishCellEdit(true)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') finishCellEdit(true);
+                                if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  cancelCellEdit();
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span
+                              className="annotation-mark-name col-name"
+                              title={m.nameCell}
+                              data-editable-col="1"
+                              onDoubleClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                beginCellEdit(m.id, 1, m.name);
+                              }}
+                            >
+                              {m.name}
+                            </span>
+                          )}
                           <span className="muted col-kind">{m.sourceLabel}</span>
                           <span className="col-segment" data-testid={`bottom-mark-segment-${m.id}`}>
                             {m.segmentLabel}
                           </span>
-                          <span className="col-start-ms">{m.startMs}</span>
-                          <span className="col-end-ms">{m.endMs}</span>
-                          <span className="col-center-mhz">{m.centerMhz}</span>
-                          <span className="col-bw-khz">{m.bandwidthKhz}</span>
+                          {cellEdit?.id === m.id && cellEdit.col === 4 ? (
+                            <input
+                              className="col-start-ms annotation-cell-edit"
+                              data-testid={`bottom-cell-edit-${m.id}-4`}
+                              data-edit-col="4"
+                              autoFocus
+                              value={cellEdit.draft}
+                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
+                              onBlur={() => finishCellEdit(true)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') finishCellEdit(true);
+                                if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  cancelCellEdit();
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span
+                              className="col-start-ms"
+                              data-editable-col="4"
+                              onDoubleClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                beginCellEdit(m.id, 4, m.startMs);
+                              }}
+                            >
+                              {m.startMs}
+                            </span>
+                          )}
+                          {cellEdit?.id === m.id && cellEdit.col === 5 ? (
+                            <input
+                              className="col-end-ms annotation-cell-edit"
+                              data-testid={`bottom-cell-edit-${m.id}-5`}
+                              data-edit-col="5"
+                              autoFocus
+                              value={cellEdit.draft}
+                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
+                              onBlur={() => finishCellEdit(true)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') finishCellEdit(true);
+                                if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  cancelCellEdit();
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span
+                              className="col-end-ms"
+                              data-editable-col="5"
+                              onDoubleClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                beginCellEdit(m.id, 5, m.endMs);
+                              }}
+                            >
+                              {m.endMs}
+                            </span>
+                          )}
+                          {cellEdit?.id === m.id && cellEdit.col === 6 ? (
+                            <input
+                              className="col-center-mhz annotation-cell-edit"
+                              data-testid={`bottom-cell-edit-${m.id}-6`}
+                              data-edit-col="6"
+                              autoFocus
+                              value={cellEdit.draft}
+                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
+                              onBlur={() => finishCellEdit(true)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') finishCellEdit(true);
+                                if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  cancelCellEdit();
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span
+                              className="col-center-mhz"
+                              data-editable-col="6"
+                              onDoubleClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                beginCellEdit(m.id, 6, m.centerMhz);
+                              }}
+                            >
+                              {m.centerMhz}
+                            </span>
+                          )}
+                          {cellEdit?.id === m.id && cellEdit.col === 7 ? (
+                            <input
+                              className="col-bw-khz annotation-cell-edit"
+                              data-testid={`bottom-cell-edit-${m.id}-7`}
+                              data-edit-col="7"
+                              autoFocus
+                              value={cellEdit.draft}
+                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
+                              onBlur={() => finishCellEdit(true)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') finishCellEdit(true);
+                                if (e.key === 'Escape') {
+                                  e.preventDefault();
+                                  cancelCellEdit();
+                                }
+                              }}
+                            />
+                          ) : (
+                            <span
+                              className="col-bw-khz"
+                              data-editable-col="7"
+                              onDoubleClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                beginCellEdit(m.id, 7, m.bandwidthKhz);
+                              }}
+                            >
+                              {m.bandwidthKhz}
+                            </span>
+                          )}
                           <span className="col-mean">{m.mean}</span>
                           <span className="col-quality" data-testid={`bottom-mark-quality-${m.id}`}>
                             {QUALITY_LABEL[m.reviewStatus]}
