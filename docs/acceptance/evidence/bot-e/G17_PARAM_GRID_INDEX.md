@@ -30,4 +30,4 @@
 - TRT path accepts params without inventing candidates
 - `matrix_pass_claimed: false`
 
-**Tip (HEAD):** `96deac987a8fa68cb8de132a49adec06f4236e3f`
+**Tip (HEAD):** `f7a4a67e3bcb9bbe0e9722517b9e4a2db45e1cda` (`f7a4a67`) — branch tip at stamp time; merge this branch HEAD after docs commits.
