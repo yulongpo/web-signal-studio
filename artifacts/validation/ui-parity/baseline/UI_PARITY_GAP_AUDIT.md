@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 01:22` Asia/Shanghai: Web tip **`14cc45f`** vs desktop `17471a6` — G18 PARTIAL deepened (C `ae63355` Esc clearActivePinnedCursor + NB wave linkedX). NB PSD freq overlay residual → not CLOSED. G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_14cc45f.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`eca5a16`) | Now (`14cc45f`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（NB/Esc 残） | **PARTIAL 加深** | `ae63355` Esc clear + NB wave linkedX MET；NB PSD freq overlay → **未 CLOSED** |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未发明路径 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_14cc45f.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:19` Asia/Shanghai: Web tip **`eca5a16`** vs desktop `17471a6` — G08/G07/G18 PARTIAL deepened (B `becd1e4` shell keyboard + Worker inspector feed + rail linkedCursor twin; G `0e5ab7c` prior-tip only). G19 true native QFileDialog still residual. G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_eca5a16.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`c9ed974`) | Now (`eca5a16`) | Note |

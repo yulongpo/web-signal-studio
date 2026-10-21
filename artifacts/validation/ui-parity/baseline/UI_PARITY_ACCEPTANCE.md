@@ -1,3 +1,10 @@
+> Bot-A `2026-10-22 01:22` Asia/Shanghai: Web **`14cc45f`** vs desktop `17471a6` — G18 PARTIAL deepened (C Esc clear + NB multi-view wave). Not CLOSED. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_14cc45f.md`. **No PASS.**
+
+| ID | Prior (`eca5a16`) | Now (`14cc45f`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（NB/Esc 残） | **PARTIAL 加深** | Esc + NB wave linkedX MET；NB PSD freq → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_14cc45f.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:19` Asia/Shanghai: Web **`eca5a16`** vs desktop `17471a6` — G08/G07/G18 PARTIAL deepened (B wave17 keyboard + inspector feed + rail twin). G19 native QFileDialog residual. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_eca5a16.md`. **No PASS.**
 
 | ID | Prior (`c9ed974`) | Now (`eca5a16`) | Note |
