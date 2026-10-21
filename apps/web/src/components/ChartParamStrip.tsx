@@ -1,6 +1,7 @@
 /**
  * Bot-B chart param strip for aux/spec headers (rebuild: settings hang on chart header, not nav).
- * G02 demotion: replaces always-on SpectrumToolbar row between aux and main.
+ * G02 demotion: chart-header toolbar only (no aux↔main SpectrumToolbar habit);
+ * f9f05bb overflow focus (Esc / autofocus). Open IQ lives in overflow.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
@@ -80,6 +81,8 @@ export function SpecParamStrip() {
   const overflowRef = useRef<HTMLDivElement>(null);
   const iqInputRef = useRef<HTMLInputElement>(null);
 
+  const overflowMenuRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!overflowOpen) return;
     const onDown = (e: MouseEvent) => {
@@ -87,8 +90,26 @@ export function SpecParamStrip() {
         setOverflowOpen(false);
       }
     };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOverflowOpen(false);
+        (overflowRef.current?.querySelector('[data-testid="btn-toolbar-overflow"]') as HTMLElement | null)?.focus();
+      }
+    };
     window.addEventListener('mousedown', onDown);
-    return () => window.removeEventListener('mousedown', onDown);
+    window.addEventListener('keydown', onKey);
+    // f9f05bb: focus first actionable control when overflow opens
+    window.requestAnimationFrame(() => {
+      const root = overflowMenuRef.current;
+      const focusable = root?.querySelector<HTMLElement>(
+        'select, button, [href], input, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      focusable?.focus();
+    });
+    return () => {
+      window.removeEventListener('mousedown', onDown);
+      window.removeEventListener('keydown', onKey);
+    };
   }, [overflowOpen]);
 
   const onOpenIqWav = async () => {
@@ -117,18 +138,21 @@ export function SpecParamStrip() {
 
   return (
     <header
-      className="chart-strip chart-strip-main spectrum-toolbar spectrum-toolbar-chart-header"
+      className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
       data-variant="chart-header"
+      data-toolbar-habit="retired-aux-main"
     >
       <span className="chart-strip-caption" data-testid="chart-strip-caption-main">
         宽带时频谱
       </span>
       <div
-        className="spectrum-toolbar spectrum-toolbar-chart-header"
-        data-testid="spectrum-toolbar"
+        className="chart-header-toolbar"
+        data-testid="chart-header-toolbar"
         data-variant="chart-header"
+        data-legacy-testid="spectrum-toolbar"
         role="toolbar"
+        aria-label="chart header settings"
       >
         <div className="toolbar-primary">
           <button
@@ -201,17 +225,24 @@ export function SpecParamStrip() {
             </span>
           ) : null}
         </div>
-        <div className="toolbar-overflow" ref={overflowRef}>
+        <div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
           <button
             type="button"
             data-testid="btn-toolbar-overflow"
             aria-expanded={overflowOpen}
+            aria-haspopup="menu"
             onClick={() => setOverflowOpen((v) => !v)}
           >
             More
           </button>
           {overflowOpen ? (
-            <div className="overflow-menu" data-testid="toolbar-overflow-menu" role="menu">
+            <div
+              className="overflow-menu"
+              data-testid="toolbar-overflow-menu"
+              role="menu"
+              tabIndex={-1}
+              ref={overflowMenuRef}
+            >
               <label className="overflow-item">
                 <span>STFT N</span>
                 <select
