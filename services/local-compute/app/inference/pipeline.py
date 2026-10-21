@@ -181,11 +181,11 @@ def run_detection_inference(
             if family == "FFSCN":
                 from .trt_ffscn import run_ffscn_trt
 
-                result = run_ffscn_trt(weights=weights, source_path=src, cancel_cb=cancel_cb)
+                result = run_ffscn_trt(weights=weights, source_path=src, cancel_cb=cancel_cb, params=params)
             else:
                 from .trt_scn import run_scn_trt
 
-                result = run_scn_trt(weights=weights, source_path=src, cancel_cb=cancel_cb)
+                result = run_scn_trt(weights=weights, source_path=src, cancel_cb=cancel_cb, params=params)
         except Exception as exc:  # noqa: BLE001
             msg = str(exc)
             if "cancel" in msg.lower():

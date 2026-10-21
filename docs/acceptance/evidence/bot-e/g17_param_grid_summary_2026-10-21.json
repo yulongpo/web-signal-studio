@@ -1,0 +1,25 @@
+{
+  "gate": "G17",
+  "topic": "DetectionCard full parameter grid",
+  "base": "97fc7c0ab94507fc2c9d534b1c3e568458e128c7",
+  "head": "PENDING",
+  "desktop_ref": "17471a6",
+  "matrix_pass_claimed": false,
+  "recognition": "BLOCKED",
+  "closed": [
+    "timing_fft_hop_frames",
+    "score_threshold",
+    "branch_nms_topk_margins_splits",
+    "advanced_batch_tracker_merge",
+    "createTask_params_forward",
+    "trt_honors_score_topk_fft_frames"
+  ],
+  "still_partial": [
+    "range_origin_active_segment_roi_select_chrome",
+    "adaptive_value_edit_validation_parity",
+    "physical_times_fs_calc"
+  ],
+  "blocked": [
+    "narrowband_recognition"
+  ]
+}
