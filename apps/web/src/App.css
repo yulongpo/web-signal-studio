@@ -128,9 +128,9 @@ body,
 /* G05: nav / aux heights driven by VerticalSplitter (CSS vars). */
 .workspace.workspace-split {
   grid-template-rows:
-    var(--nav-pane-h, 36px)
+    var(--nav-pane-h, 82px)
     6px
-    var(--aux-pane-h, 160px)
+    var(--aux-pane-h, 205px)
     6px
     36px
     1fr

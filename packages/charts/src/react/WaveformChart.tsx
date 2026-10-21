@@ -37,7 +37,7 @@ export function WaveformChart(props: WaveformChartProps) {
     xDomain,
     yDomain: yDomainProp,
     kind = "waveform",
-    height = 160,
+    height = 205,
     className,
     style,
     testId = "waveform-chart",
@@ -82,7 +82,7 @@ export function WaveformChart(props: WaveformChartProps) {
     const draw = () => {
       const cssW = Math.max(1, wrap.clientWidth);
       const cssH =
-        typeof height === "number" ? height : Math.max(1, wrap.clientHeight || 160);
+        typeof height === "number" ? height : Math.max(1, wrap.clientHeight || 205);
       const dpr = resolveDevicePixelRatio(window.devicePixelRatio);
       const size = applyCanvasDpr(canvas, {
         cssWidth: cssW,

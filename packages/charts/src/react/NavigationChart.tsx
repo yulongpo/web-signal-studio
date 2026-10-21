@@ -31,7 +31,7 @@ export function NavigationChart(props: NavigationChartProps) {
     fullTime,
     windowTime,
     envelope,
-    height = 36,
+    height = 82,
     className,
     style,
     testId = "navigation-chart",
@@ -64,7 +64,7 @@ export function NavigationChart(props: NavigationChartProps) {
     const draw = () => {
       const cssW = Math.max(1, wrap.clientWidth);
       const cssH =
-        typeof height === "number" ? height : Math.max(1, wrap.clientHeight || 36);
+        typeof height === "number" ? height : Math.max(1, wrap.clientHeight || 82);
       const dpr = resolveDevicePixelRatio(window.devicePixelRatio);
       applyCanvasDpr(canvas, {
         cssWidth: cssW,
