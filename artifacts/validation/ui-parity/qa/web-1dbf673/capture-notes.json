@@ -1,0 +1,101 @@
+{
+  "id": "qa-web-1dbf673-openhand-detect-g06-g19-g02-g08-g07",
+  "tip_web_evidence": "1dbf67316bca088b1aefea4b948953a04391eb75",
+  "tip_impl_baseline": "9248453b0f58375bd50e93719a6371574c3d0a84",
+  "tip_impl_f4c67be_wave": "f4c67be09ef7d53b60ff4b243ee900bcd0ca123b",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g26_iq": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.sigmf-meta",
+  "captures": [
+    "01-g08-columns.png",
+    "02-g02-strip-qlabel.png",
+    "02b-g02-strip-main-crop.png",
+    "03-openhand-xaxis.png",
+    "03b-openhand-xaxis-crop.png",
+    "03c-openhand-yaxis.png",
+    "03d-closedhand-yaxis-drag.png",
+    "03e-plot-crosshair.png",
+    "04-g19-annotation-paint.png",
+    "04b-g19-annotation-panel-crop.png",
+    "05-g07-annotation-panel-shell.png",
+    "05b-g07-detection-panel-shell.png",
+    "05c-g07-detection-shell-crop.png",
+    "06-detection-full-params.png",
+    "06b-detection-card-crop.png",
+    "06c-detection-param-grid.png",
+    "06d-detection-advanced.png"
+  ],
+  "docs": [
+    "G06_EYE_BITSTREAM_BLOCKED.md",
+    "G06_RECOGNITION_ASSESS_BLOCKED.md",
+    "G07_HANDOFF_TO_B.md",
+    "G17_PARAM_GRID_INDEX.md",
+    "BOT_B_G19_ANNOTATION_PAINT.md",
+    "BOT_B_G02_STRIP.md",
+    "BOT_B_G08_COLUMNS.md",
+    "BOT_B_G07_BOTTOM.md",
+    "INCREMENTAL_f4c67be.md",
+    "INCREMENTAL_9248453.md"
+  ],
+  "observations": {
+    "g08": {
+      "columns": "278-390",
+      "tree_w": 278,
+      "rail_w": 390
+    },
+    "g02": {
+      "level": "参考 -20.00 · 动态 70.00",
+      "stft": "STFT点数",
+      "palette": "色板"
+    },
+    "openhand": {
+      "x_hover": "grab",
+      "y_hover": "grab",
+      "drag_cursor": "grabbing",
+      "plot": "crosshair"
+    },
+    "g19": {
+      "paint": "desktop-multi",
+      "summary": "匹配 0 / 总数 0 / 已选 0"
+    },
+    "g07": {
+      "marks_shell": "annotation-panel",
+      "tasks_shell": "detection-panel",
+      "detect_cols": true
+    },
+    "detection_full_params": {
+      "grid": "detectionParameterGrid",
+      "params": {
+        "detection-fft-size": "detectionFftSize",
+        "detection-hop-milliseconds": "detectionHopMilliseconds",
+        "detection-model-frames": "detectionModelFrames",
+        "detection-score-threshold": "detectionScoreThreshold",
+        "detection-nms-iou": "detectionNmsIou",
+        "detection-topk": "detectionTopK",
+        "detection-batch-size": "detectionBatchSize",
+        "detection-merge-frequency-hz": "detectionMergeFrequencyHz"
+      },
+      "count": 8
+    },
+    "g06_blocked": {
+      "eye": "BLOCKED EYE_TIMING_SYNC_MISSING",
+      "bitstream": "BLOCKED BITSTREAM_DEMOD_MISSING",
+      "recognition": "BLOCKED RECOGNITION_ENGINE_MISSING",
+      "docs": [
+        "G06_EYE_BITSTREAM_BLOCKED.md",
+        "G06_RECOGNITION_ASSESS_BLOCKED.md",
+        "G07_HANDOFF_TO_B.md",
+        "G17_PARAM_GRID_INDEX.md",
+        "BOT_B_G19_ANNOTATION_PAINT.md",
+        "BOT_B_G02_STRIP.md",
+        "BOT_B_G08_COLUMNS.md",
+        "BOT_B_G07_BOTTOM.md",
+        "INCREMENTAL_f4c67be.md",
+        "INCREMENTAL_9248453.md"
+      ],
+      "status": "PARTIAL with honest BLOCKED; not CLOSED"
+    },
+    "gaps": "No PASS. Evidence tip 1dbf673; impl baseline 9248453 (+f4c67be OpenHand/Detect/G06). Desktop 17471a6 ref only."
+  }
+}
