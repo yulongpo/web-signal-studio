@@ -26,14 +26,19 @@ jobs:
       # Optional native bindings often skipped after cross-platform lock (npm/cli#4828):
       # - oxlint: lint failed on f6a40c2
       # - rolldown: vitest failed on 682721a (run 39584103562)
+      # - lightningcss (nested under @tailwindcss/node): vitest failed on
+      #   b66413b (run 39584274930) and tip 585d9d1 (run 39584380863)
       - name: ensure linux native bindings
         working-directory: apps/web
         run: |
           OXV="$(node -p "require('oxlint/package.json').version")"
           RDV="$(node -p "require('rolldown/package.json').version")"
+          # Prefer nested lightningcss used by @tailwindcss/node (CI stack), else top-level
+          LCV="$(node -e "const path=require('path'); const tw=path.dirname(require.resolve('@tailwindcss/node/package.json')); try { console.log(require(path.join(tw,'node_modules/lightningcss/package.json')).version) } catch { console.log(require('lightningcss/package.json').version) }")"
           npm install --no-save \
             "@oxlint/binding-linux-x64-gnu@${OXV}" \
-            "@rolldown/binding-linux-x64-gnu@${RDV}"
+            "@rolldown/binding-linux-x64-gnu@${RDV}" \
+            "lightningcss-linux-x64-gnu@${LCV}"
       - name: lint
         run: npm run lint -w @wss/web
       - name: typecheck
@@ -60,9 +65,11 @@ jobs:
         run: |
           OXV="$(node -p "require('oxlint/package.json').version")"
           RDV="$(node -p "require('rolldown/package.json').version")"
+          LCV="$(node -e "const path=require('path'); const tw=path.dirname(require.resolve('@tailwindcss/node/package.json')); try { console.log(require(path.join(tw,'node_modules/lightningcss/package.json')).version) } catch { console.log(require('lightningcss/package.json').version) }")"
           npm install --no-save \
             "@oxlint/binding-linux-x64-gnu@${OXV}" \
-            "@rolldown/binding-linux-x64-gnu@${RDV}"
+            "@rolldown/binding-linux-x64-gnu@${RDV}" \
+            "lightningcss-linux-x64-gnu@${LCV}"
       - working-directory: apps/web
         run: npx playwright install --with-deps chromium
       - working-directory: apps/web
