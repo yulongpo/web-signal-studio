@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "recordedAtAsiaShanghai": "2026-10-21 21:25:00",
-  "lastVerifiedAtAsiaShanghai": "2026-10-21 21:25:00",
+  "lastVerifiedAtAsiaShanghai": "2026-10-21 21:28:00",
   "verifiedBy": "bot-a-audit",
-  "parityStatus": "UI_INCREMENTAL_REFRESH",
+  "parityStatus": "UI_INCREMENTAL_REFRESH_196db21",
   "upstreamDrift": true,
   "workspaceRoot": "D:/project/web_signal_studio",
   "worktreePath": "D:/project/_wt_bot_a_audit",
@@ -23,8 +23,8 @@
   "localRebuildPath": "D:/project/signal_studio_rebuild",
   "localRebuildHeadObserved": "17471a6488383b456281d12cb1a6d3d80290205d",
   "localRebuildNote": "Read-only reference; git fetch OK; HEAD matches remote tip 17471a6 after fetch; never write source; never push yulongpo/signal_studio",
-  "webMainTipObserved": "563458ad6df118be72d87a096fc9888d58b6e2b8",
-  "webMainTipNote": "origin/main verified 563458a (merge bot-e TensorRT engines); Bot-A did not checkout shared tree",
+  "webMainTipObserved": "196db218cee37d2e212a6c3a20a409138e33d52a",
+  "webMainTipNote": "origin/main verified 196db21 (merge bot-c G03-G05 nav/aux/VerticalSplitter); prior incremental was vs 563458a; Bot-A did not checkout shared tree",
   "target": {
     "defaultBranch": "main",
     "remote": "https://github.com/yulongpo/web-signal-studio"
@@ -32,11 +32,11 @@
   "a143ProductDeliveryCommitCitedInDocs": "399b85e970f2f22432cd95277dc30e9075ca4cb4",
   "a143ProductDeliveryNote": "Cited by a143-native DELIVERY/EXECUTION_STATUS as W6 product source; current remote branch HEAD is 17471a6 (docs archive + UI fixes after 0f108d0).",
   "openDeltas": [
-    "Upstream advanced 0f108d0 -> 17471a6 (14 commits); UI-affecting: f9f05bb/a64117e/696ce12 + earlier UX round2 (6499a64/2e26651/c1f2cce)",
-    "Web main 563458a partially closes G11/G12/G13/G14/G19/G26 APIs; shell G01-G07 still open",
-    "Web packages still miss menubar, per-chart strips, real nav/aux, bottom panel, non-stub narrowband, DetectionCard field parity",
-    "model_layout still enumerates .pth/.onnx globs alongside .engine — G26 UI picker must not expose them as PASS options",
-    "UR clone HEAD not hard-reset (shared path); tip verified via ls-remote + local rebuild + origin ref after fetch"
+    "Upstream tip remains 17471a6 (unchanged this patch)",
+    "Web main advanced 563458a -> 196db21: G03-G05 PARTIAL (Bot-C NavigationChart/WaveformChart/VerticalSplitter); defaults 36/160 not desktop 82/205; Wave=STFT envelope not raw IQ",
+    "Shell G01-G02/G06-G07 still OPEN; G11-G14/G19-G20/G26 remain PARTIAL as of prior 16abb2a audit",
+    "G02 still OPEN (SpectrumToolbar still between aux↔main on 196db21)",
+    "model_layout may still enumerate .pth/.onnx — G26 UI picker must not expose as PASS options"
   ],
   "iqConstraint": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo",
   "modelConstraint": "TensorRT *.engine under rebuild tree only (e.g. out\\vs2026-qt611-release_bin\\detection-models\\...)"

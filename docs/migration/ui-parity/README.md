@@ -8,3 +8,7 @@ Canonical copies for git tracking (because `artifacts/validation/*` may be gitig
 Also written on disk: `artifacts/validation/ui-parity/baseline/`
 
 Upstream tip: `17471a6`. Web tip compared: `563458a`.
+
+- `INCREMENTAL_196db21.md` — gap patch vs Web `196db21` (G03–G05 PARTIAL)
+
+Upstream tip: `17471a6`. Web tip compared: `196db21`.

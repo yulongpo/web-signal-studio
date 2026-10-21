@@ -67,3 +67,15 @@ c1f2cce feat(project-tree): clarify current signals and compact source informati
 - 发现新提交：先更新本日志 → 更新对等矩阵 / UI gap → 回归审计。
 - 验收前必须再核对一次源 HEAD。
 - Bot-A 禁止共享树 `git checkout`；写入仅 worktree `D:\project\_wt_bot_a_audit`。
+
+## 2026-10-21 21:28+08 Bot-A re-base UI audit vs Web `196db21`
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **仍 `17471a6`**（无新上游推进） |
+| Web `origin/main` | **`196db218cee37d2e212a6c3a20a409138e33d52a`**（`196db21` merge bot-c G03–G05） |
+| 相对上一审计 tip | 上一轮 Bot-A `16abb2a` 对照 Web `563458a`；本轮仅重对 Web |
+| G03–G05 | **PARTIAL（改进/部分闭合）** — 见 `artifacts/validation/ui-parity/INCREMENTAL_196db21.md` |
+
+Bot-C 证据：`NavigationChart` / `WaveformChart` / `VerticalSplitter`；e2e `g03-g05-tri-chart.spec.ts`；STATUS 自报 No self-PASS。已知残留：splitter 默认 36/160≠桌面 82/205；Wave=STFT envelope 非 raw IQ；SpectrumToolbar 仍常驻（G02）。
+

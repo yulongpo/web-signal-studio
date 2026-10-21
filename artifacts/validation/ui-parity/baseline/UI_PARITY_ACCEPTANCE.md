@@ -2,9 +2,9 @@
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:25+ |
+| 时间（Asia/Shanghai） | 2026-10-21 21:28:00+（rebase `196db21`） |
 | 对应差距清单 | `UI_PARITY_GAP_AUDIT.md`（G01–G26 + INCREMENTAL DIFF） |
-| **Web tip** | **`563458a`**（`origin/main` 已核对） |
+| **Web tip** | **`196db21`**（`origin/main`=`196db218cee37d2e212a6c3a20a409138e33d52a`；rebase 自对 `563458a` 的 `16abb2a` 审计） |
 | **桌面锚点** | **`17471a6`**（`rebuild/a143-native`） |
 | 先验矩阵 | `866e699`（对照 Web `be885f2` / 上游 `0f108d0`） |
 | **IQ 约束** | 仅 `D:\project\signal_studio_rebuild\resources\sigmf_data_demo\` |
@@ -15,6 +15,8 @@
 1. **加严**：G02（caption/导航分离/`f9f05bb`）、G06（跨页/overflow 保留/`a64117e`）、G18（「参考」「动态」/`696ce12`）。
 2. **PARTIAL 退出条件**新增于 G11–G14、G19–G20、G26（见矩阵「PARTIAL 退出」列注释）。
 3. 全局 PRE 不变；G26 与 PRE-2/3 对齐 Bot-E/Bot-G 文档，但 **UI 可选项仍不得出现 `.pth`**。
+4. **`196db21`**：G03–G05 → **PARTIAL**（Bot-C）。FULL PASS 仍要求：G05 默认≈82/205；G04 Wave=raw IQ；G03 导航图头 chrome（`f9f05bb`）。详见 `INCREMENTAL_196db21.md`。
+
 
 ## 全局前置（所有用例）
 
@@ -35,9 +37,9 @@
 |----|-----|------|-----------------|----------------------------------|-------------------------|
 | G01 | P0 | OPEN | `menubar` 或 `command-bar` | ① 顶栏菜单/命令栏≈34px；② 含文件与视图组；③ 打开/添加 IQ 从菜单可达且不依赖常驻 SpectrumToolbar | 无菜单；仅靠 SpectrumToolbar 打开 |
 | G02 | P0 | OPEN（加严） | `chart-strip-nav/aux/main` | ① **不存在**夹在 aux↔main 的全局常驻 SpectrumToolbar；② 三图各自图头有模式/设置；③ **控件旁有 caption 标签**（或按钮自带可见文本）；④ overflow「更多」打开后编辑中的字段不被卸载丢失焦点（对 `f9f05bb`） | 36px 常驻条；裸控件无标签；overflow 丢编辑 |
-| G03 | P0 | OPEN | `global-nav` | ① PRE-2 后非 placeholder 文案；② 滚轮改窗宽；③ 拖拽平移；④ 主图时间范围跟随 | 仍显示 placeholder |
-| G04 | P0 | OPEN | `chart-aux` | ① Wave 与 PSD 非 placeholder；② 切换改 Y 轴语义 | ChartPlaceholder 标题仍在 |
-| G05 | P0 | OPEN | splitter handles | ① 可拖改三图高度；② 双击复位默认预算±10%；③ 填满中央列 | CSS 锁死不可拖 |
+| G03 | P0 | PARTIAL | `global-nav` / `navigation-chart` | ① 非 placeholder；② 拖拽导航窗；③ 主图 timeSec 跟随；④（FULL）滚轮改窗宽；⑤（FULL）导航图头设置/chrome | **PARTIAL 退出**：有 NavigationChart 但缺滚轮/图头 chrome |
+| G04 | P0 | PARTIAL | `chart-aux` / `WaveformChart` | ① Wave/PSD 可见且可切换；② 切换改轴语义；③（FULL）Wave 为 raw IQ 显示路径（非仅 STFT envelope） | **PARTIAL 退出**：仅 spectrogram 派生 envelope/PSD |
+| G05 | P0 | PARTIAL | `splitter-nav-aux` / `splitter-aux-main` | ① 可拖；② 双击复位；③（FULL）默认高度≈桌面 82/205（±10%） | **PARTIAL 退出**：可拖但默认 36/160 |
 | G06 | P0 | OPEN（加严） | `workspace-narrowband-*` | ① 无 `workspace-narrowband-stub`；② 多页/多图布局；③ 无伪解调文案；④ 改 STFT N/网格/频率后切换窄带页再返回，值保留（对 `a64117e`）；⑤ overflow 折叠后再展开，值保留 | stub；换页丢设置 |
 | G07 | P0 | OPEN | `bottom-panel` | ① 三标签；② 收起≈29±6 / 展开≈150±20；③ 任务列表容器可空 | 无底栏 |
 | G08 | P1 | OPEN | 左右栏 | ① 左 270–286 / 右 382–398；② 收起≈38±4；③ 可拖宽 | 锁死 220/280 |
@@ -81,8 +83,8 @@ G26: // fixture path === ...\resources\sigmf_data_demo\...
 | 项 | 数量 |
 |----|------|
 | 总差距 ID | **26** |
-| OPEN | 16（含加严 G02/G06/G18） |
-| PARTIAL | 7（G11–G14, G19–G20, G26） |
+| OPEN | 13（含加严 G02/G06/G18） |
+| PARTIAL | 10（**G03–G05**, G11–G14, G19–G20, G26） |
 | DOCS | 1（G25） |
 | P0 | 14 IDs |
 | P1 | 8 |
@@ -91,7 +93,7 @@ G26: // fixture path === ...\resources\sigmf_data_demo\...
 ## Top 5 关键（更新）
 
 1. **G02+G01** — 壳 IA + 图头 caption/导航分离（`f9f05bb`）
-2. **G03–G05** — 三图真实化与 splitter
+2. **G03–G05** — 从 PARTIAL 补齐 82/205、raw IQ Wave、导航 chrome
 3. **G17+G14** — DetectionCard + 检测 ROI 确认条（清 G26 `.pth`）
 4. **G11–G13** — 从 PARTIAL 补齐框选放大 / 右键完整 / 控制点
 5. **G06+G07** — 窄带跨页保留（`a64117e`）+ 底栏
