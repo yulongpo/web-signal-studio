@@ -569,6 +569,19 @@ test.describe('detection page', () => {
     );
     await expect(page.getByTestId('detection-spectrum-mode')).toBeVisible();
     await expect(page.getByTestId('detection-preflight')).toBeVisible();
+    await expect(page.getByTestId('detection-param-grid')).toBeVisible();
+    await expect(page.getByTestId('detection-fft-size')).toHaveAttribute('data-object-name', 'detectionFftSize');
+    await expect(page.getByTestId('detection-hop-milliseconds')).toHaveAttribute('data-object-name', 'detectionHopMilliseconds');
+    await expect(page.getByTestId('detection-score-threshold')).toHaveAttribute('data-object-name', 'detectionScoreThreshold');
+    await expect(page.getByTestId('detection-nms-iou')).toHaveAttribute('data-object-name', 'detectionNmsIou');
+    await expect(page.getByTestId('detection-topk')).toHaveAttribute('data-object-name', 'detectionTopK');
+    await page.getByTestId('detection-score-threshold').fill('0.55');
+    await expect(page.getByTestId('detection-score-threshold')).toHaveValue('0.55');
+    await page.getByTestId('detection-strategy-coarse').click();
+    await expect(page.getByTestId('detection-bandwidth-margin-db')).toBeDisabled();
+    await page.getByTestId('detection-split-bursts').locator('input').check();
+    await expect(page.getByTestId('detection-coarse-split-gap-milliseconds')).toBeEnabled();
+
     await expect(page.getByTestId('detect-engine-inventory')).toHaveAttribute(
       'data-selectable-count',
       '2',

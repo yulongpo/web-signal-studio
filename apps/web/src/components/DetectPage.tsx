@@ -36,6 +36,50 @@ const POLL_MS = 500;
 
 type OfflineReason = 'offline' | 'unauthorized' | null;
 
+/** Desktop DetectionCard defaults @ signal_studio_rebuild 17471a6 (domain/detection.h). */
+type DetectionCardParams = {
+  fftSize: number;
+  hopMilliseconds: number;
+  modelFrames: number;
+  modelHopFrames: number;
+  scoreThreshold: number;
+  nmsIou: number;
+  topK: number;
+  bandwidthMarginDb: number;
+  sampleEdgeRatio: number;
+  smoothMilliseconds: number;
+  minOnMilliseconds: number;
+  minOffMilliseconds: number;
+  coarseSplitGapMilliseconds: number;
+  coarseMinBurstMilliseconds: number;
+  batchSize: number;
+  minHits: number;
+  maxMiss: number;
+  mergeFrequencyHz: number;
+};
+
+const DEFAULT_DETECTION_PARAMS: DetectionCardParams = {
+  fftSize: 65536,
+  hopMilliseconds: 1,
+  modelFrames: 10,
+  modelHopFrames: 5,
+  scoreThreshold: 0.7,
+  nmsIou: 0.3,
+  topK: 512,
+  bandwidthMarginDb: 6,
+  sampleEdgeRatio: 0.6,
+  smoothMilliseconds: 1,
+  minOnMilliseconds: 5,
+  minOffMilliseconds: 10,
+  coarseSplitGapMilliseconds: 20,
+  coarseMinBurstMilliseconds: 10,
+  batchSize: 2,
+  minHits: 2,
+  maxMiss: 1,
+  mergeFrequencyHz: 100000,
+};
+
+
 function UiCodeChip({ code }: { code: string }) {
   const known = isKnownUiCode(code);
   return (
@@ -111,7 +155,19 @@ export function DetectPage() {
   const [spectrumMode, setSpectrumMode] = useState<number>(0);
   const [timeStrategy, setTimeStrategy] = useState<'sample' | 'roi' | 'coarse'>('sample');
   const [splitBursts, setSplitBursts] = useState(false);
+  const [params, setParams] = useState<DetectionCardParams>(DEFAULT_DETECTION_PARAMS);
   const pollTimer = useRef<number | null>(null);
+
+  const setParam = <K extends keyof DetectionCardParams>(key: K, value: DetectionCardParams[K]) => {
+    setParams((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const paramsDirty = useMemo(() => {
+    return (Object.keys(DEFAULT_DETECTION_PARAMS) as (keyof DetectionCardParams)[]).some(
+      (k) => params[k] !== DEFAULT_DETECTION_PARAMS[k],
+    );
+  }, [params]);
+
 
   const makeClient = useCallback(
     () => new LocalComputeClient({ baseUrl, token }),
@@ -246,7 +302,26 @@ export function DetectPage() {
           spectrumMode,
           timeStrategy,
           splitBursts,
-          // Draft DetectionCard fields — backend honors modelId/enginePath for .engine only.
+          // Full DetectionCard grid (desktop objectNames) — TRT honors score/nms/topK/fft/hop/frames when present.
+          fftSize: params.fftSize,
+          hopMilliseconds: params.hopMilliseconds,
+          hopSeconds: params.hopMilliseconds / 1000,
+          modelFrames: params.modelFrames,
+          modelHopFrames: params.modelHopFrames,
+          scoreThreshold: params.scoreThreshold,
+          nmsIou: params.nmsIou,
+          topK: params.topK,
+          bandwidthMarginDb: params.bandwidthMarginDb,
+          sampleEdgeRatio: params.sampleEdgeRatio,
+          smoothMilliseconds: params.smoothMilliseconds,
+          minOnMilliseconds: params.minOnMilliseconds,
+          minOffMilliseconds: params.minOffMilliseconds,
+          coarseSplitGapMilliseconds: params.coarseSplitGapMilliseconds,
+          coarseMinBurstMilliseconds: params.coarseMinBurstMilliseconds,
+          batchSize: params.batchSize,
+          minHits: params.minHits,
+          maxMiss: params.maxMiss,
+          mergeFrequencyHz: params.mergeFrequencyHz,
         },
         // Real opened IQ label/file name only — never invent a path or candidates.
         sourcePath: iqSourcePath,
@@ -532,6 +607,297 @@ export function DetectPage() {
           </label>
         </div>
 
+
+        <div
+          className="detection-param-grid"
+          data-testid="detection-param-grid"
+          data-object-name="detectionParameterGrid"
+          data-strategy={timeStrategy}
+          data-split={splitBursts ? 'true' : 'false'}
+        >
+          <div className="detection-param-section" data-testid="detection-timing-section" data-object-name="detectionTimingParameters">
+            <strong>谱帧 / 时序</strong>
+            <div className="detection-param-row">
+              <label className="detect-field" data-testid="detection-fft-size-field">
+                <span>FFT N</span>
+                <input
+                  type="number"
+                  data-testid="detection-fft-size"
+                  data-object-name="detectionFftSize"
+                  min={32}
+                  max={262144}
+                  step={1}
+                  value={params.fftSize}
+                  disabled={busy}
+                  onChange={(e) => setParam('fftSize', Math.max(32, Number(e.target.value) || 32))}
+                />
+              </label>
+              <label className="detect-field" data-testid="detection-hop-ms-field">
+                <span>谱步长 / ms</span>
+                <input
+                  type="number"
+                  data-testid="detection-hop-milliseconds"
+                  data-object-name="detectionHopMilliseconds"
+                  min={0.001}
+                  step={0.001}
+                  value={params.hopMilliseconds}
+                  disabled={busy}
+                  onChange={(e) => setParam('hopMilliseconds', Math.max(0.001, Number(e.target.value) || 0.001))}
+                />
+              </label>
+            </div>
+            <div className="detection-param-row">
+              <label className="detect-field" data-testid="detection-model-frames-field">
+                <span>模型帧数</span>
+                <input
+                  type="number"
+                  data-testid="detection-model-frames"
+                  data-object-name="detectionModelFrames"
+                  min={1}
+                  max={256}
+                  value={params.modelFrames}
+                  disabled={busy}
+                  onChange={(e) => setParam('modelFrames', Math.max(1, Number(e.target.value) || 1))}
+                />
+              </label>
+              <label className="detect-field" data-testid="detection-model-hop-frames-field">
+                <span>滑动帧数</span>
+                <input
+                  type="number"
+                  data-testid="detection-model-hop-frames"
+                  data-object-name="detectionModelHopFrames"
+                  min={1}
+                  max={256}
+                  value={params.modelHopFrames}
+                  disabled={busy}
+                  onChange={(e) => setParam('modelHopFrames', Math.max(1, Number(e.target.value) || 1))}
+                />
+              </label>
+            </div>
+            <p className="muted detection-physical-times" data-testid="detection-physical-times" data-object-name="detectionPhysicalTimes">
+              谱窗≈FFT/Fs；hop 为相邻谱帧间隔（桌面 floor(Fs×hop)）。本页不伪造 Fs。
+            </p>
+          </div>
+
+          <div className="detection-param-section" data-testid="detection-threshold-section" data-object-name="detectionThresholdParameters">
+            <strong>置信阈值</strong>
+            <label className="detect-field" data-testid="detection-score-threshold-field">
+              <span>置信阈值（score threshold）</span>
+              <input
+                type="number"
+                data-testid="detection-score-threshold"
+                data-object-name="detectionScoreThreshold"
+                min={0}
+                max={1}
+                step={0.01}
+                value={params.scoreThreshold}
+                disabled={busy}
+                onChange={(e) => setParam('scoreThreshold', Math.min(1, Math.max(0, Number(e.target.value) || 0)))}
+              />
+            </label>
+          </div>
+
+          <div className="detection-param-section" data-testid="detection-branch-section" data-object-name="detectionBranchParameters">
+            <strong>分支 / 后处理</strong>
+            <div className="detection-param-row">
+              <label className="detect-field" data-testid="detection-nms-iou-field">
+                <span>重叠抑制（NMS IoU）</span>
+                <input
+                  type="number"
+                  data-testid="detection-nms-iou"
+                  data-object-name="detectionNmsIou"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={params.nmsIou}
+                  disabled={busy}
+                  onChange={(e) => setParam('nmsIou', Math.min(1, Math.max(0, Number(e.target.value) || 0)))}
+                />
+              </label>
+              <label className="detect-field" data-testid="detection-topk-field">
+                <span>候选上限</span>
+                <input
+                  type="number"
+                  data-testid="detection-topk"
+                  data-object-name="detectionTopK"
+                  min={1}
+                  max={10000}
+                  value={params.topK}
+                  disabled={busy}
+                  onChange={(e) => setParam('topK', Math.max(1, Number(e.target.value) || 1))}
+                />
+              </label>
+            </div>
+            <div className="detection-param-row" data-testid="detection-margin-fields" data-enabled={timeStrategy !== 'coarse' ? 'true' : 'false'}>
+              <label className="detect-field" data-testid="detection-bandwidth-margin-field">
+                <span>噪底裕量 / dB</span>
+                <input
+                  type="number"
+                  data-testid="detection-bandwidth-margin-db"
+                  data-object-name="detectionBandwidthMarginDb"
+                  min={0}
+                  max={60}
+                  step={0.1}
+                  value={params.bandwidthMarginDb}
+                  disabled={busy || timeStrategy === 'coarse'}
+                  onChange={(e) => setParam('bandwidthMarginDb', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+            </div>
+            <div className="detection-param-row" data-testid="detection-fine-fields" data-enabled={timeStrategy !== 'coarse' ? 'true' : 'false'}>
+              <label className="detect-field">
+                <span>边缘比例</span>
+                <input
+                  type="number"
+                  data-testid="detection-sample-edge-ratio"
+                  data-object-name="detectionSampleEdgeRatio"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={params.sampleEdgeRatio}
+                  disabled={busy || timeStrategy === 'coarse'}
+                  onChange={(e) => setParam('sampleEdgeRatio', Math.min(1, Math.max(0, Number(e.target.value) || 0)))}
+                />
+              </label>
+              <label className="detect-field">
+                <span>平滑 / ms</span>
+                <input
+                  type="number"
+                  data-testid="detection-smooth-milliseconds"
+                  data-object-name="detectionSmoothMilliseconds"
+                  min={0}
+                  max={60000}
+                  step={0.1}
+                  value={params.smoothMilliseconds}
+                  disabled={busy || timeStrategy === 'coarse'}
+                  onChange={(e) => setParam('smoothMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+            </div>
+            <div className="detection-param-row" data-testid="detection-fine-split-fields" data-enabled={timeStrategy !== 'coarse' && splitBursts ? 'true' : 'false'}>
+              <label className="detect-field">
+                <span>min on / ms</span>
+                <input
+                  type="number"
+                  data-testid="detection-min-on-milliseconds"
+                  data-object-name="detectionMinOnMilliseconds"
+                  min={0}
+                  max={60000}
+                  step={0.1}
+                  value={params.minOnMilliseconds}
+                  disabled={busy || timeStrategy === 'coarse' || !splitBursts}
+                  onChange={(e) => setParam('minOnMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+              <label className="detect-field">
+                <span>min off / ms</span>
+                <input
+                  type="number"
+                  data-testid="detection-min-off-milliseconds"
+                  data-object-name="detectionMinOffMilliseconds"
+                  min={0}
+                  max={60000}
+                  step={0.1}
+                  value={params.minOffMilliseconds}
+                  disabled={busy || timeStrategy === 'coarse' || !splitBursts}
+                  onChange={(e) => setParam('minOffMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+            </div>
+            <div className="detection-param-row" data-testid="detection-coarse-split-fields" data-enabled={timeStrategy === 'coarse' && splitBursts ? 'true' : 'false'}>
+              <label className="detect-field">
+                <span>粗分段间隔 / ms</span>
+                <input
+                  type="number"
+                  data-testid="detection-coarse-split-gap-milliseconds"
+                  data-object-name="detectionCoarseSplitGapMilliseconds"
+                  min={0}
+                  max={60000}
+                  step={0.1}
+                  value={params.coarseSplitGapMilliseconds}
+                  disabled={busy || timeStrategy !== 'coarse' || !splitBursts}
+                  onChange={(e) => setParam('coarseSplitGapMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+              <label className="detect-field">
+                <span>最短粗事件 / ms</span>
+                <input
+                  type="number"
+                  data-testid="detection-coarse-min-burst-milliseconds"
+                  data-object-name="detectionCoarseMinBurstMilliseconds"
+                  min={0}
+                  max={60000}
+                  step={0.1}
+                  value={params.coarseMinBurstMilliseconds}
+                  disabled={busy || timeStrategy !== 'coarse' || !splitBursts}
+                  onChange={(e) => setParam('coarseMinBurstMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+            </div>
+            <p className="muted" data-testid="detection-branch-help" data-object-name="detectionBranchHelp">
+              细策略显示边缘/平滑/min on·off；粗策略+拆分显示粗分段字段。桌面同逻辑 enable。
+            </p>
+          </div>
+
+          <details className="detection-param-section detection-advanced" data-testid="detection-advanced-section" data-object-name="detectionAdvancedParameters">
+            <summary>高级（batch / tracker / merge）</summary>
+            <div className="detection-param-row">
+              <label className="detect-field">
+                <span>batch</span>
+                <input
+                  type="number"
+                  data-testid="detection-batch-size"
+                  data-object-name="detectionBatchSize"
+                  min={1}
+                  max={2}
+                  value={params.batchSize}
+                  disabled={busy}
+                  onChange={(e) => setParam('batchSize', Math.min(2, Math.max(1, Number(e.target.value) || 1)))}
+                />
+              </label>
+              <label className="detect-field">
+                <span>minHits</span>
+                <input
+                  type="number"
+                  data-testid="detection-min-hits"
+                  data-object-name="detectionMinHits"
+                  min={1}
+                  max={10000}
+                  value={params.minHits}
+                  disabled={busy}
+                  onChange={(e) => setParam('minHits', Math.max(1, Number(e.target.value) || 1))}
+                />
+              </label>
+              <label className="detect-field">
+                <span>maxMiss</span>
+                <input
+                  type="number"
+                  data-testid="detection-max-miss"
+                  data-object-name="detectionMaxMiss"
+                  min={0}
+                  max={10000}
+                  value={params.maxMiss}
+                  disabled={busy}
+                  onChange={(e) => setParam('maxMiss', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+              <label className="detect-field">
+                <span>merge / Hz</span>
+                <input
+                  type="number"
+                  data-testid="detection-merge-frequency-hz"
+                  data-object-name="detectionMergeFrequencyHz"
+                  min={0}
+                  step={1}
+                  value={params.mergeFrequencyHz}
+                  disabled={busy}
+                  onChange={(e) => setParam('mergeFrequencyHz', Math.max(0, Number(e.target.value) || 0))}
+                />
+              </label>
+            </div>
+          </details>
+        </div>
+
         <section
           className="detect-engine-inventory"
           data-testid="detect-engine-inventory"
@@ -596,7 +962,7 @@ export function DetectPage() {
           data-testid="detection-draft-note"
           data-object-name="detectionParameterDraftNote"
           data-visible={
-            selectedEngineId || spectrumMode !== 0 || timeStrategy !== 'sample' || splitBursts
+            selectedEngineId || spectrumMode !== 0 || timeStrategy !== 'sample' || splitBursts || paramsDirty
               ? 'true'
               : 'false'
           }
@@ -611,7 +977,7 @@ export function DetectPage() {
         >
           {preflightIssue
             ? `预检：${preflightIssue}`
-            : `预检通过 · engine=${selectedEngine?.id ?? 'n/a'} · strategy=${timeStrategy}`}
+            : `预检通过 · engine=${selectedEngine?.id ?? 'n/a'} · strategy=${timeStrategy} · score=${params.scoreThreshold} · hopMs=${params.hopMilliseconds}`}
         </p>
         <p
           className="detection-run-summary"

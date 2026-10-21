@@ -21,18 +21,25 @@ def run_ffscn_trt(
     weights: Path,
     source_path: Path,
     cancel_cb=None,
+    params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if weights.suffix.lower() != ".engine":
         raise ValueError(f"FFSCN TRT path requires .engine, got {weights.suffix}")
     if cancel_cb is not None and cancel_cb():
         raise RuntimeError("cancelled before FFSCN TRT load")
 
-    nfft = int(os.environ.get("LOCAL_COMPUTE_FFSCN_NFFT") or "2048")
+    p = dict(params or {})
+    # Prefer DetectionCard params; env remains fallback. FFT must satisfy engine profile.
+    nfft = int(p.get("fftSize") or os.environ.get("LOCAL_COMPUTE_FFSCN_NFFT") or "2048")
     # engine profile requires frequencyMultiple 2048
     if nfft < 2048 or (nfft % 2048) != 0:
         nfft = 2048
     hop = max(1, nfft // 2)
-    max_frames = int(os.environ.get("LOCAL_COMPUTE_FFSCN_TRT_FRAMES") or "10")
+    max_frames = int(
+        p.get("modelFrames")
+        or os.environ.get("LOCAL_COMPUTE_FFSCN_TRT_FRAMES")
+        or "10"
+    )
 
     iq, fs, center = load_iq_any(source_path)
     spectrum = stft_spectrum(iq, nfft=nfft, hop=hop, max_frames=max_frames)
@@ -41,8 +48,16 @@ def run_ffscn_trt(
         raise RuntimeError("cancelled before FFSCN TRT execute")
 
     outs = execute_engine(weights, FFSCN_INPUT, spectrum, FFSCN_OUTS)
-    thr = float(os.environ.get("LOCAL_COMPUTE_FFSCN_SCORE_THRESHOLD") or "0.3")
-    top_k = int(os.environ.get("LOCAL_COMPUTE_FFSCN_TOPK") or "64")
+    thr = float(
+        p.get("scoreThreshold")
+        if p.get("scoreThreshold") is not None
+        else (os.environ.get("LOCAL_COMPUTE_FFSCN_SCORE_THRESHOLD") or "0.3")
+    )
+    top_k = int(
+        p.get("topK")
+        if p.get("topK") is not None
+        else (os.environ.get("LOCAL_COMPUTE_FFSCN_TOPK") or "64")
+    )
     # output stride 4 per manifest
     candidates = decode_peaks_1d(
         outs["hm"],

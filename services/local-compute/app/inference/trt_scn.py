@@ -25,6 +25,7 @@ def run_scn_trt(
     weights: Path,
     source_path: Path,
     cancel_cb=None,
+    params: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if weights.suffix.lower() != ".engine":
         raise ValueError(f"SCN TRT path requires .engine, got {weights.suffix}")
@@ -44,8 +45,17 @@ def run_scn_trt(
         inp,
         [SCN_OUT_BW, SCN_OUT_HM, SCN_OUT_OFF],
     )
-    thr = float(os.environ.get("LOCAL_COMPUTE_SCN_SCORE_THRESHOLD") or "0.3")
-    top_k = int(os.environ.get("LOCAL_COMPUTE_SCN_TOPK") or "64")
+    p = dict(params or {})
+    thr = float(
+        p.get("scoreThreshold")
+        if p.get("scoreThreshold") is not None
+        else (os.environ.get("LOCAL_COMPUTE_SCN_SCORE_THRESHOLD") or "0.3")
+    )
+    top_k = int(
+        p.get("topK")
+        if p.get("topK") is not None
+        else (os.environ.get("LOCAL_COMPUTE_SCN_TOPK") or "64")
+    )
     candidates = decode_peaks_1d(
         outs[SCN_OUT_HM],
         outs[SCN_OUT_BW],
