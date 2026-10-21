@@ -679,8 +679,12 @@ def build_capabilities() -> CapabilitiesResponse:
         "never invents inference.",
         "detection.uiMessages carries bilingual (en/zh) copy for the UI.",
         "gpu + runtime fields expose structured precheck.",
-        "Set LOCAL_COMPUTE_MODEL_DIR (or *_PATH) + algorithm HOMEs for real inference.",
-        "TensorRT .engine and ONNX are N/A (TENSORRT_NA / ONNX_NA); PyTorch .pth/.pt only.",
+        "Canonical MODEL_DIR is signal_studio_rebuild "
+        "out/vs2026-qt611-release_bin/detection-models "
+        "(ffscn_epoch1200_dynamic_fp32.engine, scn_model.engine). "
+        "IQ smoke file is resources/sigmf_data_demo/0000000.sigmf-data.",
+        "TensorRT .engine and ONNX stay N/A (TENSORRT_NA / ONNX_NA) until a "
+        "TensorRT runtime is wired. Do not claim live detection.",
         "Task status machine: queued->running->{succeeded|failed|cancelled|BLOCKED}; "
         "cancel always wins over late worker updates.",
     ]

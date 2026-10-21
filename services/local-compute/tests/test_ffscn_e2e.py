@@ -6,29 +6,29 @@ LOCAL_COMPUTE_DISABLE_TORCH=1 and must stay BLOCKED without fake greens.
 
 from __future__ import annotations
 
-import os
 import time
 from pathlib import Path
 
 import pytest
 
 from app.capabilities import UI_COPY
-from app.torch_runtime import REAL_ENGINE_LABELS, clear_torch_cache, probe_torch
+from app.torch_runtime import clear_torch_cache
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 SYNTH_WAV = FIXTURES / "synthetic_iq_stereo.wav"
 
-FFSCN_REF = Path(r"D:\project\FFSCN_train2\weights\model_epoch_0210.pth")
-FFSCN_HOME = Path(r"D:\project\FFSCN_train2\FFSCN_TEST_GUI")
-# Prefer small deliverable sample when present; else synthetic fixture.
-FFSCN_SAMPLE_CANDIDATES = [
-    Path(
-        r"D:\project\FFSCN_train2\deliverables\ffscn_release_20260908"
-        r"\FFSCN_60MHz_package\samples\data"
-        r"\20260906-225724-022_666988_bw_60000000_sampleTime_0.01_rollOff_0.35.wav"
-    ),
-    SYNTH_WAV,
-]
+REBUILD = Path(r"D:\project\signal_studio_rebuild")
+FFSCN_REF = (
+    REBUILD
+    / "out"
+    / "vs2026-qt611-release_bin"
+    / "detection-models"
+    / "ffscn-gui-iq-v1"
+    / "ffscn_epoch1200_dynamic_fp32.engine"
+)
+# Authorized IQ sample only. Synthetic wav remains a contract fixture, not a weight.
+IQ_DATA = REBUILD / "resources" / "sigmf_data_demo" / "0000000.sigmf-data"
+FFSCN_SAMPLE_CANDIDATES = [IQ_DATA, SYNTH_WAV]
 
 
 def _pick_source() -> Path | None:
@@ -115,39 +115,20 @@ def test_ffscn_full_file_contract_no_fake_under_disable_torch(
     )
 
 
-@pytest.mark.skipif(not FFSCN_REF.is_file(), reason="FFSCN weight missing")
-@pytest.mark.skipif(not FFSCN_HOME.is_dir(), reason="FFSCN home missing")
-def test_ffscn_full_file_e2e_live_skip_if_missing(client, auth_headers, monkeypatch):
-    """Live full-file E2E through HTTP. Skip when CUDA torch unavailable.
-
-    When not skipped, candidates MUST come from verifiedForward real path.
-    Zero candidates from a real forward is allowed (not a fake green).
-    """
-    monkeypatch.delenv("LOCAL_COMPUTE_DISABLE_TORCH", raising=False)
+@pytest.mark.skipif(not FFSCN_REF.is_file(), reason="desktop FFSCN engine not on this machine")
+def test_ffscn_engine_task_stays_blocked(client, auth_headers, monkeypatch):
+    """Canonical release engine must not run a forward. TENSORRT_NA / BLOCKED."""
+    monkeypatch.setenv("LOCAL_COMPUTE_DISABLE_TORCH", "1")
     monkeypatch.setenv("LOCAL_COMPUTE_FFSCN_PATH", str(FFSCN_REF))
-    monkeypatch.setenv("LOCAL_COMPUTE_FFSCN_HOME", str(FFSCN_HOME))
-    # Keep NFFT modest for smoke VRAM
-    monkeypatch.setenv("LOCAL_COMPUTE_FFSCN_DETECT_NFFT", "1024")
-    monkeypatch.setenv("LOCAL_COMPUTE_FFSCN_NFFT", "1024")
     clear_torch_cache()
-
-    probe = probe_torch(force=True)
-    if not probe.available:
-        pytest.skip("torch not installed in this interpreter")
-    if not probe.cuda_available:
-        pytest.skip("CUDA torch required for FFSCN full-file E2E")
-
     src = _pick_source()
     if src is None:
-        pytest.skip("no FFSCN source wav/fixture available")
+        pytest.skip("no sigmf demo or synthetic fixture on this machine")
 
-    # Capabilities must claim ffscn ready before we assert succeeded path
     caps = client.get("/capabilities", headers=auth_headers).json()
-    if not caps["detection"]["ffscn"]:
-        pytest.skip(
-            "ffscn not ready in capabilities "
-            f"(reasons={caps['detection'].get('reasons')})"
-        )
+    assert caps["detection"]["ffscn"] is False
+    codes = {m["code"] for m in caps["detection"].get("uiMessages") or []}
+    assert "TENSORRT_NA" in codes
 
     r = client.post(
         "/tasks",
@@ -160,20 +141,6 @@ def test_ffscn_full_file_e2e_live_skip_if_missing(client, auth_headers, monkeypa
         },
     )
     assert r.status_code == 200
-    run_id = r.json()["runId"]
-    record = _poll_task(client, auth_headers, run_id, timeout_s=300.0)
-
-    if record["status"] == "BLOCKED":
-        # Still not inventing — report skip with reason rather than fake pass
-        pytest.skip(f"live path BLOCKED: {record.get('blockReasons')}")
-    if record["status"] == "failed":
-        pytest.fail(f"live FFSCN failed: {record.get('message')} / {record.get('blockReasons')}")
-
-    assert record["status"] == "succeeded"
-    result = record.get("result")
-    assert isinstance(result, dict)
-    assert result.get("verifiedForward") is True
-    assert result.get("engine") in REAL_ENGINE_LABELS
-    assert result.get("family") == "FFSCN"
-    assert isinstance(result.get("candidates"), list)
-    assert result.get("candidateCount") == len(result["candidates"])
+    record = _poll_task(client, auth_headers, r.json()["runId"], timeout_s=30.0)
+    assert record["status"] in {"BLOCKED", "failed"}
+    assert record.get("result") is None

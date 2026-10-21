@@ -1,4 +1,9 @@
-"""SCN real inference via train_SCN sources. Never fabricates candidates."""
+"""SCN inference adapter. Never fabricates candidates.
+
+Desktop weights are TensorRT engines under signal_studio_rebuild
+(detection-models/scn-max-psd-v1/scn_model.engine). This process reports
+TENSORRT_NA until a TensorRT runtime is wired and does not load that engine.
+"""
 
 from __future__ import annotations
 

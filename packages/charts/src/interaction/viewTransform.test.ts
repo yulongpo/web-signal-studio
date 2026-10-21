@@ -53,6 +53,26 @@ describe("viewTransform", () => {
     );
   });
 
+  it("zoomViewAt can zoom a single axis", () => {
+    const view = {
+      xDomain: { min: 0, max: 10, label: "Time" },
+      yDomain: { min: 0, max: 10, label: "Frequency" },
+    };
+    const next = zoomViewAt(
+      view,
+      200,
+      100,
+      2,
+      xSpan,
+      ySpan,
+      undefined,
+      { x: true, y: false },
+    );
+    expect(next.yDomain).toEqual(view.yDomain);
+    expect(next.xDomain.max - next.xDomain.min).toBeLessThan(10);
+    expect(next.xDomain.label).toBe("Time");
+  });
+
   it("wheelDeltaToZoomFactor: up zooms in", () => {
     expect(wheelDeltaToZoomFactor(-100, 1.25)).toBe(1.25);
     expect(wheelDeltaToZoomFactor(100, 1.25)).toBeCloseTo(0.8, 10);

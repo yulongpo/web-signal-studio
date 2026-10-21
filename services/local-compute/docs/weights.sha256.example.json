@@ -1,5 +1,9 @@
 ﻿{
-    "ffscn":  "b6cd6aaf28e695b4bcae94db25dd527d2b717269b1562cf47e0840d09d8a253a",
-    "scn":  "9453eb47576606b062ad7d1d3afb6ad4d8680312a71e02e90f440ff1f99b9da0",
-    "_comment":  "SAMPLE only — paths are local; do not commit .pth"
+  "ffscn": "4e14e422e7966eb6f554e322c2d390534650e1b8dd0cee6e04f2ed4305cefc03",
+  "scn": "ae89d04332758d466846b71afc849c446500a82a8bd74fd8c671927247746627",
+  "byFile": {
+    "ffscn_epoch1200_dynamic_fp32.engine": "4e14e422e7966eb6f554e322c2d390534650e1b8dd0cee6e04f2ed4305cefc03",
+    "scn_model.engine": "ae89d04332758d466846b71afc849c446500a82a8bd74fd8c671927247746627"
+  },
+  "_comment": "Desktop R6 MODEL_DEPLOYMENT identities for signal_studio_rebuild release_bin engines. local-compute reports TENSORRT_NA and does not load them. IQ smoke is resources/sigmf_data_demo/0000000.sigmf-data only."
 }

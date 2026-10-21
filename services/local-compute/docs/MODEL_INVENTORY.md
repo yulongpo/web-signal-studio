@@ -1,47 +1,35 @@
-# Reference model inventory (Bot-E, read-only)
+# Reference model inventory
 
-**Date:** 2026-10-21 (Asia/Shanghai)  
-**Machine:** HH-laptop (RTX 5060 Laptop GPU, torch 2.12.0+cu132 verified)  
-**Scope:** read-only survey of training/inference trees used for local-compute wiring.  
-**Hard rule:** never fabricate FFSCN/SCN candidates or scores.
+**Scope:** local smoke paths for Web Signal Studio local-compute.  
+**Hard rule:** never fabricate FFSCN/SCN candidates. `.engine` is `TENSORRT_NA`
+until a TensorRT runtime is wired.
 
-## Summary
+Assets below are the desktop rebuild tree only
+(`D:\project\signal_studio_rebuild`, `yulongpo/signal_studio` @
+`rebuild/a143-native`). This inventory does not point outside that tree.
 
-| Family | Engine type | Primary weight | Size | Runtime deps | License notes |
-|--------|-------------|----------------|------|--------------|---------------|
-| SCN | **PyTorch** `.pth` state_dict (not TensorRT) | `D:\project\train_SCN\SCN_pretrained\epoch_105.pth` | ~29.6 MB | `torch`, `numpy`; architecture in `train_SCN/lib/*` | No LICENSE file in tree; treat as **internal/project IP** — do not redistribute weights without owner approval |
-| FFSCN | **PyTorch** `.pth` state_dict (not TensorRT / not ONNX) | `D:\project\FFSCN_train2\weights\model_epoch_0210.pth` | ~11.1 MB | `torch` (CUDA preferred), `numpy`, `scipy`; GUI pipeline in `FFSCN_TEST_GUI` | No LICENSE file; same **internal/project IP** policy |
+## Engines (release_bin)
 
-Optional FFSCN GUI weights (also PyTorch):
+| Family | File | Role today |
+|--------|------|------------|
+| FFSCN | `out\vs2026-qt611-release_bin\detection-models\ffscn-gui-iq-v1\ffscn_epoch1200_dynamic_fp32.engine` | Discovered if `LOCAL_COMPUTE_MODEL_DIR` or `LOCAL_COMPUTE_FFSCN_PATH` is set. Capabilities stay false with `TENSORRT_NA`. Not loaded. |
+| SCN | `out\vs2026-qt611-release_bin\detection-models\scn-max-psd-v1\scn_model.engine` | Same, via `LOCAL_COMPUTE_SCN_PATH` or `MODEL_DIR`. `TENSORRT_NA` / `BLOCKED`. Not loaded. |
 
-- `FFSCN_TEST_GUI/config/epoch_1200.pth` (~11.1 MB) — GUI default
-- `config/model_epoch_0046.pth`, `model_epoch_0110.pth`
-- `config/epoch_1200_backbone.pth` (backbone-only extract)
+`LOCAL_COMPUTE_MODEL_DIR` =
+`D:\project\signal_studio_rebuild\out\vs2026-qt611-release_bin\detection-models`.
 
-## SCN (`D:\project\train_SCN`)
+Desktop-published SHA-256 (rebuild `docs/implementation/wideband-detection/R6/MODEL_DEPLOYMENT.md`; not re-measured here):
 
-- **Task:** 1D PSD carrier detection (`CarrierDetectionNet` + `CarrierResnet_new` + FPN).
-- **Input:** length `16384` PSD; output grid `4096` (scale 4). Heads: `hm`, `bw` (+ post-processed `bands`/`scores`).
-- **Docs:** `TRAINING_GUIDE.md` (Chinese). Default pretrained path `./SCN_pretrained/epoch_105.pth`.
-- **Load API:** `torch.load(..., weights_only=True)` then `load_state_dict(strict=True)`.
-- **Verified on this machine:** load + zero-tensor forward on `cuda:0` succeeded (2026-10-21).
+- FFSCN `4e14e422e7966eb6f554e322c2d390534650e1b8dd0cee6e04f2ed4305cefc03`
+- SCN `ae89d04332758d466846b71afc849c446500a82a8bd74fd8c671927247746627`
 
-## FFSCN (`D:\project\FFSCN_train2`)
+## IQ
 
-- **Task:** wideband IQ → STFT → sliding-window carrier detection + temporal track/refine.
-- **Architecture home for inference:** `FFSCN_TEST_GUI/` (`business.detection.load_model`, `detect_file`).
-- **Deps (Windows):** `requirements-windows.txt` — numpy, scipy, matplotlib, PyQt5, pyqtgraph, torch≥2.5; CUDA wheel installed separately.
-- **Verified env (GUI README):** Python 3.13.12 @ `D:\profiles\anaconda\python.exe`, PyTorch 2.12.0+CUDA 13.2, RTX 5060.
-- **Verified on this machine:** `load_model(model_epoch_0210.pth, down_nums=11, input_length=1024)` + forward → `hm`/`bw`/`off` dict on `cuda:0`.
-- **Full file pipeline:** `detect_file(engine, model, wav_path, args, device)` (needs wav/iq/psd + STFT).
+`D:\project\signal_studio_rebuild\resources\sigmf_data_demo\0000000.sigmf-data`  
+with `0000000.sigmf-meta` and `0000000.json` when present.
 
-## Upstream Qt worker (protocol reference only)
+## Gaps
 
-- `D:\project\signal_studio_rebuild\tools\detection_worker\main.cpp` — TensorRT-oriented worker protocol. **Not modified.** Current web local-compute path uses **PyTorch weights**, not TRT engines. A future TRT export would be a separate package.
-
-## Gaps / honesty
-
-1. Default `services/local-compute` venv does **not** ship `torch` (keeps contract tests light). Real inference requires starting the service with a CUDA-capable interpreter (e.g. Anaconda) **or** installing torch into the venv.
-2. **TensorRT / `.engine` = N/A** for surveyed trees — do not stub a fake engine. Capabilities require **verified PyTorch `.pth` load+forward** (optional SHA-256 via env/manifest; mismatch → `WEIGHT_HASH_MISMATCH`).
-3. SCN needs `.ptpsd` (or compatible PSDSample) `sourcePath`. FFSCN needs wav/iq/psd readable by `FFSCN_TEST_GUI`.
-4. Without weights / torch / sourcePath, capabilities and tasks stay **BLOCKED** and must not invent candidates.
+1. No TensorRT runtime in this service. Pointing at the engines does not enable detection.
+2. Without those files, torch, or a source path, tasks stay **BLOCKED** and must not invent candidates.
+3. Do not copy the engine blobs into the web repo.
