@@ -1,0 +1,78 @@
+{
+  "id": "qa-web-ca28052-wave26-auto-n",
+  "tip_web_evidence": "ca280524cfb8185c534a2cf78a7b7ae17ad3cb91",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "tip_impl_b_wave26": "cd204ef",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "captures": [
+    "01-g02-wave26-strip.png",
+    "02-g02-auto-n-na-overflow.png",
+    "02b-overflow-auto-n-crop.png",
+    "03-g02-kaiser-enabled-only.png",
+    "04-g02-kaiser-disabled-copy.png",
+    "05-g08-soft.png",
+    "06-g18-soft.png"
+  ],
+  "docs": [
+    "BOT_B_WAVE26_G02_STRIP_AUTO_N_DISABLED.md",
+    "BOT_B_WAVE25_G02_STFT_CONTRACT_STRIP.md",
+    "BOT_D_G02_STFT_CONTRACT_bb9b1ef.md"
+  ],
+  "observations": {
+    "strip": {
+      "strip_wave": "wave11 wave14 wave19 wave21 wave22 wave25 wave26",
+      "strip_dsp": "wave19 wave21 wave25 wave26",
+      "hostReady": true,
+      "method": "welch",
+      "segment_ms": "1.024",
+      "kaiser_beta": "",
+      "window": "hann",
+      "statistic_status": "NA_PSD_ONLY"
+    },
+    "overflow_auto_n": {
+      "data_auto_n": "na",
+      "data_auto_n_status": "BLOCKED",
+      "auto_n_text": "auto N/B: NA (sized by fftSize)",
+      "auto_n_blocked": "true",
+      "segment_text": "1.024 ms",
+      "method_value": "welch",
+      "method_disabled": true,
+      "method_copy": "welch only \u00b7 Multitaper/Burg/Periodogram/Bartlett BLOCKED",
+      "blocked": {
+        "periodogram": "true",
+        "bartlett": "true",
+        "multitaper": "true",
+        "burg": "true"
+      },
+      "kaiser_enabled": "false",
+      "kaiser_disabled_copy": "disabled until window=kaiser",
+      "statistic_na": "NA (NA_PSD_ONLY)"
+    },
+    "kaiser_enabled_path": {
+      "enabled": "true",
+      "input_disabled": false,
+      "publish_beta": "8.6",
+      "segment_ms": "10.24",
+      "method": "welch"
+    },
+    "kaiser_disabled_again": {
+      "enabled": "false",
+      "copy": "disabled until window=kaiser"
+    },
+    "g08_soft": {
+      "g08": "wave23",
+      "wave": "wave23"
+    },
+    "g18_soft": {
+      "wave_multi": "true",
+      "stft_linked": "true",
+      "psd_source": "linked"
+    }
+  },
+  "gaps": [],
+  "mid_flight_origin_main": "a0c9f83e7444ef084c2393956217f453aa38e5ef",
+  "evidence_base_locked": "ca280524cfb8185c534a2cf78a7b7ae17ad3cb91",
+  "mid_flight_note": "A INCREMENTAL_ca28052; evidence base locked ca28052"
+}
