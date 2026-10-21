@@ -79,7 +79,7 @@ test.describe('G07/G02/G08/G19 residuals (Bot-B)', () => {
     await page.getByTestId('btn-load-sample').click();
     await expect(page.getByTestId('project-tree-sample')).toHaveAttribute(
       'data-presentation',
-      'desktop-compact',
+      'desktop-cn-chrome',
     );
     await page.screenshot({
       path: path.join(outDir, 'g19-tree-presentation.png'),
