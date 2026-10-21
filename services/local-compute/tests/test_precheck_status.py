@@ -14,11 +14,7 @@ def test_capabilities_gpu_and_runtime_precheck_fields(client, auth_headers):
     runtime = data["runtime"]
     assert "toolchainVisible" in gpu
     assert gpu["runtimeVerified"] is False
-    assert gpu["uiCode"] in {
-        "GPU_MISSING",
-        "GPU_UNVERIFIED",
-        "GPU_PROBE_ERROR",
-    } or gpu["uiCode"] in UI_COPY
+    assert gpu["uiCode"] in UI_COPY
     assert runtime["engine"] == STUB_ENGINE_LABEL
     assert runtime["tensorrtVerified"] is False
     assert runtime["cudaVerified"] is False
