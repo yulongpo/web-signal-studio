@@ -85,7 +85,6 @@ test.describe('G01 menubar / command-bar (Bot-B)', () => {
       fullPage: true,
     });
   });
-});
 
   test('rename mark via M06 + view history back/forward', async ({ page }) => {
     const outDir = path.resolve(
@@ -137,3 +136,49 @@ test.describe('G01 menubar / command-bar (Bot-B)', () => {
     await expect(page.getByTestId('menu-view-forward')).toBeEnabled();
     await page.getByTestId('menu-view-forward').click();
   });
+
+  test('corner BrandV2 + window controls; fit/restore; File depth', async ({ page }) => {
+    const outDir = path.resolve(
+      process.cwd(),
+      '../../artifacts/validation/ui-parity/bot-b',
+    );
+    fs.mkdirSync(outDir, { recursive: true });
+
+    await page.goto('/');
+    await expect(page.getByTestId('menubar-brand')).toHaveAttribute('data-brand', 'BrandV2');
+    await expect(page.getByTestId('title-brand-version')).toBeVisible();
+    await expect(page.getByTestId('window-controls')).toBeVisible();
+    await expect(page.getByTestId('window-minimize')).toBeVisible();
+    await expect(page.getByTestId('window-maximize')).toBeVisible();
+    await expect(page.getByTestId('window-close')).toBeVisible();
+    await page.screenshot({
+      path: path.join(outDir, 'g01-menubar-corner-controls.png'),
+      fullPage: true,
+    });
+
+    await page.getByTestId('menubar-view').click();
+    await expect(page.getByTestId('menu-view-fit-all')).toBeVisible();
+    await expect(page.getByTestId('menu-view-restore-defaults')).toBeVisible();
+    await page.getByTestId('nav-zoom-in').click();
+    await page.getByTestId('menubar-view').click();
+    await page.getByTestId('menu-view-fit-all').click();
+    await page.getByTestId('menubar-view').click();
+    await page.getByTestId('menu-view-restore-defaults').click();
+    await expect(page.getByTestId('status-workspace')).toHaveText('wideband');
+    await page.screenshot({
+      path: path.join(outDir, 'g01-menubar-view-fit-restore.png'),
+      fullPage: true,
+    });
+
+    await page.getByTestId('menubar-file').click();
+    await expect(page.getByTestId('menu-new-project')).toBeVisible();
+    await expect(page.getByTestId('menu-open-project-folder')).toBeVisible();
+    await expect(page.getByTestId('menu-recent-projects')).toBeVisible();
+    await expect(page.getByTestId('menu-remove-current-file')).toBeVisible();
+    await page.screenshot({
+      path: path.join(outDir, 'g01-menubar-file-depth.png'),
+      fullPage: true,
+    });
+  });
+
+});
