@@ -1,3 +1,10 @@
+> Bot-A `2026-10-22 01:26` Asia/Shanghai: Web **`088f322`** vs desktop `17471a6` — evidence-only G web-14cc45f. No status flips. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_088f322.md`. **No PASS.**
+
+| ID | Prior (`14cc45f`) | Now (`088f322`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL | **unchanged PARTIAL** | evidence corroborates；NB PSD freq → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_088f322.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:22` Asia/Shanghai: Web **`14cc45f`** vs desktop `17471a6` — G18 PARTIAL deepened (C Esc clear + NB multi-view wave). Not CLOSED. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_14cc45f.md`. **No PASS.**
 
 | ID | Prior (`eca5a16`) | Now (`14cc45f`) | Note |
