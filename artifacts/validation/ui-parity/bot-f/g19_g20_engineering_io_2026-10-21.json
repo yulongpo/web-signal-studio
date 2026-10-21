@@ -1,0 +1,36 @@
+{
+  "item": "G19-G20",
+  "title": "engineering IO parity \u2014 SigMF import stream + tree",
+  "owner": "Bot-F",
+  "date_asia_shanghai": "2026-10-21 21:05:20",
+  "base_tip": "be885f2dbfd9daa1b9965bf072d3cdcf69150118",
+  "head_pre_commit": "be885f2dbfd9daa1b9965bf072d3cdcf69150118",
+  "matrix_pass_claimed": false,
+  "command": "npx vitest run --config vitest.config.ts packages/project-io",
+  "result": {
+    "passed": 22,
+    "skipped": 1,
+    "failed": 0
+  },
+  "demo_paths": [
+    "D:\\\\project\\\\signal_studio_rebuild\\\\resources\\\\sigmf_data_demo\\\\0000000.sigmf-meta",
+    "D:\\\\project\\\\signal_studio_rebuild\\\\resources\\\\sigmf_data_demo\\\\0000000.sigmf-data",
+    "D:\\\\project\\\\signal_studio_rebuild\\\\resources\\\\sigmf_data_demo\\\\0000000.json"
+  ],
+  "hook": "window.__wssG19 via installG19E2eHook / createG19E2eHook",
+  "assertions": {
+    "sampleCount": "400000",
+    "datatype": "cf32_le",
+    "sampleRateHz": 20000000,
+    "centerFrequencyHz": 2500000000,
+    "companionSchema": "rfbench-v1",
+    "importedLabelMarks": ">=4"
+  },
+  "gaps_for_bot_b": [
+    "installG19E2eHook(window) in Playwright bootstrap",
+    "map getTree() into ProjectTree UI",
+    "optional tree screenshot evidence"
+  ],
+  "commit_sha": "ce8726525c6d59e886686cdfd44bed3aac6960c4",
+  "head_after_commit": "ce8726525c6d59e886686cdfd44bed3aac6960c4"
+}
