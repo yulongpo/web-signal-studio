@@ -27,6 +27,14 @@ jobs:
         working-directory: apps/web
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      # oxlint optional native binding: npm ci often skips linux-x64-gnu (optional + libc
+      # matching; npm/cli#4828). Main run 39583037963 failed at lint with
+      # "Cannot find module '@oxlint/binding-linux-x64-gnu'". Force-install for ubuntu.
+      - name: ensure oxlint linux binding
+        working-directory: apps/web
+        run: |
+          VER="$(node -p "require('oxlint/package.json').version")"
+          npm install --no-save "@oxlint/binding-linux-x64-gnu@${VER}"
       - name: lint
         working-directory: apps/web
         run: npm run lint
@@ -56,6 +64,10 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: ensure oxlint linux binding
+        run: |
+          VER="$(node -p "require('oxlint/package.json').version")"
+          npm install --no-save "@oxlint/binding-linux-x64-gnu@${VER}"
       - run: npx playwright install --with-deps chromium
       - run: |
           export NODE_PATH="$PWD/node_modules"
