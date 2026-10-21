@@ -9,7 +9,9 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./react": "./src/react/HeatmapDemo.tsx"
+    "./react": "./src/react/index.ts",
+    "./HeatmapCanvas": "./src/react/HeatmapCanvas.tsx",
+    "./SpectrumChart": "./src/react/SpectrumChart.tsx"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -29,5 +31,9 @@
     "typescript": "~5.9.0",
     "vitest": "^3.2.4"
   },
-  "files": ["src", "README.md"]
+  "files": [
+    "src",
+    "demo",
+    "README.md"
+  ]
 }
