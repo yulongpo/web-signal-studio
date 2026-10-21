@@ -133,3 +133,4 @@ export interface ProjectDocumentV6Json extends ProjectDocumentJson {
 export function isSupportedProjectLoadVersion(version: number): version is ProjectLoadVersion {
   return (PROJECT_LOAD_VERSIONS as readonly number[]).includes(version);
 }
+

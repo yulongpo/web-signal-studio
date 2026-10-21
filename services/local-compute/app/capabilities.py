@@ -7,6 +7,7 @@ Hard rules:
   claim inference availability and never invent forward outputs.
 - Service stays up under degradation; DSP stubs may remain available while
   detection is BLOCKED.
+- uiMessages carry stable bilingual (en/zh) copy for the detection page.
 """
 
 from __future__ import annotations
@@ -25,12 +26,73 @@ from .models import (
     DetectionCapabilities,
     DspCapabilities,
     ModelInfo,
+    UiMessage,
 )
 
 log = logging.getLogger("local-compute.capabilities")
 
 FFSCN_CANDIDATE_NAMES = ("ffscn.engine", "ffscn.onnx", "FFSCN.engine")
 SCN_CANDIDATE_NAMES = ("scn.engine", "scn.onnx", "SCN.engine")
+
+# Exact UI strings documented in docs/DETECTION_PAGE_CONTRACT.md — keep in sync.
+UI_COPY: dict[str, tuple[str, str, str]] = {
+    # code -> (severity, en, zh)
+    "GPU_MISSING": (
+        "error",
+        "No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.",
+        "未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。",
+    ),
+    "GPU_UNVERIFIED": (
+        "warning",
+        "GPU visible but CUDA/TensorRT runtime is not verified. Detection stays blocked.",
+        "已看到 GPU，但 CUDA/TensorRT 运行时未核验，检测仍不可用。",
+    ),
+    "GPU_PROBE_ERROR": (
+        "error",
+        "GPU probe failed. Detection (FFSCN/SCN) is unavailable.",
+        "GPU 探测失败，检测（FFSCN/SCN）不可用。",
+    ),
+    "MODEL_MISSING_FFSCN": (
+        "error",
+        "FFSCN model file is missing. Detection cannot run.",
+        "缺少 FFSCN 模型文件，无法运行检测。",
+    ),
+    "MODEL_MISSING_SCN": (
+        "error",
+        "SCN model file is missing. Detection cannot run.",
+        "缺少 SCN 模型文件，无法运行检测。",
+    ),
+    "MODEL_PATH_MISSING": (
+        "error",
+        "Configured detection model path is missing on disk.",
+        "配置的检测模型路径在磁盘上不存在。",
+    ),
+    "MODEL_HASH_MISMATCH": (
+        "error",
+        "Detection model hash/version does not match the configured expectation.",
+        "检测模型哈希/版本与配置期望不一致。",
+    ),
+    "MODEL_HASH_UNAVAILABLE": (
+        "warning",
+        "Detection model hash could not be read; treating as blocked.",
+        "无法读取检测模型哈希，按不可用处理。",
+    ),
+    "STUB_RUNTIME": (
+        "error",
+        "Local compute is in stub mode (no TensorRT). Detection will not invent results.",
+        "本地计算处于占位模式（无 TensorRT），检测不会伪造结果。",
+    ),
+    "NO_FAKE_INFERENCE": (
+        "error",
+        "Refusing to invent FFSCN/SCN detection candidates.",
+        "拒绝伪造 FFSCN/SCN 检测候选结果。",
+    ),
+}
+
+
+def ui_message(code: str) -> UiMessage:
+    severity, en, zh = UI_COPY[code]
+    return UiMessage(code=code, severity=severity, en=en, zh=zh)
 
 
 @dataclass
@@ -42,7 +104,19 @@ class DetectionReadiness:
     ffscn_present: bool = False
     scn_present: bool = False
     reasons: list[str] = field(default_factory=list)
+    ui_codes: list[str] = field(default_factory=list)
     models: list[ModelInfo] = field(default_factory=list)
+
+    def ui_messages(self) -> list[UiMessage]:
+        # Deduplicate while preserving order.
+        seen: set[str] = set()
+        out: list[UiMessage] = []
+        for code in self.ui_codes:
+            if code in seen or code not in UI_COPY:
+                continue
+            seen.add(code)
+            out.append(ui_message(code))
+        return out
 
 
 def _default_model_dirs() -> list[Path]:
@@ -91,10 +165,11 @@ def _probe_one(
     names: tuple[str, ...],
     explicit: Path | None,
     expected_sha: str | None,
-) -> tuple[list[ModelInfo], list[str], bool]:
-    """Return (models, reasons, present_any). Never sets ready=True here."""
+) -> tuple[list[ModelInfo], list[str], list[str], bool]:
+    """Return (models, reasons, ui_codes, present_any). Never sets ready=True here."""
     models: list[ModelInfo] = []
     reasons: list[str] = []
+    ui_codes: list[str] = []
     present_any = False
     seen: set[str] = set()
 
@@ -120,12 +195,14 @@ def _probe_one(
                         f"BLOCKED: {family} hash unavailable for {path} "
                         "(file too large or unreadable)"
                     )
+                    ui_codes.append("MODEL_HASH_UNAVAILABLE")
                     notes = "present but hash unread; expected sha256 configured"
                 elif digest.lower() != expected_sha.lower():
                     reasons.append(
                         f"BLOCKED: {family} hash/version mismatch for {path} "
                         f"(got {digest[:12]}..., expected {expected_sha[:12]}...)"
                     )
+                    ui_codes.append("MODEL_HASH_MISMATCH")
                     notes = "sha256 mismatch vs LOCAL_COMPUTE_*_SHA256"
                 else:
                     notes = (
@@ -153,21 +230,28 @@ def _probe_one(
 
     if explicit is not None and not explicit.is_file():
         reasons.append(f"BLOCKED: {family} configured path missing: {explicit}")
+        ui_codes.append("MODEL_PATH_MISSING")
     elif not present_any:
         reasons.append(
             f"BLOCKED: no {family} model file under model search roots "
             f"(or {family} env path)"
         )
+        ui_codes.append(
+            "MODEL_MISSING_FFSCN" if family == "FFSCN" else "MODEL_MISSING_SCN"
+        )
 
-    return models, reasons, present_any
+    return models, reasons, ui_codes, present_any
 
 
-def _gpu_probe() -> tuple[bool, str]:
-    """Return (verified_ok, reason). Warmup never claims full CUDA/TRT verify."""
+def _gpu_probe() -> tuple[str, str]:
+    """Return (reason, ui_code). Warmup never claims full CUDA/TRT verify."""
     try:
         smi = shutil.which("nvidia-smi")
         if not smi:
-            return False, "nvidia-smi not found (no GPU toolchain visible)"
+            return (
+                "nvidia-smi not found (no GPU toolchain visible)",
+                "GPU_MISSING",
+            )
         proc = subprocess.run(
             [smi, "--query-gpu=name,driver_version", "--format=csv,noheader"],
             capture_output=True,
@@ -177,43 +261,49 @@ def _gpu_probe() -> tuple[bool, str]:
         )
         if proc.returncode == 0 and proc.stdout.strip():
             line = proc.stdout.strip().splitlines()[0].strip()
-            return False, (
+            return (
                 f"nvidia-smi sees {line!r} but CUDA/TensorRT runtime "
-                "not verified (BLOCKED)"
+                "not verified (BLOCKED)",
+                "GPU_UNVERIFIED",
             )
-        return False, "nvidia-smi returned no GPU rows"
+        return "nvidia-smi returned no GPU rows", "GPU_MISSING"
     except Exception as exc:  # noqa: BLE001
         log.debug("GPU probe failed: %s", exc)
-        return False, f"GPU probe error: {exc}"
+        return f"GPU probe error: {exc}", "GPU_PROBE_ERROR"
 
 
 def probe_detection_readiness() -> DetectionReadiness:
     """Model precheck used by /capabilities and task admission."""
-    ffscn_models, ffscn_reasons, ffscn_present = _probe_one(
+    ffscn_models, ffscn_reasons, ffscn_ui, ffscn_present = _probe_one(
         family="FFSCN",
         names=FFSCN_CANDIDATE_NAMES,
         explicit=_explicit_path("LOCAL_COMPUTE_FFSCN_PATH"),
         expected_sha=_expected_sha("LOCAL_COMPUTE_FFSCN_SHA256"),
     )
-    scn_models, scn_reasons, scn_present = _probe_one(
+    scn_models, scn_reasons, scn_ui, scn_present = _probe_one(
         family="SCN",
         names=SCN_CANDIDATE_NAMES,
         explicit=_explicit_path("LOCAL_COMPUTE_SCN_PATH"),
         expected_sha=_expected_sha("LOCAL_COMPUTE_SCN_SHA256"),
     )
 
-    gpu_ok, gpu_reason = _gpu_probe()
+    gpu_reason, gpu_code = _gpu_probe()
     reasons: list[str] = []
+    ui_codes: list[str] = []
     reasons.extend(ffscn_reasons)
     reasons.extend(scn_reasons)
-    if not gpu_ok:
-        reasons.append(f"BLOCKED: {gpu_reason}")
+    ui_codes.extend(ffscn_ui)
+    ui_codes.extend(scn_ui)
+    reasons.append(f"BLOCKED: {gpu_reason}")
+    ui_codes.append(gpu_code)
 
     # Even with files + matching hash + GPU visible, warmup has no real engine.
     reasons.append(
         "BLOCKED: inference worker is STUB_NON_TENSORRT — "
         "no fabricated FFSCN/SCN forward path"
     )
+    ui_codes.append("STUB_RUNTIME")
+    ui_codes.append("NO_FAKE_INFERENCE")
 
     # Ready flags stay false until a real verified runtime lands.
     return DetectionReadiness(
@@ -222,6 +312,7 @@ def probe_detection_readiness() -> DetectionReadiness:
         ffscn_present=ffscn_present,
         scn_present=scn_present,
         reasons=reasons,
+        ui_codes=ui_codes,
         models=ffscn_models + scn_models,
     )
 
@@ -242,8 +333,40 @@ def detection_block_reasons_for_kind(kind: str) -> list[str]:
     return out
 
 
+def detection_ui_messages_for_kind(kind: str) -> list[UiMessage]:
+    """Bilingual UI messages for a blocked detection run."""
+    ready = probe_detection_readiness()
+    codes = list(ready.ui_codes)
+    kind_l = kind.strip().lower()
+    if kind_l.startswith("ffscn") and not ready.ffscn_present:
+        codes.insert(0, "MODEL_MISSING_FFSCN")
+    if kind_l.startswith("scn") and not ready.scn_present:
+        codes.insert(0, "MODEL_MISSING_SCN")
+    if "NO_FAKE_INFERENCE" not in codes:
+        codes.append("NO_FAKE_INFERENCE")
+    seen: set[str] = set()
+    out: list[UiMessage] = []
+    for code in codes:
+        if code in seen or code not in UI_COPY:
+            continue
+        seen.add(code)
+        out.append(ui_message(code))
+    return out
+
+
+def primary_ui_pair(messages: list[UiMessage]) -> tuple[str | None, str | None]:
+    """First error (else first) message as (en, zh) for TaskRecord.message*."""
+    if not messages:
+        return None, None
+    for m in messages:
+        if m.severity == "error":
+            return m.en, m.zh
+    return messages[0].en, messages[0].zh
+
+
 def build_capabilities() -> CapabilitiesResponse:
     ready = probe_detection_readiness()
+    ui_msgs = ready.ui_messages()
 
     # Degradation: service stays up; offer lightweight DSP stub availability
     # while detection remains BLOCKED.
@@ -268,6 +391,7 @@ def build_capabilities() -> CapabilitiesResponse:
         "DSP stub may stay available.",
         "Model identity (path/sha256) may be reported when files exist; "
         "never invents inference.",
+        "detection.uiMessages carries bilingual (en/zh) copy for the UI.",
     ]
     if ready.ffscn_present or ready.scn_present:
         notes.append(
@@ -283,6 +407,7 @@ def build_capabilities() -> CapabilitiesResponse:
             ffscn=ready.ffscn_ready,
             scn=ready.scn_ready,
             reasons=ready.reasons,
+            uiMessages=ui_msgs,
         ),
         models=ready.models,
         notes=notes,

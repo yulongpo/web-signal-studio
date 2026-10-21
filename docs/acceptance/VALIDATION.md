@@ -74,3 +74,9 @@ npx playwright test
 - Run: https://github.com/yulongpo/web-signal-studio/actions/runs/39583728389 — **failure** at `npm ci` (`Missing: @wss/web@0.0.0 from lock file`)
 - Fix on `work/bot-g-qa`: sync root/apps lock names; CI `npm ci` at repo root + `-w @wss/web`; keep oxlint linux binding step
 - Evidence: `docs/acceptance/evidence/ci-fail-a904334_REPORT.md`
+
+## Remote CI — main 682721a (2026-10-21)
+
+- Run: https://github.com/yulongpo/web-signal-studio/actions/runs/39584103562 — npm ci/lint/typecheck **pass**; **unit fail** (rolldown linux binding)
+- Fix: ensure `@rolldown/binding-linux-x64-gnu` alongside oxlint in CI
+- Evidence: `docs/acceptance/evidence/ci-fail-682721a_REPORT.md`

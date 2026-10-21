@@ -9,11 +9,12 @@ export type FreqDisplayMode = 'rf' | 'baseband';
 
 export type ActiveTool = 'navigate' | 'select' | 'zoom' | 'marker' | 'measure';
 
-export type RightPage = 'display' | 'detection' | 'marker' | 'channel' | 'detect';
+/** Stable right-rail page ids; contract + e2e use `detect` (not `detection`). */
+export type RightPage = 'display' | 'detect' | 'marker' | 'channel';
 
 export type ChartMode = 'stft' | 'waterfall';
 
-export type AuxChartKind = 'waveform' | 'psd' | 'wave';
+export type AuxChartKind = 'wave' | 'psd';
 
 export type WorkspaceMode = 'wideband' | 'narrowband' | 'linked';
 

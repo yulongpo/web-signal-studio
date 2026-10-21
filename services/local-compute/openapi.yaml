@@ -1,0 +1,278 @@
+﻿openapi: 3.0.3
+info:
+  title: Web Signal Studio local-compute
+  version: 0.1.2-contract
+  description: |
+    Loopback-only FastAPI service for WEB_NATIVE_PROTOCOL v0.1.0.
+    Detection stays BLOCKED without verified model+GPU; never fabricates FFSCN/SCN results.
+    See docs/DETECTION_PAGE_CONTRACT.md for UI copy and flow.
+servers:
+  - url: http://127.0.0.1:8000
+paths:
+  /capabilities:
+    get:
+      summary: Probe DSP/detection capabilities
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Capabilities
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CapabilitiesResponse"
+        "401":
+          description: Missing or invalid bearer token
+  /tasks:
+    post:
+      summary: Create a task (frozen request snapshot)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreateRequest"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskCreateResponse"
+        "401":
+          description: Unauthorized
+        "422":
+          description: Validation error (e.g. non-decimal sample index)
+  /tasks/{runId}:
+    get:
+      summary: Get task progress / result / evidence
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Task record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskRecord"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Unknown runId
+  /tasks/{runId}/cancel:
+    post:
+      summary: Cancel exact runId
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Cancel acknowledgement
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TaskCancelResponse"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Unknown runId
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    UiMessage:
+      type: object
+      required: [code, severity, en, zh]
+      properties:
+        code:
+          type: string
+          description: Stable code e.g. GPU_MISSING
+        severity:
+          type: string
+          enum: [info, warning, error]
+        en:
+          type: string
+        zh:
+          type: string
+    DetectionCapabilities:
+      type: object
+      required: [ffscn, scn, reasons, uiMessages]
+      properties:
+        ffscn:
+          type: boolean
+        scn:
+          type: boolean
+        reasons:
+          type: array
+          items:
+            type: string
+        uiMessages:
+          type: array
+          items:
+            $ref: "#/components/schemas/UiMessage"
+    DspCapabilities:
+      type: object
+      properties:
+        fft:
+          type: boolean
+        psd:
+          type: boolean
+        stft:
+          type: boolean
+        ddc:
+          type: boolean
+        reasons:
+          type: array
+          items:
+            type: string
+    ModelInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        path:
+          type: string
+          nullable: true
+        sha256:
+          type: string
+          nullable: true
+        present:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+    CapabilitiesResponse:
+      type: object
+      required:
+        - protocolVersion
+        - serviceVersion
+        - dsp
+        - detection
+      properties:
+        protocolVersion:
+          type: string
+        serviceVersion:
+          type: string
+        bindAddressPolicy:
+          type: string
+        bindHost:
+          type: string
+        authRequired:
+          type: boolean
+        dsp:
+          $ref: "#/components/schemas/DspCapabilities"
+        detection:
+          $ref: "#/components/schemas/DetectionCapabilities"
+        models:
+          type: array
+          items:
+            $ref: "#/components/schemas/ModelInfo"
+        notes:
+          type: array
+          items:
+            type: string
+    SampleRange:
+      type: object
+      required: [start, end]
+      properties:
+        start:
+          type: string
+          description: Inclusive start sample index as decimal string
+        end:
+          type: string
+          description: Exclusive end sample index as decimal string
+    TaskCreateRequest:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+        params:
+          type: object
+          additionalProperties: true
+        sourcePath:
+          type: string
+          nullable: true
+        sampleRange:
+          $ref: "#/components/schemas/SampleRange"
+        sampleIndices:
+          type: array
+          items:
+            type: string
+    TaskCreateResponse:
+      type: object
+      required: [runId]
+      properties:
+        runId:
+          type: string
+    TaskStatus:
+      type: string
+      enum: [queued, running, succeeded, failed, cancelled, BLOCKED]
+    TaskRecord:
+      type: object
+      required: [runId, kind, status, createdAt, updatedAt]
+      properties:
+        runId:
+          type: string
+        kind:
+          type: string
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        progress:
+          type: number
+        request:
+          type: object
+        result:
+          type: object
+          nullable: true
+        evidence:
+          type: array
+          items:
+            type: object
+        blockReasons:
+          type: array
+          items:
+            type: string
+        message:
+          type: string
+          nullable: true
+        messageZh:
+          type: string
+          nullable: true
+        uiMessages:
+          type: array
+          items:
+            $ref: "#/components/schemas/UiMessage"
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+    TaskCancelResponse:
+      type: object
+      required: [runId, status]
+      properties:
+        runId:
+          type: string
+        status:
+          $ref: "#/components/schemas/TaskStatus"
+        message:
+          type: string
+          nullable: true
+        messageZh:
+          type: string
+          nullable: true

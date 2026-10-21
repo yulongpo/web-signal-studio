@@ -21,16 +21,19 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: package-lock.json
-      # Monorepo root lock (workspaces). apps/web nested lock alone is out of sync with
-      # package name @wss/web and caused npm ci EUSAGE on main a904334 / run 39583728389.
       - name: npm ci (repo root)
         run: npm ci
-      # oxlint optional native binding: npm ci often skips linux-x64-gnu (npm/cli#4828).
-      - name: ensure oxlint linux binding
+      # Optional native bindings often skipped after cross-platform lock (npm/cli#4828):
+      # - oxlint: lint failed on f6a40c2
+      # - rolldown: vitest failed on 682721a (run 39584103562)
+      - name: ensure linux native bindings
         working-directory: apps/web
         run: |
-          VER="$(node -p "require('oxlint/package.json').version")"
-          npm install --no-save "@oxlint/binding-linux-x64-gnu@${VER}"
+          OXV="$(node -p "require('oxlint/package.json').version")"
+          RDV="$(node -p "require('rolldown/package.json').version")"
+          npm install --no-save \
+            "@oxlint/binding-linux-x64-gnu@${OXV}" \
+            "@rolldown/binding-linux-x64-gnu@${RDV}"
       - name: lint
         run: npm run lint -w @wss/web
       - name: typecheck
@@ -52,11 +55,14 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
-      - name: ensure oxlint linux binding
+      - name: ensure linux native bindings
         working-directory: apps/web
         run: |
-          VER="$(node -p "require('oxlint/package.json').version")"
-          npm install --no-save "@oxlint/binding-linux-x64-gnu@${VER}"
+          OXV="$(node -p "require('oxlint/package.json').version")"
+          RDV="$(node -p "require('rolldown/package.json').version")"
+          npm install --no-save \
+            "@oxlint/binding-linux-x64-gnu@${OXV}" \
+            "@rolldown/binding-linux-x64-gnu@${RDV}"
       - working-directory: apps/web
         run: npx playwright install --with-deps chromium
       - working-directory: apps/web
