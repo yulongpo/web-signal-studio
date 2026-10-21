@@ -1,36 +1,109 @@
 /**
  * Bot-C G04 host: aux Wave/PSD for `chart-aux` slot.
- * Curves derived from main spectrogram + linked nav window (display only).
- * Wave = STFT time-envelope in window (not raw IQ / not demod).
+ * PSD = max-across-time from main spectrogram (display only).
+ * Wave = raw IQ from sigmf_data_demo via chunked @wss/file-io (IqRms overview),
+ *        not STFT time-envelope / not demod.
  */
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { WaveformChart } from '@wss/charts/WaveformChart';
 import { useUiStore } from '../store/uiStore';
+import { derivePsdInWindow } from '../dsp/chartDisplayDerive';
 import {
-  derivePsdInWindow,
-  deriveWaveInWindow,
-} from '../dsp/chartDisplayDerive';
+  readAuxWaveRawIq,
+  type WaveIqSeries,
+} from '../dsp/auxWaveRawIq';
 
 export function AuxChartHost() {
   const kind = useUiStore((s) => s.auxChartKind);
   const win = useUiStore((s) => s.navWindowTime);
   const snap = useUiStore((s) => s.spectrogramDisplay);
 
-  const series = useMemo(() => {
-    if (!snap || snap.frameCount < 2 || snap.binCount < 2) {
-      return null;
-    }
-    if (kind === 'psd') return derivePsdInWindow(snap, win);
-    return deriveWaveInWindow(snap, win);
+  const psdSeries = useMemo(() => {
+    if (kind !== 'psd') return null;
+    if (!snap || snap.frameCount < 2 || snap.binCount < 2) return null;
+    return derivePsdInWindow(snap, win);
   }, [snap, kind, win.min, win.max]);
 
-  if (!series) {
+  const [waveSeries, setWaveSeries] = useState<WaveIqSeries | null>(null);
+  const [waveError, setWaveError] = useState<string | null>(null);
+  const [waveLoading, setWaveLoading] = useState(false);
+
+  useEffect(() => {
+    if (kind !== 'wave') return;
+    const ac = new AbortController();
+    setWaveLoading(true);
+    setWaveError(null);
+    const fullTime = snap?.timeSec ?? null;
+    void readAuxWaveRawIq({
+      win,
+      fullTime,
+      signal: ac.signal,
+    })
+      .then((series) => {
+        if (ac.signal.aborted) return;
+        setWaveSeries(series);
+        setWaveLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (ac.signal.aborted) return;
+        const msg = err instanceof Error ? err.message : String(err);
+        if (/abort/i.test(msg)) return;
+        setWaveSeries(null);
+        setWaveError(msg || 'sigmf_data_demo read failed');
+        setWaveLoading(false);
+      });
+    return () => ac.abort();
+  }, [kind, win.min, win.max, snap?.timeSec.min, snap?.timeSec.max]);
+
+  if (kind === 'psd') {
+    if (!psdSeries) {
+      return (
+        <div
+          className="chart-host"
+          data-chart-slot="aux"
+          data-chart-kind={kind}
+          data-aux-ready="false"
+          data-testid="aux-chart-waiting"
+          style={{
+            display: 'grid',
+            placeItems: 'center',
+            color: '#9aa7b5',
+            fontSize: 12,
+          }}
+        >
+          Waiting for spectrogram…
+        </div>
+      );
+    }
     return (
       <div
         className="chart-host"
         data-chart-slot="aux"
         data-chart-kind={kind}
+        data-aux-ready="true"
+        data-aux-points={psdSeries.y.length}
+      >
+        <WaveformChart
+          y={psdSeries.y}
+          xDomain={psdSeries.xDomain}
+          kind="psd"
+          height="100%"
+          testId="chart-aux"
+          windowX={null}
+        />
+      </div>
+    );
+  }
+
+  // Wave = raw IQ (sigmf_data_demo)
+  if (waveLoading && !waveSeries) {
+    return (
+      <div
+        className="chart-host"
+        data-chart-slot="aux"
+        data-chart-kind="wave"
         data-aux-ready="false"
+        data-aux-wave-source="sigmf_data_demo"
         data-testid="aux-chart-waiting"
         style={{
           display: 'grid',
@@ -39,7 +112,32 @@ export function AuxChartHost() {
           fontSize: 12,
         }}
       >
-        Waiting for spectrogram…
+        Loading raw IQ (sigmf_data_demo)…
+      </div>
+    );
+  }
+
+  if (!waveSeries) {
+    return (
+      <div
+        className="chart-host"
+        data-chart-slot="aux"
+        data-chart-kind="wave"
+        data-aux-ready="false"
+        data-aux-wave-source="sigmf_data_demo"
+        data-testid="aux-chart-waiting"
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          color: '#9aa7b5',
+          fontSize: 12,
+          padding: 8,
+          textAlign: 'center',
+        }}
+      >
+        {waveError
+          ? `Raw IQ unavailable: ${waveError}`
+          : 'Waiting for raw IQ (sigmf_data_demo)…'}
       </div>
     );
   }
@@ -48,14 +146,17 @@ export function AuxChartHost() {
     <div
       className="chart-host"
       data-chart-slot="aux"
-      data-chart-kind={kind}
+      data-chart-kind="wave"
       data-aux-ready="true"
-      data-aux-points={series.y.length}
+      data-aux-points={waveSeries.y.length}
+      data-aux-wave-source="sigmf_data_demo"
+      data-aux-wave-label={waveSeries.sourceLabel}
+      title={`Aux Wave: raw IQ IqRms · ${waveSeries.sourceLabel}`}
     >
       <WaveformChart
-        y={series.y}
-        xDomain={series.xDomain}
-        kind={kind === 'psd' ? 'psd' : 'waveform'}
+        y={waveSeries.y}
+        xDomain={waveSeries.xDomain}
+        kind="waveform"
         height="100%"
         testId="chart-aux"
         windowX={null}
