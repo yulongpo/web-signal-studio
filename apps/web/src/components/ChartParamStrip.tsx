@@ -14,6 +14,16 @@ import {
 
 const STFT_N_OPTIONS = [256, 512, 1024, 2048, 4096] as const;
 const PALETTES = ['viridis', 'inferno', 'magma', 'gray'] as const;
+const STFT_WINDOW_OPTIONS = [
+  'rectangular',
+  'hann',
+  'hamming',
+  'blackman',
+  'blackman_harris',
+  'flat_top',
+  'kaiser',
+] as const;
+const STFT_OVERLAP_PCT_OPTIONS = [0, 25, 50, 75, 90] as const;
 
 export function AuxParamStrip() {
   const auxChartKind = useUiStore((s) => s.auxChartKind);
@@ -77,6 +87,10 @@ export function SpecParamStrip() {
   const setChartMode = useUiStore((s) => s.setChartMode);
   const stftN = useUiStore((s) => s.stftN);
   const setStftN = useUiStore((s) => s.setStftN);
+  const stftWindowPref = useUiStore((s) => s.stftWindowPref);
+  const setStftWindowPref = useUiStore((s) => s.setStftWindowPref);
+  const stftOverlapPref = useUiStore((s) => s.stftOverlapPref);
+  const setStftOverlapPref = useUiStore((s) => s.setStftOverlapPref);
   const paletteId = useUiStore((s) => s.paletteId);
   const setPaletteId = useUiStore((s) => s.setPaletteId);
   const setActiveTool = useUiStore((s) => s.setActiveTool);
@@ -189,7 +203,7 @@ return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21" data-strip-dsp="wave19 wave21"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22" data-strip-dsp="wave19 wave21" data-stft-n-drives-compute="wave22"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -478,6 +492,7 @@ return (
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft">STFT点数</span>
                 <select
                   data-testid="select-stft-n"
+                  data-stft-n-drives-compute="wave22"
                   value={stftN}
                   onChange={(e) => setStftN(Number(e.target.value))}
                 >
@@ -488,6 +503,39 @@ return (
                   ))}
                 </select>
               </label>
+              <label className="overflow-item" data-testid="overflow-spectral-window" data-strip-wave="wave22">
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-window">窗函数</span>
+                <select
+                  data-testid="select-stft-window"
+                  value={stftWindowPref}
+                  onChange={(e) =>
+                    setStftWindowPref(e.target.value as (typeof STFT_WINDOW_OPTIONS)[number])
+                  }
+                  title="Desired STFT window (drives next compute)"
+                >
+                  {STFT_WINDOW_OPTIONS.map((w) => (
+                    <option key={w} value={w}>
+                      {w}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="overflow-item" data-testid="overflow-spectral-overlap" data-strip-wave="wave22">
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-overlap">重叠 %</span>
+                <select
+                  data-testid="select-stft-overlap"
+                  value={String(Math.round(stftOverlapPref * 100))}
+                  onChange={(e) => setStftOverlapPref(Number(e.target.value) / 100)}
+                  title="Desired overlap % (hop = fft*(1-overlap))"
+                >
+                  {STFT_OVERLAP_PCT_OPTIONS.map((pct) => (
+                    <option key={pct} value={pct}>
+                      {pct}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
               <label className="overflow-item">
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-palette">色板</span>
                 <select

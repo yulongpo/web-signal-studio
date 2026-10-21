@@ -78,6 +78,10 @@ export interface UiState {
   openTempLayer: TempLayerId;
   chartMode: ChartMode;
   stftN: number;
+  /** G02 chrome pref: desired STFT window (drives next compute; != dspFftWindow publish). */
+  stftWindowPref: SpectralWindowName;
+  /** G02 chrome pref: desired overlap ratio [0,1). */
+  stftOverlapPref: number;
   paletteId: string;
   auxChartKind: AuxChartKind;
   /** G03 full capture time extent (seconds). */
@@ -220,6 +224,8 @@ export interface UiState {
   closeTempLayer: (opts?: { revertDraft?: boolean }) => void;
   setChartMode: (mode: ChartMode) => void;
   setStftN: (n: number) => void;
+  setStftWindowPref: (w: SpectralWindowName) => void;
+  setStftOverlapPref: (overlap: number) => void;
   setPaletteId: (id: string) => void;
   setAuxChartKind: (kind: AuxChartKind) => void;
   setNavWindowTime: (
@@ -303,6 +309,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   openTempLayer: null,
   chartMode: 'stft',
   stftN: 1024,
+  stftWindowPref: 'hann',
+  stftOverlapPref: 0.75,
   paletteId: 'viridis',
   auxChartKind: 'wave',
   navFullTime: { min: 0, max: 1 },
@@ -426,6 +434,13 @@ export const useUiStore = create<UiState>((set, get) => ({
 
   setChartMode: (mode) => set({ chartMode: mode }),
   setStftN: (n) => set({ stftN: n }),
+  setStftWindowPref: (w) => set({ stftWindowPref: w }),
+  setStftOverlapPref: (overlap) =>
+    set({
+      stftOverlapPref: Number.isFinite(overlap)
+        ? Math.min(Math.max(overlap, 0), 0.999999)
+        : 0.75,
+    }),
   setPaletteId: (id) => set({ paletteId: id }),
   setAuxChartKind: (kind) => set({ auxChartKind: kind }),
   setNavWindowTime: (win, opts) => {

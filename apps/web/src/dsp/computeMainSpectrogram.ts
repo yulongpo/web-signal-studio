@@ -2,6 +2,7 @@
  * Synthetic two-tone IQ → STFT via DspWorkerClient for the main chart.
  * Labeled synthetic fixture — NOT a real capture / file IQ path.
  */
+import type { SpectralWindowName } from '@wss/contracts';
 import type { DspWorkerClient } from '@wss/dsp-wasm';
 import { createDspWorkerClient, InProcessAsyncBackend } from '@wss/dsp-wasm';
 
@@ -34,7 +35,7 @@ export interface MainSpectrogramResult {
   /** Actual STFT analysis params used (source of truth for SpecParamStrip). */
   fftSize: number;
   hopSize: number;
-  window: typeof MAIN_STFT_DEFAULTS.window;
+  window: SpectralWindowName;
   overlap: number;
 }
 
@@ -44,6 +45,7 @@ export interface ComputeMainSpectrogramOptions {
   signal?: AbortSignal;
   fftSize?: number;
   hopSize?: number;
+  window?: SpectralWindowName;
   sampleRateHz?: number;
   /** Tone frequencies in Hz (baseband). */
   toneHz?: [number, number];
@@ -102,7 +104,7 @@ export async function computeMainSpectrogram(
 ): Promise<MainSpectrogramResult> {
   const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
   const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
-  const window = MAIN_STFT_DEFAULTS.window;
+  const window: SpectralWindowName = options.window ?? MAIN_STFT_DEFAULTS.window;
   const sampleRateHz = options.sampleRateHz ?? 1_000_000;
   const toneHz = options.toneHz ?? ([150_000, -220_000] as [number, number]);
   const frameTarget = 128;
