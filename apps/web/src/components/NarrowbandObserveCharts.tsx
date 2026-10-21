@@ -70,6 +70,8 @@ export function NarrowbandObserveCharts() {
       waveformMode,
       psdFftSize: psdFft,
       stftFftSize: stftFft,
+      // G18: store narrowbandPsdMode must drive observe PSD series.
+      psdMode,
       signal: ac.signal,
     })
       .then((r) => {
@@ -95,6 +97,19 @@ export function NarrowbandObserveCharts() {
       : null;
 
   const ready = Boolean(result) && !error;
+
+  // G18: pick plotted PSD from store mode + retained dual series.
+  // Statistical mode must ignore any pinned/last-dwell frame series.
+  const psdPlot =
+    result == null
+      ? null
+      : psdMode === 'frame' && result.psdFrame.length > 0
+        ? { y: result.psdFrame, kind: 'frame-stft' as const }
+        : result.psdStatistical.length > 0
+          ? { y: result.psdStatistical, kind: 'welch-statistical' as const }
+          : result.psdFrame.length > 0
+            ? { y: result.psdFrame, kind: 'frame-stft' as const }
+            : { y: result.psd.y, kind: result.psdSeriesKind };
 
   // RF axis offset for PSD/STFT labels when freqMode === 'rf' (display only).
   const rfOffset =
@@ -173,13 +188,13 @@ export function NarrowbandObserveCharts() {
           extraAttrs={{
             'data-nb-psd-source': 'sigmf_data_demo-ddc',
             'data-nb-psd-mode': psdMode,
-            'data-nb-psd-series-kind': result?.psdSeriesKind,
-            'data-nb-psd-bins': result?.psd.y.length,
+            'data-nb-psd-series-kind': psdPlot?.kind,
+            'data-nb-psd-bins': psdPlot?.y.length,
           }}
         >
-          {result && psdXDomain && result.psd.y.length > 0 ? (
+          {result && psdXDomain && psdPlot && psdPlot.y.length > 0 ? (
             <WaveformChart
-              y={result.psd.y}
+              y={psdPlot.y}
               xDomain={psdXDomain}
               kind="psd"
               height="100%"

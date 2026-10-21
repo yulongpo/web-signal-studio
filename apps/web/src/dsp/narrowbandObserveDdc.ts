@@ -293,6 +293,20 @@ export function selectNarrowbandPsdSeries(args: {
   return { y: new Float32Array(0), kind: 'welch-statistical' };
 }
 
+
+/**
+ * G18 chart/store helper: given dual series from observe DDC, pick the y-array
+ * that `uiStore.narrowbandPsdMode` should plot. Statistical mode never returns
+ * a pinned dwell/frame series when Welch/statistical data exists.
+ */
+export function plotYForNarrowbandPsdMode(
+  mode: NarrowbandPsdMode,
+  frameDb: Float32Array,
+  statisticalDb: Float32Array,
+): { y: Float32Array; kind: 'frame-stft' | 'welch-statistical' } {
+  return selectNarrowbandPsdSeries({ mode, frameDb, statisticalDb });
+}
+
 /**
  * Open demo SigMF → DDC (+ baseband PSD/STFT) for G06 observe charts.
  */
@@ -369,11 +383,15 @@ export async function computeNarrowbandObserveDdc(
   const stftLinEarly = result.basebandStft?.linearPower;
   const stftBinsEarly = result.basebandStft?.binCount ?? 0;
   const stftFramesEarly = result.basebandStft?.frameCount ?? 0;
+  // Pinned/dwell frame index only applies in frame mode so it cannot
+  // freeze statistical Welch series when UI switches modes.
+  const frameIndexForMode =
+    psdMode === 'frame' ? options.psdFrameIndex : undefined;
   const psdFrame = buildFramePsdFromStft(
     stftLinEarly ?? new Float32Array(0),
     stftBinsEarly,
     stftFramesEarly,
-    options.psdFrameIndex,
+    frameIndexForMode,
   );
   const psdStatistical = buildStatisticalPsd(
     welchLinear,
