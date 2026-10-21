@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:22` Asia/Shanghai: Web **`ca28052`** vs desktop `17471a6` — G02 PARTIAL honesty deepen (B wave26 auto-N). Auto N/B not MET. G08/G18 no regression. Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ca28052/`. **No PASS.**
+
+| ID | Prior (`f72184c`) | Now (`ca28052`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL | **PARTIAL 诚实加深** | `data-auto-n=na`；disabled-state copy |
+| **G08** / **G18** | PARTIAL | **unchanged PARTIAL** | 无回归 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_ca28052/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:18` Asia/Shanghai: Web **`f72184c`** vs desktop `17471a6` — G02 PARTIAL deepened (B wave25 strip on D contract). BLOCKED methods not MET. G08/G18 no regression. Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f72184c/`. **No PASS.**
 
 | ID | Prior (`ba3bb76`) | Now (`f72184c`) | Note |

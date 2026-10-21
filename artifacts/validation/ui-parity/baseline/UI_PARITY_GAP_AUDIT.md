@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 02:22` Asia/Shanghai: Web tip **`ca28052`** vs desktop `17471a6` — G02 PARTIAL honesty deepen (B `cd204ef` wave26: `data-auto-n=na` + NA copy; method disabled welch-only copy; Kaiser disabled-until-kaiser; blocked methods still grey). Real auto N/B still BLOCKED → **not CLOSED**. G08/G18 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ca28052/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`f72184c`) | Now (`ca28052`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL（strip↔D） | **PARTIAL 诚实加深** | auto-N NA/BLOCKED 标清；未实现 auto N/B → **未 CLOSED** |
+| **G08** / **G18** | PARTIAL | **unchanged PARTIAL** | 无回归 |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未发明 / 未抬升 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_ca28052/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:18` Asia/Shanghai: Web tip **`f72184c`** vs desktop `17471a6` — G02 PARTIAL deepened (B `bcde64f` SpecParamStrip wires D StftRequest: fixed welch + kaiserBeta + SegMs; blocked Multitaper/Burg/Periodogram/Bartlett `data-blocked`). Window/overlap/stftN still MET. G08/G18 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f72184c/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`ba3bb76`) | Now (`f72184c`) | Note |
