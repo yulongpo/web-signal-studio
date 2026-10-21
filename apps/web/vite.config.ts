@@ -1,12 +1,26 @@
-﻿import { defineConfig } from 'vitest/config'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// https://vite.dev/config/
+const rootDir = path.dirname(fileURLToPath(import.meta.url))
+const chartsSrc = path.resolve(rootDir, '../../packages/charts/src')
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@wss/charts/SpectrumChart': path.resolve(chartsSrc, 'react/SpectrumChart.tsx'),
+      '@wss/charts/HeatmapCanvas': path.resolve(chartsSrc, 'react/HeatmapCanvas.tsx'),
+      '@wss/charts/lut/colormaps': path.resolve(chartsSrc, 'lut/colormaps.ts'),
+      '@wss/charts/react': path.resolve(chartsSrc, 'react'),
+      '@wss/charts': chartsSrc,
+    },
+  },
   server: {
     port: 5173,
+    fs: { allow: [path.resolve(rootDir, '../..')] },
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8000',
