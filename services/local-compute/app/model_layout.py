@@ -19,10 +19,13 @@ IQ smoke input (not a weight):
   D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-data
   (+ 0000000.sigmf-meta / .json)
 
-.engine files are discovered and then reported TENSORRT_NA / BLOCKED until a
-TensorRT runtime is wired. This module does not load them and does not invent
-candidates. LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME are optional and
-have no default path outside signal_studio_rebuild.
+.engine files under the rebuild tree are the only detection models (G26/CAO).
+Discovery only — loading/deserialize is handled by tensorrt_runtime / capabilities.
+When TensorRT cannot run, capabilities stay BLOCKED (TENSORRT_RUNTIME_MISSING /
+ENGINE_LOAD_FAILED); never invent candidates.
+LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME are optional and have no default
+path outside signal_studio_rebuild.
+IQ: LOCAL_COMPUTE_IQ_DIR or rebuild resources/sigmf_data_demo.
 
 Optional expected SHA-256 (any one source wins, first match):
   LOCAL_COMPUTE_FFSCN_SHA256 / LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256
@@ -44,6 +47,7 @@ log = logging.getLogger("local-compute.model_layout")
 
 FFSCN_FILE_NAMES = (
     "ffscn_epoch1200_dynamic_fp32.engine",
+    "ffscn_epoch1200_fp32.engine",
     "ffscn.engine",
     "FFSCN.engine",
     "ffscn.pth",
@@ -260,6 +264,8 @@ def _collect_named(roots: list[Path], names: tuple[str, ...]) -> list[Path]:
                 root / "scn-max-psd-v1" / name,
                 root / "ffscn" / name,
                 root / "scn" / name,
+                root / "ffscn-gui-iq-v1" / name,
+                root / "scn-max-psd-v1" / name,
                 root / "weights" / name,
             ):
                 key = str(candidate.resolve()) if candidate.exists() else str(candidate)
@@ -342,13 +348,27 @@ def first_present(family: str) -> Path | None:
     return None
 
 
+def iq_demo_dir() -> Path | None:
+    """G26 IQ root: rebuild resources/sigmf_data_demo only."""
+    raw = (os.environ.get("LOCAL_COMPUTE_IQ_DIR") or "").strip().strip('"').strip("'")
+    candidates = []
+    if raw:
+        candidates.append(Path(raw))
+    candidates.append(Path(r"D:/project/signal_studio_rebuild/resources/sigmf_data_demo"))
+    for p in candidates:
+        if p.is_dir():
+            return p
+    return None
+
+
+
 def source_home(family: str) -> Path | None:
     """Architecture / pipeline source tree for imports."""
     family = family.upper()
     env_key = "LOCAL_COMPUTE_FFSCN_HOME" if family == "FFSCN" else "LOCAL_COMPUTE_SCN_HOME"
     raw = (os.environ.get(env_key) or "").strip().strip('"').strip("'")
     # No default outside signal_studio_rebuild. Operators set HOME only when
-    # a runtime inside that tree actually needs it. .engine stays TENSORRT_NA.
+    # a runtime inside that tree actually needs it. .engine readiness is decided by TensorRT probe, not this helper.
     if not raw:
         return None
     path = Path(raw)

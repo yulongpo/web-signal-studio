@@ -17,7 +17,8 @@ log = logging.getLogger("local-compute.torch_runtime")
 
 REAL_ENGINE_CUDA = "PYTORCH_CUDA"
 REAL_ENGINE_CPU = "PYTORCH_CPU"
-REAL_ENGINE_LABELS = frozenset({REAL_ENGINE_CUDA, REAL_ENGINE_CPU})
+# TRT label lives in tensorrt_runtime; union used by pipeline verification.
+REAL_ENGINE_LABELS = frozenset({REAL_ENGINE_CUDA, REAL_ENGINE_CPU, "TENSORRT_CUDA"})
 
 _lock = threading.Lock()
 _cache: dict[str, Any] = {}

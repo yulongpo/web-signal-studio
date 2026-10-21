@@ -1,0 +1,10 @@
+{
+  "matrix_pass_claimed": false,
+  "engines_found": true,
+  "trt_runnable": true,
+  "ffscn_ready": true,
+  "scn_ready": true,
+  "canInventResults": false,
+  "base": "fa5a720",
+  "iq": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-data"
+}
