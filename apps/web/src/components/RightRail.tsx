@@ -3,7 +3,7 @@
  * G18: display-summary — PSD N/STFT N shell lines + 参考/动态 vs desktop 696ce12.
  * PSD mode (驻留帧谱/统计谱): charts UI slot (Bot-C) + DSP series (Bot-D).
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
 import type { RightPage } from '../types/provisional';
 import { SHELL_RAIL_PAGES } from '../shellRail';
@@ -28,6 +28,33 @@ function DisplayPage() {
   const [dwellDraft, setDwellDraft] = useState(
     () => (pinnedDwellIndex != null ? String(pinnedDwellIndex) : '0'),
   );
+  const [frameCount, setFrameCount] = useState(0);
+  // Mirror chart-published frame count (C ObserveCharts data-frame-count / data-nb-psd-frame-count).
+  // Chrome-only: do not recompute STFT; scrubber max stays honest empty until charts publish.
+  useEffect(() => {
+    const readCount = () => {
+      const el =
+        document.querySelector('[data-testid="nb-stft-pin-host"]') ||
+        document.querySelector('[data-testid="nb-panel-psd"]') ||
+        document.querySelector('[data-nb-psd-frame-count]');
+      if (!el) {
+        setFrameCount(0);
+        return;
+      }
+      const raw =
+        el.getAttribute('data-frame-count') ||
+        el.getAttribute('data-nb-psd-frame-count') ||
+        '';
+      const n = Number(raw);
+      setFrameCount(Number.isFinite(n) && n > 0 ? Math.floor(n) : 0);
+    };
+    readCount();
+    const id = window.setInterval(readCount, 400);
+    return () => window.clearInterval(id);
+  }, []);
+  useEffect(() => {
+    if (pinnedDwellIndex != null) setDwellDraft(String(pinnedDwellIndex));
+  }, [pinnedDwellIndex]);
   // G18: Bot-B owns dwell pin chrome; Bot-C mode label; Bot-D frame PSD series.
   const psdModeLabel =
     narrowbandPsdMode === 'frame' ? '驻留帧谱' : '统计谱';
@@ -53,13 +80,21 @@ function DisplayPage() {
   const clearPin = () => {
     setNarrowbandPinnedDwellIndex(null);
   };
+  const scrubToIndex = (idx: number) => {
+    const max = frameCount > 0 ? frameCount - 1 : undefined;
+    let next = Math.max(0, Math.floor(idx));
+    if (max != null) next = Math.min(max, next);
+    setDwellDraft(String(next));
+    setNarrowbandPinnedDwellIndex(next);
+    setNarrowbandPsdMode('frame');
+  };
 
   return (
     <div
       className="rail-display-page"
       data-testid="rail-display-body"
       data-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
-      data-dwell-pin-chrome="wave8"
+      data-dwell-pin-chrome="wave8" data-rail-scrubber="wave10"
     >
       <pre
         className="display-summary"
@@ -112,6 +147,56 @@ function DisplayPage() {
         >
           清除钉住
         </button>
+        <div
+          className="rail-dwell-scrubber"
+          data-testid="rail-dwell-scrubber"
+          data-frame-count={frameCount > 0 ? String(frameCount) : ''}
+          data-frame-index={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
+          data-scrubber-source={frameCount > 0 ? 'chart-dom' : 'idle'}
+          data-rail-scrubber="wave10"
+        >
+          <span className="rail-dwell-scrubber-label">驻留刷写</span>
+          <input
+            type="range"
+            data-testid="rail-dwell-scrubber-input"
+            min={0}
+            max={frameCount > 0 ? frameCount - 1 : 0}
+            step={1}
+            disabled={frameCount <= 0}
+            value={
+              pinnedDwellIndex != null
+                ? Math.min(
+                    frameCount > 0 ? frameCount - 1 : pinnedDwellIndex,
+                    Math.max(0, pinnedDwellIndex),
+                  )
+                : Number(dwellDraft) || 0
+            }
+            aria-label="驻留帧刷写"
+            title={
+              frameCount > 0
+                ? `刷写驻留帧 0…${frameCount - 1}（与图内 scrubber 同源 store）`
+                : '等待观察页 STFT 发布帧数'
+            }
+            onInput={(e) => {
+              scrubToIndex(Number((e.target as HTMLInputElement).value));
+            }}
+            onChange={(e) => {
+              scrubToIndex(Number(e.target.value));
+            }}
+          />
+          <span
+            className="rail-dwell-scrubber-readout"
+            data-testid="rail-dwell-scrubber-readout"
+          >
+            {pinnedDwellIndex == null
+              ? frameCount > 0
+                ? `— / ${frameCount}`
+                : '—'
+              : frameCount > 0
+                ? `${pinnedDwellIndex} / ${frameCount}`
+                : String(pinnedDwellIndex)}
+          </span>
+        </div>
       </div>
       <p className="rail-page-hint">显示参数（临时设置层对话后入库）</p>
       <button

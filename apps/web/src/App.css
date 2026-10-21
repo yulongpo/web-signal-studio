@@ -2615,3 +2615,32 @@ body,
   outline: 1px solid #46a7d0;
   outline-offset: -1px;
 }
+
+
+/* wave10 G18 right-rail dwell scrubber twin (store-wired; chart scrubber remains C) */
+.rail-dwell-scrubber {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+  font-size: 11px;
+}
+.rail-dwell-scrubber-label {
+  flex: 0 0 auto;
+  opacity: 0.9;
+}
+.rail-dwell-scrubber input[type='range'] {
+  flex: 1 1 auto;
+  min-width: 64px;
+}
+.rail-dwell-scrubber-readout {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5em;
+  text-align: right;
+  opacity: 0.85;
+}
+.rail-dwell-scrubber[data-scrubber-source='idle'] input[type='range'] {
+  opacity: 0.45;
+}
