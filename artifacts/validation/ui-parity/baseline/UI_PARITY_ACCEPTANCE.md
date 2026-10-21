@@ -1,3 +1,10 @@
+> Bot-A `2026-10-22 01:14` Asia/Shanghai: Web **`c9ed974`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave16 MeasuredEvidenceTrace + Inspector + OS chrome). True native QFileDialog still residual. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_c9ed974.md`. **No PASS.**
+
+| ID | Prior (`2bcef55`) | Now (`c9ed974`) | Note |
+|----|-------------------|-----------------|------|
+| **G19** | PARTIAL（Measured/Inspector/native 残） | **PARTIAL 加深** | Measured+Inspector+OS chrome MET；true native QFileDialog → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_c9ed974.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:12` Asia/Shanghai: Web **`2bcef55`** vs desktop `17471a6` — G18 PARTIAL deepened (C Main/Aux linked-cursor). G19 residual still PARTIAL. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2bcef55.md`. **No PASS.**
 
 | ID | Prior (`85596ed`) | Now (`2bcef55`) | Note |
