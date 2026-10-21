@@ -39,7 +39,17 @@ export function NavChrome() {
   };
 
   return (
-    <div className="nav-chrome" data-testid="nav-chrome" role="toolbar" aria-label="chart-navigation">
+    <div
+      className="nav-chrome chart-strip chart-strip-nav"
+      data-testid="nav-chrome"
+      data-strip="nav"
+      role="toolbar"
+      aria-label="chart-navigation"
+    >
+      <span className="chart-strip-caption" data-testid="chart-strip-caption-nav">
+        全局时间导航
+      </span>
+      <span className="chart-strip-nav-slot" data-testid="chart-strip-nav" hidden aria-hidden />
       <div className="nav-segments" data-testid="nav-segments">
         <button
           type="button"
