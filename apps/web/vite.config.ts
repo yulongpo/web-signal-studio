@@ -8,6 +8,7 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url))
 const chartsSrc = path.resolve(rootDir, '../../packages/charts/src')
 const dspWasmSrc = path.resolve(rootDir, '../../packages/dsp-wasm/src')
 const fileIoSrc = path.resolve(rootDir, '../../packages/file-io/src')
+const projectIoSrc = path.resolve(rootDir, '../../packages/project-io/src')
 const contractsSrc = path.resolve(rootDir, '../../packages/contracts/src')
 
 export default defineConfig({
@@ -21,6 +22,7 @@ export default defineConfig({
       '@wss/charts': chartsSrc,
       '@wss/dsp-wasm': path.resolve(dspWasmSrc, 'index.ts'),
       '@wss/file-io': path.resolve(fileIoSrc, 'index.ts'),
+      '@wss/project-io': path.resolve(projectIoSrc, 'index.ts'),
       '@wss/contracts': path.resolve(contractsSrc, 'index.ts'),
     },
   },
@@ -28,7 +30,7 @@ export default defineConfig({
     format: 'es',
   },
   optimizeDeps: {
-    exclude: ['@wss/dsp-wasm', '@wss/file-io', '@wss/contracts'],
+    exclude: ['@wss/dsp-wasm', '@wss/file-io', '@wss/contracts', '@wss/project-io'],
   },
   server: {
     port: 5173,
