@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import type { ProjectDocumentJson, LocalComputeTaskRecord } from '@wss/contracts';
+import type { ProjectDocumentJson, LocalComputeTaskRecord, LocalComputeCapabilities } from '@wss/contracts';
 import {
   openProjectFromJsonText,
   saveProjectToJsonText,
@@ -170,6 +170,9 @@ export interface UiState {
   upsertDetectRun: (rec: LocalComputeTaskRecord) => void;
   selectDetectRun: (runId: string | null) => void;
   clearDetectRunFeed: () => void;
+  /** G07: last real LocalCompute capabilities snapshot (no invented engines). */
+  detectCapabilities: LocalComputeCapabilities | null;
+  setDetectCapabilities: (caps: LocalComputeCapabilities | null) => void;
 
   /** G06 page chrome prefs (no fake DSP). */
   nbModulationType: NarrowbandModulationType;
@@ -295,6 +298,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   taskProgress: { label: '', percent: null, detail: '' },
   detectRunFeed: [],
   detectRunSelectedId: null,
+  detectCapabilities: null,
   nbModulationType: 'unknown',
   nbSymbolRate: '1e6',
   nbDlModelLabel: '',
@@ -488,6 +492,7 @@ export const useUiStore = create<UiState>((set, get) => ({
     }),
   selectDetectRun: (runId) => set({ detectRunSelectedId: runId }),
   clearDetectRunFeed: () => set({ detectRunFeed: [], detectRunSelectedId: null }),
+  setDetectCapabilities: (caps) => set({ detectCapabilities: caps }),
   setNbModulationType: (t) => set({ nbModulationType: t }),
   setNbSymbolRate: (v) => set({ nbSymbolRate: v }),
   setNbDlModelLabel: (v) => set({ nbDlModelLabel: v }),

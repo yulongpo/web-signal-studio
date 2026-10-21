@@ -49,14 +49,17 @@ export function AuxParamStrip() {
         PSD
       </button>
       <span className="toolbar-sep" aria-hidden />
+      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-level-btn">电平</span>
       <button
         type="button"
         data-testid="btn-open-level"
+        data-qlabel="电平"
         data-active={openTempLayer === 'level'}
         onClick={() => toggleLayer('level')}
       >
         Level
       </button>
+      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-display-btn">显示</span>
       <button
         type="button"
         data-testid="btn-open-display"
@@ -149,6 +152,9 @@ export function SpecParamStrip() {
     >
       <span className="chart-strip-caption" data-testid="chart-strip-caption-main">
         宽带时频谱
+      </span>
+      <span className="chart-strip-caption chart-strip-caption-physical" data-testid="chart-strip-caption-physical">
+        物理坐标
       </span>
       <div
         className="chart-header-toolbar"
@@ -300,6 +306,10 @@ export function SpecParamStrip() {
                   ))}
                 </select>
               </label>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-stft-n">
+                <span className="chart-strip-qlabel">STFT N</span>
+                <span className="muted">{stftN}</span>
+              </div>
                             <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-level">
                 <span className="chart-strip-qlabel">参考 / 动态</span>
                 <span className="muted">{`参考 ${level.refLevelDb.toFixed(1)} · 动态 ${level.dynamicRangeDb.toFixed(1)}`}</span>

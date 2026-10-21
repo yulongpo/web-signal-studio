@@ -187,6 +187,7 @@ export function DetectPage() {
   const setToken = useUiStore((s) => s.setLocalComputeToken);
   const baseUrl = useUiStore((s) => s.localComputeBaseUrl);
   const upsertDetectRun = useUiStore((s) => s.upsertDetectRun);
+  const setDetectCapabilities = useUiStore((s) => s.setDetectCapabilities);
   const sampleRange = useUiStore((s) => s.detectSampleRange);
   const rangeSource = useUiStore((s) => s.detectSampleRangeSource);
   const setDetectSampleRange = useUiStore((s) => s.setDetectSampleRange);
@@ -346,6 +347,7 @@ export function DetectPage() {
 
   const applyCapsFailure = useCallback((err: unknown) => {
     setCaps(null);
+    setDetectCapabilities(null);
     setTask(null);
     if (err instanceof LocalComputeClientError && err.status === 401) {
       setOfflineReason('unauthorized');
@@ -366,6 +368,7 @@ export function DetectPage() {
       const client = makeClient();
       const next = await client.getCapabilities();
       setCaps(next);
+      setDetectCapabilities(next);
       setOfflineReason(null);
       if (!next.detection.uiMessages?.length) {
         setBannerFallback([

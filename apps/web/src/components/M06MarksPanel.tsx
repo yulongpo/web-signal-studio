@@ -199,6 +199,8 @@ export function M06MarksPanel() {
       data-testid="m06-panel"
       data-annotation-panel="true"
       data-annotation-edit="inline-replaceMark"
+      data-edit-selection={selected.length === 1 ? 'single' : selected.length === 0 ? 'empty' : 'multi'}
+      data-edit-path="replaceMark"
       data-hook-ready={hookReady}
       data-selected-count={selected.length}
     >
@@ -281,6 +283,11 @@ export function M06MarksPanel() {
         >
           编辑
         </button>
+        {selected.length === 0 ? (
+          <span className="muted" data-testid="m06-edit-empty-hint">
+            无选中；编辑空闲
+          </span>
+        ) : null}
         <button
           type="button"
           data-testid="m06-btn-undo"

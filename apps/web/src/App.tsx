@@ -147,6 +147,8 @@ export default function App() {
         <div
           className="shell-col-resize shell-col-resize-left"
           data-testid="shell-col-resize-left"
+          data-shell-edge="left"
+          data-hit-min-px="8"
           role="separator"
           aria-orientation="vertical"
           aria-label="调整工程树宽度"
@@ -224,6 +226,8 @@ defaultPx={auxDefaultPx}
       <div
           className="shell-col-resize shell-col-resize-right"
           data-testid="shell-col-resize-right"
+          data-shell-edge="right"
+          data-hit-min-px="8"
           role="separator"
           aria-orientation="vertical"
           aria-label="调整右栏宽度"

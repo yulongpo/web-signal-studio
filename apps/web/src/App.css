@@ -2489,3 +2489,48 @@ body,
   overflow: hidden;
   opacity: 0.55;
 }
+
+
+/* wave7 G08 shell edge hit targets */
+.shell-col-resize {
+  position: relative;
+  z-index: 3;
+  min-width: 8px;
+  cursor: col-resize;
+  touch-action: none;
+}
+.shell-col-resize::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+}
+.bottom-panel-resize {
+  min-height: 6px;
+  cursor: row-resize;
+  touch-action: none;
+  position: relative;
+  z-index: 3;
+}
+.bottom-panel-resize::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -4px;
+  bottom: -4px;
+}
+.bottom-detect-engine-slots {
+  padding: 6px 8px;
+  border-bottom: 1px solid #2a4058;
+  font-size: 11px;
+}
+.bottom-detect-engine-slots ul {
+  margin: 4px 0;
+  padding-left: 16px;
+}
+.bottom-detect-engine-slots li[data-available='false'] {
+  color: #8a9bb0;
+}

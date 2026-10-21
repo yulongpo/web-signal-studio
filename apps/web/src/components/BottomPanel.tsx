@@ -50,6 +50,7 @@ export function BottomPanel() {
   const upsertDetectRun = useUiStore((s) => s.upsertDetectRun);
   const localComputeBaseUrl = useUiStore((s) => s.localComputeBaseUrl);
   const localComputeToken = useUiStore((s) => s.localComputeToken);
+  const detectCapabilities = useUiStore((s) => s.detectCapabilities);
 
   const [m06Tick, setM06Tick] = useState(0);
   const [markLayer, setMarkLayer] = useState<MarkLayer>('all');
@@ -290,6 +291,9 @@ export function BottomPanel() {
       <div
         className="bottom-panel-resize"
         data-testid="bottom-panel-resize"
+        data-shell-edge="bottom"
+        data-hit-min-px="29"
+        data-collapse-min="true"
         role="separator"
         aria-orientation="horizontal"
         aria-label="调整底栏高度"
@@ -360,6 +364,8 @@ export function BottomPanel() {
               data-host="annotation-panel"
               data-panel-shell="annotation-panel"
               data-annotation-edit="inline-replaceMark"
+              data-edit-selection={selectedIds.length === 1 ? 'single' : selectedIds.length === 0 ? 'empty' : 'multi'}
+              data-edit-path="replaceMark"
             >
               <p className="bottom-summary" data-testid="bottom-marks-summary">
                 {marksSummary}
@@ -434,6 +440,11 @@ export function BottomPanel() {
                   >
                     编辑
                   </button>
+                  {selectedIds.length === 0 ? (
+                    <span className="bottom-hint muted" data-testid="bottom-edit-empty-hint">
+                      无选中标注；编辑链路空闲（replaceMark）
+                    </span>
+                  ) : null}
               </div>
               <div className="bottom-layer-chips" data-testid="bottom-annotation-layers">
                 <span className="bottom-layer-chip">
@@ -707,7 +718,39 @@ export function BottomPanel() {
                     {task.detail || '无运行中任务'}
                   </span>
                 </div>
-                <div className="bottom-detect-columns" data-testid="bottom-detect-columns">
+                                <div
+                  className="bottom-detect-engine-slots"
+                  data-testid="bottom-detect-engine-slots"
+                  data-multi-engine="local-compute-caps"
+                >
+                  <h4 className="bottom-detect-col-title">引擎槽（仅真实 capabilities）</h4>
+                  <ul data-testid="bottom-detect-engine-list">
+                    <li data-testid="bottom-detect-engine-ffscn" data-available={detectCapabilities?.detection?.ffscn ? 'true' : 'false'}>
+                      FFSCN: {detectCapabilities ? (detectCapabilities.detection.ffscn ? 'available' : 'unavailable') : 'caps offline'}
+                    </li>
+                    <li data-testid="bottom-detect-engine-scn" data-available={detectCapabilities?.detection?.scn ? 'true' : 'false'}>
+                      SCN: {detectCapabilities ? (detectCapabilities.detection.scn ? 'available' : 'unavailable') : 'caps offline'}
+                    </li>
+                    {(detectCapabilities?.models ?? []).length === 0 ? (
+                      <li data-testid="bottom-detect-engine-models-empty">models: none reported</li>
+                    ) : (
+                      detectCapabilities!.models.map((m) => (
+                        <li
+                          key={m.id}
+                          data-testid={`bottom-detect-engine-model-${m.id}`}
+                          data-present={m.present ? 'true' : 'false'}
+                        >
+                          model {m.id}: {m.present ? 'present' : 'missing'}
+                          {m.notes ? ` · ${m.notes}` : ''}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                  <p className="bottom-hint muted" data-testid="bottom-detect-engine-honesty">
+                    No invented FFSCN/SCN/demod/recognition engines; slots mirror LocalCompute capabilities only.
+                  </p>
+                </div>
+<div className="bottom-detect-columns" data-testid="bottom-detect-columns">
                   <div className="bottom-detect-col" data-testid="bottom-detect-col-runs">
                     <h4 className="bottom-detect-col-title">检测运行</h4>
                     <div
