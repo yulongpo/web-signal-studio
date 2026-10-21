@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:04` Asia/Shanghai: Web **`d7e6973`** vs desktop `17471a6` — G08 PARTIAL deepened (B wave23 MenuBar shortcuts). Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d7e6973.md`. **No PASS.**
+
+| ID | Prior (`42265bf`) | Now (`d7e6973`) | Note |
+|----|---------------------|-------------------|------|
+| **G08** | PARTIAL（shell re-shot 残） | **PARTIAL 加深** | QKeySequence MET；full re-shot → **未 CLOSED** |
+| **G18** | PARTIAL | **unchanged PARTIAL** | recog STFT panes 残 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_d7e6973.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:02` Asia/Shanghai: Web **`42265bf`** vs desktop `17471a6` — G18 PARTIAL deepened (C mod STFT linkedCursor). Recognition STFT residual; G17 not elevated. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_42265bf.md`. **No PASS.**
 
 | ID | Prior (`d4f0943`) | Now (`42265bf`) | Note |
