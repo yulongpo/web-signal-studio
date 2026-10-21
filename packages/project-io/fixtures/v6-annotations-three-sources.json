@@ -1,0 +1,66 @@
+{
+  "schema": "signalstudio-annotations-v1",
+  "fileId": "file-wideband-1",
+  "sourceSets": [
+    {
+      "id": "ss-imported-1",
+      "fileId": "file-wideband-1",
+      "sourceKind": "ImportedLabel",
+      "formatId": "csv-label-v1",
+      "originalPath": "labels/import.csv"
+    },
+    {
+      "id": "ss-manual-1",
+      "fileId": "file-wideband-1",
+      "sourceKind": "Manual"
+    },
+    {
+      "id": "ss-algo-1",
+      "fileId": "file-wideband-1",
+      "sourceKind": "Algorithm",
+      "runId": "detect-run-fixture-1"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "ann-imported-1",
+      "name": "Imported pulse",
+      "sourceKind": "ImportedLabel",
+      "start": "0",
+      "end": "4096",
+      "lowerHz": 1575400000,
+      "upperHz": 1575450000
+    },
+    {
+      "id": "ann-manual-1",
+      "name": "Manual box",
+      "sourceKind": "Manual",
+      "start": "1000",
+      "end": "9007199254741091",
+      "lowerHz": 1574750000,
+      "upperHz": 1575250000
+    },
+    {
+      "id": "ann-algo-1",
+      "name": "Algorithm hit",
+      "sourceKind": "Algorithm",
+      "start": "9007199254741091",
+      "end": "9007199254741992",
+      "lowerHz": 1575900000,
+      "upperHz": 1576100000,
+      "segments": [
+        {
+          "id": "seg-algo-1",
+          "start": "9007199254741091",
+          "end": "9007199254741992",
+          "lowerHz": 1575900000,
+          "upperHz": 1576100000,
+          "timeQuality": "AlgorithmEstimated",
+          "frequencyQuality": "ModelEstimated",
+          "confirmed": true,
+          "frequencyFrame": "RF"
+        }
+      ]
+    }
+  ]
+}

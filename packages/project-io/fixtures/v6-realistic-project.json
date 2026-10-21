@@ -1,0 +1,175 @@
+{
+  "schema": "signal-studio-native-project",
+  "version": 6,
+  "name": "m08-v6-realistic-fixture",
+  "activeFileId": "file-wideband-1",
+  "activeChannelId": "ch-nb-algo-1",
+  "narrowbandWorkspaceOpen": true,
+  "files": [
+    {
+      "metadata": {
+        "id": "file-wideband-1",
+        "name": "capture-long.iq",
+        "path": "captures/capture-long.iq",
+        "sampleRateHz": 20000000,
+        "centerFrequencyHz": 1575420000,
+        "sampleCount": "18446744073709551615",
+        "availableSamples": "18446744073709551615",
+        "sourceFingerprint": "fixture-fp-001",
+        "declaredBandwidthHz": 20000000,
+        "effectiveBandwidthHz": 18000000,
+        "sampleFormat": {
+          "structure": "complex_iq",
+          "componentEncoding": "float32",
+          "byteOrder": "le",
+          "iqLayout": "iq",
+          "channels": 1,
+          "selectedChannel": 0,
+          "headerBytes": "0",
+          "trailerBytes": "0",
+          "normalizeIntegerAdc": false
+        }
+      },
+      "view": {
+        "time": {
+          "begin": "0",
+          "end": "9007199254741091"
+        },
+        "frequency": {
+          "lowerHz": 1565420000,
+          "upperHz": 1585420000
+        }
+      },
+      "display": {
+        "colormap": "viridis",
+        "dbMin": -120,
+        "dbMax": -20
+      },
+      "annotationLayers": [
+        true,
+        true,
+        false
+      ],
+      "selectedMarkIds": [
+        "ann-manual-1"
+      ],
+      "activeMarkId": "ann-manual-1",
+      "channels": [
+        {
+          "id": "ch-nb-algo-1",
+          "name": "NB Algorithm hit",
+          "sourceMarkId": "ann-algo-1",
+          "centerFrequencyHz": 1576000000,
+          "bandwidthHz": 200000,
+          "sourceTime": {
+            "begin": "9007199254741091",
+            "end": "9007199254741992"
+          },
+          "outputSampleRateHz": 500000,
+          "filter": "default-fir",
+          "processingState": "ready",
+          "configVersion": "1",
+          "wholeSource": false,
+          "preserveSourceTime": true,
+          "page": "narrowband",
+          "visibleSourceTime": {
+            "begin": "9007199254741091",
+            "end": "9007199254741992"
+          },
+          "visibleBasebandFrequency": {
+            "lowerHz": -100000,
+            "upperHz": 100000
+          },
+          "annotationId": "ann-algo-1",
+          "segmentId": "seg-algo-1",
+          "revisionId": "rev-algo-1",
+          "sourceRelation": "LocatedSegment",
+          "sourceIdentity": {
+            "fileId": "file-wideband-1",
+            "path": "captures/capture-long.iq",
+            "sampleRateHz": 20000000,
+            "centerFrequencyHz": 1575420000,
+            "physicalSamples": "18446744073709551615"
+          },
+          "sourceSnapshot": {
+            "annotationId": "ann-algo-1",
+            "segmentId": "seg-algo-1",
+            "revisionId": "rev-algo-1",
+            "name": "NB Algorithm hit",
+            "range": {
+              "time": {
+                "begin": "9007199254741091",
+                "end": "9007199254741992"
+              },
+              "frequency": {
+                "lowerHz": 1575900000,
+                "upperHz": 1576100000
+              }
+            },
+            "bindingKind": "LocatedSegment",
+            "boundRange": {
+              "time": {
+                "begin": "9007199254741091",
+                "end": "9007199254741992"
+              },
+              "frequency": {
+                "lowerHz": 1575900000,
+                "upperHz": 1576100000
+              }
+            },
+            "sourceKind": "Algorithm",
+            "reviewStatus": "Accepted",
+            "sourceIdentity": {
+              "fileId": "file-wideband-1"
+            }
+          }
+        },
+        {
+          "id": "ch-nb-manual-1",
+          "name": "NB Manual box",
+          "annotationId": "ann-manual-1",
+          "segmentId": "seg-manual-1",
+          "revisionId": "rev-manual-1",
+          "centerFrequencyHz": 1575000000,
+          "bandwidthHz": 500000,
+          "sourceTime": {
+            "begin": "1000",
+            "end": "9007199254741091"
+          },
+          "sourceSnapshot": {
+            "annotationId": "ann-manual-1",
+            "segmentId": "seg-manual-1",
+            "revisionId": "rev-manual-1",
+            "name": "NB Manual box",
+            "range": {
+              "time": {
+                "begin": "1000",
+                "end": "9007199254741091"
+              },
+              "frequency": {
+                "lowerHz": 1574750000,
+                "upperHz": 1575250000
+              }
+            },
+            "bindingKind": "UserRange",
+            "boundRange": {
+              "time": {
+                "begin": "1000",
+                "end": "9007199254741091"
+              },
+              "frequency": {
+                "lowerHz": 1574750000,
+                "upperHz": 1575250000
+              }
+            },
+            "sourceKind": "Manual",
+            "reviewStatus": "Pending",
+            "sourceIdentity": {
+              "fileId": "file-wideband-1"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
