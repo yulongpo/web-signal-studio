@@ -101,3 +101,25 @@ Bot-C 证据：`NavigationChart` / `WaveformChart` / `VerticalSplitter`；e2e `g
 | 关键点 | G06 stub 视觉确认；G01/G02/G17 截图不升格；**无 PASS** |
 | 共享树 | **未** checkout；仅 `_wt_bot_a_audit` |
 
+## 2026-10-21 21:46+08 Bot-A UI incremental @ Web `95e24d0`（G06 + screenshots）
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`17471a6`，未变） |
+| Web `origin/main` | **`95e24d0ff98a2404fb58c7ab53049bff7330b70d`**（`95e24d0` = `6c17a53` G06 + Bot-G `web-6c17a53`） |
+| 截图包 | `artifacts/validation/ui-parity/qa/web-6c17a53/`（stub=false；`ui_parity_pass_claimed=false`） |
+| 工作树 | `D:\project\_wt_bot_a_audit`；**未**共享树 checkout |
+| 结论 | **G06 OPEN→PARTIAL**；截图强化 stub 已清除，**不单独 CLOSED**；真 DDC/四页 chrome 仍缺 |
+| 计数 | OPEN 11 · PARTIAL 11 · DOCS 1 · CLOSED 1（G05） |
+| 交付 | `INCREMENTAL_95e24d0.md` + GAP/ACCEPTANCE |
+
+## 2026-10-21 21:50+08 Bot-A UI incremental @ Web `d8297d1`（G01+G06）
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`17471a6`，未变） |
+| Web `origin/main` | **`d8297d140b0091a91d56b7c4d7b705a9fc3d4567`**（G06 `6c17a53`/`95e24d0` + G01 MenuBar） |
+| 结论 | **G01 OPEN→PARTIAL**；**G06 保持 PARTIAL**；截图不 CLOSED |
+| 计数 | OPEN 10 · PARTIAL 12 · DOCS 1 · CLOSED 1（G05） |
+| 交付 | `INCREMENTAL_d8297d1.md`（扩展并 supersede 单点 `95e24d0` 焦点） |
+

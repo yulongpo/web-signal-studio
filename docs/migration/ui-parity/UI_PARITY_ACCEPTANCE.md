@@ -1,5 +1,8 @@
 # UI 对等可执行验收矩阵（Bot-A 增量 @ 17471a6）
 
+> Bot-A `2026-10-21 21:50:00`：Web `d8297d1` vs desktop `17471a6` — **G01+G06 PARTIAL**；截图不 CLOSED；详见 `INCREMENTAL_d8297d1.md`。**无 PASS。**
+
+
 | 字段 | 值 |
 |------|-----|
 | 时间（Asia/Shanghai） | 2026-10-21 21:33:00+（rebase `fb2e020`） |
@@ -13,7 +16,7 @@
 ## 增量说明（相对 866e699）
 
 1. **加严**：G02（caption/导航分离/`f9f05bb`）、G06（跨页/overflow 保留/`a64117e`）、G18（「参考」「动态」/`696ce12`）。
-2. **PARTIAL 退出条件**新增于 G11–G14、G19–G20、G26（见矩阵「PARTIAL 退出」列注释）。
+2. **PARTIAL 退出条件**新增于 **G06**、G11–G14、G19–G20、G26（见矩阵「PARTIAL 退出」列注释）。
 3. 全局 PRE 不变；G26 与 PRE-2/3 对齐 Bot-E/Bot-G 文档，但 **UI 可选项仍不得出现 `.pth`**。
 4. **`196db21`**：G03–G05 曾为 PARTIAL（Bot-C）。
 5. **`17937bb`**：G02→PARTIAL（Bot-B）；G05→**CLOSED**（82/205）；G04 Wave raw IQ 代码落地仍 PARTIAL；G03 chrome 清、滚轮仍缺。详表 `INCREMENTAL_17937bb.md`。
@@ -36,12 +39,13 @@
 
 | ID | Sev | 状态 | 观察点 / testid | 可执行 PASS 条件（必须全部满足） | 失败信号 / PARTIAL 退出 |
 |----|-----|------|-----------------|----------------------------------|-------------------------|
-| G01 | P0 | OPEN | `menubar` 或 `command-bar` | ① 顶栏菜单/命令栏≈34px；② 含文件与视图组；③ 打开/添加 IQ 从菜单可达且不依赖常驻 SpectrumToolbar | 无菜单；仅靠 SpectrumToolbar 打开 |
+| G01 | P0 | **PARTIAL**（`d8297d1` MenuBar） | `menubar` / `command-bar` | ☑ ~34px（±2）；☑ 文件+视图组；☑ `menu-open-iq` 可达；☐ 编辑/分析/帮助全组；☐ 桌面 corner 控件完整对等 | **PARTIAL 退出**：仅 File+View 接线；完整菜单树未齐；Bot-B WIP |
 | G02 | P0 | PARTIAL（加严残留） | `chart-strip-nav/aux/main` | ① **不存在**夹在 aux↔main 的全局常驻 SpectrumToolbar；② 三图各自图头有模式/设置；③ **控件旁有 caption 标签**（或按钮自带可见文本）；④ overflow「更多」打开后编辑中的字段不被卸载丢失焦点（对 `f9f05bb`） | 图头已挂条但 caption/`f9f05bb` overflow 焦点未满；testid spectrum-toolbar 仍在图头 |
 | G03 | P0 | PARTIAL | `global-nav` / `navigation-chart` | ① 非 placeholder；② 拖拽导航窗；③ 主图 timeSec 跟随；④（FULL）滚轮改窗宽；⑤（FULL）导航图头设置/chrome | **PARTIAL 退出**：有 NavigationChart+NavChrome；仍缺滚轮改窗宽 |
 | G04 | P0 | PARTIAL | `chart-aux` / `WaveformChart` | ① Wave/PSD 可见且可切换；② 切换改轴语义；③（FULL）Wave 为 raw IQ 显示路径（非仅 STFT envelope） | **PARTIAL 退出**：Wave raw IQ 代码路径已清；待 QA 视觉/`/@fs` |
 | G05 | P0 | CLOSED | `splitter-nav-aux` / `splitter-aux-main` | ① 可拖；② 双击复位；③（FULL）默认高度≈桌面 82/205（±10%） | 默认 82/205 + 拖 + 双击已满足；短窗阈值 900≠850 软差 |
-| G06 | P0 | OPEN（加严） | `workspace-narrowband-*` | ① 无 `workspace-narrowband-stub`；② 多页/多图布局；③ 无伪解调文案；④ 改 STFT N/网格/频率后切换窄带页再返回，值保留（对 `a64117e`）；⑤ overflow 折叠后再展开，值保留 | stub；**截图 `06-narrowband.png` 仍可见 stub**（COMPARISON_NOTES） |
+| G06 | P0 | **PARTIAL**（`95e24d0`/`6c17a53` 四页壳+截图） | `workspace-narrowband-*` | ☑ 无 `workspace-narrowband-stub`；☑ 四页 tab + 多图 panel 区分；☑ 无伪解调文案；☑ STFT N/网格/频率跨页+overflow 保留（uiStore/`a64117e` 语义）；☐ 观察页真 DDC Wave/PSD/STFT；☐ 调制/识别/解调桌面级 chrome；☐ 标题「解调工作台」 | **PARTIAL 退出**：壳+持久化已接线；真图/四页控件未对等；Bot-B WIP 非 PASS |
+
 | G07 | P0 | OPEN | `bottom-panel` | ① 三标签；② 收起≈29±6 / 展开≈150±20；③ 任务列表容器可空 | 无底栏 |
 | G08 | P1 | OPEN | 左右栏 | ① 左 270–286 / 右 382–398；② 收起≈38±4；③ 可拖宽 | 锁死 220/280 |
 | G09 | P1 | OPEN | `main-plot-footer` | ① ≈32px；② 游标+范围；③ 基于标记创建通道可点且不自动 DDC | 无底条 |
@@ -84,8 +88,8 @@ G26: // fixture path === ...\resources\sigmf_data_demo\...
 | 项 | 数量 |
 |----|------|
 | 总差距 ID | **26** |
-| OPEN | 12 |
-| PARTIAL | 10（G02–G04, G11–G14, G19–G20, G26） |
+| OPEN | **10** |
+| PARTIAL | **12**（**G01**, G02–G04, **G06**, G11–G14, G19–G20, G26） |
 | DOCS | 1（G25） |
 | CLOSED | 1（G05） |
 | P0 | ~14 IDs（G05 退出开放集） |
@@ -94,10 +98,10 @@ G26: // fixture path === ...\resources\sigmf_data_demo\...
 
 ## Top 5 关键（更新）
 
-1. **G02+G01** — 壳 IA + 图头 caption/导航分离（`f9f05bb`）
+1. **G01+G02** — G01 已 PARTIAL（补菜单树）+ G02 caption/`f9f05bb`
 2. **G03–G05** — 从 PARTIAL 补齐 82/205、raw IQ Wave、导航 chrome
 3. **G17+G14** — DetectionCard + 检测 ROI 确认条（清 G26 `.pth`）
 4. **G11–G13** — 从 PARTIAL 补齐框选放大 / 右键完整 / 控制点
-5. **G06+G07** — 窄带跨页保留（`a64117e`）+ 底栏
+5. **G06+G07** — G06 已 PARTIAL（收口真 DDC 图+四页 chrome / 64117e）+ 底栏
 
 未改实现代码；供 CAO / 实现 bot 按 ID 认领。

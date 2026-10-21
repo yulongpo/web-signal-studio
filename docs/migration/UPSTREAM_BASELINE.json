@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "recordedAtAsiaShanghai": "2026-10-21 21:25:00",
-  "lastVerifiedAtAsiaShanghai": "2026-10-21 21:33:00",
+  "recordedAtAsiaShanghai": "2026-10-21 21:50:00",
+  "lastVerifiedAtAsiaShanghai": "2026-10-21 21:50:00",
   "verifiedBy": "bot-a-audit",
-  "parityStatus": "UI_INCREMENTAL_REFRESH_fb2e020",
+  "parityStatus": "UI_INCREMENTAL_REFRESH_d8297d1",
   "upstreamDrift": true,
   "workspaceRoot": "D:/project/web_signal_studio",
   "worktreePath": "D:/project/_wt_bot_a_audit",
@@ -23,8 +23,8 @@
   "localRebuildPath": "D:/project/signal_studio_rebuild",
   "localRebuildHeadObserved": "17471a6488383b456281d12cb1a6d3d80290205d",
   "localRebuildNote": "Read-only reference; git fetch OK; HEAD matches remote tip 17471a6 after fetch; never write source; never push yulongpo/signal_studio",
-  "webMainTipObserved": "fb2e02052323127b33d665a03eb3400d8565b492",
-  "webMainTipNote": "origin/main verified fb2e020 (Bot-G screenshots merge over impl 17937bb); COMPARISON_NOTES no PASS; Bot-A did not checkout shared tree",
+  "webMainTipObserved": "d8297d140b0091a91d56b7c4d7b705a9fc3d4567",
+  "webMainTipNote": "origin/main verified d8297d1 (G06 shell+shots + G01 MenuBar); G01+G06 PARTIAL; screenshots do not CLOSE; Bot-A did not checkout shared tree",
   "target": {
     "defaultBranch": "main",
     "remote": "https://github.com/yulongpo/web-signal-studio"
@@ -33,9 +33,10 @@
   "a143ProductDeliveryNote": "Cited by a143-native DELIVERY/EXECUTION_STATUS as W6 product source; current remote branch HEAD is 17471a6 (docs archive + UI fixes after 0f108d0).",
   "openDeltas": [
     "Upstream tip remains 17471a6 (unchanged)",
-    "Web main 17937bb -> fb2e020: screenshot evidence only; gap statuses unchanged from Bot-A 1be860d",
-    "COMPARISON_NOTES: G06 stub visible; G01/G02/Detect engine-picker not closed by shots",
-    "model_layout may still enumerate .pth/.onnx — G26 UI picker must not expose as PASS options"
+    "Web main -> d8297d1: G01 MenuBar 34px File+View+Open IQ; G06 four-tab + web-6c17a53 shots",
+    "G01 PARTIAL: missing Edit/Analysis/Help menus vs desktop buildMenus()",
+    "G06 PARTIAL: empty ChartPanels; missing page chrome; label 工作区≠工作台",
+    "Screenshots alone do not CLOSE (Bot-B/Bot-G no PASS; Bot-A agrees)"
   ],
   "iqConstraint": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo",
   "modelConstraint": "TensorRT *.engine under rebuild tree only (e.g. out\\vs2026-qt611-release_bin\\detection-models\\...)"
