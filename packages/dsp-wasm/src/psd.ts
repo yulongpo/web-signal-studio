@@ -4,6 +4,22 @@ import { fftRadix2, isPowerOfTwo, binFrequencyHz } from './fft.js';
 import type { PsdEngine } from './interfaces.js';
 import { makeWindow, windowPowerSum } from './windows.js';
 
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    const err = new Error('PSD aborted');
+    err.name = 'AbortError';
+    throw err;
+  }
+}
+
+/** Yield so AbortSignal / worker cancel can land (macrotask-friendly on Node). */
+function yieldForAbort(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof setImmediate === 'function') setImmediate(resolve);
+    else queueMicrotask(resolve);
+  });
+}
+
 /**
  * Reference PSD engine: Welch-style averaged periodogram over complex IQ
  * (Float32 interleaved I,Q). Uses portable fftRadix2 — not a stub.
@@ -14,8 +30,9 @@ export class ReferencePsdEngine implements PsdEngine {
   }
 }
 
-export function computePsd(request: PsdRequest, iqInterleaved: Float32Array): PsdResult {
+export async function computePsd(request: PsdRequest, iqInterleaved: Float32Array): Promise<PsdResult> {
   const { fftSize, window, overlap, sampleRateHz } = request;
+  throwIfAborted(request.signal);
   if (!isPowerOfTwo(fftSize)) {
     throw new RangeError(`PSD fftSize must be power of two, got ${fftSize}`);
   }
@@ -49,6 +66,8 @@ export function computePsd(request: PsdRequest, iqInterleaved: Float32Array): Ps
   const avg = new Float64Array(fftSize);
   let frames = 0;
   for (let start = 0; start + fftSize <= nSamples; start += hop) {
+    throwIfAborted(request.signal);
+    if (request.signal) await yieldForAbort();
     const frame = new Float64Array(fftSize * 2);
     for (let n = 0; n < fftSize; n++) {
       const src = (start + n) * 2;
@@ -102,14 +121,14 @@ export function computePsd(request: PsdRequest, iqInterleaved: Float32Array): Ps
 }
 
 /** Periodogram of a single frame (no averaging). */
-export function periodogram(
+export async function periodogram(
   iqInterleaved: Float32Array,
   options: {
     fftSize: number;
     window: PsdRequest['window'];
     sampleRateHz: number;
   },
-): PsdResult {
+): Promise<PsdResult> {
   const n = iqInterleaved.length / 2;
   return computePsd(
     {

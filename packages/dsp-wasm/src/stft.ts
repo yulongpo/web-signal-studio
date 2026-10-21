@@ -4,6 +4,22 @@ import { fftRadix2, isPowerOfTwo, binFrequencyHz } from './fft.js';
 import type { StftEngine } from './interfaces.js';
 import { makeWindow, windowPowerSum } from './windows.js';
 
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    const err = new Error('STFT aborted');
+    err.name = 'AbortError';
+    throw err;
+  }
+}
+
+/** Yield so AbortSignal / worker cancel can land (macrotask-friendly on Node). */
+function yieldForAbort(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof setImmediate === 'function') setImmediate(resolve);
+    else queueMicrotask(resolve);
+  });
+}
+
 /**
  * Reference STFT engine: hop frames → linear-power spectrogram for complex IQ.
  */
@@ -13,8 +29,9 @@ export class ReferenceStftEngine implements StftEngine {
   }
 }
 
-export function computeStft(request: StftRequest, iqInterleaved: Float32Array): StftResult {
+export async function computeStft(request: StftRequest, iqInterleaved: Float32Array): Promise<StftResult> {
   const { fftSize, hopSize, window, sampleRateHz } = request;
+  throwIfAborted(request.signal);
   if (!isPowerOfTwo(fftSize)) {
     throw new RangeError(`STFT fftSize must be power of two, got ${fftSize}`);
   }
@@ -56,6 +73,8 @@ export function computeStft(request: StftRequest, iqInterleaved: Float32Array): 
   const frameCenters: string[] = [];
 
   for (let f = 0; f < frameCount; f++) {
+    throwIfAborted(request.signal);
+    if (request.signal) await yieldForAbort();
     const start = frameStarts[f]!;
     const frame = new Float64Array(fftSize * 2);
     const use = Math.min(fftSize, nSamples - start);

@@ -28,6 +28,14 @@ function throwIfAborted(signal?: AbortSignal): void {
   }
 }
 
+/** Yield so AbortSignal / worker cancel can land (macrotask-friendly on Node). */
+function yieldForAbort(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof setImmediate === 'function') setImmediate(resolve);
+    else queueMicrotask(resolve);
+  });
+}
+
 /** Mix complex IQ by LO: x[n] *= exp(-j*2π*loHz*n/fs), n = beginIndex + i. */
 export function mixDownLo(
   iqInterleaved: Float32Array | Float64Array,
@@ -57,8 +65,9 @@ export function mixDownLo(
   return out;
 }
 
-export function computeDdc(request: DdcRequest, iqInterleaved: Float32Array): DdcResult {
+export async function computeDdc(request: DdcRequest, iqInterleaved: Float32Array): Promise<DdcResult> {
   throwIfAborted(request.signal);
+  if (request.signal) await yieldForAbort();
 
   const { loHz, sampleRateHz, interpolation, decimation } = request;
   if (!(sampleRateHz > 0)) throw new RangeError('sampleRateHz must be > 0');
@@ -97,13 +106,16 @@ export function computeDdc(request: DdcRequest, iqInterleaved: Float32Array): Dd
   }
 
   throwIfAborted(request.signal);
+  if (request.signal) await yieldForAbort();
   const mixed = mixDownLo(input, { beginIndex, loHz, sampleRateHz });
 
   throwIfAborted(request.signal);
+  if (request.signal) await yieldForAbort();
   const taps = request.firTaps ?? defaultDdcFirTaps(interpolation, decimation);
   const filtered = applyFirComplex(mixed, taps);
 
   throwIfAborted(request.signal);
+  if (request.signal) await yieldForAbort();
   // FIR already anti-aliased at input rate. Pure decimation (L===1) only keeps
   // every M-th sample. When L>1, rationalResample still applies anti-image FIR
   // after zero-insertion (skipFilter false).
