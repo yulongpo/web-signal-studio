@@ -47,6 +47,46 @@ export const ANNOTATION_SOURCE_TREE_LABELS: Record<AnnotationSourceKind, string>
   Algorithm: 'Algorithm results',
 };
 
+
+/** Desktop ChannelSourceRelation display (c1f2cce relationText). */
+export type ChannelSourceRelationCode =
+  | 'Current'
+  | 'Changed'
+  | 'Missing'
+  | 'Rejected'
+  | 'Unconfirmed'
+  | 'LegacyNeedsReview';
+
+export const CHANNEL_SOURCE_RELATION_DETAILS: Record<ChannelSourceRelationCode, string> = {
+  Current: 'source current',
+  Changed: 'source changed; keep create snapshot',
+  Missing: 'source deleted or missing',
+  Rejected: 'source quality: ignored',
+  Unconfirmed: 'legacy segment confirm; keep create snapshot',
+  LegacyNeedsReview: 'legacy source needs review',
+};
+
+export function normalizeChannelSourceRelation(
+  raw: string | undefined,
+): ChannelSourceRelationCode | undefined {
+  if (!raw) return undefined;
+  const key = raw.replace(/[_\s-]+/g, '').toLowerCase();
+  const map: Record<string, ChannelSourceRelationCode> = {
+    current: 'Current',
+    changed: 'Changed',
+    missing: 'Missing',
+    rejected: 'Rejected',
+    unconfirmed: 'Unconfirmed',
+    legacyneedsreview: 'LegacyNeedsReview',
+  };
+  return map[key];
+}
+
+export function channelRelationDetail(raw: string | undefined): string | undefined {
+  const code = normalizeChannelSourceRelation(raw);
+  return code ? CHANNEL_SOURCE_RELATION_DETAILS[code] : undefined;
+}
+
 export interface EngineeringTreeNode {
   id: string;
   /** Primary display label (TitleRole). */
@@ -75,6 +115,12 @@ export interface EngineeringTreeNode {
   fileId?: string;
   channelId?: string;
   markId?: string;
+  /** Full tooltip (PresentedToolTipRole). */
+  tooltip?: string;
+  /** Underlying source tooltip before presentation rewrite. */
+  sourceTooltip?: string;
+  /** TitleRole alias (same as label when set). */
+  title?: string;
 }
 
 export interface EngineeringTreeBuildOptions {
@@ -98,17 +144,57 @@ function shortRate(value: number, samples = false): string {
 
 function channelBadges(ch: ProjectChannelJson): string[] {
   const badges: string[] = [];
-  const rel = (ch.sourceRelation ?? '').toLowerCase();
-  if (rel === 'changed') badges.push('diff');
-  else if (rel === 'missing') badges.push('missing');
-  else if (rel === 'rejected') badges.push('ignored');
-  else if (rel === 'unconfirmed') badges.push('review');
-  else if (rel === 'legacyneedsreview' || rel === 'legacy_needs_review') badges.push('legacy');
-  const proc = (ch.processingState ?? '').toLowerCase();
-  if (proc === 'sourcemissing' || proc === 'source_missing') badges.push('missing');
+  const rel = normalizeChannelSourceRelation(ch.sourceRelation);
+  if (rel === 'Changed') badges.push('diff');
+  else if (rel === 'Missing') badges.push('missing');
+  else if (rel === 'Rejected') badges.push('ignored');
+  else if (rel === 'Unconfirmed') badges.push('review');
+  else if (rel === 'LegacyNeedsReview') badges.push('legacy');
+  const proc = (ch.processingState ?? '').replace(/[_\s-]+/g, '').toLowerCase();
+  if (proc === 'sourcemissing') badges.push('missing');
   else if (proc === 'invalid') badges.push('invalid');
-  else if (proc === 'legacyneedsreview' || proc === 'legacy_needs_review') badges.push('pending');
+  else if (proc === 'legacyneedsreview') badges.push('pending');
+  // Desktop: unread when sourceTime.end beyond available samples
+  const avail = ch.sourceTime?.end;
+  // available on metadata checked at file level; channel-only heuristic if end present
+  if (avail && avail !== '0') {
+    /* keep relation badges primary; unread applied in buildChannelsBranch with file meta */
+  }
   return [...new Set(badges)];
+}
+
+function fileBadges(file: ProjectFileJson): string[] {
+  const badges: string[] = [];
+  const available = file.metadata.availableSamples ?? file.metadata.sampleCount;
+  const viewEnd = file.view?.time?.end;
+  if (viewEnd && available) {
+    try {
+      if (BigInt(viewEnd) > BigInt(available)) badges.push('unread');
+    } catch {
+      /* ignore non-decimal */
+    }
+  }
+  return badges;
+}
+
+function channelDetail(ch: ProjectChannelJson, file: ProjectFileJson): string {
+  const parts: string[] = [];
+  if (ch.centerFrequencyHz != null) parts.push(`CF ${shortRate(ch.centerFrequencyHz)}`);
+  if (ch.bandwidthHz != null) parts.push(`BW ${shortRate(ch.bandwidthHz)}`);
+  if (ch.outputSampleRateHz != null) parts.push(shortRate(ch.outputSampleRateHz, true));
+  if (ch.sourceTime) {
+    parts.push(`src [${ch.sourceTime.begin}, ${ch.sourceTime.end})`);
+  }
+  const rel = channelRelationDetail(ch.sourceRelation);
+  if (rel) parts.push(rel);
+  const snap = ch.sourceSnapshot as { revisionId?: unknown } | undefined;
+  if (snap && typeof snap.revisionId === 'string' && snap.revisionId) {
+    parts.push(`create rev ${snap.revisionId}`);
+  }
+  if (parts.length === 0) {
+    parts.push(`file ${file.metadata.name}`);
+  }
+  return parts.join(' | ');
 }
 
 function fileDetail(file: ProjectFileJson): string {
@@ -159,29 +245,39 @@ function buildMarksBranch(
     const softOfKind = marks.filter((m) => m.sourceKind === kind && m.deleted === true);
     if (!includeEmpty && ofKind.length === 0 && softOfKind.length === 0) continue;
 
-    const markNodes: EngineeringTreeNode[] = [...ofKind, ...softOfKind].map((ann) => ({
-      id: `mark:${fileId}:${ann.id}`,
-      label: ann.name || ann.id,
-      kind: 'mark' as const,
-      detail: markDetail(ann),
-      sourceKind: kind,
-      color: ANNOTATION_SOURCE_TREE_COLORS[kind],
-      softDeleted: ann.deleted === true,
-      selected: selected.has(ann.id),
-      active: opts.activeMarkId === ann.id,
-      fileId,
-      markId: ann.id,
-      badges: ann.deleted === true ? ['deleted'] : undefined,
-    }));
+    const markNodes: EngineeringTreeNode[] = [...ofKind, ...softOfKind].map((ann) => {
+      const detail = markDetail(ann);
+      const label = ann.name || ann.id;
+      return {
+        id: `mark:${fileId}:${ann.id}`,
+        label,
+        title: label,
+        kind: 'mark' as const,
+        detail,
+        tooltip: `${label} (${kind})\n${detail}`,
+        sourceTooltip: kind,
+        sourceKind: kind,
+        color: ANNOTATION_SOURCE_TREE_COLORS[kind],
+        softDeleted: ann.deleted === true,
+        selected: selected.has(ann.id),
+        active: opts.activeMarkId === ann.id,
+        fileId,
+        markId: ann.id,
+        badges: ann.deleted === true ? ['deleted'] : undefined,
+      };
+    });
 
+    const srcLabel = ANNOTATION_SOURCE_TREE_LABELS[kind];
     sourceChildren.push({
       id: `src:${fileId}:${kind}`,
-      label: ANNOTATION_SOURCE_TREE_LABELS[kind],
+      label: srcLabel,
+      title: srcLabel,
       kind: 'annotationSource',
       sourceKind: kind,
       color: ANNOTATION_SOURCE_TREE_COLORS[kind],
       count: ofKind.length,
       detail: `${ofKind.length} mark(s)`,
+      tooltip: `${srcLabel}: ${ofKind.length} live`,
       fileId,
       children: markNodes.length ? markNodes : undefined,
     });
@@ -202,20 +298,58 @@ function buildMarksBranch(
 function buildChannelsBranch(file: ProjectFileJson): EngineeringTreeNode | undefined {
   const channels = file.channels ?? [];
   if (channels.length === 0) return undefined;
+  const available = file.metadata.availableSamples ?? file.metadata.sampleCount;
   return {
     id: `channels:${file.metadata.id}`,
     label: 'Channels',
     kind: 'channels',
+    title: 'Channels',
     count: channels.length,
     fileId: file.metadata.id,
-    children: channels.map((ch) => ({
-      id: ch.id,
-      label: ch.name,
-      kind: 'channel' as const,
-      detail: ch.sourceRelation ? `relation: ${ch.sourceRelation}` : undefined,
-      badges: channelBadges(ch),
+    children: channels.map((ch) => {
+      const badges = channelBadges(ch);
+      try {
+        if (ch.sourceTime?.end && available && BigInt(ch.sourceTime.end) > BigInt(available)) {
+          badges.push('unread');
+        }
+      } catch {
+        /* ignore */
+      }
+      const detail = channelDetail(ch, file);
+      const tooltip = detail;
+      return {
+        id: ch.id,
+        label: ch.name,
+        title: ch.name,
+        kind: 'channel' as const,
+        detail,
+        tooltip,
+        sourceTooltip: channelRelationDetail(ch.sourceRelation),
+        badges: [...new Set(badges)],
+        fileId: file.metadata.id,
+        channelId: ch.id,
+      };
+    }),
+  };
+}
+
+function buildDetectionRunsBranch(file: ProjectFileJson): EngineeringTreeNode | undefined {
+  const runs = file.detectionRuns ?? [];
+  if (runs.length === 0) return undefined;
+  return {
+    id: `detectionRuns:${file.metadata.id}`,
+    label: 'Detection runs',
+    title: 'Detection runs',
+    kind: 'detectionRuns',
+    count: runs.length,
+    fileId: file.metadata.id,
+    children: runs.map((runId, i) => ({
+      id: `run:${file.metadata.id}:${runId}`,
+      label: runId,
+      title: runId,
+      kind: 'metadata' as const,
+      detail: `detection run ${i + 1}`,
       fileId: file.metadata.id,
-      channelId: ch.id,
     })),
   };
 }
@@ -242,11 +376,18 @@ function buildFileNode(
   const chBranch = buildChannelsBranch(file);
   if (chBranch) children.push(chBranch);
 
+  const detail = fileDetail(file);
+  const runsBranch = buildDetectionRunsBranch(file);
+  if (runsBranch) children.push(runsBranch);
   return {
     id: fileId,
     label: file.metadata.name,
+    title: file.metadata.name,
     kind: 'file',
-    detail: fileDetail(file),
+    detail,
+    tooltip: `${file.metadata.name}\n${detail}\n${file.metadata.path}`,
+    sourceTooltip: file.metadata.path,
+    badges: fileBadges(file),
     sampleCount: file.metadata.sampleCount,
     path: file.metadata.path,
     active: activeFileId === fileId,

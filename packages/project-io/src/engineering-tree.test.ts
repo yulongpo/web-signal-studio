@@ -9,8 +9,11 @@ import {
 } from '@wss/contracts';
 import {
   ANNOTATION_SOURCE_TREE_COLORS,
+  CHANNEL_SOURCE_RELATION_DETAILS,
+  channelRelationDetail,
   engineeringTreeFromSession,
   listMarkNodes,
+  normalizeChannelSourceRelation,
 } from './engineering-tree.js';
 
 function demoProject(): ProjectDocumentJson {
@@ -37,8 +40,15 @@ function demoProject(): ProjectDocumentJson {
             name: 'NB-1',
             sourceRelation: 'Changed',
             processingState: 'ready',
+            centerFrequencyHz: 2.45e9,
+            bandwidthHz: 2e6,
+            outputSampleRateHz: 5e6,
+            sourceTime: { begin: '0', end: '500000' },
+            sourceSnapshot: { revisionId: 'rev-create-1' },
           },
         ],
+        detectionRuns: ['run-alpha', 'run-beta'],
+        view: { time: { begin: '0', end: '500000' } },
       },
     ],
   };
@@ -122,6 +132,26 @@ describe('G19 engineering tree three-source marks (desktop c1f2cce / 17471a6)', 
 
     const channels = file?.children?.find((c) => c.kind === 'channels');
     expect(channels?.children?.[0]?.badges).toContain('diff');
+
+    expect(file?.title).toBe('demo.sigmf');
+    expect(file?.tooltip).toContain('demo.sigmf-meta');
+    expect(file?.badges).toContain('unread');
+
+    const channel = channels?.children?.[0];
+    expect(channel?.title).toBe('NB-1');
+    expect(channel?.detail).toMatch(/CF /);
+    expect(channel?.detail).toMatch(/source changed/);
+    expect(channel?.detail).toMatch(/create rev rev-create-1/);
+    expect(channel?.tooltip).toBe(channel?.detail);
+    expect(channel?.sourceTooltip).toBe(CHANNEL_SOURCE_RELATION_DETAILS.Changed);
+    expect(channel?.badges).toContain('unread');
+
+    const runs = file?.children?.find((c) => c.kind === 'detectionRuns');
+    expect(runs?.count).toBe(2);
+    expect(runs?.children?.[0]?.label).toBe('run-alpha');
+
+    expect(manual?.title).toBe('manual-a');
+    expect(manual?.tooltip).toContain('Manual');
   });
 
   it('keeps project-only tree without mark branches when annotations omitted', () => {
@@ -131,5 +161,14 @@ describe('G19 engineering tree three-source marks (desktop c1f2cce / 17471a6)', 
     const file = tree[0]?.children?.[0]?.children?.[0];
     expect(file?.children?.some((c) => c.kind === 'marks')).toBe(false);
     expect(file?.children?.some((c) => c.kind === 'channels')).toBe(true);
+  });
+});
+
+describe('G19 channel source relation helpers (desktop c1f2cce)', () => {
+  it('normalizes relation codes and details', () => {
+    expect(normalizeChannelSourceRelation('Changed')).toBe('Changed');
+    expect(normalizeChannelSourceRelation('legacy_needs_review')).toBe('LegacyNeedsReview');
+    expect(channelRelationDetail('Missing')).toBe(CHANNEL_SOURCE_RELATION_DETAILS.Missing);
+    expect(channelRelationDetail('nope')).toBeUndefined();
   });
 });
