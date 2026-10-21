@@ -1,3 +1,15 @@
+> Bot-A `2026-10-21 23:00` Asia/Shanghai: Web **`8733cc1`** vs desktop `17471a6` — G17/G19/G11 PARTIAL deepened (E DetectionCard+`.engine`, B CN chrome, C axis-only pan); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_8733cc1.md`. **No PASS.**
+
+
+## INCREMENTAL @ `8733cc1`（相对 `425cb40`；含 B 487d04d G19 + E 8bf1390/ecee9a2 G17 + C 3535889 G11）
+| ID | 先前 | @8733cc1 | 证据 |
+|----|------|----------|------|
+| **G17** | PARTIAL 加深（DetectionCard/可选.engine 缺） | **PARTIAL 加深** | `8bf1390` selectable `.engine` + DetectionCard chrome；全量 Qt 参数网格残；recognition BLOCKED — **非 CLOSED** |
+| **G19** | PARTIAL 加深（CN relation/glyphs/多选残） | **PARTIAL 加深** | `487d04d` desktop-cn-chrome / glyphs / multi-select / relationText；Qt AnnotationPanel 绘制残 — **非 CLOSED** |
+| **G11** | PARTIAL 加深（axis-only pan 残） | **PARTIAL 加深** | `3535889` hitChartZone axis-only；OpenHandCursor 残；middle-button N/A@桌面 — **非 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_8733cc1.md`。**无矩阵 PASS**。
+---
 > Bot-A `2026-10-21 22:48` Asia/Shanghai: Web **`425cb40`** vs desktop `17471a6` — G17/G18/G19/G11/G02 PARTIAL deepened (E+B+C); G18/G08 OPEN→PARTIAL. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_425cb40.md` (supersedes planned ef89727/e9153b8). **No PASS.**
 
 ## INCREMENTAL @ `425cb40`（相对 `8783b55`；含 ef89727 G17 + e9153b8 B + C 5de2e6b；替代未交 ef89727/e9153b8）

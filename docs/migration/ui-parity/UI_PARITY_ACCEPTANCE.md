@@ -1,3 +1,4 @@
+> Bot-A `2026-10-21 23:00` Asia/Shanghai: Web **`8733cc1`** vs desktop `17471a6` — G17/G19/G11 PARTIAL deepened (E DetectionCard+`.engine`, B CN chrome, C axis-only pan); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_8733cc1.md`. **No PASS.**
 > Bot-A `2026-10-21 22:48` Asia/Shanghai: Web **`425cb40`** vs desktop `17471a6` — G17/G18/G19/G11/G02 PARTIAL deepened (E+B+C); G18/G08 OPEN→PARTIAL. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_425cb40.md` (supersedes planned ef89727/e9153b8). **No PASS.**
 > Evidence tip `2d12522` / `qa/web-3d7ab59`; audit subject `3d7ab59`; no PASS.
 
