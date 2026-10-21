@@ -1,3 +1,15 @@
+> Bot-A `2026-10-22 01:19` Asia/Shanghai: Web tip **`eca5a16`** vs desktop `17471a6` — G08/G07/G18 PARTIAL deepened (B `becd1e4` shell keyboard + Worker inspector feed + rail linkedCursor twin; G `0e5ab7c` prior-tip only). G19 true native QFileDialog still residual. G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_eca5a16.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`c9ed974`) | Now (`eca5a16`) | Note |
+|----|-------------------|-----------------|------|
+| **G08** | PARTIAL（shell re-shot 残） | **PARTIAL 加深** | `becd1e4` Arrow/Home/Esc keyboard MET；full re-shot → **未 CLOSED** |
+| **G07** | PARTIAL（Worker 残） | **PARTIAL 加深** | inspector created/updated/uiMessages/feed MET；全 Qt Worker → **未 CLOSED** |
+| **G18** | PARTIAL（NB/Esc/rail 残） | **PARTIAL 加深** | rail linkedCursor twin MET；NB multi-view / chart Esc → **未 CLOSED** |
+| **G19** | PARTIAL | **unchanged PARTIAL** | true native QFileDialog 仍残 |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未发明路径 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_eca5a16.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:14` Asia/Shanghai: Web tip **`c9ed974`** vs desktop `17471a6` — G19 PARTIAL deepened (B `b50b3c5` MeasuredEvidenceTrace + Inspector + OS chrome wave16). True native QFileDialog still residual. G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_c9ed974.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`2bcef55`) | Now (`c9ed974`) | Note |
