@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 00:57` Asia/Shanghai: Web tip **`6ada5b0`** vs desktop `17471a6` — G19 PARTIAL deepened (B `ad4b617` AdaptiveValueEdit-in-cell cols 4–7 + AnnotationEvidencePanel + browserSaveFile; G `03381ce` prior-tip only). G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6ada5b0.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`6df15bc`) | Now (`6ada5b0`) | Note |
+|----|---------------------|-------------------|------|
+| **G19** | PARTIAL （Adaptive/Evidence/QFileDialog 残） | **PARTIAL 加深** | `ad4b617` Adaptive-in-cell + Evidence + browserSave MET；Auxiliary 3-col / native dialog chrome 残 → **未 CLOSED** |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未发明路径 |
+
+—— **OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —— `INCREMENTAL_6ada5b0.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:51` Asia/Shanghai: Web tip **`6df15bc`** vs desktop `17471a6` — G11/G18 PARTIAL deepened (C `58df6bf` unselected dashed+hover tip; B `7d1a6ed` rail pin z-index wave12). G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6df15bc.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`4c28588`) | Now (`6df15bc`) | Note |
