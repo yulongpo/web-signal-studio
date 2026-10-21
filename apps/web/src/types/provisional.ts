@@ -49,3 +49,10 @@ export type DspSourceKind =
   | 'file-stft-worker'
   | 'fsa-wav-stft'
   | 'demo-fallback';
+
+
+/** G06 narrowband stacked pages (rebuild NarrowbandPage). */
+export type NarrowbandPageId = 'observe' | 'modulation' | 'deepLearning' | 'demodulation';
+export type NarrowbandWaveformMode = 'iq' | 'rms' | 'phase' | 'envelope';
+export type NarrowbandFreqMode = 'baseband' | 'rf';
+

@@ -86,7 +86,7 @@ test.describe('shell navigation', () => {
     }
   });
 
-  test('toggles wideband / narrowband workspace and shows stub banner', async ({ page }) => {
+  test('toggles wideband / narrowband workspace and shows stacked narrowband', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('btn-workspace-wideband')).toBeVisible();
     await expect(page.getByTestId('btn-workspace-narrowband')).toBeVisible();
@@ -97,12 +97,17 @@ test.describe('shell navigation', () => {
     await expect(page.getByTestId('btn-workspace-narrowband')).toHaveAttribute('data-active', 'true');
     await expect(page.getByTestId('status-workspace')).toHaveText('narrowband');
     await expect(page.getByTestId('workspace')).toHaveAttribute('data-workspace-mode', 'narrowband');
-    await expect(page.getByTestId('workspace-narrowband-stub')).toContainText('stub');
-    await expect(page.getByTestId('workspace-narrowband-stub')).toContainText('Bot-D');
+    await expect(page.getByTestId('workspace-narrowband-stub')).toHaveCount(0);
+    await expect(page.getByTestId('workspace-narrowband')).toBeVisible();
+    await expect(page.getByTestId('workspace-narrowband-observe')).toBeVisible();
+    await expect(page.getByTestId('nb-page-observe')).toHaveAttribute('data-active', 'true');
+    const bodyText = await page.getByTestId('workspace-narrowband').innerText();
+    expect(bodyText.toLowerCase()).not.toMatch(/demodulated iq|live ddc|real ddc output/i);
 
     await page.getByTestId('btn-workspace-wideband').click();
     await expect(page.getByTestId('btn-workspace-wideband')).toHaveAttribute('data-active', 'true');
     await expect(page.getByTestId('status-workspace')).toHaveText('wideband');
+    await expect(page.getByTestId('workspace-narrowband')).toHaveCount(0);
     await expect(page.getByTestId('workspace-narrowband-stub')).toHaveCount(0);
   });
 
