@@ -306,7 +306,7 @@ export function MenuBar() {
   const beginRoi = () => {
     setRightPanelCollapsed(false);
     setRightPage('detect');
-    setActiveTool('select');
+    setActiveTool('detection-roi');
     close();
   };
   const openMarkers = () => {

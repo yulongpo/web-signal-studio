@@ -142,4 +142,37 @@ test.describe('chart gestures and detection range', () => {
     await page.getByTestId('rail-tab-marker').click();
     await expect(page.getByTestId('m06-mark-count')).toHaveText('marks:1');
   });
+
+
+  test('navigate box-drag zooms the view (G11)', async ({ page }) => {
+    await page.goto('/');
+    const { host, chart } = await waitChart(page);
+    await expect(host).toHaveAttribute('data-active-tool', 'navigate');
+    await expect(chart).toHaveAttribute('data-gesture', 'zoom-box');
+    const before = await chart.getAttribute('data-view-x-max');
+    const box = await chart.boundingBox();
+    expect(box).toBeTruthy();
+    await page.mouse.move(box!.x + 160, box!.y + 120);
+    await page.mouse.down();
+    await page.mouse.move(box!.x + 420, box!.y + 360, { steps: 8 });
+    await page.mouse.up();
+    await expect.poll(async () => chart.getAttribute('data-view-x-max')).not.toBe(before);
+  });
+
+  test('physical caption exposes live axis ranges (G02)', async ({ page }) => {
+    await page.goto('/');
+    await waitChart(page);
+    const caption = page.getByTestId('chart-physical-caption');
+    await expect(caption).toBeVisible();
+    await expect(caption).toHaveAttribute('data-x-min', /.+/);
+    await expect(caption).toHaveAttribute('data-y-min', /.+/);
+  });
+
+  test('header Detection ROI retires select entry (G14)', async ({ page }) => {
+    await page.goto('/');
+    const { host } = await waitChart(page);
+    await page.getByTestId('btn-header-detection-roi').click();
+    await expect(host).toHaveAttribute('data-active-tool', 'detection-roi');
+  });
+
 });

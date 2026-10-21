@@ -183,7 +183,31 @@ export function NavigationChart(props: NavigationChartProps) {
   };
 
   const end = (ev: ReactPointerEvent<HTMLDivElement>) => {
-    if (drag.current?.pointerId === ev.pointerId) drag.current = null;
+    const d = drag.current;
+    const wrap = wrapRef.current;
+    if (!d || !wrap || d.pointerId !== ev.pointerId) return;
+    // G11: click (no meaningful drag) outside the window pans keeping span.
+    if (d.mode === "create" && onWindowChange) {
+      const rect = wrap.getBoundingClientRect();
+      const x = ev.clientX - rect.left;
+      const t = timeAt(x, rect.width);
+      const moved = Math.abs(x - d.startX);
+      if (moved < 4) {
+        const span = Math.max(1e-12, windowTime.max - windowTime.min);
+        let min = t - span / 2;
+        let max = t + span / 2;
+        if (min < fullTime.min) {
+          min = fullTime.min;
+          max = min + span;
+        }
+        if (max > fullTime.max) {
+          max = fullTime.max;
+          min = max - span;
+        }
+        onWindowChange({ min, max });
+      }
+    }
+    drag.current = null;
   };
 
   return (
@@ -191,6 +215,7 @@ export function NavigationChart(props: NavigationChartProps) {
       ref={wrapRef}
       className={className}
       data-testid={testId}
+      data-nav-click-keeps-span="true"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={end}

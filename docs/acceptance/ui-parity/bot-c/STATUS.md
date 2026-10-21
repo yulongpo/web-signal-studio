@@ -1,48 +1,33 @@
-# Bot-C G03–G05 STATUS (WIP — do not self-claim PASS)
+# Bot-C G11/G14/G02/G13 STATUS (WIP — do not self-claim PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-21 21:22:10 |
-| Base tip | 196db21 (origin/main; merged ebdf359) |
+| Asia/Shanghai | 2026-10-21 22:25 |
+| Base tip | cf1b3f8 (origin/main; CAO bump from c63f1de) |
 | Branch | work/bot-c-charts |
-| Scope | **Follow-up**: VerticalSplitter / pane defaults → desktop **nav=82 / aux=205** |
-| Out of scope | G11–G14; Wave→raw IQ (Bot-D); short-window aux=176 (height()<850) not encoded yet |
-| Desktop对照 | signal_studio 
-ebuild/a143-native @ **17471a6** (enforceLayout: nav=82, aux=205 or 176 if height&lt;850) |
-| Push | this follow-up tip on origin/work/bot-c-charts |
+| Scope | G11 navigate box-zoom; G14 Detection ROI header + retire select; G02 physical caption; G13 mark handles / continuous create |
+| Out of scope | Bot-B chrome polish beyond ROI entry remap; Wave raw IQ (Bot-D); short-window aux=176 |
+| Desktop对照 | signal_studio_rebuild @ 17471a6 |
+| Push | tip on origin/work/bot-c-charts |
 
-## Desktop对照 @ 17471a6
-
-- Splitter defaults now match desktop **nav=82 / aux=205** CSS px (uiStore, App defaultPx, CSS var fallbacks, chart component defaults, VerticalSplitter fallback).
-- Short-window desktop branch **aux=176 when height&lt;850** is **not** implemented in web yet (follow-up optional).
-- Commit **9f05bb** (nav vs label-plot settings): unchanged vs prior STATUS — Bot-B chrome; no geometry impact.
-
-## Acceptance (honest)
+## Landed (honest)
 
 | ID | Landed | Known gap |
 |----|--------|-----------|
-| G03 | NavigationChart in global-nav; drag window; STFT main 	imeSec linked; envelope from spectrogram | No desktop zoom/pause / nav-vs-label settings chrome (Bot-B; see 9f05bb). Strip default **82px**. |
-| G04 | WaveformChart Wave/PSD from spectrogram derive; mode switch changes X/Y meaning; no ChartPlaceholder | **Wave = STFT time-envelope**, not raw IQ. Display-only, not demod. |
-| G05 | VerticalSplitter nav↔aux and aux↔main; drag + double-click reset | Defaults **82/205** CSS px (matches desktop tip defaults; no height&lt;850→176). |
-
-## Follow-ups (not in this tip)
-
-1. Optional: encode height&lt;850 → aux=176 like desktop enforceLayout.
-2. Wave → **raw IQ** path via **Bot-D** (keep display-only; no fake demod).
-3. Bot-B: nav/tab chart settings separation parity with 9f05bb (out of Bot-C scope).
-
-## Embeddables (@wss/charts)
-NavigationChart, WaveformChart, VerticalSplitter (+ vite aliases)
-
-## Host plugs
-NavChartHost, AuxChartHost; App workspace-split; uiStore nav/pane/spectrogramDisplay
+| G11 | `navigate` → HeatmapCanvas `zoom-box` (≥8px); NavigationChart click outside keeps span (`data-nav-click-keeps-span`) | Axis-only pan still the plot-body pan substitute; no middle-button pan. Nav create-drag still resizes window (by design). |
+| G14 | Header `btn-header-detection-roi`; overflow/MenuBar/NavChrome → `detection-roi`; confirmation bar Enter/Esc unchanged; `select` no longer writes ROI | `ActiveTool` union still lists `select` (Bot-B provisional type); leftover callers get a note, not ROI. |
+| G02 | Charts-side `chart-physical-caption` on HeatmapCanvas (live physical X/Y + units); axis overlay labels unchanged | Caption is overlay text, not f9f05bb control-widget captions; Bot-B strip chrome remains Bot-B. |
+| G13 | Four corner handles + live pointermove resize; Ctrl/Shift multi-select kept; `data-continuous-create` while marker tool active | Undo/redo list sync still via existing M06 session; waterfall mark CSS mapping still STFT-oriented (pre-existing). |
 
 ## Evidence
-- artifacts/validation/ui-parity/bot-c/*.png (+ STATUS/manifest)
-- docs/acceptance/ui-parity/bot-c/ (dual-write)
-- e2e g03-g05-tri-chart.spec.ts (reset assert → 205)
+- artifacts/validation/ui-parity/bot-c/STATUS.md (+ this dual-write)
+- apps/web/e2e/chart-gestures.spec.ts (navigate zoom / caption / header ROI)
+- Prior G03–G05 pngs retained
 
 ## Tests
-charts typecheck (+ unit if run); web typecheck if touched
+- charts: `npm run typecheck` + `npm test` → 62 passed
+- web: `npm run typecheck` + `npm test` → 61 passed
+- e2e (filtered once): navigate zoom / physical caption / header ROI → 3 passed (ANGLE+SwiftShader)
+- e2e full suite re-run hit `ERR_CONNECTION_REFUSED` on webServer — not treated as product fail; not a PASS claim
 
 **No self-PASS.**
