@@ -4,11 +4,14 @@
  * G11 mark-edge: cursors match PlotWidget::edgeCursor @ 17471a6
  * (SizeFDiag/SizeBDiag/SizeHor/SizeVer). Continuous create stays with the
  * marker tool on MainChartHost (data-continuous-create).
+ * G11 body-drag: selected mark body Move uses SizeAll (hover) / ClosedHand
+ * (grabbing) while dragging, matching PlotWidget updateHover + MarkEdit Move.
  */
 import { useEffect, useState } from 'react';
 import type { AnnotationJson } from '@wss/contracts';
 import { resolveMarkEdgeCursor, type MarkEdge } from '@wss/charts';
 import {
+  applyMarkBodyDelta,
   cssToValue,
   halfOpenEnd,
   plotAxes,
@@ -29,6 +32,16 @@ type Props = {
 
 type MarkRow = AnnotationJson & { id: string };
 type HandleId = Exclude<MarkEdge, 'move'>;
+
+type BodyDrag = {
+  id: string;
+  startX: number;
+  startY: number;
+  t0: number;
+  t1: number;
+  f0: number;
+  f1: number;
+};
 
 function readMarks(): { marks: MarkRow[]; selected: string[]; active: string | null } {
   const hook = window.__wssM06;
@@ -69,6 +82,7 @@ export function ChartMarkOverlay({
   yDomain,
 }: Props) {
   const [tick, setTick] = useState(0);
+  const [bodyDrag, setBodyDrag] = useState<BodyDrag | null>(null);
   useEffect(() => {
     const id = window.setInterval(() => setTick((n) => n + 1), 200);
     return () => window.clearInterval(id);
@@ -126,27 +140,13 @@ export function ChartMarkOverlay({
     setTick((n) => n + 1);
   };
 
-  const applyHandle = (
+  const commitRange = (
     mark: MarkRow,
-    box: NonNullable<ReturnType<typeof rectFor>>,
-    handle: HandleId,
-    clientX: number,
-    clientY: number,
-    layer: Element,
+    nextT0: number,
+    nextT1: number,
+    nextF0: number,
+    nextF1: number,
   ) => {
-    const host = layer.getBoundingClientRect();
-    const time = box.timeAt(clientX - host.left);
-    const freq = box.freqAt(clientY - host.top);
-    let nextT0 = box.t0;
-    let nextT1 = box.t1;
-    let nextF0 = box.f0;
-    let nextF1 = box.f1;
-    // time edges (left/right)
-    if (handle === 'nw' || handle === 'sw' || handle === 'w') nextT0 = time;
-    if (handle === 'ne' || handle === 'se' || handle === 'e') nextT1 = time;
-    // freq edges (top/bottom); freqAt already maps physical Hz
-    if (handle === 'nw' || handle === 'ne' || handle === 'n') nextF1 = freq;
-    if (handle === 'sw' || handle === 'se' || handle === 's') nextF0 = freq;
     const start = secondsToSampleIndex(Math.min(nextT0, nextT1), sampleRateHz);
     const endRaw = secondsToSampleIndex(Math.max(nextT0, nextT1), sampleRateHz);
     const end = start && endRaw ? halfOpenEnd(start, endRaw) : null;
@@ -164,6 +164,79 @@ export function ChartMarkOverlay({
     setTick((n) => n + 1);
   };
 
+  const applyHandle = (
+    mark: MarkRow,
+    box: NonNullable<ReturnType<typeof rectFor>>,
+    handle: HandleId,
+    clientX: number,
+    clientY: number,
+    layer: Element,
+  ) => {
+    const host = layer.getBoundingClientRect();
+    const time = box.timeAt(clientX - host.left);
+    const freq = box.freqAt(clientY - host.top);
+    let nextT0 = box.t0;
+    let nextT1 = box.t1;
+    let nextF0 = box.f0;
+    let nextF1 = box.f1;
+    if (handle === 'nw' || handle === 'sw' || handle === 'w') nextT0 = time;
+    if (handle === 'ne' || handle === 'se' || handle === 'e') nextT1 = time;
+    if (handle === 'nw' || handle === 'ne' || handle === 'n') nextF1 = freq;
+    if (handle === 'sw' || handle === 'se' || handle === 's') nextF0 = freq;
+    commitRange(mark, nextT0, nextT1, nextF0, nextF1);
+  };
+
+  const applyBodyMove = (
+    mark: MarkRow,
+    drag: BodyDrag,
+    clientX: number,
+    clientY: number,
+    layer: Element,
+  ) => {
+    const host = layer.getBoundingClientRect();
+    const tStart = cssToValue(
+      drag.startX - host.left,
+      axes.time.pixelMin,
+      axes.time.pixelMax,
+      axes.time.min,
+      axes.time.max,
+      axes.time.invert,
+    );
+    const tNow = cssToValue(
+      clientX - host.left,
+      axes.time.pixelMin,
+      axes.time.pixelMax,
+      axes.time.min,
+      axes.time.max,
+      axes.time.invert,
+    );
+    const fStart = cssToValue(
+      drag.startY - host.top,
+      axes.freq.pixelMin,
+      axes.freq.pixelMax,
+      axes.freq.min,
+      axes.freq.max,
+      axes.freq.invert,
+    );
+    const fNow = cssToValue(
+      clientY - host.top,
+      axes.freq.pixelMin,
+      axes.freq.pixelMax,
+      axes.freq.min,
+      axes.freq.max,
+      axes.freq.invert,
+    );
+    const next = applyMarkBodyDelta({
+      t0: drag.t0,
+      t1: drag.t1,
+      f0: drag.f0,
+      f1: drag.f1,
+      dtSec: tNow - tStart,
+      dfHz: fNow - fStart,
+    });
+    commitRange(mark, next.t0, next.t1, next.f0, next.f1);
+  };
+
   return (
     <div
       className="chart-mark-layer"
@@ -173,35 +246,77 @@ export function ChartMarkOverlay({
       data-handle-count="8"
       data-g13-handles="true"
       data-g11-mark-edge="true"
+      data-g11-body-drag="true"
+      data-body-dragging={bodyDrag ? 'true' : 'false'}
+      data-body-drag-mark={bodyDrag?.id ?? ''}
     >
       {marks.map((mark) => {
         const box = rectFor(mark);
         if (!box) return null;
         const isSelected = selected.includes(mark.id);
         const isCurrent = active === mark.id;
+        const draggingThis = bodyDrag?.id === mark.id;
+        const bodyCursor = isSelected
+          ? resolveMarkEdgeCursor({ edge: 'move', draggingMove: draggingThis })
+          : undefined;
         return (
           <div
             key={mark.id}
-            className={`chart-mark-rect${isCurrent ? ' chart-mark-current' : ''}${isSelected ? ' chart-mark-selected' : ''}`}
-            data-testid={`chart-mark-${mark.id}`}
+            className={chart-mark-rect}
+            data-testid={chart-mark-}
             data-start={String(mark.start)}
             data-end={String(mark.end)}
             data-selected={isSelected ? 'true' : 'false'}
             data-current={isCurrent ? 'true' : 'false'}
+            data-body-dragging={draggingThis ? 'true' : 'false'}
+            data-body-drag-cursor={bodyCursor ?? ''}
             data-annotation-paint="desktop-multi"
             style={{
               left: box.left,
               top: box.top,
               width: box.width,
               height: box.height,
-              cursor: isSelected
-                ? resolveMarkEdgeCursor({ edge: 'move' })
-                : undefined,
+              cursor: bodyCursor,
             }}
             onPointerDown={(event) => {
               event.stopPropagation();
               event.preventDefault();
-              selectMark(mark.id, event.ctrlKey || event.metaKey || event.shiftKey);
+              const additive = event.ctrlKey || event.metaKey || event.shiftKey;
+              selectMark(mark.id, additive);
+              // Desktop: MarkEdit Move only when already-selected hit and not additive.
+              if (additive) return;
+              const layer = event.currentTarget.closest('[data-testid="chart-mark-layer"]');
+              if (!layer) return;
+              const origin = rectFor(mark);
+              if (!origin) return;
+              const drag: BodyDrag = {
+                id: mark.id,
+                startX: event.clientX,
+                startY: event.clientY,
+                t0: origin.t0,
+                t1: origin.t1,
+                f0: origin.f0,
+                f1: origin.f1,
+              };
+              setBodyDrag(drag);
+              event.currentTarget.setPointerCapture(event.pointerId);
+              const target = event.currentTarget;
+              const onMove = (ev: PointerEvent) => {
+                applyBodyMove(mark, drag, ev.clientX, ev.clientY, layer);
+              };
+              const onUp = (ev: PointerEvent) => {
+                applyBodyMove(mark, drag, ev.clientX, ev.clientY, layer);
+                setBodyDrag(null);
+                window.removeEventListener('pointermove', onMove);
+                window.removeEventListener('pointerup', onUp);
+                try {
+                  target.releasePointerCapture(ev.pointerId);
+                } catch {
+                  /* already released */
+                }
+              };
+              window.addEventListener('pointermove', onMove);
+              window.addEventListener('pointerup', onUp);
             }}
             onPointerEnter={(event) => {
               event.currentTarget.dataset.hovered = 'true';
@@ -217,14 +332,15 @@ export function ChartMarkOverlay({
                     <button
                       key={c.id}
                       type="button"
-                      className={`chart-mark-handle chart-mark-handle-${c.id}`}
+                      className={chart-mark-handle chart-mark-handle-}
                       data-testid={
-                        c.id === 'se' ? 'chart-mark-handle' : `chart-mark-handle-${c.id}`
+                        c.id === 'se' ? 'chart-mark-handle' : chart-mark-handle-
                       }
                       data-corner={c.id}
                       data-edge={c.id}
                       data-mark-edge-cursor={cursor}
-                      aria-label={`resize mark ${c.id}`}
+                      aria-label={
+esize mark }
                       style={{
                         left: c.left(box.width),
                         top: c.top(box.height),

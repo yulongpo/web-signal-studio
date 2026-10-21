@@ -152,3 +152,24 @@ export function markContains(
     freqHz <= Math.max(f0, f1)
   );
 }
+
+/** Translate mark body by dt/df keeping span (desktop MarkEdit Move @ 17471a6). */
+export function applyMarkBodyDelta(opts: {
+  t0: number;
+  t1: number;
+  f0: number;
+  f1: number;
+  dtSec: number;
+  dfHz: number;
+}): { t0: number; t1: number; f0: number; f1: number } {
+  const spanT = opts.t1 - opts.t0;
+  const spanF = opts.f1 - opts.f0;
+  const nextT0 = opts.t0 + opts.dtSec;
+  const nextF0 = opts.f0 + opts.dfHz;
+  return {
+    t0: nextT0,
+    t1: nextT0 + spanT,
+    f0: nextF0,
+    f1: nextF0 + spanF,
+  };
+}

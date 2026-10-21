@@ -1,57 +1,45 @@
-# Bot-C G11 mark-edge + G18 PSD mode STATUS (WIP ? do not self-claim PASS)
+# Bot-C G11 mark body-drag ClosedHand STATUS (WIP — do not self-claim PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-21 23:55 |
-| Base tip | 98d858d (CAO wave5; origin/main after INCREMENTAL_647978c) |
+| Asia/Shanghai | 2026-10-22 00:02 |
+| Base tip | 91ae551 (91ae5511d1e3668fd0b1a90c55de0b4ef10634e9) |
 | Branch | work/bot-c-charts |
-| Scope | **G11 mark-edge** cursors (8 handles); **G18** PSD mode UI slot eval/驻留帧谱/统计谱 |
-| Out of scope | Bot-D frame vs statistical PSD **series** computation; Bot-B STFT/palette chrome |
-| Desktop?? | signal_studio_rebuild @ 17471a6 PlotWidget::edgeCursor / handles; narrowband_workspace 驻留帧谱/统计谱 |
+| Scope | **G11** selected-mark **body-drag ClosedHand** (residual after 8-handle MET) |
+| Out of scope | Edge resize cursors (already MET); G18 PSD series (Bot-D); Bot-B chrome |
+| Desktop ref | signal_studio_rebuild @ 17471a6 PlotWidget::updateHover + MarkEdit Move |
 | Push | tip on origin/work/bot-c-charts |
 
 ## Desktop audit (17471a6)
 
-`ui/charts/plot_widget.cpp` `edgeCursor` + `handles` (8 points):
+`ui/charts/plot_widget.cpp`:
 
-| edges | Qt cursor | CSS |
+| State | Qt cursor | CSS |
 |-------|-----------|-----|
-| Left\|Top or Right\|Bottom | SizeFDiagCursor | nwse-resize |
-| Right\|Top or Left\|Bottom | SizeBDiagCursor | nesw-resize |
-| Left\|Right | SizeHorCursor | ew-resize |
-| Top\|Bottom | SizeVerCursor | ns-resize |
-| Move | SizeAllCursor / ClosedHand while drag | move / grabbing |
+| Hover selected mark body (`hit.edges == Move`) | `SizeAllCursor` via `edgeCursor(Move)` | `move` |
+| Drag MarkEdit + `edges == Move` | `ClosedHandCursor` | `grabbing` |
+| Edge/corner handles | SizeFDiag/BDiag/Hor/Ver | resize cursors (unchanged) |
 
-Prior tip only had 4 corners all hard-coded `nwse-resize` (honest gap called out in overview OpenHand STATUS).
-
-## G18 eval (charts vs DSP)
-
-| Piece | Owner | This tip |
-|-------|-------|----------|
-| display-summary PSD mode label (驻留帧谱/统计谱) | **Bot-C** UI slot | Wired via `narrowbandPsdMode` + `data-psd-mode` |
-| Narrowband toolbar mode select | **Bot-C** UI slot | `nb-select-psd-mode` |
-| STFT N / palette / ?? / ?? | Bot-B (already) | unchanged |
-| Frame PSD vs statistical PSD **series** / pinned-frame dwell | **Bot-D** DSP | **Handoff** ? UI does not invent spectrum data |
-| DetectionCard spectrumMode (???/???/?) | Bot-E detect card | Not G18 display PSD |
+CAO wording "OpenHand hover" maps here to desktop **SizeAll** on Move hit (not axis OpenHand). Honest: hover stays `move`, drag is ClosedHand `grabbing`.
 
 ## Landed (honest)
 
 | ID | Landed | Known gap / note |
 |----|--------|------------------|
-| G11 mark-edge | `resolveMarkEdgeCursor` + 8 handles on current mark; CSS per-edge; `data-g11-mark-edge`; `data-mark-edge-cursor` | Mark **body** drag-to-move / ClosedHand while resize not fully parity'd; hover hit without selecting current still PointingHand-only path |
-| G18 PSD mode slot | uiStore `narrowbandPsdMode`; RightRail label; NB select | Switching mode does **not** change observe PSD series yet (Bot-D) |
+| G11 body-drag ClosedHand | `applyMarkBodyDelta` + overlay body pointer capture; `draggingMove` → `grabbing`; `data-g11-body-drag` / `data-body-dragging` | Bounds clamp vs full file range not fully parity'd; unselected mark still PointingHand-only until selected |
+| G11 8-handle | Prior tip MET; preserved (`stopPropagation` on handles) | — |
 
 ## Evidence
-- packages/charts/src/interaction/chartHitZone.ts (`resolveMarkEdgeCursor`)
+- packages/charts/src/interaction/chartHitZone.ts (`resolveMarkEdgeCursor` draggingMove)
 - packages/charts/src/interaction/chartHitZone.test.ts
+- apps/web/src/components/chartGesture.ts (`applyMarkBodyDelta`)
+- apps/web/src/components/chartGesture.test.ts
 - apps/web/src/components/ChartMarkOverlay.tsx
-- apps/web/src/App.css (per-edge handle cursors)
-- apps/web/src/store/uiStore.ts / types/provisional.ts
-- apps/web/src/components/RightRail.tsx / NarrowbandWorkspace.tsx
-- artifacts/validation/ui-parity/bot-c/G18-PSD-MODE-HANDOFF.md
+- apps/web/src/App.css (`data-body-dragging`)
 - artifacts/validation/ui-parity/bot-c/STATUS.md (+ docs dual-write)
 
 ## Tests
-- charts unit: resolveMarkEdgeCursor corners/edges/move
+- charts unit: resolveMarkEdgeCursor move / draggingMove (19 passed)
+- web unit: applyMarkBodyDelta keeps span (5 passed)
 
 **No self-PASS.**

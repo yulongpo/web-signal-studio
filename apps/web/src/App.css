@@ -1,4 +1,4 @@
-html,
+﻿html,
 body,
 #root {
   height: 100%;
@@ -126,7 +126,7 @@ body,
 
 /* G05: nav / aux heights driven by VerticalSplitter (CSS vars). */
 .workspace.workspace-split {
-  /* nav | split | aux | split | main | status — no always-on SpectrumToolbar row */
+  /* nav | split | aux | split | main | status 鈥?no always-on SpectrumToolbar row */
   grid-template-rows:
     var(--nav-pane-h, 82px)
     6px
@@ -1019,7 +1019,7 @@ body,
   min-height: 0;
 }
 
-/* G06 NarrowbandWorkspace (Bot-B) — stacked pages; settings persist in store */
+/* G06 NarrowbandWorkspace (Bot-B) 鈥?stacked pages; settings persist in store */
 .narrowband-workspace {
   flex: 1;
   min-height: 0;
@@ -1209,7 +1209,7 @@ body,
   flex: 0 0 auto;
 }
 
-/* G01 MenuBar / command-bar — ~34px vs rebuild QMenuBar */
+/* G01 MenuBar / command-bar 鈥?~34px vs rebuild QMenuBar */
 .app-shell {
   display: flex;
   flex-direction: column;
@@ -2041,7 +2041,7 @@ body,
   color: #fff;
 }
 
-/* G19 CN tree chrome — desktop 17471a6 presentation cues */
+/* G19 CN tree chrome 鈥?desktop 17471a6 presentation cues */
 .project-tree[data-cn-chrome='true'] .panel-header h2 {
   letter-spacing: 0.02em;
 }
@@ -2167,7 +2167,7 @@ body,
 .tree-root[data-presentation='desktop-cn-chrome'] {
   font-size: 12px;
 }
-/* G19 AnnotationPanel multi-select paint — desktop 17471a6 */
+/* G19 AnnotationPanel multi-select paint 鈥?desktop 17471a6 */
 .chart-mark-rect[data-selected='true'],
 .chart-mark-rect.chart-mark-selected {
   border-color: #96d6ef;
@@ -2443,3 +2443,11 @@ body,
 }
 /* bottom-mark-row grid superseded by annotation-table-header-full wave5 */
 .bottom-mark-row { /* see wave5 full matrix */ }
+
+/* G11 mark body-drag ClosedHand (17471a6 MarkEdit Move) */
+.chart-mark-rect[data-body-dragging='true'] {
+  cursor: grabbing;
+}
+.chart-mark-layer[data-g11-body-drag='true'] {
+  /* probe: body Move SizeAll hover + ClosedHand drag wired */
+}

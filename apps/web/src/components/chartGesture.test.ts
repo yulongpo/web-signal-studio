@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   VIEW_HISTORY_LIMIT,
   cssToTimeFreq,
+  applyMarkBodyDelta,
   halfOpenEnd,
   markContains,
   pushCapped,
@@ -43,4 +44,17 @@ describe('chart gesture helpers', () => {
     expect(markContains(mark, 0.002, 100, 1_000_000)).toBe(false);
     expect(markContains(mark, 0.0005, -1, 1_000_000)).toBe(false);
   });
+
+  it('translates mark body keeping time/freq span (G11 ClosedHand Move)', () => {
+    const next = applyMarkBodyDelta({
+      t0: 1,
+      t1: 3,
+      f0: 100,
+      f1: 400,
+      dtSec: 0.5,
+      dfHz: -20,
+    });
+    expect(next).toEqual({ t0: 1.5, t1: 3.5, f0: 80, f1: 380 });
+  });
+
 });

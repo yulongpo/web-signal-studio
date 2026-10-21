@@ -1,10 +1,10 @@
 {
   "bot": "bot-c",
-  "scope": "G11 overview OpenHand",
-  "baseSha": "9248453b0f58375bd50e93719a6371574c3d0a84",
-  "baseShort": "9248453",
+  "scope": "G11 mark body-drag ClosedHand",
+  "baseSha": "91ae5511d1e3668fd0b1a90c55de0b4ef10634e9",
+  "baseShort": "91ae551",
   "desktop": "17471a6",
   "selfPass": false,
-  "notes": "NavigationChart overview window OpenHand/ClosedHand/PointingHand via resolveNavigationOverviewCursor. No PASS.",
-  "base": "9248453"
+  "notes": "Body Move: SizeAll hover (move) + ClosedHand drag (grabbing); 8-handle preserved. No PASS.",
+  "base": "91ae551"
 }
