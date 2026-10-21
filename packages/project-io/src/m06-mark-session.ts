@@ -48,6 +48,8 @@ export interface M06SessionSnapshot {
   activeChannelId?: string;
   activeMarkId?: string;
   selectedMarkIds?: string[];
+  /** Ephemeral UI hover (desktop FileState.hoveredMarkId); not persisted / not undo. */
+  hoveredMarkId?: string | null;
 }
 
 export interface M06MarkSessionOptions {
@@ -60,6 +62,8 @@ export class M06MarkSession {
   readonly project: ProjectDocumentJson;
   readonly annotations: AnnotationsDocumentJson;
   readonly stack: UndoStack;
+  /** Desktop setHoveredMark — cross-panel hover; not on project JSON / undo. */
+  private hoveredMarkId: string | null = null;
 
   constructor(options: M06MarkSessionOptions = {}) {
     this.project = options.project ?? emptyProject();
@@ -82,7 +86,14 @@ export class M06MarkSession {
       activeChannelId: this.project.activeChannelId,
       activeMarkId: file?.activeMarkId,
       selectedMarkIds: file?.selectedMarkIds ? [...file.selectedMarkIds] : undefined,
+      hoveredMarkId: this.hoveredMarkId,
     };
+  }
+
+  /** Desktop AnnotationService::setHoveredMark — ephemeral, no undo. */
+  setHoveredMark(id: string | null | undefined): void {
+    const next = id && id.length > 0 ? id : null;
+    this.hoveredMarkId = next;
   }
 
   addMark(annotation: AnnotationJson): void {

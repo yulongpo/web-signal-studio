@@ -62,6 +62,7 @@ function readHookState(): {
     marks,
     selected: snapshot.selectedMarkIds ?? [],
     active: snapshot.activeMarkId ?? null,
+    hovered: snapshot.hoveredMarkId ?? null,
     channelHasSnapshot,
     channelAnnotationId,
   };
@@ -69,7 +70,6 @@ function readHookState(): {
 
 export function M06MarksPanel() {
   const [tick, setTick] = useState(0);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [qualityFilter, setQualityFilter] = useState<QualityFilter>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -88,6 +88,7 @@ export function M06MarksPanel() {
     marks,
     selected,
     active,
+    hovered: hoveredId,
     channelHasSnapshot,
     channelAnnotationId,
   } = readHookState();
@@ -487,9 +488,18 @@ export function M06MarksPanel() {
                 data-selected={isSelected ? 'true' : 'false'}
                 data-current={isCurrent ? 'true' : 'false'}
                 data-hovered={isHovered ? 'true' : 'false'}
+                data-source-kind={m.sourceKind ?? ''}
                 data-review={m.reviewStatus}
-                onMouseEnter={() => setHoveredId(m.id)}
-                onMouseLeave={() => setHoveredId((id) => (id === m.id ? null : id))}
+                onMouseEnter={() => {
+                  window.__wssM06?.setHoveredMark?.(m.id);
+                  refresh();
+                }}
+                onMouseLeave={() => {
+                  if (window.__wssM06?.getState?.()?.hoveredMarkId === m.id) {
+                    window.__wssM06?.setHoveredMark?.(null);
+                    refresh();
+                  }
+                }}
                 onClick={(e: MouseEvent<HTMLLIElement>) => {
                   selectMark(m.id, e.metaKey || e.ctrlKey || e.shiftKey);
                 }}

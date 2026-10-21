@@ -134,6 +134,21 @@ describe('M-06 E2E hook (Playwright-installable)', () => {
     expect(decoded.boundRange.time.end).toBe((1n << 53n) + 199n);
   });
 
+
+  it('setHoveredMark is ephemeral and appears on getSnapshot', () => {
+    const session = new M06MarkSession();
+    expect(session.getSnapshot().hoveredMarkId ?? null).toBeNull();
+    session.setHoveredMark('m-hover');
+    expect(session.getSnapshot().hoveredMarkId).toBe('m-hover');
+    session.setHoveredMark(null);
+    expect(session.getSnapshot().hoveredMarkId ?? null).toBeNull();
+    const hook = createM06E2eHook(session);
+    hook.setHoveredMark('m2');
+    expect(hook.getState().hoveredMarkId).toBe('m2');
+    hook.setHoveredMark('');
+    expect(hook.getState().hoveredMarkId ?? null).toBeNull();
+  });
+
   it('installM06E2eHook mounts on window-like target under __wssM06', () => {
     const target: Record<string, unknown> = {};
     const hook = installM06E2eHook(target as { [typeof WSS_M06_HOOK_KEY]?: ReturnType<typeof createM06E2eHook> });

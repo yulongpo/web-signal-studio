@@ -44,6 +44,8 @@ export interface M06E2eHookApi {
     activeMarkId?: string;
     selectedMarkIds?: string[];
   }): M06SessionSnapshot;
+  /** Desktop PlotWidget::setHoveredMark — sync chart <-> annotation table. */
+  setHoveredMark(id: string | null | undefined): M06SessionSnapshot;
   undo(): M06SessionSnapshot;
   redo(): M06SessionSnapshot;
   /** Export project+annotations JSON texts (decimal sample indexes preserved). */
@@ -108,6 +110,10 @@ export function createM06E2eHook(session = new M06MarkSession()): M06E2eHookApi 
         },
         input.activeFileId ?? 'file-1',
       );
+      return session.getSnapshot();
+    },
+    setHoveredMark(id) {
+      session.setHoveredMark(id);
       return session.getSnapshot();
     },
     undo() {
