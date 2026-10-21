@@ -7,8 +7,8 @@
   "generatedBy": "Bot-G / WSS-QA-G",
   "timezone": "Asia/Shanghai",
   "generatedAt": "2026-10-21T20:14:48+08:00",
-  "tipSha": "d77e34b0a5e3d0aba6cc3ffde0f434ed73d5fc54",
-  "tipShort": "d77e34b",
+  "tipSha": "ebc0b6af4e959436f17b2b904f6ac002920b6aa3",
+  "tipShort": "ebc0b6a",
   "repository": "https://github.com/yulongpo/web-signal-studio",
   "license": "MIT",
   "licenseFile": "LICENSE",
@@ -551,6 +551,7 @@
       "CI e2e non-charts still disabled; Playwright evidence committed",
       "Real FFSCN/SCN needs GPU+weights; M-09 PASS is degrade/no-model path",
       "evidence_path_manifest only; no release zip/installer"
-    ]
+    ],
+    "stampCommit": "ebc0b6af4e959436f17b2b904f6ac002920b6aa3"
   }
 }
