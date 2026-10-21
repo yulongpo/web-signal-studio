@@ -1,18 +1,15 @@
 {
   "bot": "bot-c",
-  "writtenAt": "2026-10-21T11:06:10.799Z",
+  "writtenAt": "2026-10-21T11:15:44.537Z",
   "package": "@wss/charts",
   "gate": "C-01",
-  "gpuAvailable": true,
-  "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
-  "textureFormat": "R32F",
+  "gpuAvailable": false,
+  "webglVersion": null,
+  "textureFormat": null,
   "lutSize": 256,
   "lutFormat": "RGBA8",
-  "rendererVendor": "Google Inc. (Google)",
-  "rendererRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
-  "maxTextureSize": 8192,
-  "webglState": "ok",
-  "source": "playwright-page-eval",
-  "note": "Live WebGL2 probe from chart-main canvas in Playwright (ANGLE/SwiftShader ok)",
-  "status": "WIP"
+  "rendererVendor": null,
+  "rendererRenderer": null,
+  "maxTextureSize": null,
+  "note": "no WebGL2 context (headless / Node); schema emitted for QA"
 }

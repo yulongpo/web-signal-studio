@@ -1,0 +1,21 @@
+{
+  "bot": "bot-c",
+  "gate": "M-03",
+  "writtenAt": "2026-10-21T11:06:10.803Z",
+  "webglState": "ok",
+  "gpuAvailable": true,
+  "glSample": {
+    "canvasWidth": 780,
+    "canvasHeight": 439,
+    "readPixelsSum": 26112,
+    "readPixelsNonzero": 256,
+    "dataUrlLength": 19526
+  },
+  "screenshots": [
+    "m03_spectrum_chart.png",
+    "m03_chart_main.png",
+    "m03_gl_canvas_todataurl.png"
+  ],
+  "status": "WIP",
+  "note": "Asserted data-webgl-state=ok + readPixels nonzero; ANGLE/SwiftShader; page clip + toDataURL"
+}

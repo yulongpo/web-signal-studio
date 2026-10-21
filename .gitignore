@@ -1,5 +1,12 @@
-﻿.work/
-artifacts/
+.work/
+artifacts/*
+!artifacts/validation/
+artifacts/validation/*
+!artifacts/validation/bot-c/
+artifacts/validation/bot-c/*
+!artifacts/validation/bot-c/*.json
+!artifacts/validation/bot-c/*.md
+!artifacts/validation/bot-c/*.png
 node_modules/
 dist/
 build/

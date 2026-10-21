@@ -1,16 +1,16 @@
 # Bot-C probe evidence index
 
-> Owner of status PASS: **WSS-QA-G** only. This package places **WIP** evidence; Bot-C does **not** claim PASS.
+> Owner of status PASS: **WSS-QA-G** only. Bot-C places evidence; does **not** claim PASS for open gates.
 
 Updated: 2026-10-21 (Asia/Shanghai)  
-Worktree: `D:\\project\\wss-wt-c` · branch `work/bot-c-charts`  
-Synced main tip: **`175054d`**  
-This commit: QA-G re-review — healthy WebGL screenshots + live GPU / DPR / context-restore (WIP).
+Worktree: `D:\project\wss-wt-c` · branch `work/bot-c-charts`  
+Synced main tip: **`c007943`** (QA-G already PASS: M-03 / C-01 / C-03 / C-04)  
+This commit: CI `charts-playwright` hard-enable + C-02 dual-write (**M-04 / C-02 remain WIP**).
 
 ## Unit test count (single source of truth)
 
 Run: `cd packages/charts && npm test`  
-**Current `@wss/charts` vitest count = 52** (also in `p2c_charts_gate_2026-10-21.json` → `samples[0].meta.tests`).
+**Current `@wss/charts` vitest count = 55** (C-02 dual-write case included; see `p2c_charts_gate_2026-10-21.json` after re-run).
 
 ## Dual placement
 
@@ -19,22 +19,21 @@ Run: `cd packages/charts && npm test`
 | Screenshots + JSON probes | `docs/acceptance/evidence/bot-c/` | `artifacts/validation/bot-c/` |
 | Playwright HTML / traces | — | `artifacts/validation/p1g/playwright-report/` |
 
-The charts QA evidence spec writes **both** docs + artifacts copies.
+Helpers: `dualWriteEvidenceJson` / Playwright `writeBoth`. Vitest C-02 / C-01 / C-04 writers and `writePerformanceProbe` mirror into both trees when repo root is known (`WSS_PROBE_REPO` or walk-up).
 
 ## What each probe / evidence file measures
 
-| File (tracked here) | Gate | Measures |
-|---------------------|------|----------|
-| `m03_psd_stft_golden_meta_2026-10-21.json` | M-03 | Points at `packages/charts/src/dsp/psdStftGolden.test.ts` Float32 golden bins |
-| `m03_spectrum_chart.png` / `m03_chart_main.png` | M-03 | Playwright screenshot with `data-webgl-state=ok` (heatmap + axes) |
-| `m03_screenshot_meta_2026-10-21.json` | M-03 | Meta for healthy shot + gpuAvailable |
-| `m04_playwright_pan_zoom_2026-10-21.json` | M-04 | Playwright pan/zoom → `data-interaction-mode` |
-| `charts_probe_gpu_webgl_lut_2026-10-21.json` | C-01 | **Live** page-eval GPU probe (`gpuAvailable`, version, LUT, vendor) |
-| `c02_display_only_schema_2026-10-21.json` | C-02 | displayOnly JSON + forbidden keys |
-| `c03_resize_dpr_2026-10-21.json` + `c03_resize_chart.png` | C-03 | Viewport + CDP `deviceScaleFactor=2`; buffer ≈ css×dpr |
-| `charts_probe_context_restore_2026-10-21.json` | C-04 | **Live** `WEBGL_lose_context` lost→restored/ok |
-| `charts_probe_interaction_p95_2026-10-21.json` | C-04 related | CPU synthetic P50/P95 (annotated no GPU) |
-| `p2c_charts_gate_2026-10-21.json` | gate | typecheck + test count **52** |
+| File | Gate | Measures |
+|------|------|----------|
+| `m03_psd_stft_golden_meta_2026-10-21.json` | M-03 | Float32 golden bins (PASS by G) |
+| `m03_spectrum_chart.png` / `m03_chart_main.png` | M-03 | Healthy WebGL screenshot (PASS by G) |
+| `m04_playwright_pan_zoom_2026-10-21.json` | **M-04 WIP** | Playwright pan/zoom; also produced in CI job `charts-playwright` |
+| `charts_probe_gpu_webgl_lut_2026-10-21.json` | C-01 | Live / schema GPU probe (PASS by G) |
+| `c02_display_only_schema_2026-10-21.json` | **C-02 WIP** | displayOnly JSON + forbidden keys — **dual-written** docs + artifacts |
+| `c03_resize_dpr_2026-10-21.json` + `c03_resize_chart.png` | C-03 | buffer ∝ css×dpr (PASS by G) |
+| `charts_probe_context_restore_2026-10-21.json` | C-04 | Live lose_context restore (PASS by G) |
+| `charts_probe_interaction_p95_2026-10-21.json` | C-04 related | CPU synthetic P50/P95 |
+| `p2c_charts_gate_2026-10-21.json` | gate | typecheck + test count |
 
 ## How to re-run
 
@@ -50,9 +49,10 @@ npx playwright test e2e/charts-qa-evidence.spec.ts
 
 Playwright Chromium launch args (see `apps/web/playwright.config.ts`): `--use-gl=angle`, `--use-angle=swiftshader-webgl`, `--enable-webgl`, `--ignore-gpu-blocklist`, `--enable-unsafe-swiftshader`.
 
-## CI note for QA logs
+## CI
 
-- `packages/charts` unit + typecheck: job `packages-charts` in `.github/workflows/ci.yml` (when present) or local `npm test -w @wss/charts`.
-- Charts Playwright evidence is **local / HH-laptop** (WebGL ANGLE). CI `e2e` job is currently `if: false`; QA should pull screenshots from `docs/acceptance/evidence/bot-c/` and/or `artifacts/validation/bot-c/` committed from Bot-C worktree runs.
+- `packages-charts`: unit + typecheck
+- **`charts-playwright`**: runs `e2e/charts-qa-evidence.spec.ts`, uploads `bot-c-charts-qa-evidence` artifact (docs + `artifacts/validation/bot-c/`). **Not** gated by `if: false`.
+- Legacy `e2e` job: still `if: false` for **non-charts** specs only.
 
-**Do not set PASS here.** QA verifies against these paths.
+**Do not set M-04 / C-02 PASS here.** QA verifies against these paths.

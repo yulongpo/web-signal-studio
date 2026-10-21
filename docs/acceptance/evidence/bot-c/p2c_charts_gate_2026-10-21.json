@@ -7,10 +7,15 @@
       "durationMs": 0,
       "meta": {
         "typecheck": true,
-        "tests": 52,
+        "tests": 55,
         "note": "aligned with vitest run: 14 files / 52 tests (was stale meta.tests=10)"
       },
       "ts": "2026-10-21T10:51:24.349Z"
     }
-  ]
+  ],
+  "tests": 55,
+  "summary": {
+    "tests": 55
+  },
+  "note": "vitest 55 after dualWriteEvidence + C-02 dual-write case; M-04/C-02 WIP"
 }

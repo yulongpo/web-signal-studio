@@ -1,0 +1,31 @@
+{
+  "bot": "bot-c",
+  "writtenAt": "2026-10-21T10:26:00.779Z",
+  "package": "@wss/charts",
+  "samples": [
+    {
+      "name": "charts-validation-gate",
+      "durationMs": 10.124400000000014,
+      "meta": {
+        "frameMs": 10.124400000000014,
+        "extractMs": 8.524400000000014,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1280,
+        "bufferHeight": 640,
+        "outW": 512,
+        "outH": 256,
+        "note": "previewOut=320x160; modes=preview,refine"
+      },
+      "ts": "2026-10-21T10:26:00.779Z"
+    }
+  ],
+  "summary": {
+    "sampleCount": 1,
+    "totalDurationMs": 10.124400000000014,
+    "modes": [
+      "refine"
+    ],
+    "dpr": 2
+  }
+}

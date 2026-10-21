@@ -151,6 +151,19 @@ export {
   type CreateSpectrogramTileSourceOptions,
 } from "./tile/spectrogramGrid.js";
 
+
+export {
+  dualWriteEvidenceFile,
+  dualWriteEvidenceJson,
+  dualCopyEvidenceFile,
+  ensureEvidenceDirs,
+  evidenceDirs,
+  resolveProbeRepoRoot,
+  DOCS_EVIDENCE_REL,
+  ARTIFACTS_EVIDENCE_REL,
+  type DualWriteOptions,
+} from "./probe/dualWriteEvidence.js";
+
 export {
   collectGpuWebglProbe,
   collectGpuWebglProbeFromEnvironment,

@@ -85,11 +85,72 @@ jobs:
         run: npm run typecheck -w @wss/charts
       - name: unit charts
         run: npm test -w @wss/charts
-      # Playwright charts QA evidence (WebGL) is run on HH-laptop / local;
-      # artifacts land in artifacts/validation/bot-c/ and docs/acceptance/evidence/bot-c/.
+
+  # Bot-C M-04: charts QA Playwright evidence (ANGLE/SwiftShader WebGL2).
+  # Dedicated job — do not leave behind a permanent if:false gate for this path.
+  # If GitHub-hosted runners fail WebGL, the job still runs; failure mode is visible in logs
+  # and uploaded (partial) artifacts. Other apps/web e2e remain under the disabled e2e job.
+  charts-playwright:
+    name: charts-playwright (M-04 QA evidence)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: npm ci (repo root)
+        run: npm ci
+      - name: ensure linux native bindings
+        working-directory: apps/web
+        run: |
+          OXV="$(node -p "require('oxlint/package.json').version")"
+          RDV="$(node -p "require('rolldown/package.json').version")"
+          LCV=""
+          if [ -f node_modules/@tailwindcss/node/node_modules/lightningcss/package.json ]; then
+            LCV="$(node -p "require('./node_modules/@tailwindcss/node/node_modules/lightningcss/package.json').version")"
+          elif [ -f node_modules/lightningcss/package.json ]; then
+            LCV="$(node -p "require('./node_modules/lightningcss/package.json').version")"
+          else
+            echo "lightningcss package.json not found"; exit 1
+          fi
+          OXIDEV=""
+          if [ -f node_modules/@tailwindcss/oxide/package.json ]; then
+            OXIDEV="$(node -p "require('./node_modules/@tailwindcss/oxide/package.json').version")"
+          else
+            echo "@tailwindcss/oxide package.json not found"; exit 1
+          fi
+          npm install --no-save \
+            "@oxlint/binding-linux-x64-gnu@${OXV}" \
+            "@rolldown/binding-linux-x64-gnu@${RDV}" \
+            "lightningcss-linux-x64-gnu@${LCV}" \
+            "@tailwindcss/oxide-linux-x64-gnu@${OXIDEV}"
+      - name: install Playwright Chromium (+ deps)
+        working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+      - name: run charts-qa-evidence Playwright
+        working-directory: apps/web
+        env:
+          CI: true
+          WSS_PROBE_REPO: ${{ github.workspace }}
+        run: |
+          export NODE_PATH="$PWD/node_modules"
+          # Launch args (ANGLE/SwiftShader) come from playwright.config.ts
+          npx playwright test e2e/charts-qa-evidence.spec.ts
+      - name: upload bot-c validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bot-c-charts-qa-evidence
+          path: |
+            artifacts/validation/bot-c/
+            docs/acceptance/evidence/bot-c/
+          if-no-files-found: warn
+          retention-days: 14
 
   e2e:
-    name: e2e (disabled in CI for now)
+    name: e2e non-charts (still disabled; charts covered by charts-playwright)
     if: false
     runs-on: ubuntu-latest
     steps:

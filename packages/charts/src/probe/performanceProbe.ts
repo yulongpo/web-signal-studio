@@ -194,20 +194,32 @@ export async function writePerformanceProbe(
     };
   }
 
+  const body = JSON.stringify(payload, null, 2);
   let absPath: string;
   if (node) {
     const root = options.repoRoot ?? process.cwd();
     const dir = node.join(root, relativeDir);
     await node.mkdirp(dir);
     absPath = node.join(dir, fileName);
-    await node.writeFile(absPath, JSON.stringify(payload, null, 2));
+    await node.writeFile(absPath, body);
+    // Dual-write: when targeting artifacts/validation/bot-c, also mirror to docs/acceptance.
+    if (relativeDir.replace(/\\/g, "/").includes("artifacts/validation/bot-c")) {
+      const docsDir = node.join(root, "docs/acceptance/evidence/bot-c");
+      await node.mkdirp(docsDir);
+      await node.writeFile(node.join(docsDir, fileName), body);
+    }
   } else {
     const root = options.repoRoot ?? "";
     const sep = root.includes("\\") ? "\\" : "/";
     const dir = [root, relativeDir].filter(Boolean).join(sep).replace(/[\\/]+/g, sep);
     absPath = `${dir}${sep}${fileName}`;
     await mkdirp?.(dir);
-    await writeFile?.(absPath, JSON.stringify(payload, null, 2));
+    await writeFile?.(absPath, body);
+    if (relativeDir.replace(/\\/g, "/").includes("artifacts/validation/bot-c")) {
+      const docsDir = [root, "docs/acceptance/evidence/bot-c"].filter(Boolean).join(sep).replace(/[\\/]+/g, sep);
+      await mkdirp?.(docsDir);
+      await writeFile?.(`${docsDir}${sep}${fileName}`, body);
+    }
   }
 
   return { ok: true, path: absPath, payload };
