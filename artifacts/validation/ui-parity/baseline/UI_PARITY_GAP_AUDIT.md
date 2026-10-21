@@ -1,5 +1,8 @@
 # UI 鐎靛湱鐡戝顔跨獩鐎孤ゎ吀閿涘湐ot-A 婢х偤鍣烘径宥嗙壋 @ 17471a6閿?
 
+> Bot-A `2026-10-21 22:20` Asia/Shanghai: Web **`23c38d0`** vs desktop `17471a6` -- short G01 delta (`06911b3`): BrandV2/window-controls + View fit/restore + File depth **MET**; **G01 stays PARTIAL** (not CLOSED). Full reopen NOT needed. Counts unchanged OPEN 9 / PARTIAL 13 / CLOSED 1. See `INCREMENTAL_23c38d0.md`. **No PASS.**
+
+
 | 鐎涙顔?| 閸?|
 |------|-----|
 | 閺冨爼妫块敍鍦搒ia/Shanghai閿?| 2026-10-21 22:00:00閿涘澁ebase `360aba7` = `62d3b70` + `ffeff52`閿?|
