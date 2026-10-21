@@ -7,8 +7,8 @@
   "generatedBy": "Bot-G / WSS-QA-G",
   "timezone": "Asia/Shanghai",
   "generatedAt": "2026-10-21T20:14:48+08:00",
-  "tipSha": "ebc0b6af4e959436f17b2b904f6ac002920b6aa3",
-  "tipShort": "ebc0b6a",
+  "tipSha": "2b392c5dddd83d66422aeccd6a6cce50d6c79ac9",
+  "tipShort": "2b392c5",
   "repository": "https://github.com/yulongpo/web-signal-studio",
   "license": "MIT",
   "licenseFile": "LICENSE",
@@ -552,6 +552,6 @@
       "Real FFSCN/SCN needs GPU+weights; M-09 PASS is degrade/no-model path",
       "evidence_path_manifest only; no release zip/installer"
     ],
-    "stampCommit": "ebc0b6af4e959436f17b2b904f6ac002920b6aa3"
+    "stampCommit": "2b392c5dddd83d66422aeccd6a6cce50d6c79ac9"
   }
 }
