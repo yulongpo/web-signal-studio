@@ -1,0 +1,71 @@
+{
+  "id": "qa-web-42265bf-mod-stft-g18",
+  "tip_web_evidence": "42265bfde28871d6ffae30e9def0e03ceda7bfcf",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "tip_impl_c_mod_stft": "80d25bd",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "captures": [
+    "01-spectral-settings-wave22.png",
+    "02-g18-observe-multi-view.png",
+    "03-g18-dwell-only.png",
+    "04-g18-esc-observe.png",
+    "05-g18-mod-stft-linkedCursor.png",
+    "05b-mod-stft-panel-crop.png",
+    "06-g18-esc-mod-stft.png",
+    "fold-web-bd6a5dc/* (13 files)"
+  ],
+  "docs": [
+    "G18-NB-MOD-STFT-LINKED-HANDOFF.md",
+    "G18-NB-MULTI-VIEW-STFT-WAVE-HANDOFF.md",
+    "BOT_B_WAVE22_G02_STFT_N_SPECTRAL_SETTINGS.md"
+  ],
+  "observations": {
+    "g02_spectral": {
+      "strip_wave": "wave11 wave14 wave19 wave21 wave22",
+      "stft_n_drives": "wave22",
+      "has_wave22": true
+    },
+    "spectral_settings": {
+      "stftN": 2048,
+      "stftWindowPref": "hamming",
+      "stftOverlapPref": 0.5
+    },
+    "ddc_ready": true,
+    "observe_multi_view": {
+      "wave_multi": "true",
+      "stft_linked": "true",
+      "psd_vline": "true",
+      "psd_source": "linked"
+    },
+    "dwell_only": {
+      "source": "dwell-peak",
+      "vline": "true"
+    },
+    "esc_observe": {
+      "vline": "false",
+      "source": "none",
+      "linkedPinned": false,
+      "dwell": null,
+      "psdMode": "statistical"
+    },
+    "mod_ddc_ready": true,
+    "mod_stft": {
+      "ready": "true",
+      "mod_linked": "true",
+      "linked": "true",
+      "source": "sigmf_data_demo-ddc",
+      "pin_host": true,
+      "eye_status": "BLOCKED"
+    },
+    "esc_mod": {
+      "mod_linked": "false",
+      "linkedPinned": false
+    }
+  },
+  "gaps": [],
+  "mid_flight_origin_main": "a7bb0fd8fee7feaac2f7256370609116957b0cad",
+  "evidence_base_locked": "42265bfde28871d6ffae30e9def0e03ceda7bfcf",
+  "mid_flight_note": "B G08 MenuBar wave23 merged; ordered pack base remains 42265bf (C mod STFT)"
+}

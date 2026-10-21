@@ -1,0 +1,79 @@
+{
+  "id": "qa-web-bd6a5dc-spectral-settings-g18-A-base",
+  "tip_web_evidence": "bd6a5dcc65a8be6e6a7e9ca9f3276806aebde434",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "captures": [
+    "01-spectral-settings-overflow-wave22.png",
+    "01b-spectral-settings-menu-crop.png",
+    "01c-g02-strip-after-spectral-prefs.png",
+    "02-g18-multi-view-linkedCursor.png",
+    "03-g18-dwell-only-regression.png",
+    "04-g18-esc-clear-regression.png",
+    "fold-web-2f8162b/* (13 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE22_G02_STFT_N_SPECTRAL_SETTINGS.md",
+    "G18-NB-MULTI-VIEW-STFT-WAVE-HANDOFF.md",
+    "BOT_B_WAVE21_G02_WINDOW_OVERLAP.md"
+  ],
+  "observations": {
+    "g02": {
+      "strip_dsp": "wave19 wave21",
+      "strip_wave": "wave11 wave14 wave19 wave21 wave22",
+      "stft_n_drives": "wave22",
+      "window": "hann",
+      "overlap": "0.75"
+    },
+    "spectral_settings": {
+      "strip_wave22": true,
+      "select_stft_n_drives": "wave22",
+      "overflow_window_wave": "wave22",
+      "overflow_overlap_wave": "wave22",
+      "before": {
+        "stftN": 1024,
+        "stftWindowPref": "hann",
+        "stftOverlapPref": 0.75
+      },
+      "after": {
+        "stftN": 2048,
+        "stftWindowPref": "hamming",
+        "stftOverlapPref": 0.5
+      },
+      "qlabel_stft_value": "N=2048"
+    },
+    "ddc_ready": true,
+    "multi_view": {
+      "wave_multi": "true",
+      "wave_linked": "true",
+      "stft_linked_cursor": "true",
+      "stft_linked": "true",
+      "psd_vline": "true",
+      "psd_source": "linked"
+    },
+    "dwell_only": {
+      "source": "dwell-peak",
+      "vline": "true",
+      "wave_multi": "true",
+      "stft_linked": "true"
+    },
+    "esc_nb": {
+      "linkedPinned": false,
+      "dwell": null,
+      "psdMode": "statistical",
+      "wave_multi": "false",
+      "stft_linked": "false",
+      "psd_source": "none"
+    },
+    "a_on_base": {
+      "tip": "bd6a5dcc65a8be6e6a7e9ca9f3276806aebde434",
+      "includes_a_audit": "ba20ef0 INCREMENTAL_d69fc93",
+      "supersedes_pack": "web-d69fc93 / c27d634"
+    }
+  },
+  "gaps": [],
+  "mid_flight_origin_main": "d4f09435779a50c8b414b871fc5f73921dc9b890",
+  "evidence_base_locked": "bd6a5dcc65a8be6e6a7e9ca9f3276806aebde434"
+}
