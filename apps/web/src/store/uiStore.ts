@@ -160,6 +160,10 @@ export interface UiState {
   ) => void;
   viewHistoryBack: () => void;
   viewHistoryForward: () => void;
+  /** Fit nav window to full IQ time (谱图全域 / 适应全部数据). */
+  fitNavToFull: () => void;
+  /** Restore default nav view + history seed (恢复默认视图). */
+  restoreDefaultNavView: () => void;
   setNavFullTime: (full: { min: number; max: number }) => void;
   setAuxPaneHeightPx: (px: number) => void;
   setNavPaneHeightPx: (px: number) => void;
@@ -330,6 +334,21 @@ export const useUiStore = create<UiState>((set, get) => ({
       if (!win) return s;
       return { viewHistoryIndex: idx, navWindowTime: { ...win } };
     }),
+  fitNavToFull: () => {
+    const full = get().navFullTime;
+    get().setNavWindowTime({ min: full.min, max: full.max });
+  },
+  restoreDefaultNavView: () => {
+    const full = get().navFullTime;
+    const win = { min: full.min, max: full.max };
+    set({
+      navWindowTime: win,
+      viewHistory: [win],
+      viewHistoryIndex: 0,
+      chartMode: 'stft',
+      workspaceMode: 'wideband',
+    });
+  },
   setNavFullTime: (full) => set({ navFullTime: { ...full } }),
   setAuxPaneHeightPx: (px) => set({ auxPaneHeightPx: px }),
   setNavPaneHeightPx: (px) => set({ navPaneHeightPx: px }),

@@ -11,6 +11,12 @@ import {
   openIqFromFiles,
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
+import {
+  clearRecentProjects,
+  listRecentProjects,
+  pushRecentProject,
+  type RecentProjectEntry,
+} from '../recentProjects';
 
 type MenuId = 'file' | 'edit' | 'view' | 'analysis' | 'tools' | 'help' | null;
 
@@ -68,7 +74,15 @@ export function MenuBar() {
   const viewHistoryIndex = useUiStore((s) => s.viewHistoryIndex);
   const viewHistoryBack = useUiStore((s) => s.viewHistoryBack);
   const viewHistoryForward = useUiStore((s) => s.viewHistoryForward);
+  const fitNavToFull = useUiStore((s) => s.fitNavToFull);
+  const restoreDefaultNavView = useUiStore((s) => s.restoreDefaultNavView);
+  const statusFileLabel = useUiStore((s) => s.statusFileLabel);
   const [renameDraft, setRenameDraft] = useState('');
+  const [recentEntries, setRecentEntries] = useState<RecentProjectEntry[]>(() =>
+    typeof window !== 'undefined' ? listRecentProjects() : [],
+  );
+  const [chromeMaximized, setChromeMaximized] = useState(false);
+  const [chromeNote, setChromeNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -89,6 +103,10 @@ export function MenuBar() {
       window.removeEventListener('mousedown', onDown);
       window.removeEventListener('keydown', onKey);
     };
+  }, [openMenu]);
+
+  useEffect(() => {
+    if (openMenu === 'file') setRecentEntries(listRecentProjects());
   }, [openMenu]);
 
   // Refresh undo/redo enablement while Edit menu is open.
@@ -148,7 +166,89 @@ export function MenuBar() {
     const text = sessionHook().saveProjectJsonText();
     if (text == null) return;
     const name = projectSummary?.name?.replace(/[^\w.-]+/g, '_') || 'project';
+    pushRecentProject(`${name}.json`, text);
+    setRecentEntries(listRecentProjects());
     downloadText(`${name}.json`, text);
+  };
+
+  const onNewProject = () => {
+    close();
+    sessionHook().clearProject();
+    clearOpenedIq();
+    setDialog({
+      title: '新建工程',
+      body: '已清空当前 Web 会话（工程树 + 已打开 IQ）。请再打开工程 JSON 或添加信号。文件夹工程向导仅桌面端完整支持。',
+    });
+  };
+
+  const onOpenProjectFolder = async () => {
+    close();
+    const w = window as Window & {
+      showDirectoryPicker?: () => Promise<{ name: string }>;
+    };
+    if (typeof w.showDirectoryPicker !== 'function') {
+      setDialog({
+        title: '打开工程文件夹',
+        body: '当前浏览器不支持 Directory Picker。请改用「打开工程 JSON…」或桌面 Signal Studio。',
+      });
+      return;
+    }
+    try {
+      const dir = await w.showDirectoryPicker();
+      setDialog({
+        title: '打开工程文件夹',
+        body: `已选择文件夹「${dir.name}」。Web 壳暂不解析文件夹工程清单；请打开其中的工程 JSON，或添加 IQ。`,
+      });
+    } catch {
+      /* cancelled */
+    }
+  };
+
+  const onOpenRecent = (entry: RecentProjectEntry) => {
+    close();
+    const result = sessionHook().openProjectFromText(entry.text);
+    if (result && 'ok' in result && result.ok === false) {
+      setIqError(result.error);
+    }
+  };
+
+  const onRemoveCurrentFile = () => {
+    close();
+    clearOpenedIq();
+    useUiStore.getState().setStatusFileLabel('No file');
+  };
+
+  const onFitAll = () => {
+    fitNavToFull();
+    close();
+  };
+  const onRestoreDefaults = () => {
+    restoreDefaultNavView();
+    close();
+  };
+
+  const onChromeMinimize = () => {
+    setChromeNote('浏览器页无法真正最小化窗口（桌面端为 showMinimized）。');
+    window.setTimeout(() => setChromeNote(null), 2400);
+  };
+  const onChromeMaximize = async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+        setChromeMaximized(true);
+      } else {
+        await document.exitFullscreen();
+        setChromeMaximized(false);
+      }
+    } catch {
+      setChromeNote('无法切换全屏（权限或环境限制）。');
+      window.setTimeout(() => setChromeNote(null), 2400);
+    }
+  };
+  const onChromeClose = () => {
+    window.close();
+    setChromeNote('浏览器未允许关闭此标签（非脚本打开的窗口）。');
+    window.setTimeout(() => setChromeNote(null), 2400);
   };
 
   const onUndo = () => {
@@ -226,9 +326,16 @@ export function MenuBar() {
       aria-label="application menu"
       style={{ height: 34 }}
     >
-      <div className="menubar-brand" data-testid="menubar-brand" aria-hidden>
-        <span className="menubar-brand-mark">SS</span>
-        <span className="menubar-brand-text">Web Signal Studio</span>
+      <div className="menubar-brand brand-v2" data-testid="menubar-brand" data-brand="BrandV2">
+        <span className="menubar-brand-mark" data-testid="title-brand-icon" aria-hidden>
+          SS
+        </span>
+        <span className="menubar-brand-text" data-testid="title-brand-wordmark">
+          Signal Studio
+        </span>
+        <span className="menubar-brand-version" data-testid="title-brand-version">
+          A1.4.3 · 交互可靠性优化
+        </span>
       </div>
 
       <div className="menubar-menus">
@@ -247,21 +354,17 @@ export function MenuBar() {
           </button>
           {openMenu === 'file' ? (
             <div className="menubar-dropdown" data-testid="menubar-file-menu" role="menu">
-              <button type="button" role="menuitem" data-testid="menu-open-iq" onClick={() => void onOpenIq()}>
-                添加 / 打开信号…
+              <button type="button" role="menuitem" data-testid="menu-new-project" onClick={onNewProject}>
+                新建工程…
               </button>
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-clear-iq"
-                onClick={() => {
-                  clearOpenedIq();
-                  close();
-                }}
+                data-testid="menu-open-project-folder"
+                onClick={() => void onOpenProjectFolder()}
               >
-                清除已打开 IQ
+                打开工程文件夹…
               </button>
-              <div className="menubar-sep" role="separator" />
               <button
                 type="button"
                 role="menuitem"
@@ -284,6 +387,21 @@ export function MenuBar() {
               >
                 打开演示工程（样例树）
               </button>
+              <div className="menubar-sep" role="separator" />
+              <button type="button" role="menuitem" data-testid="menu-open-iq" onClick={() => void onOpenIq()}>
+                添加 / 打开信号…
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-clear-iq"
+                onClick={() => {
+                  clearOpenedIq();
+                  close();
+                }}
+              >
+                清除已打开 IQ
+              </button>
               <button
                 type="button"
                 role="menuitem"
@@ -292,6 +410,58 @@ export function MenuBar() {
                 onClick={onSaveProject}
               >
                 保存工程
+              </button>
+              <div className="menubar-item menubar-submenu" data-testid="menu-recent-projects">
+                <button type="button" role="menuitem" className="menubar-submenu-trigger" tabIndex={-1}>
+                  最近打开的工程
+                </button>
+                <div className="menubar-dropdown menubar-submenu-panel" role="menu">
+                  {recentEntries.length === 0 ? (
+                    <button type="button" role="menuitem" disabled data-testid="menu-recent-empty">
+                      暂无历史工程
+                    </button>
+                  ) : (
+                    recentEntries.map((entry) => (
+                      <button
+                        key={`${entry.name}-${entry.savedAt}`}
+                        type="button"
+                        role="menuitem"
+                        data-testid="menu-recent-item"
+                        title={entry.savedAt}
+                        onClick={() => onOpenRecent(entry)}
+                      >
+                        {entry.name}
+                      </button>
+                    ))
+                  )}
+                  <div className="menubar-sep" role="separator" />
+                  <button
+                    type="button"
+                    role="menuitem"
+                    data-testid="menu-recent-clear"
+                    onClick={() => {
+                      clearRecentProjects();
+                      setRecentEntries([]);
+                      close();
+                    }}
+                  >
+                    清除历史工程
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-remove-current-file"
+                disabled={statusFileLabel === 'No file'}
+                title={
+                  statusFileLabel === 'No file'
+                    ? '无已打开文件'
+                    : `从会话移除「${statusFileLabel}」（不删除源文件）`
+                }
+                onClick={onRemoveCurrentFile}
+              >
+                从工程移除当前文件
               </button>
               <button
                 type="button"
@@ -476,6 +646,24 @@ export function MenuBar() {
               >
                 视图前进
               </button>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-view-fit-all"
+                title="适应全部数据（谱图全域）"
+                onClick={onFitAll}
+              >
+                适应全部数据
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-view-restore-defaults"
+                title="恢复默认视图"
+                onClick={onRestoreDefaults}
+              >
+                恢复默认视图
+              </button>
               <div className="menubar-sep" role="separator" />
               <button
                 type="button"
@@ -594,9 +782,44 @@ export function MenuBar() {
           IQ open failed
         </span>
       ) : null}
+      {chromeNote ? (
+        <span className="menubar-chrome-note" data-testid="menubar-chrome-note" title={chromeNote}>
+          {chromeNote}
+        </span>
+      ) : null}
       <span className="menubar-hint" data-testid="command-bar">
         command-bar
       </span>
+      <div className="menubar-window-controls" data-testid="window-controls" role="group" aria-label="window controls">
+        <button
+          type="button"
+          className="menubar-window-btn"
+          data-testid="window-minimize"
+          title="最小化"
+          onClick={onChromeMinimize}
+        >
+          −
+        </button>
+        <button
+          type="button"
+          className="menubar-window-btn"
+          data-testid="window-maximize"
+          title={chromeMaximized ? '还原' : '最大化'}
+          aria-pressed={chromeMaximized}
+          onClick={() => void onChromeMaximize()}
+        >
+          {chromeMaximized ? '❐' : '□'}
+        </button>
+        <button
+          type="button"
+          className="menubar-window-btn menubar-window-close"
+          data-testid="window-close"
+          title="关闭"
+          onClick={onChromeClose}
+        >
+          ×
+        </button>
+      </div>
 
       <input
         ref={iqInputRef}

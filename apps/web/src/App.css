@@ -1265,3 +1265,71 @@ body,
   background: #2a6bed;
   border-color: #2a6bed;
 }
+
+.menubar-brand.brand-v2 {
+  gap: 8px;
+  padding: 0 16px 0 10px;
+}
+.menubar-brand-version {
+  font-size: 10px;
+  color: #edc586;
+  border: 1px solid #836d44;
+  padding: 3px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  line-height: 1;
+}
+.menubar-window-controls {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+.menubar-window-btn {
+  width: 44px;
+  height: 33px;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: #b4c8dc;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.menubar-window-btn:hover {
+  background: #29445f;
+  color: #e7ecf1;
+}
+.menubar-window-close:hover {
+  background: #bd3547;
+  color: #fff;
+}
+.menubar-chrome-note {
+  font-size: 10px;
+  color: #e5bf77;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 6px;
+}
+.menubar-submenu {
+  position: relative;
+  display: block;
+}
+.menubar-submenu-trigger {
+  width: 100%;
+}
+.menubar-submenu-panel {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  min-width: 200px;
+}
+.menubar-submenu:hover > .menubar-submenu-panel,
+.menubar-submenu:focus-within > .menubar-submenu-panel {
+  display: flex;
+}
