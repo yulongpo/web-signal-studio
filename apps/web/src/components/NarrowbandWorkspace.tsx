@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
 import type { NarrowbandPageId, NarrowbandWaveformMode } from '../types/provisional';
+import { NarrowbandObserveCharts } from './NarrowbandObserveCharts';
 
 const FFT_OPTIONS = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536] as const;
 
@@ -75,8 +76,8 @@ export function NarrowbandWorkspace() {
       channelLabel !== '' &&
       channelLabel !== '–');
   const dataStatus = hasChannel
-    ? `通道 ${channelLabel} · 文件 ${fileLabel} · 等待真实 DDC 帧（不伪解调）`
-    : '等待通道数据（未选择窄带通道；不生成伪候选）';
+    ? `通道 ${channelLabel} · 文件 ${fileLabel} · 观察页：sigmf_data_demo→DDC（不伪解调）`
+    : '观察页可用 sigmf_data_demo→DDC；通道未选时仍用 demo 源（不生成伪候选）';
   const chartStatus = hasChannel ? '通道已选 · 等待真实 DDC/STFT 帧' : '等待通道数据';
 
   const onStftChange = (n: number) => {
@@ -240,11 +241,7 @@ export function NarrowbandWorkspace() {
       <div className="nb-page-stack" data-testid="workspace-narrowband-stack">
         {page === 'observe' ? (
           <div className="nb-page nb-page-observe" data-testid="workspace-narrowband-observe">
-            <div className="nb-observe-top">
-              <ChartPanel title="波形" testId="nb-panel-waveform" status={chartStatus} />
-              <ChartPanel title="功率谱密度" testId="nb-panel-psd" status={chartStatus} />
-            </div>
-            <ChartPanel title="时频谱" testId="nb-panel-stft" status={chartStatus} />
+            <NarrowbandObserveCharts />
           </div>
         ) : null}
         {page === 'modulation' ? (
