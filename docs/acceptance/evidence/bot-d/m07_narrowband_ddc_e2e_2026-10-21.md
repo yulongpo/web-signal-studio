@@ -3,7 +3,7 @@
 - **date**: 2026-10-21 (Asia/Shanghai)
 - **owner**: Bot-D (`wss-wt-d` / `work/bot-d-dsp`)
 - **baseline (pre-commit tip)**: `f9f4616`
-- **commit**: `418e81f1dce80ab0fc0d0b4f931174e2aac2407f` (short `418e81f`)
+- **commit**: `a9d11adf691a01f0b52ad2f83c26b467767d272d` (short `a9d11ad`)
 - **matrix_pass_claimed**: **false**
 - **ACCEPTANCE_MATRIX M-07**: **WIP** — awaiting Bot-G / QA re-review; this doc does **not** claim PASS
 
