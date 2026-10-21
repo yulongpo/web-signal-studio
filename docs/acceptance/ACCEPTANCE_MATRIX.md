@@ -36,7 +36,7 @@
 
 | ID | 项 | 状态 | 证据 |
 |----|----|------|------|
-| Q-01 | `.github/workflows/ci.yml` lint/typecheck/unit/build | FAIL→fix | remote main `f6a40c2` run [39583037963](https://github.com/yulongpo/web-signal-studio/actions/runs/39583037963) lint: missing `@oxlint/binding-linux-x64-gnu`; fix on `work/bot-g-qa` + `docs/acceptance/evidence/ci-fail-f6a40c2_REPORT.md` |
+| Q-01 | `.github/workflows/ci.yml` lint/typecheck/unit/build | FAIL→fix | `a904334` run [39583728389](https://github.com/yulongpo/web-signal-studio/actions/runs/39583728389) npm ci Missing `@wss/web`; root lock+CI workspace install on `work/bot-g-qa` + `docs/acceptance/evidence/ci-fail-a904334_REPORT.md` |
 | Q-02 | Playwright E2E（真实本机/CI 服务） | PASS（本地） | `tests/e2e/shell-nav.spec.ts` + `artifacts/validation/p1g/e2e.log` |
 | Q-03 | 许可证 / 依赖扫描 | PASS* | `artifacts/validation/license/`（prod MIT×8 + UNLICENSED=`@wss/web`；根 LICENSE 缺失 → 发布仍 WIP） |
 | Q-04 | 无密钥 / 大样本入 Git | WIP | `.gitignore` 抽查 |
