@@ -203,3 +203,73 @@ export function applyMarkBodyDelta(opts: {
     f1: nextF0 + spanF,
   };
 }
+
+/**
+ * Map CSS X within a HeatmapCanvas host to STFT frame index using plot margins
+ * (desktop linked-cursor / pin map — not full host width).
+ */
+export function frameIndexFromPlotX(
+  xCss: number,
+  cssW: number,
+  frameCount: number,
+  margin: { left: number; right: number } = PLOT_MARGIN,
+): number | null {
+  if (!(frameCount > 0) || !(cssW > 0)) return null;
+  const plotLeft = margin.left;
+  const plotRight = cssW - margin.right;
+  const plotW = plotRight - plotLeft;
+  if (!(plotW > 0)) return null;
+  const t = (xCss - plotLeft) / plotW;
+  if (t < 0 || t > 1) return null;
+  const idx = Math.floor(Math.min(Math.max(t, 0), 0.999999) * frameCount);
+  return Math.min(frameCount - 1, Math.max(0, idx));
+}
+
+/** CSS X (host coords) for the center of a pinned STFT frame (scrubber). */
+export function plotXFromFrameIndex(
+  frameIndex: number,
+  cssW: number,
+  frameCount: number,
+  margin: { left: number; right: number } = PLOT_MARGIN,
+): number | null {
+  if (!(frameCount > 0) || !(cssW > 0)) return null;
+  const plotLeft = margin.left;
+  const plotRight = cssW - margin.right;
+  const plotW = plotRight - plotLeft;
+  if (!(plotW > 0)) return null;
+  const i = Math.min(frameCount - 1, Math.max(0, Math.floor(frameIndex)));
+  return plotLeft + ((i + 0.5) / frameCount) * plotW;
+}
+
+/**
+ * Clamp a mark time/freq range into file fullRange (desktop MarkEdit bounds).
+ * Preserves ordering; collapses tiny inversions to a minimal span inside bounds.
+ */
+export function clampMarkRangeToFull(opts: {
+  t0: number;
+  t1: number;
+  f0: number;
+  f1: number;
+  tMin: number;
+  tMax: number;
+  fMin: number;
+  fMax: number;
+}): { t0: number; t1: number; f0: number; f1: number } {
+  const clamp = (v: number, lo: number, hi: number) => Math.min(Math.max(v, lo), hi);
+  let t0 = clamp(opts.t0, opts.tMin, opts.tMax);
+  let t1 = clamp(opts.t1, opts.tMin, opts.tMax);
+  let f0 = clamp(opts.f0, opts.fMin, opts.fMax);
+  let f1 = clamp(opts.f1, opts.fMin, opts.fMax);
+  if (t1 < t0) {
+    const mid = (t0 + t1) / 2;
+    t0 = clamp(mid, opts.tMin, opts.tMax);
+    t1 = t0;
+  }
+  if (f1 < f0) {
+    const mid = (f0 + f1) / 2;
+    f0 = clamp(mid, opts.fMin, opts.fMax);
+    f1 = f0;
+  }
+  return { t0, t1, f0, f1 };
+}
+

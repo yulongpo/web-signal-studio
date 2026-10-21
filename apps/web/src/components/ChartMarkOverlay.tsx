@@ -7,13 +7,15 @@
  * G11 body-drag: selected mark body Move uses SizeAll (hover) / ClosedHand
  * (grabbing) while dragging, matching PlotWidget updateHover + MarkEdit Move.
  * Unselected mark hover uses PointingHand (pointer); Move only when already selected.
- * Body Move clamps to current view time/freq bounds (desktop fullRange clamp).
+ * Body/edge Move clamps to file fullRange (navFullTime x spectrogram freq),
+ * not only the current zoomed view (desktop MarkEdit fullRange).
  */
 import { useEffect, useState } from 'react';
 import type { AnnotationJson } from '@wss/contracts';
 import { resolveMarkEdgeCursor, resolveMarkBodyHoverCursor, type MarkEdge } from '@wss/charts';
 import {
   applyMarkBodyDelta,
+  clampMarkRangeToFull,
   cssToValue,
   halfOpenEnd,
   plotAxes,
@@ -30,6 +32,10 @@ type Props = {
   sampleRateHz: number;
   xDomain: Domain;
   yDomain: Domain;
+  /** File full time extent (seconds). Clamp target; falls back to view time. */
+  fullTime?: Domain;
+  /** File full frequency extent (Hz). Clamp target; falls back to view freq. */
+  fullFreq?: Domain;
 };
 
 type MarkRow = AnnotationJson & { id: string };
@@ -82,6 +88,8 @@ export function ChartMarkOverlay({
   sampleRateHz,
   xDomain,
   yDomain,
+  fullTime,
+  fullFreq,
 }: Props) {
   const [tick, setTick] = useState(0);
   const [bodyDrag, setBodyDrag] = useState<BodyDrag | null>(null);
@@ -94,6 +102,10 @@ export function ChartMarkOverlay({
   if (!(cssW > 0) || !(cssH > 0) || !(sampleRateHz > 0)) return null;
   const { marks, selected, active } = readMarks();
   const axes = plotAxes(cssW, cssH, mode, xDomain, yDomain);
+  // G11: clamp to file fullRange (desktop MarkEdit), not the zoomed view domain.
+  const fileTime = fullTime ?? { min: axes.time.min, max: axes.time.max };
+  const fileFreq = fullFreq ?? { min: axes.freq.min, max: axes.freq.max };
+
 
   const rectFor = (mark: MarkRow) => {
     const startN = Number(mark.start);
@@ -185,7 +197,17 @@ export function ChartMarkOverlay({
     if (handle === 'ne' || handle === 'se' || handle === 'e') nextT1 = time;
     if (handle === 'nw' || handle === 'ne' || handle === 'n') nextF1 = freq;
     if (handle === 'sw' || handle === 'se' || handle === 's') nextF0 = freq;
-    commitRange(mark, nextT0, nextT1, nextF0, nextF1);
+    const clamped = clampMarkRangeToFull({
+      t0: nextT0,
+      t1: nextT1,
+      f0: nextF0,
+      f1: nextF1,
+      tMin: fileTime.min,
+      tMax: fileTime.max,
+      fMin: fileFreq.min,
+      fMax: fileFreq.max,
+    });
+    commitRange(mark, clamped.t0, clamped.t1, clamped.f0, clamped.f1);
   };
 
   const applyBodyMove = (
@@ -235,11 +257,11 @@ export function ChartMarkOverlay({
       f1: drag.f1,
       dtSec: tNow - tStart,
       dfHz: fNow - fStart,
-      // View-bounds clamp (desktop MarkEdit Move clamps to fullRange).
-      tMin: axes.time.min,
-      tMax: axes.time.max,
-      fMin: axes.freq.min,
-      fMax: axes.freq.max,
+      // File-fullRange clamp (desktop MarkEdit Move — not view-only).
+      tMin: fileTime.min,
+      tMax: fileTime.max,
+      fMin: fileFreq.min,
+      fMax: fileFreq.max,
     });
     commitRange(mark, next.t0, next.t1, next.f0, next.f1);
   };
@@ -255,6 +277,7 @@ export function ChartMarkOverlay({
       data-g11-mark-edge="true"
       data-g11-body-drag="true"
       data-g11-bounds-clamp="true"
+      data-g11-file-fullrange-clamp="true"
       data-g11-unselected-pointer="true"
       data-body-dragging={bodyDrag ? 'true' : 'false'}
       data-body-drag-mark={bodyDrag?.id ?? ''}

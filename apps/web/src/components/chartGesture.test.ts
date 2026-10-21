@@ -3,6 +3,10 @@ import {
   VIEW_HISTORY_LIMIT,
   cssToTimeFreq,
   applyMarkBodyDelta,
+  frameIndexFromPlotX,
+  plotXFromFrameIndex,
+  clampMarkRangeToFull,
+  PLOT_MARGIN,
   halfOpenEnd,
   markContains,
   pushCapped,
@@ -84,6 +88,36 @@ describe('chart gesture helpers', () => {
       dfHz: 100,
     });
     expect(next).toEqual({ t0: 101, t1: 102, f0: 110, f1: 120 });
+  });
+
+  it('maps STFT pin X through plot margins (G18 margin-map)', () => {
+    const cssW = 400;
+    const frames = 100;
+    // Left of plot -> null
+    expect(frameIndexFromPlotX(PLOT_MARGIN.left - 1, cssW, frames)).toBeNull();
+    // Left edge of plot -> 0
+    expect(frameIndexFromPlotX(PLOT_MARGIN.left, cssW, frames)).toBe(0);
+    // Mid plot
+    const mid = PLOT_MARGIN.left + (cssW - PLOT_MARGIN.left - PLOT_MARGIN.right) * 0.5;
+    expect(frameIndexFromPlotX(mid, cssW, frames)).toBe(50);
+    // Round-trip scrubber x
+    const x = plotXFromFrameIndex(50, cssW, frames);
+    expect(x).not.toBeNull();
+    expect(frameIndexFromPlotX(x!, cssW, frames)).toBe(50);
+  });
+
+  it('clamps edge range to file fullRange (G11)', () => {
+    const next = clampMarkRangeToFull({
+      t0: -1,
+      t1: 9,
+      f0: -50,
+      f1: 2000,
+      tMin: 0,
+      tMax: 5,
+      fMin: 0,
+      fMax: 1000,
+    });
+    expect(next).toEqual({ t0: 0, t1: 5, f0: 0, f1: 1000 });
   });
 
 });
