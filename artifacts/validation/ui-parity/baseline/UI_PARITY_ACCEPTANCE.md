@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 00:51` Asia/Shanghai: Web **`6df15bc`** vs desktop `17471a6` — G11/G18 PARTIAL deepened (C unselected polish; B wave12 pin z-index). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6df15bc.md`. **No PASS.**
+
+| ID | Prior (`4c28588`) | Now (`6df15bc`) | Note |
+|----|---------------------|-------------------|------|
+| **G11** | PARTIAL （polish 残） | **PARTIAL 加深** | dashed+tip MET；sourceKind/table hover 残 — **未 CLOSED** |
+| **G18** | PARTIAL | **PARTIAL 加深** | pin stack MET；multi-chart sync 残 — **未 CLOSED** |
+
+———**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**—— `INCREMENTAL_6df15bc.md`；**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:47` Asia/Shanghai: Web **`4c28588`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave11 editCell/export; G evidence wave9/10; early-audit). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4c28588.md`. **No PASS.**
 
 | ID | Prior (`a48481d`) | Now (`4c28588`) | Note |

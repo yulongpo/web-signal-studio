@@ -1,3 +1,13 @@
+> Bot-A `2026-10-22 00:51` Asia/Shanghai: Web tip **`6df15bc`** vs desktop `17471a6` — G11/G18 PARTIAL deepened (C `58df6bf` unselected dashed+hover tip; B `7d1a6ed` rail pin z-index wave12). G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6df15bc.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`4c28588`) | Now (`6df15bc`) | Note |
+|----|---------------------|-------------------|------|
+| **G11** | PARTIAL （unselected polish 残） | **PARTIAL 加深** | `58df6bf` dashed+tip MET；sourceKind/table hover 残 — **未 CLOSED** |
+| **G18** | PARTIAL （rail scrubber 大体完） | **PARTIAL 加深** | `7d1a6ed` pin stack MET；multi-chart sync 残 — **未 CLOSED** |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未发明路径 |
+
+———**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**—— `INCREMENTAL_6df15bc.md`；**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:47` Asia/Shanghai: Web tip **`4c28588`** vs desktop `17471a6` — G19 PARTIAL deepened (B `797a5f1` editCell cols 1/4/5/6/7 + JSON/CSV export; G `9e4a79c` evidence wave9/10 only; early-audit before next C/B tip). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4c28588.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`a48481d`) | Now (`4c28588`) | Note |
