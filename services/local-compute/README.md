@@ -1,8 +1,8 @@
 # local-compute (Web Signal Studio)
 
-Optional **loopback-only** FastAPI service implementing [WEB_NATIVE_PROTOCOL](../../docs/architecture/WEB_NATIVE_PROTOCOL.md) v0.1.0 (warmup).
+Optional **loopback-only** FastAPI service implementing [WEB_NATIVE_PROTOCOL](../../docs/architecture/WEB_NATIVE_PROTOCOL.md) v0.1.0.
 
-When no real model/GPU path is present, `detection.ffscn` / `detection.scn` are **false** and `reasons` include `BLOCKED`. FFSCN/SCN inference results are **never fabricated**.
+When no real model/GPU path is present (or only STUB_NON_TENSORRT is wired), `detection.ffscn` / `detection.scn` are **false** and `reasons` include `BLOCKED`. FFSCN/SCN inference results are **never fabricated**.
 
 ## Protocol summary
 
@@ -20,7 +20,13 @@ When no real model/GPU path is present, `detection.ffscn` / `detection.scn` are 
 | GET | `/capabilities` | `{ protocolVersion, dsp, detection: { ffscn, scn, reasons }, models }` |
 | POST | `/tasks` | `{ runId }` |
 | GET | `/tasks/{runId}` | progress / result / evidence metadata |
-| POST | `/tasks/{runId}/cancel` | cancel |
+| POST | `/tasks/{runId}/cancel` | cancel bound to exact `runId` |
+
+## Behaviour (this slice)
+
+- **Model precheck**: searches `models/` + `LOCAL_COMPUTE_MODEL_DIRS` and optional `LOCAL_COMPUTE_FFSCN_PATH` / `LOCAL_COMPUTE_SCN_PATH`. Optional sha256 env vars produce explicit hash-mismatch BLOCKED reasons. Present files report identity metadata; `ffscn`/`scn` stay false until a real runtime is verified.
+- **Degradation**: service stays up; DSP stub (`dsp.fft`) may remain available while detection is BLOCKED.
+- **Stub worker**: labeled `STUB_NON_TENSORRT`. Detection runs step progress then finish as **BLOCKED** (no candidates). Cancel mid-flight yields **cancelled**, distinct from BLOCKED/succeeded/failed.
 
 ## Install (Windows)
 
@@ -47,4 +53,3 @@ Or: `python -m app.main`
 .\.venv\Scripts\Activate.ps1
 pytest -q
 ```
-
