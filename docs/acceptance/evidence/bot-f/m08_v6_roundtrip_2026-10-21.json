@@ -1,0 +1,25 @@
+{
+  "item": "M-08",
+  "title": "project v6 fixture roundtrip",
+  "owner": "Bot-F",
+  "date_asia_shanghai": "2026-10-21 19:42:57",
+  "worktree": "D:\\project\\wss-wt-f",
+  "branch": "work/bot-f-project-io",
+  "base_tip": "19313983fa535325dacf8f1317a9c8aa9bc18c91",
+  "head_pre_commit": "19313983fa535325dacf8f1317a9c8aa9bc18c91",
+  "matrix_pass_claimed": false,
+  "command": "npx vitest run --config vitest.config.ts packages/project-io",
+  "result": {
+    "test_files": 2,
+    "tests": 13,
+    "failed": 0,
+    "passed": 13
+  },
+  "fixtures": [
+    "packages/project-io/fixtures/v6-realistic-project.json",
+    "packages/project-io/fixtures/v6-annotations-three-sources.json"
+  ],
+  "tests": [
+    "packages/project-io/src/m08-v6-roundtrip.fixture.test.ts"
+  ]
+}
