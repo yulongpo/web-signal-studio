@@ -23,6 +23,7 @@ import {
   deriveSampleWindow,
   NB_OBSERVE_MAX_INPUT_SAMPLES,
   selectNarrowbandPsdSeries,
+  plotYForNarrowbandPsdMode,
 } from './narrowbandObserveDdc';
 
 const demoMeta = `${DEFAULT_SIGMF_DATA_DEMO_DIR}\\${SIGMF_DATA_DEMO_STEM}.sigmf-meta`;
@@ -158,6 +159,26 @@ describeDemo('narrowbandObserveDdc · sigmf_data_demo', () => {
   });
 
   
+
+  it('G18 store mode alone swaps selected plot y (no pinned dwell bleed)', () => {
+    const frameDb = new Float32Array([1, 2, 3, 4]);
+    const statisticalDb = new Float32Array([10, 20, 30, 40]);
+
+    const asFrame = plotYForNarrowbandPsdMode('frame', frameDb, statisticalDb);
+    const asStat = plotYForNarrowbandPsdMode(
+      'statistical',
+      frameDb,
+      statisticalDb,
+    );
+
+    expect(asFrame.kind).toBe('frame-stft');
+    expect(asStat.kind).toBe('welch-statistical');
+    expect(Array.from(asFrame.y)).toEqual(Array.from(frameDb));
+    expect(Array.from(asStat.y)).toEqual(Array.from(statisticalDb));
+    // Mode flip must change which y-array is selected.
+    expect(Array.from(asFrame.y)).not.toEqual(Array.from(asStat.y));
+  });
+
   it('G18 mode switch replaces plotted PSD arrays (frame != statistical)', async () => {
     const client = createDspWorkerClient({
       backend: new InProcessAsyncBackend(),
