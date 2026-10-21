@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:18` Asia/Shanghai: Web **`f72184c`** vs desktop `17471a6` — G02 PARTIAL deepened (B wave25 strip on D contract). BLOCKED methods not MET. G08/G18 no regression. Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f72184c/`. **No PASS.**
+
+| ID | Prior (`ba3bb76`) | Now (`f72184c`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL | **PARTIAL 加深** | welch fixed + kaiser into STFT; blocked list honest |
+| **G08** / **G18** | PARTIAL | **unchanged PARTIAL** | 无回归 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_f72184c/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:13` Asia/Shanghai: Web **`ba3bb76`** vs desktop `17471a6` — G02 PARTIAL deepened (D StftRequest contract). BLOCKED methods not MET. Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ba3bb76/`. **No PASS.**
 
 | ID | Prior (`bb9b1ef`) | Now (`ba3bb76`) | Note |

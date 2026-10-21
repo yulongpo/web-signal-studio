@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 02:18` Asia/Shanghai: Web tip **`f72184c`** vs desktop `17471a6` — G02 PARTIAL deepened (B `bcde64f` SpecParamStrip wires D StftRequest: fixed welch + kaiserBeta + SegMs; blocked Multitaper/Burg/Periodogram/Bartlett `data-blocked`). Window/overlap/stftN still MET. G08/G18 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f72184c/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`ba3bb76`) | Now (`f72184c`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL（D contract） | **PARTIAL 加深** | strip+host wire；blocked methods **BLOCKED** → **未 CLOSED** |
+| **G08** / **G18** | PARTIAL | **unchanged PARTIAL** | 无回归 |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未发明 / 未抬升 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_f72184c/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:13` Asia/Shanghai: Web tip **`ba3bb76`** vs desktop `17471a6` — G02 PARTIAL deepened (D `3aaac7d` StftRequest welch + kaiserBeta + store publish). BLOCKED methods (periodogram/bartlett/multitaper/burg) stay **BLOCKED** (throw; no MET). SpectrumStatistic **NA_PSD_ONLY**. G08/G18 carry forward. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ba3bb76/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`bb9b1ef`) | Now (`ba3bb76`) | Note |
