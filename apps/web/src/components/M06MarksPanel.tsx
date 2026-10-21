@@ -193,6 +193,44 @@ export function M06MarksPanel() {
     filtered.length > 0 && filtered.every((m) => selected.includes(m.id));
   const someSelected = selected.length > 0 && !allSelected;
 
+  const locateActiveMark = () => {
+    const hook = window.__wssM06;
+    const id = active ?? (selected.length === 1 ? selected[0] : null);
+    if (!hook || !id) return;
+    hook.setSelection({
+      activeMarkId: id,
+      selectedMarkIds: selected.includes(id) ? selected : [id],
+    });
+    requestAnimationFrame(() => {
+      const el = document.querySelector(`[data-testid="m06-mark-row-${id}"]`);
+      if (el && "scrollIntoView" in el) (el as HTMLElement).scrollIntoView({ block: "nearest" });
+    });
+  };
+
+  const deleteSelectedMarks = () => {
+    const hook = window.__wssM06;
+    if (!hook || selected.length === 0) return;
+    for (const id of [...selected]) hook.removeMark(id);
+    if (editingId && selected.includes(editingId)) setEditingId(null);
+  };
+
+  const selectAdjacentSegment = (offset: number) => {
+    const hook = window.__wssM06;
+    const id = editingId ?? active ?? (selected.length === 1 ? selected[0] : null);
+    if (!hook || !id) return;
+    const ann = hook.session.annotations.annotations.find((a) => a.id === id);
+    if (!ann?.segments?.length) return;
+    const segs = ann.segments;
+    let idx = Math.max(0, segs.findIndex((s) => s.id === ann.activeSegmentId));
+    const next = Math.max(0, Math.min(segs.length - 1, idx + offset));
+    hook.session.replaceMark({ ...ann, activeSegmentId: segs[next].id });
+    if (editingId === id) {
+      const row = filtered.find((x) => x.id === id);
+      if (row) beginEdit(row);
+    }
+  };
+
+
   return (
     <div
       className="m06-marks-panel annotation-panel"
@@ -200,7 +238,7 @@ export function M06MarksPanel() {
       data-annotation-panel="true"
       data-annotation-edit="inline-replaceMark"
       data-edit-selection={selected.length === 1 ? 'single' : selected.length === 0 ? 'empty' : 'multi'}
-      data-edit-path="replaceMark" data-qt-reshot="wave8-annotation-panel"
+      data-edit-path="replaceMark" data-qt-reshot="wave8-annotation-panel" data-qt-interactive="wave9"
       data-hook-ready={hookReady}
       data-selected-count={selected.length}
     >
@@ -271,7 +309,45 @@ export function M06MarksPanel() {
         >
           待判断
         </button>
-        <button
+                <div
+          className="m06-review-bar"
+          data-testid="m06-annotation-review-bar"
+          data-qt-interactive="wave9"
+        >
+          <button
+            type="button"
+            data-testid="m06-btn-locate-mark"
+            disabled={!active && selected.length !== 1}
+            onClick={locateActiveMark}
+          >
+            定位
+          </button>
+          <button
+            type="button"
+            data-testid="m06-btn-delete-marks"
+            disabled={selected.length === 0}
+            onClick={deleteSelectedMarks}
+          >
+            删除
+          </button>
+          <button
+            type="button"
+            data-testid="m06-btn-segment-prev"
+            disabled={selected.length !== 1 && !active}
+            onClick={() => selectAdjacentSegment(-1)}
+          >
+            上一段
+          </button>
+          <button
+            type="button"
+            data-testid="m06-btn-segment-next"
+            disabled={selected.length !== 1 && !active}
+            onClick={() => selectAdjacentSegment(1)}
+          >
+            下一段
+          </button>
+        </div>
+<button
           type="button"
           data-testid="m06-edit-mark"
           disabled={selected.length !== 1}
@@ -354,7 +430,7 @@ export function M06MarksPanel() {
               }}
             />
           </label>
-          <button type="button" data-testid="m06-edit-commit" onClick={commitEdit}>
+          <button type="button" data-testid="m06-edit-commit" data-qt-apply="wave9" onClick={commitEdit}>
             保存
           </button>
           <button type="button" data-testid="m06-edit-cancel" onClick={cancelEdit}>

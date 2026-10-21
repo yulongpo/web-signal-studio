@@ -138,7 +138,7 @@ export default function App() {
         data-shell-right-collapse-min={String(RIGHT_COLLAPSE_MIN)}
         data-shell-resizable="true"
         data-shell-edge-pair="lr"
-        data-shell-reshot="wave8"
+        data-shell-reshot="wave8" data-shell-wave="wave9"
         style={{
           gridTemplateColumns: collapsed
             ? `${leftColPx}px 6px 1fr 48px`
@@ -152,6 +152,8 @@ export default function App() {
           data-shell-edge="left"
           data-edge-side="left"
           data-hit-min-px="8"
+          tabIndex={0}
+          data-shell-focus="wave9"
           data-shell-reshot="wave8"
           role="separator"
           aria-orientation="vertical"
@@ -233,6 +235,8 @@ defaultPx={auxDefaultPx}
           data-shell-edge="right"
           data-edge-side="right"
           data-hit-min-px="8"
+          tabIndex={0}
+          data-shell-focus="wave9"
           data-shell-reshot="wave8"
           role="separator"
           aria-orientation="vertical"

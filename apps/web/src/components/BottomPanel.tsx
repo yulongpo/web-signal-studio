@@ -343,6 +343,67 @@ export function BottomPanel() {
     setM06Tick((t) => t + 1);
   };
 
+
+  const cancelEditMark = () => {
+    setEditingId(null);
+    appendShellLog('G19 edit cancel');
+  };
+
+  const applyEditMark = () => {
+    commitEditMark();
+  };
+
+  const locateActiveMark = () => {
+    const hookNow = window.__wssM06;
+    const id = activeMarkId ?? (selectedIds.length === 1 ? selectedIds[0] : null);
+    if (!hookNow || !id) return;
+    hookNow.setSelection({
+      activeMarkId: id,
+      selectedMarkIds: selectedIds.includes(id) ? selectedIds : [id],
+    });
+    setM06Tick((n) => n + 1);
+    // Reveal row in DOM when present
+    requestAnimationFrame(() => {
+      const el = document.querySelector(`[data-testid="bottom-mark-row-${id}"]`);
+      if (el && 'scrollIntoView' in el) {
+        (el as HTMLElement).scrollIntoView({ block: 'nearest' });
+      }
+    });
+    appendShellLog(`G19 locate mark ${id.slice(0, 8)}`);
+  };
+
+  const deleteSelectedMarks = () => {
+    const hookNow = window.__wssM06;
+    if (!hookNow || selectedIds.length === 0) return;
+    const ids = [...selectedIds];
+    for (const id of ids) {
+      hookNow.removeMark(id);
+    }
+    if (editingId && ids.includes(editingId)) setEditingId(null);
+    setM06Tick((n) => n + 1);
+    appendShellLog(`G19 delete ${ids.length} mark(s)`);
+  };
+
+  const selectAdjacentSegment = (offset: number) => {
+    const hookNow = window.__wssM06;
+    const id = editingId ?? activeMarkId ?? (selectedIds.length === 1 ? selectedIds[0] : null);
+    if (!hookNow || !id) return;
+    const ann = hookNow.session.annotations.annotations.find((a) => a.id === id);
+    if (!ann?.segments?.length) return;
+    const segs = ann.segments;
+    let idx = Math.max(0, segs.findIndex((s) => s.id === ann.activeSegmentId));
+    if (ann.activeSegmentId && idx < 0) idx = 0;
+    const next = Math.max(0, Math.min(segs.length - 1, idx + offset));
+    if (next === idx && segs[next]?.id === ann.activeSegmentId) return;
+    hookNow.session.replaceMark({
+      ...ann,
+      activeSegmentId: segs[next].id,
+    });
+    setM06Tick((n) => n + 1);
+    if (editingId === id) beginEditMark(id);
+    appendShellLog(`G19 segment ${offset < 0 ? 'prev' : 'next'} → ${segs[next].id.slice(0, 8)}`);
+  };
+
   const selectionSummary = `匹配 ${liveFiltered.length} / 总数 ${marks.length} / 已选 ${selectedIds.length} · 页 ${safePage + 1}/${totalPages}`;
 
   return (
@@ -360,7 +421,7 @@ export function BottomPanel() {
       <div
         className="bottom-panel-resize"
         data-testid="bottom-panel-resize"
-        data-shell-edge="bottom" data-shell-reshot="wave8" data-edge-side="bottom"
+        data-shell-edge="bottom" data-shell-reshot="wave8" data-edge-side="bottom" data-shell-focus="wave9" tabIndex={0}
         data-hit-min-px="29"
         data-collapse-min="true"
         role="separator"
@@ -436,6 +497,7 @@ export function BottomPanel() {
               data-edit-selection={selectedIds.length === 1 ? 'single' : selectedIds.length === 0 ? 'empty' : 'multi'}
               data-edit-path="replaceMark"
               data-qt-reshot="wave8-annotation-panel"
+              data-qt-interactive="wave9"
             >
               <p className="bottom-summary" data-testid="bottom-marks-summary">
                 {marksSummary}
@@ -502,14 +564,57 @@ export function BottomPanel() {
                 >
                   待判断
                 </button>
-                  <button
-                    type="button"
-                    data-testid="bottom-edit-mark"
-                    disabled={selectedIds.length !== 1}
-                    onClick={() => beginEditMark(selectedIds[0])}
+                  <div
+                    className="bottom-review-bar"
+                    data-testid="bottom-annotation-review-bar"
+                    data-qt-interactive="wave9"
                   >
-                    编辑
-                  </button>
+                    <button
+                      type="button"
+                      data-testid="bottom-btn-locate-mark"
+                      disabled={!activeMarkId && selectedIds.length !== 1}
+                      title="定位当前标记"
+                      onClick={locateActiveMark}
+                    >
+                      定位当前标记
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="bottom-btn-delete-marks"
+                      disabled={selectedIds.length === 0}
+                      title="删除所选标记"
+                      onClick={deleteSelectedMarks}
+                    >
+                      删除所选标记
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="bottom-edit-mark"
+                      disabled={selectedIds.length !== 1}
+                      title="编辑选中标注（replaceMark）"
+                      onClick={() => beginEditMark(selectedIds[0])}
+                    >
+                      编辑
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="bottom-btn-segment-prev"
+                      disabled={selectedIds.length !== 1 && !activeMarkId}
+                      title="上一段"
+                      onClick={() => selectAdjacentSegment(-1)}
+                    >
+                      上一段
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="bottom-btn-segment-next"
+                      disabled={selectedIds.length !== 1 && !activeMarkId}
+                      title="下一段"
+                      onClick={() => selectAdjacentSegment(1)}
+                    >
+                      下一段
+                    </button>
+                  </div>
                   {selectedIds.length === 0 ? (
                     <span className="bottom-hint muted" data-testid="bottom-edit-empty-hint">
                       无选中标注；编辑链路空闲（replaceMark）
@@ -587,7 +692,7 @@ export function BottomPanel() {
                       onChange={(e) => setEditName(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') commitEditMark();
-                        if (e.key === 'Escape') setEditingId(null);
+                        if (e.key === 'Escape') cancelEditMark();
                       }}
                     />
                   </label>
@@ -637,10 +742,13 @@ export function BottomPanel() {
                       />
                     </label>
                   </div>
-                  <button type="button" data-testid="bottom-edit-commit" onClick={commitEditMark}>
+                  <button type="button" data-testid="bottom-edit-commit" onClick={applyEditMark}>
+                    应用
+                  </button>
+                  <button type="button" data-testid="bottom-edit-apply" onClick={applyEditMark}>
                     保存
                   </button>
-                  <button type="button" data-testid="bottom-edit-cancel" onClick={() => setEditingId(null)}>
+                  <button type="button" data-testid="bottom-edit-cancel" onClick={cancelEditMark}>
                     取消
                   </button>
                 </div>
@@ -688,6 +796,11 @@ export function BottomPanel() {
                           data-testid={`bottom-mark-row-${m.id}`}
                           data-deleted={m.deleted ? 'true' : 'false'}
                           data-selected={isSelected ? 'true' : 'false'}
+                          onDoubleClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            beginEditMark(m.id);
+                          }}
                           data-current={isCurrent ? 'true' : 'false'}
                           data-active={isCurrent ? 'true' : 'false'}
                           data-hovered={isHovered ? 'true' : 'false'}
@@ -696,7 +809,6 @@ export function BottomPanel() {
                           onMouseLeave={() =>
                             setHoveredId((id) => (id === m.id ? null : id))
                           }
-                          onDoubleClick={() => beginEditMark(m.id)}
                           onClick={(e: MouseEvent<HTMLLIElement>) => {
                             const additive = e.metaKey || e.ctrlKey || e.shiftKey;
                             const prev = selectedIds;
