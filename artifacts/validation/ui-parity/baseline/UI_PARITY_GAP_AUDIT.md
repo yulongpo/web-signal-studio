@@ -1,3 +1,13 @@
+> Bot-A `2026-10-22 02:02` Asia/Shanghai: Web tip **`42265bf`** vs desktop `17471a6` — G18 PARTIAL deepened (C `80d25bd` mod STFT linkedCursor). Residual → recognition STFT panes only (BLOCKED placeholder; not invented). G17 recognition **not elevated**. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_42265bf.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`d4f0943`) | Now (`42265bf`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（mod/recog panes 残） | **PARTIAL 加深** | mod STFT linked **MET**；recognition STFT panes → **未 CLOSED** |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未抬升 |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G02** / **G19** | PARTIAL | **unchanged PARTIAL** | residuals 仍在 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_42265bf.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:00` Asia/Shanghai: Web tip **`d4f0943`** vs desktop `17471a6` — evidence-only G `c27d634` (web-d69fc93 SpectralSettings wave22 + G18). No apps/packages delta. Statuses unchanged. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d4f0943.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`d69fc93`) | Now (`d4f0943`) | Note |
