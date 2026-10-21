@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 00:40` Asia/Shanghai: Web tip **`a48481d`** vs desktop `17471a6` — G19/G11/G18 PARTIAL deepened (B `daa1125` interactive AnnotationPanel; C `7bfc86c` file-fullRange + margin-map/scrubber; supersedes draft INCREMENTAL_787623d). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_a48481d.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`f9a56b8`) | Now (`a48481d`) | Note |
+|----|-------------------|-----------------|------|
+| **G19** | PARTIAL 加深（interactive 残） | **PARTIAL 加深** | `daa1125` review bar MET；editCell/export 残 → **未 CLOSED** |
+| **G11** | PARTIAL 加深（file-fullRange 残） | **PARTIAL 加深** | `7bfc86c` file-fullRange body+edge MET；unselected polish 残 → **未 CLOSED** |
+| **G18** | PARTIAL 加深（margin/scrubber 残） | **PARTIAL 加深** | `7bfc86c` margin-map + STFT scrubber MET；right-rail twin 残 → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表 `INCREMENTAL_a48481d.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:38` Asia/Shanghai: Web tip **`787623d`** vs desktop `17471a6` — G19 PARTIAL deepened (B `daa1125` interactive AnnotationPanel review bar locate/delete/edit/segment + apply/cancel; G02/G08 skim); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_787623d.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`f9a56b8`) | Now (`787623d`) | Note |
