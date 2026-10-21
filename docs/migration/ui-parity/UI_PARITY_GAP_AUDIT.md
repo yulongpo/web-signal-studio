@@ -1,107 +1,150 @@
-# UI 对等差距审计（Bot-A 复核补强）
+# UI 对等差距审计（Bot-A 增量复核 @ 17471a6）
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:05+ |
+| 时间（Asia/Shanghai） | 2026-10-21 21:25+ |
 | 复核方 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
-| Web tip（共享 main 只读） | `be885f2dbfd9daa1b9965bf072d3cdcf69150118` |
-| 桌面上游只读镜像 | `.work/upstream-readonly` @ `0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af`（`rebuild/a143-native`） |
-| 桌面本地可执行树（只读） | `D:\project\signal_studio_rebuild` tip `696ce12`（ahead origin 3；路径证据仍有效） |
+| **Web tip（origin/main）** | **`563458ad6df118be72d87a096fc9888d58b6e2b8`**（`563458a`） |
+| **桌面上游 tip** | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`rebuild/a143-native`） |
+| 先验 Bot-A 文档 | `866e699` / G01–G26（对照 Web 当时 `be885f2`、上游 `0f108d0`，本地路径证据 `696ce12`） |
+| 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6`（fetch 后与远端一致） |
 | 远端 | https://github.com/yulongpo/signal_studio/tree/rebuild/a143-native |
-| 范围 | 只读对照；**未改** `apps/`/`packages/` 实现；未 push；未在共享树 `git checkout` |
-| 方法 | 复核既有 G01–G24；对照 `app/main_window.*`、`ui/*`、`docs/acceptance/ui-parity.md`、a143-native CONTROL_INVENTORY；对照 `apps/web` + `@wss/charts`；为每条补可执行 PASS |
-| 验收约束 | **IQ 仅** `resources\sigmf_data_demo`；**模型仅** rebuild 树内 TensorRT `*.engine`（见文末 Acceptance Constraints） |
+| 范围 | 只读对照；**未改** `apps/`/`packages/`/`services/` 实现；未在共享树 `git checkout`；不 push `signal_studio` |
+| 验收约束 | **IQ 仅** `resources\sigmf_data_demo`；**模型仅** rebuild 树内 TensorRT `*.engine` |
 
-> 本文件在既有 baseline `UI_PARITY_GAP_AUDIT.md`（G01–G24）上独立复核补强。可执行 PASS 矩阵见同目录 `UI_PARITY_ACCEPTANCE.md`。
+> 可执行 PASS 矩阵见同目录 `UI_PARITY_ACCEPTANCE.md`。镜像：`docs/migration/ui-parity/`。
 
-## 桌面目标结构（源码证据）
+---
+
+## INCREMENTAL DIFF（相对 `866e699` / 上游 `0f108d0`）
+
+### A. 桌面自 `0f108d0` → `17471a6` 驱动的缺口变化
+
+| 驱动 SHA | 主题 | 影响 ID | 变化类型 | 说明 |
+|----------|------|---------|----------|------|
+| `f9f05bb` | 分离图表导航与标签图设置 | **G02** | **加严** | `ChartControlStrip`：控件 caption 标签、overflow 重挂载保焦点、导航区与设置字段分离；Web 若仅搬全局 Toolbar 仍 FAIL，且实现图头时须对等「标签+控件」而非裸下拉 |
+| `a64117e` | 窄带设置跨 overflow / 换页保留 | **G06** | **加严** | `NarrowbandWorkspace::pageChanged`；STFT N / 频率 / 网格从 MainWindow 根解析；PASS 须验证换页与 overflow 后控件值不丢 |
+| `696ce12` | 显示摘要「参考/动态」 | **G18** | **加严** | `displaySummary_` 文案：`参考 {level} {unit}` + `动态 {range} dB`（禁「电平」混称）；精度 2 位 |
+| `6499a64` | 图头右对齐自适应控件 | G02 | 背景 | 与 f9f05bb 同属 strip 语义；Web 图头须右对齐/自适应折叠 |
+| `2e26651` | 窄带统一 plot settings | G06 | 背景 | 分析页简化；Web 窄带多页不得伪解调 |
+| `c1f2cce` | 工程树信号紧凑展示 | G19 | 背景 | 当前信号/源信息澄清 |
+| `db58394`/`17471a6` | chart-header-labels 证据归档 | — | 证据 | 锁定原生截图/JSON；无新控件 API |
+
+**未新增独立 G27**：上述全部折叠进既有 G02/G06/G18/G19 的加严 PASS，避免 ID 漂移。
+
+### B. Web `main@563458a` 相对 `866e699` 基线已闭合 / 部分闭合
+
+| ID | 新状态 | 证据（origin/main） | 仍缺 |
+|----|--------|---------------------|------|
+| G11 | **PARTIAL** | `HeatmapCanvas`：`wheelModel="desktop-axis"`、`gesture` pan\|box；`MainChartHost` 接入 | 框选→**视图放大**（navigate 态）；导航区单击保 span；完整轴热区隔离验收 |
+| G12 | **PARTIAL** | `MainChartHost` `onContextMenu` + `data-testid="chart-context-menu"` | 持续创建开关、视图 back/forward/fit/reset、重叠标记列表未齐 |
+| G13 | **PARTIAL** | marker 工具 + box → `__wssM06.addManualMark` | 控制点拖改、Ctrl/Shift 多选、与列表双向一致 |
+| G14 | **PARTIAL** | `activeTool==='select'` box→ROI；Enter 写入并 `setRightPage('detect')`；Esc 取消 | 独立「检测 ROI」命名入口；确认条 UI；与泛 select 语义分离 |
+| G19 | **PARTIAL** | `packages/project-io`：`importSigmfStream`、`engineeringTreeFromProject`、`demo-iq-paths` allowlist；Bot-F 证据 | `ProjectTree` 仍 sample/JSON 优先；未完整接线工程树操作 |
+| G20 | **PARTIAL** | SigMF 导入流 + demo 路径门禁 | 菜单/命令栏入口仍缺；SpectrumToolbar `btn-open-iq-wav` 仍在 |
+| G25 | **DOCS** | Bot-G `QA_CHECKLIST` 已 fold G25 | StatusBar 实现语义仍偏 dsp/fft |
+| G26 | **PARTIAL→近 CLOSED（后端/文档）** | Bot-E `ae69401` TRT `.engine` under rebuild；`demo-iq-paths`；QA PRE-2/3 | Detect UI 须只暴露树内 `.engine`；`model_layout` 仍枚举 `.pth`/`.onnx` 文件类型 → 不得作为 PASS 可选项 |
+
+**仍 OPEN（无实质壳层闭合）**：G01–G10、G15–G18、G21–G24（G18 因桌面加严更关键）。
+
+### C. 状态计数（本轮）
+
+| 状态 | IDs |
+|------|-----|
+| OPEN | G01–G10, G15–G18, G21–G24 |
+| PARTIAL | G11–G14, G19–G20, G26 |
+| DOCS-only / 实现仍偏 | G25 |
+| CLOSED | （无完整 CLOSED） |
+
+总数仍 **26**；P0 仍 14 条 ID，但 G11–G14/G26 可分波验收「PARTIAL 退出条件」见 ACCEPTANCE。
+
+---
+
+## 桌面目标结构（源码证据 @ 17471a6）
 
 | 区域 | 桌面事实 | 关键证据 |
 |------|----------|----------|
-| 顶栏 | 34px 菜单栏（文件/编辑/视图/分析/帮助）；**无永久工具栏**、无 IQ 标签行 | `MainWindow::buildMenus()`；`menuBar()->setFixedHeight(34)`；`docs/acceptance/ui-parity.md` |
-| 左侧 | 工程树 ~278px；收起 38px；添加 IQ / 导出 / 元数据 / 标记与通道 | `resourceWidth_ = 278`；`showAddFileDialog` |
-| 中央三图 | `graphSplitter`：`navigationPlot` → `auxPlot` → 主图；各图独立 `ChartControlStrip` + 最大化 | `main_window.cpp` objectName；`ui/chart_control_strip.h` |
-| 主图底条 | 游标/视图范围/标记状态/「基于标记创建窄带通道」 | `docs/acceptance/ui-parity.md`「主图底部 32px」；UI-28 |
-| 右侧 | 四页 `contextDisplay|Detection|Annotation|Channel` | `inspectorIds` in `main_window.cpp` |
-| 底部 | `bottomContent_`：`resultTab`/`taskTab`/`logTab`（+ DetectionPanel）；默认收起 ~29px / 展开 ~150px | `bottomContent_`；UI-04 |
-| 状态栏 | 25px Consolas；就绪 + 交互提示 | `statusBar()->setFixedHeight(25)` |
-| 窄带 | `workspaceStack` ↔ `NarrowbandWorkspace` 多页 | `ui/narrowband_workspace.h`；`workspaceStack_` |
-| 检测 | `DetectionCard`：model/spectrumMode/rangeKind/strategy/branches/advanced + `ParameterInputPolicy` | `ui/detection/detection_card.h` |
-| 主题 | `#0b1422` / `#121f32` / `#293f56` / `#dbe8f8`；12px | ui-parity + BrandV2 |
+| 顶栏 | 34px 菜单栏；**无永久工具栏** | `MainWindow::buildMenus()` |
+| 图头 | 每图 `ChartControlStrip`；标签与导航分离；overflow 保编辑 | `ui/chart_control_strip.h` @ `f9f05bb` |
+| 左侧 | 工程树 ~278px；当前信号紧凑展示 | `c1f2cce` `project_tree_presentation.h` |
+| 中央三图 | `graphSplitter`：navigation / aux / main | `main_window.cpp` |
+| 右侧显示摘要 | `参考 …` / `动态 … dB` | `updatePropertyContext` @ `696ce12` |
+| 窄带 | `NarrowbandWorkspace` + `pageChanged`；设置跨页保留 | `a64117e` |
+| 检测 | `DetectionCard` + 树内 `.engine` | `ui/detection/detection_card.h` |
+| 底部 | result/task/log | `bottomContent_` |
 
-## Web 现状（be885f2 只读）
+## Web 现状（563458a 只读）
 
 | 区域 | Web 事实 | 关键证据 |
 |------|----------|----------|
-| 顶栏 | **无菜单栏**；`SpectrumToolbar` 常驻 36px | `App.tsx`；`SpectrumToolbar.tsx`；`App.css` `grid-template-rows: 36px …` |
-| 左侧 | `ProjectTree` sample/JSON paste；宽 220px | `ProjectTree.tsx`；`App.css` `220px 1fr 280px` |
-| 中央 | `global-nav` placeholder；aux=`ChartPlaceholder`；主图 `MainChartHost`/`SpectrumChart`；**无 splitter** | `App.tsx` `data-testid="global-nav"` / `chart-aux` |
-| 右侧 | 四页壳；display/channel 占位文案；detect=`DetectPage`；marker=`M06MarksPanel` | `RightRail.tsx` |
-| 底部 | **缺失** 结果/任务/日志 | `App.tsx` 无 bottom |
+| 顶栏 | 无菜单栏；`SpectrumToolbar` 常驻 | `App.tsx` |
+| 中央 | `global-nav` placeholder；aux=`ChartPlaceholder`；主图 STFT + desktop-axis/box | `App.tsx`；`HeatmapCanvas`/`MainChartHost` |
+| 右侧 | 四页壳；Detect 精简闸门 | `RightRail` / `DetectPage` |
+| 底部 | 缺失 | `App.tsx` |
 | 窄带 | stub banner | `workspace-narrowband-stub` |
-| 图表交互 | HeatmapCanvas：pan + wheel zoom；无框选/右键/历史/最大化 | `packages/charts/.../HeatmapCanvas.tsx` |
-| 视觉 | `#0f1419` 自拟；system-ui | `App.css` |
+| 工程 IO | sample 树 + project-io SigMF API（未完全接线 UI） | `ProjectTree.tsx`；`packages/project-io` |
+| 模型 | local-compute 指向 rebuild `.engine` | `model_layout.py`；Bot-E 证据 |
 
 ---
 
-## 差距清单（复核后）
+## 差距清单（复核后，状态列相对 866e699）
 
-图例：严重度 P0=阻塞「看起来/用起来像」主路径；P1=交互/工程流；P2=像素/品牌。WEB「MISSING」=无对等组件/testid。
+图例：严重度 P0/P1/P2。状态 OPEN / PARTIAL / DOCS。
 
-| ID | 类别 | 差距 | 桌面证据 | Web 证据 | 严重度 | PASS 摘要（详见 ACCEPTANCE） |
-|----|------|------|----------|----------|--------|------------------------------|
-| G01 | 布局 | 无顶部菜单栏；工程 IO 不在菜单 | `buildMenus()`；菜单 文件/编辑/视图/分析/帮助 | `App.tsx` 无 menu / menubar testid | **P0** | 存在 menubar（或 Web command-bar 等价）含五组入口；Open IQ 从菜单可达 |
-| G02 | 布局 | 常驻 SpectrumToolbar 取代各图图头控件 | ui-parity「没有永久工具栏」；`ChartControlStrip` | `SpectrumToolbar.tsx` 常驻 | **P0** | 取消全局常驻总工具栏；nav/aux/main 各有图头控件条 |
-| G03 | 布局 | 全局时间导航为 placeholder | `navigationPlot` | `global-nav` placeholder | **P0** | 真实时间导航；滚轮/拖窗；加载 sigmf_data_demo 后非纯文案 |
-| G04 | 布局 | 辅助图 ChartPlaceholder | `auxPlot` wave/psd/evidence | `ChartPlaceholder` `chart-aux` | **P0** | Wave/PSD 真实曲线；切换改坐标系 |
-| G05 | 布局 | 无垂直 splitter / enforceLayout | `graphSplitter`；`enforceLayout`；UI-07 | CSS 固定 rows | **P0** | 可拖改高；双击复位桌面预算 |
-| G06 | 布局 | 窄带仅 stub | `NarrowbandWorkspace` + `workspaceStack` | `workspace-narrowband-stub` | **P0** | stacked workspace 非 stub；禁止伪解调 |
-| G07 | 布局 | 缺底部结果/任务/日志 | `bottomContent_` tabs | `App.tsx` 无 bottom | **P0** | 三标签；展开~150/收起~29；可列任务 |
-| G08 | 布局 | 左右栏宽度/收起不一致 | 278/390；收起 38px | 220/280；收起 48px | **P1** | 左~270–278、右~390±8；收起~38；可拖 |
-| G09 | 布局 | 缺主图底条 | ui-parity 32px；UI-28 | MISSING | **P1** | 游标/范围/标记状态；基于标记创建通道 |
-| G10 | 布局 | 缺最大化与 Esc 优先级 | `toggleMaximized`；UI-08 | MISSING | **P1** | 最大化/恢复；Esc 优先取消创建 |
-| G11 | 交互 | 无框选放大/轴隔离/导航保跨度 | UI-13..15 | HeatmapCanvas pan+wheel | **P0** | ≥8px 框选放大；轴滚轮隔离；导航单击保跨度 |
-| G12 | 交互 | 无右键菜单 | UI-16/23/33 | MISSING | **P0** | 持续创建/历史/fit/reset/遮盖标记列表 |
-| G13 | 交互 | 无持续标记创建/控制点/多选 | AnnotationPanel | M06 仅 hook+undo/redo | **P0** | 拖拽创建；控制点；Ctrl/Shift 多选 |
-| G14 | 交互 | 检测 ROI 未分名、无确认条 | `detectionRoiTool_`；confirmation | ROI→`setActiveTool('select')` | **P0** | 独立检测 ROI；Enter/Esc 确认条；聚焦检测页 |
-| G15 | 交互 | 无视图历史与回滚 | UI-17/18/33；≤40 | MISSING | **P1** | back/forward；每文件≤40；Esc/失焦回滚 |
-| G16 | 交互 | 模式未绑真实坐标规则 | UI-09/10 | store 切、aux 仍 placeholder | **P1** | Wave/PSD/STFT/Waterfall 轴规则正确 |
-| G17 | 功能 | DetectPage ≠ DetectionCard | `detection_card.h` 双下拉+strategy/branches | DetectPage 精简闸门 | **P0** | 字段级对等；模型仅树内 `.engine` |
-| G18 | 功能 | 显示/通道占位；无 SpectralSettings | `SpectralSettingsWidget` | RightRail 占位文案 | **P1** | 显示页填实；Welch/Bartlett 弹层；通道摘要 |
-| G19 | 功能 | 工程树缺添加 IQ 与树操作 | `showAddFileDialog` | sample+JSON paste | **P1** | 导入向导；定位/重命名/删除 |
-| G20 | 功能 | Open IQ 在工具栏 | `SignalImportDialog` | `btn-open-iq-wav` | **P1** | 菜单入口+预览；默认 `sigmf_data_demo` |
-| G21 | 视觉 | 色板/字号未对齐 | BrandV2 / ui-parity | `#0f1419` | **P2** | hex/12px/Consolas 对齐 |
-| G22 | 视觉 | 图内边距未对齐 | 88/22/12/34；色阶右70 | charts 自有 | **P2** | inset ±2px；色阶右边距70 |
-| G23 | 视觉 | 无品牌 lockup | brand corner | 浏览器 chrome | **P2** | 顶栏 BrandV2；系统标题栏可 N/A |
-| G24 | 交互 | 相对偏移/单位/负零不足 | UI-32 | `physicalAxis.ts` 部分 | **P2** | 单位/相对偏移；无 -0 |
-| G25 | 功能 | 状态栏语义偏离（dsp/fft 诊断挤占） | 25px 就绪+提示 | `StatusBar.tsx` 含 dsp/fft/project | **P2** | ≈25px；就绪/时/频/文件/提示为主 |
-| G26 | 约束 | 验收 IQ/模型路径门禁 | CAO 约束；树内 `.engine` | 旧基线含 RadioAI/.pth/onnx | **P0** | 仅 `sigmf_data_demo` + 树内 `.engine` |
+| ID | 类别 | 差距 | 桌面证据 | Web 证据 | 严重度 | 状态 | PASS 摘要 |
+|----|------|------|----------|----------|--------|------|-----------|
+| G01 | 布局 | 无顶部菜单栏 | `buildMenus()` | 无 menubar | **P0** | OPEN | 五组菜单/命令栏；Open IQ 从菜单可达 |
+| G02 | 布局 | 常驻 Toolbar 取代图头；缺标签分离 | `ChartControlStrip`+`f9f05bb` | `SpectrumToolbar` 常驻 | **P0** | OPEN（**加严**） | 无全局常驻条；三图图头含 caption+控件；overflow 不丢编辑 |
+| G03 | 布局 | 全局时间导航 placeholder | `navigationPlot` | `global-nav` 文案 | **P0** | OPEN | 真实时间窗；滚轮/拖窗 |
+| G04 | 布局 | 辅助图 placeholder | `auxPlot` | `ChartPlaceholder` | **P0** | OPEN | Wave/PSD 真曲线 |
+| G05 | 布局 | 无垂直 splitter | `graphSplitter` | CSS 固定 | **P0** | OPEN | 可拖高度；双击复位 |
+| G06 | 布局 | 窄带 stub；设置须跨页保留 | `NarrowbandWorkspace`+`a64117e` | stub | **P0** | OPEN（**加严**） | 非 stub；换页/overflow 后 STFT N·网格·频率保留；无伪解调 |
+| G07 | 布局 | 缺底栏 | `bottomContent_` | 无 | **P0** | OPEN | 三标签；~29/150 |
+| G08 | 布局 | 栏宽不一致 | 278/390 | 220/280 | **P1** | OPEN | 左~278 右~390；收起~38 |
+| G09 | 布局 | 缺主图底条 | UI-28 | MISSING | **P1** | OPEN | 游标/范围/基于标记创建通道 |
+| G10 | 布局 | 缺最大化/Esc 优先级 | UI-08 | MISSING | **P1** | OPEN | 最大化；Esc 先取消创建 |
+| G11 | 交互 | 框选放大/轴隔离/导航保跨度 | UI-13..15 | desktop-axis+box 部分 | **P0** | **PARTIAL** | navigate 框选放大；轴滚轮隔离；导航单击保 span |
+| G12 | 交互 | 右键菜单不完整 | UI-16/23/33 | 简易 context menu | **P0** | **PARTIAL** | 持续创建/历史/fit/reset/重叠列表 |
+| G13 | 交互 | 标记控制点/多选不足 | AnnotationPanel | box→addManualMark | **P0** | **PARTIAL** | 控制点；Ctrl/Shift 多选；列表一致 |
+| G14 | 交互 | 检测 ROI 未分名确认条 | `detectionRoiTool_` | select→ROI+Enter | **P0** | **PARTIAL** | 独立入口+确认条；Enter/Esc |
+| G15 | 交互 | 无视图历史 | UI-17/18 | MISSING | **P1** | OPEN | back/forward；≤40 |
+| G16 | 交互 | 模式轴规则 | UI-09/10 | aux placeholder | **P1** | OPEN | Wave/PSD/STFT/Waterfall 轴正确 |
+| G17 | 功能 | DetectPage ≠ DetectionCard | `detection_card.h` | 精简闸门 | **P0** | OPEN | 字段级对等；仅 `.engine` |
+| G18 | 功能 | 显示/通道占位；摘要语义 | `696ce12` 参考/动态 | 占位文案 | **P1** | OPEN（**加严**） | 显示页填实；摘要含「参考」「动态」 |
+| G19 | 功能 | 工程树操作 | `showAddFileDialog`+`c1f2cce` | API PARTIAL / UI sample | **P1** | **PARTIAL** | 添加 IQ；定位；重命名/删除 |
+| G20 | 功能 | Open IQ 入口 | `SignalImportDialog` | 工具栏+导入流 | **P1** | **PARTIAL** | 菜单入口+元数据预览；默认 demo |
+| G21 | 视觉 | 色板/字号 | BrandV2 | `#0f1419` | **P2** | OPEN | hex/12px/Consolas |
+| G22 | 视觉 | 图内边距 | 88/22/12/34 | 自有 | **P2** | OPEN | inset±2；色阶右70 |
+| G23 | 视觉 | 品牌 lockup | brand corner | 无 | **P2** | OPEN | 顶栏 BrandV2；系统栏 N/A |
+| G24 | 交互 | 相对偏移/单位/-0 | UI-32 | 部分 | **P2** | OPEN | 无 -0；可切换单位 |
+| G25 | 功能 | 状态栏语义 | 25px 就绪+提示 | dsp/fft 挤占；QA 已记 | **P2** | DOCS | 就绪+t/f+文件为主 |
+| G26 | 约束 | IQ/engine 门禁 | CAO | demo-iq-paths + TRT 近闭合 | **P0** | **PARTIAL** | 仅 demo IQ + 树内 `.engine` 可选 |
 
 ---
 
-## 建议修复分波
+## 建议修复分波（更新）
 
 ### Wave P0
-壳重排（G01/G02）→ 三图+splitter（G03–G05）→ DetectionCard（G17）→ 底栏（G07）→ 窄带（G06）→ 框选/右键/ROI（G11/G12/G14）→ **门禁 G26**。
+G01+G02（含 strip 标签分离）→ G03–G05 → G17 → G07 → G06（含跨页保留）→ 补齐 G11–G14 PARTIAL 退出 → **G26 清 `.pth` 可选项**。
 
 ### Wave P1
-G10/G15/G09/G19/G20/G18/G08/G16。
+G10/G15/G09/G19–G20 接线 / **G18 参考·动态** / G08/G16。
 
 ### Wave P2
-G21/G22/G23/G24/G25。
+G21–G25。
 
 ---
 
 ## Acceptance Constraints（强制）
 
 1. **IQ**：仅 `D:\project\signal_studio_rebuild\resources\sigmf_data_demo\`（`0000000.sigmf-data` / `.sigmf-meta` / `.json`）。
-2. **模型**：仅 rebuild 树内 TensorRT `*.engine`。`.pth` / 树外 `.onnx` 不得计入 PASS。
-3. **上游锚点**：功能对等以 `0f108d0` 为准；本地 `696ce12` 仅路径/微调参考。
+2. **模型**：仅 rebuild 树内 TensorRT `*.engine`（例：`out\vs2026-qt611-release_bin\detection-models\ffscn-gui-iq-v1\`、`...\scn-max-psd-v1\`）。`.pth` / 树外 `.onnx` 不得计入 PASS。
+3. **上游锚点**：功能对等以 **`17471a6`** 为准（取代仅 `0f108d0`）。
 
-## 截图路径（共享树只读，未复制）
+## 截图路径（共享树只读）
 
 `D:\project\web_signal_studio\artifacts\validation\ui-parity\baseline\`
 
 ## 结论
 
-Web（`be885f2`）仍为 PROVISIONAL 壳 + 主图 STFT + 精简检测闸门。相对 a143-native，多项 P0 为结构性差距。本轮新增 **G25**（状态栏）与 **G26**（验收门禁）。PASS 细节见 `UI_PARITY_ACCEPTANCE.md`。未改实现代码。
+上游已推进至 **`17471a6`**。桌面增量主要**加严 G02/G06/G18**。Web **`563458a`** 在图表手势与工程/模型门禁上取得 **PARTIAL** 进展，壳层 P0（G01–G07）仍未闭合。未改实现代码。
