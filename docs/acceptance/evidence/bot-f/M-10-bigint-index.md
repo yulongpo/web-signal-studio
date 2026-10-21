@@ -5,6 +5,7 @@
 - branch: `work/bot-f-project-io`
 - base tip (`origin/main` at handoff): `8f09dbca0c97201c70f41645624bed57efb3e50f`
 - HEAD at evidence capture (pre-commit): `8f09dbca0c97201c70f41645624bed57efb3e50f`
+- M-10 commit: `2cdc34ab47805bd40e215ec0b1debb3f32b0ee30`
 - owner: Bot-F (contracts + domain). **QA / Bot-G owns ACCEPTANCE_MATRIX PASS** — this doc does **not** flip M-10 to PASS.
 
 ## Protocol under test

@@ -20,5 +20,7 @@
     "packages/domain/src/sample-range.ts",
     "packages/domain/src/sample-range.test.ts",
     "packages/domain/package.json"
-  ]
+  ],
+  "commit_sha": "2cdc34ab47805bd40e215ec0b1debb3f32b0ee30",
+  "head_after_commit": "2cdc34ab47805bd40e215ec0b1debb3f32b0ee30"
 }
