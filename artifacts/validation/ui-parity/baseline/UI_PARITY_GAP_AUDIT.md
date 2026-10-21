@@ -1,3 +1,13 @@
+> Bot-A `2026-10-22 00:47` Asia/Shanghai: Web tip **`4c28588`** vs desktop `17471a6` — G19 PARTIAL deepened (B `797a5f1` editCell cols 1/4/5/6/7 + JSON/CSV export; G `9e4a79c` evidence wave9/10 only; early-audit before next C/B tip). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4c28588.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`a48481d`) | Now (`4c28588`) | Note |
+|----|---------------------|-------------------|------|
+| **G19** | PARTIAL 加深（editCell/export 残） | **PARTIAL 加深** | `797a5f1` editCell+export MET；AdaptiveValueEdit-in-cell / Evidence / QFileDialog 残 — **未 CLOSED** |
+| **G02** | PARTIAL | **PARTIAL 加深（轻）** | wave11 overflow QLabel MET — **未 CLOSED** |
+| **G08** | PARTIAL | **PARTIAL 加深（轻）** | wave11 shell-wave MET — **未 CLOSED** |
+| **G18** | PARTIAL | **PARTIAL 加深（轻）** | rail scrubber wave11 max MET — **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详 `INCREMENTAL_4c28588.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:40` Asia/Shanghai: Web tip **`a48481d`** vs desktop `17471a6` — G19/G11/G18 PARTIAL deepened (B `daa1125` interactive AnnotationPanel; C `7bfc86c` file-fullRange + margin-map/scrubber; supersedes draft INCREMENTAL_787623d). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_a48481d.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`f9a56b8`) | Now (`a48481d`) | Note |
