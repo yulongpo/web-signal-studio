@@ -64,6 +64,19 @@ export type NarrowbandFreqMode = 'baseband' | 'rf';
 /** G18 PSD mode slot (desktop narrowband 驻留帧谱 / 统计谱). DSP series switch = Bot-D. */
 export type NarrowbandPsdMode = 'frame' | 'statistical';
 
+/** G18 wideband linked cursor (desktop Session::LinkedCursorState). */
+export interface LinkedCursorState {
+  pinned: boolean;
+  /** Source time in seconds (waveform / STFT). */
+  timeSec: number;
+  /** RF/baseband frequency Hz (PSD / STFT). */
+  frequencyHz: number;
+  /** Optional STFT frame index when pin came from main heatmap. */
+  selectedFrame: number | null;
+}
+
+export type LinkedCursorPinSource = 'main' | 'wave' | 'psd';
+
 
 /** G07 bottom panel tab ids (rebuild bottomTabs). */
 export type BottomPanelTab = 'marks' | 'tasks' | 'log';

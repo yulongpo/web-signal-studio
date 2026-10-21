@@ -109,6 +109,10 @@ export interface HeatmapCanvasProps {
   onBoxCommit?: (
     box: { xMin: number; xMax: number; yMin: number; yMax: number } | null,
   ) => void;
+  /** G18 linked / pinned cursor in physical axis units. */
+  linkedCursor?: { xValue: number; yValue: number; pinned?: boolean } | null;
+  /** Click-to-pin on plot (desktop pinAt); too-small box / tiny pan. */
+  onPinCursor?: (state: { xValue: number; yValue: number }) => void;
 }
 
 const MARGIN = HEATMAP_PLOT_MARGIN;
@@ -146,6 +150,8 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     onViewChange,
     onViewCommit,
     onBoxCommit,
+    linkedCursor = null,
+    onPinCursor,
   } = props;
 
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -193,6 +199,8 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
   onViewChangeRef.current = onViewChange;
   const onCursorRef = useRef(onCursor);
   onCursorRef.current = onCursor;
+  const onPinCursorRef = useRef(onPinCursor);
+  onPinCursorRef.current = onPinCursor;
 
   const [cursor, setCursor] = useState<CursorOverlayState>({
     xCss: null,
@@ -488,13 +496,44 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     const cCtx = cursorCanvas.getContext("2d");
     if (cCtx) {
       cCtx.setTransform(glSize.dpr, 0, 0, glSize.dpr, 0, 0);
-      cursorOverlay.draw({
-        ctx: cCtx,
-        width: cssW,
-        height: cssH,
-        margin: MARGIN,
-        state: showCursor ? cursor : { xCss: null, yCss: null },
-      });
+      if (linkedCursor && linkedCursor.pinned !== false) {
+        const px = xAxis.toPixel(linkedCursor.xValue);
+        const py = yAxis.toPixel(linkedCursor.yValue);
+        cursorOverlay.draw({
+          ctx: cCtx,
+          width: cssW,
+          height: cssH,
+          margin: MARGIN,
+          state: {
+            xCss: px,
+            yCss: py,
+            visible: true,
+            labelX: `pin ${linkedCursor.xValue.toPrecision(6)}`,
+            labelY: linkedCursor.yValue.toPrecision(6),
+          },
+          strokeStyle: "rgba(255, 120, 80, 0.95)",
+          labelStyle: "rgba(255, 200, 160, 0.95)",
+          lineDash: [],
+        });
+      } else {
+        cursorOverlay.draw({
+          ctx: cCtx,
+          width: cssW,
+          height: cssH,
+          margin: MARGIN,
+          state: { xCss: null, yCss: null },
+        });
+      }
+      if (showCursor) {
+        cursorOverlay.draw({
+          ctx: cCtx,
+          width: cssW,
+          height: cssH,
+          margin: MARGIN,
+          state: cursor,
+          clear: false,
+        });
+      }
     }
   }, [
     scalar,
@@ -514,6 +553,9 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     height,
     cursor,
     showCursor,
+    linkedCursor?.xValue,
+    linkedCursor?.yValue,
+    linkedCursor?.pinned,
     interactionMode,
     axisOverlay,
     cursorOverlay,
@@ -696,6 +738,14 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       if (tooSmall) {
         setBoxCss(null);
         if (drag.mode === "box") onBoxCommitRef.current?.(null);
+        const zone = hitChartZone(xCss, yCss, rect.width, rect.height, MARGIN);
+        if (zone === "plot" && onPinCursorRef.current) {
+          const { xAxis, yAxis } = readAxes(rect.width, rect.height);
+          onPinCursorRef.current({
+            xValue: xAxis.toValue(xCss),
+            yValue: yAxis.toValue(yCss),
+          });
+        }
         return;
       }
       const { xAxis, yAxis } = readAxes(rect.width, rect.height);
@@ -725,6 +775,16 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       Math.abs(xCss - drag.originX) > 2 ||
       Math.abs(yCss - drag.originY) > 2;
     if (moved) onViewCommitRef.current?.(drag.before);
+    else if (onPinCursorRef.current) {
+      const zone = hitChartZone(xCss, yCss, rect.width, rect.height, MARGIN);
+      if (zone === "plot") {
+        const { xAxis, yAxis } = readAxes(rect.width, rect.height);
+        onPinCursorRef.current({
+          xValue: xAxis.toValue(xCss),
+          yValue: yAxis.toValue(yCss),
+        });
+      }
+    }
   };
 
   const onPointerLeave = () => {
@@ -779,6 +839,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       data-wheel-model={wheelModel}
       data-axis-only-pan={wheelModel === "desktop-axis" ? "true" : "false"}
       data-interaction-cursor={interactionCursor ?? ""}
+      data-linked-cursor-pinned={linkedCursor && linkedCursor.pinned !== false ? "true" : "false"}
       data-box-zoom-min-px={BOX_ZOOM_MIN_EDGE_PX}
       data-box-zoom-min-edge-px={BOX_ZOOM_MIN_EDGE_PX}
       data-view-x-min={view.xDomain.min}

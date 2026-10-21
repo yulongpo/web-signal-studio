@@ -17,6 +17,8 @@ export function AuxChartHost() {
   const kind = useUiStore((s) => s.auxChartKind);
   const win = useUiStore((s) => s.navWindowTime);
   const snap = useUiStore((s) => s.spectrogramDisplay);
+  const linkedCursor = useUiStore((s) => s.linkedCursor);
+  const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
 
   const psdSeries = useMemo(() => {
     if (kind !== 'psd') return null;
@@ -82,6 +84,7 @@ export function AuxChartHost() {
         data-chart-kind={kind}
         data-aux-ready="true"
         data-aux-points={psdSeries.y.length}
+        data-g18-linked-cursor={linkedCursor.pinned ? 'true' : 'false'}
       >
         <WaveformChart
           y={psdSeries.y}
@@ -90,6 +93,19 @@ export function AuxChartHost() {
           height="100%"
           testId="chart-aux"
           windowX={null}
+          linkedX={linkedCursor.pinned ? linkedCursor.frequencyHz : null}
+          onPinX={(frequencyHz) => {
+            const centerTime =
+              snap != null
+                ? (snap.timeSec.min + snap.timeSec.max) / 2
+                : (win.min + win.max) / 2;
+            pinLinkedCursor({
+              source: 'psd',
+              frequencyHz,
+              centerTimeSec: centerTime,
+              centerFrequencyHz: (psdSeries.xDomain.min + psdSeries.xDomain.max) / 2,
+            });
+          }}
         />
       </div>
     );
@@ -151,6 +167,7 @@ export function AuxChartHost() {
       data-aux-points={waveSeries.y.length}
       data-aux-wave-source="sigmf_data_demo"
       data-aux-wave-label={waveSeries.sourceLabel}
+      data-g18-linked-cursor={linkedCursor.pinned ? 'true' : 'false'}
       title={`Aux Wave: raw IQ IqRms · ${waveSeries.sourceLabel}`}
     >
       <WaveformChart
@@ -160,6 +177,18 @@ export function AuxChartHost() {
         height="100%"
         testId="chart-aux"
         windowX={null}
+        linkedX={linkedCursor.pinned ? linkedCursor.timeSec : null}
+        onPinX={(timeSec) => {
+          const centerFreq =
+            snap != null ? (snap.freqHz.min + snap.freqHz.max) / 2 : 0;
+          pinLinkedCursor({
+            source: 'wave',
+            timeSec,
+            centerTimeSec: (waveSeries.xDomain.min + waveSeries.xDomain.max) / 2,
+            centerFrequencyHz: centerFreq,
+            selectedFrame: null,
+          });
+        }}
       />
     </div>
   );

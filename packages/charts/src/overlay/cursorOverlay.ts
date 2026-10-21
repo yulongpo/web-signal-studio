@@ -16,6 +16,10 @@ export interface CursorOverlayDrawInput {
   state: CursorOverlayState;
   strokeStyle?: string;
   labelStyle?: string;
+  /** Default [4,3]; pass [] for solid pinned cursor. */
+  lineDash?: number[];
+  /** Default true; set false to layer over a prior draw. */
+  clear?: boolean;
 }
 
 /**
@@ -32,9 +36,11 @@ export class CursorOverlay {
       state,
       strokeStyle = "rgba(255,220,120,0.9)",
       labelStyle = "rgba(255,240,200,0.95)",
+      lineDash = [4, 3],
+      clear = true,
     } = input;
 
-    ctx.clearRect(0, 0, width, height);
+    if (clear) ctx.clearRect(0, 0, width, height);
     if (state.visible === false) return;
     if (state.xCss == null || state.yCss == null) return;
 
@@ -48,7 +54,7 @@ export class CursorOverlay {
     ctx.save();
     ctx.strokeStyle = strokeStyle;
     ctx.lineWidth = 1;
-    ctx.setLineDash([4, 3]);
+    ctx.setLineDash(lineDash);
     ctx.beginPath();
     ctx.moveTo(x, plotT);
     ctx.lineTo(x, plotB);

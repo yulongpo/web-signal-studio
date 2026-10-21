@@ -1,32 +1,37 @@
-# Bot-C G18 UI->store narrowbandPsdMode STATUS (WIP - do not self-claim PASS)
+# Bot-C short tip — G18 multi-chart linked-cursor (no PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-22 00:11 |
-| Base tip | aeacc5f |
+| Asia/Shanghai | 2026-10-22 01:08 |
+| Base tip | 69c4efe |
 | Branch | work/bot-c-charts |
-| Scope | **G18** UI->store proof + STATUS; Charts->DDC already on main via Bot-D `08b424e` |
-| Out of scope | Overlay repair (Bot-B `85dab15`); new DSP; pinned dwell |
-| Desktop ref | 17471a6 narrowband_workspace / contextFramePsd |
-| Self-check | ChartMarkOverlay backticks=10 (matches 85dab15); no overlay commit |
+| Desktop ref | 17471a6 LinkedCursorState / pinAt / updateLinkedCursors |
+| Self-check | ChartMarkOverlay backticks preserved; HeatmapCanvas backticks not reduced |
 
-## Landed (honest)
+## Landed
 
-| ID | Landed | Known gap / note |
-|----|--------|------------------|
-| G18 UI->store | `nb-select-psd-mode` -> `setNarrowbandPsdMode` / `narrowbandPsdMode`; RightRail `data-psd-mode` | Unit proves setter updates store |
-| G18 store->DDC | On main via Bot-D `08b424e` / merge `aeacc5f` (`psdMode` kwarg in ObserveCharts) | C does not re-touch call site |
-| G18 DSP series | Bot-D | Pinned dwell / contextFramePsd residual remains D |
-| G11 Overlay | Bot-B restored templates on `85dab15` | C self-check only; no overlay commit |
+| ID | Landed | Note |
+|----|--------|------|
+| G18 linkedCursor store | pin/clear + dim-merge | desktop Session contract |
+| G18 Main↔Aux sync | HeatmapCanvas pin + WaveformChart linkedX | data-g18-linked-cursor |
+| G18 clear menu | chart-menu-clear-linked-cursor | Main context menu |
+
+## Owner split
+
+| Item | Owner |
+|------|-------|
+| Charts linked-cursor / domain pin | **Bot-C** (this tip) |
+| Right-rail rail-dwell-scrubber twin | **Bot-B** (untouched) |
+| nb-stft-dwell-scrubber embed | Bot-C prior tips |
 
 ## Evidence
-- apps/web/src/components/NarrowbandWorkspace.tsx (`nb-select-psd-mode`)
-- apps/web/src/store/uiStore.ts (`narrowbandPsdMode`)
-- apps/web/src/store/uiStore.narrowbandPsdMode.test.ts
-- artifacts/validation/ui-parity/bot-c/G18-PSD-MODE-HANDOFF.md
-- artifacts/validation/ui-parity/bot-c/STATUS.md (+ docs dual-write)
 
-## Tests
-- web unit: uiStore.narrowbandPsdMode (2 cases)
+- apps/web/src/store/uiStore.ts (+ linkedCursor.test.ts)
+- packages/charts/src/react/HeatmapCanvas.tsx
+- packages/charts/src/react/WaveformChart.tsx
+- packages/charts/src/overlay/cursorOverlay.ts
+- apps/web/src/components/MainChartHost.tsx
+- apps/web/src/components/AuxChartHost.tsx
+- artifacts/validation/ui-parity/bot-c/G18-LINKED-CURSOR-HANDOFF.md
 
-**No self-PASS.**
+**matrix_pass_claimed: false. No PASS.**

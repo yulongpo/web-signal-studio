@@ -111,6 +111,9 @@ export function MainChartHost() {
   const paletteId = useUiStore((s) => s.paletteId);
   const level = useUiStore((s) => s.level);
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
+  const linkedCursor = useUiStore((s) => s.linkedCursor);
+  const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
+  const clearLinkedCursor = useUiStore((s) => s.clearLinkedCursor);
   const setDspSourceStore = useUiStore((s) => s.setDspSource);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
@@ -413,6 +416,7 @@ export function MainChartHost() {
       data-fft-requested={fftActive?.requested ?? 'js'}
       data-fft-fallback={fftActive?.fellBackToJs ? 'true' : 'false'}
       data-chart-gesture={gesture}
+      data-g18-linked-cursor={linkedCursor.pinned ? 'true' : 'false'}
       data-active-tool={activeTool}
       data-continuous-create={activeTool === 'marker' ? 'true' : 'false'}
       onContextMenu={(e) => {
@@ -491,6 +495,46 @@ export function MainChartHost() {
               ? (yValue / 1e6).toFixed(3) + ' MHz'
               : (xValue / 1e6).toFixed(3) + ' MHz';
           setStatusCursor(timeLabel, freqLabel);
+        }}
+        linkedCursor={
+          linkedCursor.pinned
+            ? chartMode === 'stft'
+              ? {
+                  xValue: linkedCursor.timeSec,
+                  yValue: linkedCursor.frequencyHz,
+                  pinned: true,
+                }
+              : {
+                  xValue: linkedCursor.frequencyHz,
+                  yValue: linkedCursor.timeSec,
+                  pinned: true,
+                }
+            : null
+        }
+        onPinCursor={({ xValue, yValue }) => {
+          if (activeTool !== 'navigate' && activeTool !== 'zoom') return;
+          const tSec = chartMode === 'stft' ? xValue : yValue;
+          const fHz = chartMode === 'stft' ? yValue : xValue;
+          const t0 = timeSec.min;
+          const t1 = timeSec.max;
+          const frame =
+            frameCount > 1
+              ? Math.max(
+                  0,
+                  Math.min(
+                    frameCount - 1,
+                    Math.round(((tSec - t0) / Math.max(1e-15, t1 - t0)) * (frameCount - 1)),
+                  ),
+                )
+              : 0;
+          pinLinkedCursor({
+            source: 'main',
+            timeSec: tSec,
+            frequencyHz: fHz,
+            selectedFrame: frame,
+            centerTimeSec: (t0 + t1) / 2,
+            centerFrequencyHz: (freqHz.min + freqHz.max) / 2,
+          });
         }}
       />
       <ChartMarkOverlay
@@ -647,6 +691,18 @@ export function MainChartHost() {
             }}
           >
             重置视图
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="chart-menu-clear-linked-cursor"
+            disabled={!linkedCursor.pinned}
+            onClick={() => {
+              clearLinkedCursor();
+              setMenu(null);
+            }}
+          >
+            清除驻留游标
           </button>
           {menu.hits.map((hit) => (
             <button

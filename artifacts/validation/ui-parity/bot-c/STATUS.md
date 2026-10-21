@@ -1,35 +1,37 @@
-﻿# Bot-C short tip — G11 sourceKind colors + annotation hover sync (no PASS)
+# Bot-C short tip — G18 multi-chart linked-cursor (no PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-22 00:55 |
-| Base tip | 6ada5b0 |
+| Asia/Shanghai | 2026-10-22 01:08 |
+| Base tip | 69c4efe |
 | Branch | work/bot-c-charts |
-| Desktop ref | 17471a6 PlotWidget sourceColor + setHoveredMark / AnnotationPanel ForegroundRole+hover |
-| Self-check | ChartMarkOverlay backticks preserved (=16) |
+| Desktop ref | 17471a6 LinkedCursorState / pinAt / updateLinkedCursors |
+| Self-check | ChartMarkOverlay backticks preserved; HeatmapCanvas backticks not reduced |
 
 ## Landed
 
 | ID | Landed | Note |
 |----|--------|------|
-| G11 sourceKind stroke/fill | ImportedLabel #65d2bd / Manual #edc56d / Algorithm #51c4e9 | data-source-kind + CSS; data-g11-source-kind |
-| G11 annotation/table hover sync | setHoveredMark on M06 session (ephemeral) | chart overlay <-> BottomPanel + M06MarksPanel; data-g11-hover-sync |
-| Table sourceKind foreground | row color by sourceKind | desktop AnnotationPanel ForegroundRole |
+| G18 linkedCursor store | pin/clear + dim-merge | desktop Session contract |
+| G18 Main↔Aux sync | HeatmapCanvas pin + WaveformChart linkedX | data-g18-linked-cursor |
+| G18 clear menu | chart-menu-clear-linked-cursor | Main context menu |
 
-## Honest gaps / handoff
+## Owner split
 
-| Gap | Owner |
-|-----|-------|
-| G18 multi-chart linked-cursor / right-rail scrubber twin polish | **Bot-B** chrome (rail twin wave10/11 done); charts-owned multi-view sync still OPEN — deferred this tip |
-| G06 / G17 | not in scope (CAO) |
+| Item | Owner |
+|------|-------|
+| Charts linked-cursor / domain pin | **Bot-C** (this tip) |
+| Right-rail rail-dwell-scrubber twin | **Bot-B** (untouched) |
+| nb-stft-dwell-scrubber embed | Bot-C prior tips |
 
 ## Evidence
-- apps/web/src/components/ChartMarkOverlay.tsx
-- apps/web/src/components/BottomPanel.tsx
-- apps/web/src/components/M06MarksPanel.tsx
-- apps/web/src/App.css
-- packages/project-io/src/m06-mark-session.ts
-- packages/project-io/src/m06-e2e-hook.ts
-- artifacts/validation/ui-parity/bot-c/STATUS.md
+
+- apps/web/src/store/uiStore.ts (+ linkedCursor.test.ts)
+- packages/charts/src/react/HeatmapCanvas.tsx
+- packages/charts/src/react/WaveformChart.tsx
+- packages/charts/src/overlay/cursorOverlay.ts
+- apps/web/src/components/MainChartHost.tsx
+- apps/web/src/components/AuxChartHost.tsx
+- artifacts/validation/ui-parity/bot-c/G18-LINKED-CURSOR-HANDOFF.md
 
 **matrix_pass_claimed: false. No PASS.**

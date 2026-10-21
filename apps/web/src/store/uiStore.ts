@@ -25,6 +25,8 @@ import type {
   NarrowbandPageId,
   NarrowbandWaveformMode,
   NarrowbandPsdMode,
+  LinkedCursorState,
+  LinkedCursorPinSource,
   NarrowbandFreqMode,
   BottomPanelTab,
   NarrowbandModulationType,
@@ -101,6 +103,8 @@ export interface UiState {
   levelDraft: LevelSettings | null;
   displayDraft: DisplaySettings | null;
   statusCursor: { timeLabel: string; freqLabel: string };
+  /** G18 multi-chart linked cursor (Main/Aux sync; not rail scrubber). */
+  linkedCursor: LinkedCursorState;
   statusFileLabel: string;
   statusChannelLabel: string;
   projectHasSample: boolean;
@@ -231,6 +235,16 @@ export interface UiState {
   revertLevelDraft: () => void;
   revertDisplayDraft: () => void;
   setStatusCursor: (timeLabel: string, freqLabel: string) => void;
+  pinLinkedCursor: (opts: {
+    source: LinkedCursorPinSource;
+    timeSec?: number;
+    frequencyHz?: number;
+    selectedFrame?: number | null;
+    /** View centers used when a dim is omitted (desktop 17471a6). */
+    centerTimeSec?: number;
+    centerFrequencyHz?: number;
+  }) => void;
+  clearLinkedCursor: () => void;
   loadSampleProject: () => void;
   clearProject: () => void;
   openProjectFromText: (text: string) => { ok: true } | { ok: false; error: string };
@@ -314,6 +328,12 @@ export const useUiStore = create<UiState>((set, get) => ({
   levelDraft: null,
   displayDraft: null,
   statusCursor: { timeLabel: '—', freqLabel: '—' },
+  linkedCursor: {
+    pinned: false,
+    timeSec: 0,
+    frequencyHz: 0,
+    selectedFrame: null,
+  },
   statusFileLabel: 'No file',
   statusChannelLabel: '—',
   projectHasSample: false,
@@ -536,6 +556,52 @@ export const useUiStore = create<UiState>((set, get) => ({
 
   setStatusCursor: (timeLabel, freqLabel) =>
     set({ statusCursor: { timeLabel, freqLabel } }),
+  pinLinkedCursor: (opts) =>
+    set((st) => {
+      const prev = st.linkedCursor;
+      const timeSec =
+        opts.timeSec != null && Number.isFinite(opts.timeSec)
+          ? opts.timeSec
+          : prev.pinned
+            ? prev.timeSec
+            : opts.centerTimeSec != null && Number.isFinite(opts.centerTimeSec)
+              ? opts.centerTimeSec
+              : prev.timeSec;
+      const frequencyHz =
+        opts.frequencyHz != null && Number.isFinite(opts.frequencyHz)
+          ? opts.frequencyHz
+          : prev.pinned
+            ? prev.frequencyHz
+            : opts.centerFrequencyHz != null && Number.isFinite(opts.centerFrequencyHz)
+              ? opts.centerFrequencyHz
+              : prev.frequencyHz;
+      const selectFrame = opts.source === 'main' || opts.source === 'wave';
+      const selectedFrame =
+        opts.selectedFrame !== undefined
+          ? opts.selectedFrame == null || !Number.isFinite(opts.selectedFrame)
+            ? null
+            : Math.max(0, Math.floor(opts.selectedFrame))
+          : selectFrame
+            ? prev.selectedFrame
+            : prev.selectedFrame;
+      return {
+        linkedCursor: {
+          pinned: true,
+          timeSec,
+          frequencyHz,
+          selectedFrame,
+        },
+      };
+    }),
+  clearLinkedCursor: () =>
+    set({
+      linkedCursor: {
+        pinned: false,
+        timeSec: 0,
+        frequencyHz: 0,
+        selectedFrame: null,
+      },
+    }),
 
   loadSampleProject: () =>
     set({

@@ -23,6 +23,10 @@ export interface WaveformChartProps {
   /** Optional linked window highlight in xDomain units. */
   windowX?: { min: number; max: number } | null;
   stroke?: string;
+  /** G18 linked cursor X in xDomain units (time for wave, freq for PSD). */
+  linkedX?: number | null;
+  /** Click-to-pin on plot (desktop aux pinAt). */
+  onPinX?: (xValue: number) => void;
 }
 
 const MARGIN = { left: 52, right: 12, top: 10, bottom: 28 };
@@ -43,6 +47,8 @@ export function WaveformChart(props: WaveformChartProps) {
     testId = "waveform-chart",
     windowX = null,
     stroke = kind === "psd" ? "#7dd3fc" : "#86efac",
+    linkedX = null,
+    onPinX,
   } = props;
 
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -129,6 +135,18 @@ export function WaveformChart(props: WaveformChartProps) {
       }
 
       const n = y.length;
+      if (linkedX != null && Number.isFinite(linkedX)) {
+        const lx = xAxis.toPixel(linkedX);
+        ctx.save();
+        ctx.strokeStyle = "rgba(255, 120, 80, 0.95)";
+        ctx.lineWidth = 1.25;
+        ctx.beginPath();
+        ctx.moveTo(lx, plotT);
+        ctx.lineTo(lx, plotB);
+        ctx.stroke();
+        ctx.restore();
+      }
+
       if (n > 1) {
         ctx.beginPath();
         ctx.strokeStyle = stroke;
@@ -166,7 +184,7 @@ export function WaveformChart(props: WaveformChartProps) {
       ro?.disconnect();
       window.removeEventListener("resize", draw);
     };
-  }, [y, xDomain.min, xDomain.max, yDomain.min, yDomain.max, height, kind, stroke, windowX?.min, windowX?.max, axisOverlay]);
+  }, [y, xDomain.min, xDomain.max, yDomain.min, yDomain.max, height, kind, stroke, windowX?.min, windowX?.max, linkedX, axisOverlay]);
 
   return (
     <div
@@ -174,6 +192,8 @@ export function WaveformChart(props: WaveformChartProps) {
       className={className}
       data-testid={testId}
       data-chart-kind={kind}
+      data-linked-x={linkedX == null ? "" : String(linkedX)}
+      data-linked-cursor-pinned={linkedX == null ? "false" : "true"}
       style={{
         position: "relative",
         width: "100%",
@@ -183,7 +203,23 @@ export function WaveformChart(props: WaveformChartProps) {
         ...style,
       }}
     >
-      <canvas ref={canvasRef} style={{ width: "100%", height: "100%" }} />
+      <canvas
+        ref={canvasRef}
+        style={{ width: "100%", height: "100%" }}
+        onPointerUp={(ev) => {
+          if (!onPinX || ev.button !== 0) return;
+          const wrap = wrapRef.current;
+          if (!wrap) return;
+          const rect = wrap.getBoundingClientRect();
+          const xCss = ev.clientX - rect.left;
+          const plotL = MARGIN.left;
+          const plotR = rect.width - MARGIN.right;
+          if (xCss < plotL || xCss > plotR) return;
+          const t = (xCss - plotL) / Math.max(1e-9, plotR - plotL);
+          const xValue = xDomain.min + t * (xDomain.max - xDomain.min);
+          onPinX(xValue);
+        }}
+      />
     </div>
   );
 }
