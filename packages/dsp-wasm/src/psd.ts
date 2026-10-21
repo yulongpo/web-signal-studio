@@ -4,6 +4,9 @@ import { fftRadix2, isPowerOfTwo, binFrequencyHz } from './fft.js';
 import type { PsdEngine } from './interfaces.js';
 import { makeWindow, windowPowerSum } from './windows.js';
 
+/** In-place radix-2 FFT (same contract as {@link fftRadix2}). */
+export type FftRadix2Fn = (interleaved: Float64Array, inverse?: boolean) => void;
+
 function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) {
     const err = new Error('PSD aborted');
@@ -30,7 +33,11 @@ export class ReferencePsdEngine implements PsdEngine {
   }
 }
 
-export async function computePsd(request: PsdRequest, iqInterleaved: Float32Array): Promise<PsdResult> {
+export async function computePsd(
+  request: PsdRequest,
+  iqInterleaved: Float32Array,
+  fft: FftRadix2Fn = fftRadix2,
+): Promise<PsdResult> {
   const { fftSize, window, overlap, sampleRateHz } = request;
   throwIfAborted(request.signal);
   if (!isPowerOfTwo(fftSize)) {
@@ -75,7 +82,7 @@ export async function computePsd(request: PsdRequest, iqInterleaved: Float32Arra
       frame[n * 2] = iqInterleaved[src]! * w;
       frame[n * 2 + 1] = iqInterleaved[src + 1]! * w;
     }
-    fftRadix2(frame, false);
+    fft(frame, false);
     for (let k = 0; k < fftSize; k++) {
       const re = frame[k * 2]!;
       const im = frame[k * 2 + 1]!;
@@ -94,7 +101,7 @@ export async function computePsd(request: PsdRequest, iqInterleaved: Float32Arra
       frame[n * 2] = iqInterleaved[src]! * w;
       frame[n * 2 + 1] = iqInterleaved[src + 1]! * w;
     }
-    fftRadix2(frame, false);
+    fft(frame, false);
     for (let k = 0; k < fftSize; k++) {
       const re = frame[k * 2]!;
       const im = frame[k * 2 + 1]!;
