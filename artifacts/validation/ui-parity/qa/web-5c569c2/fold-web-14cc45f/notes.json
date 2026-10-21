@@ -1,0 +1,73 @@
+{
+  "id": "qa-web-14cc45f-esc-clear-nb-multi-wave17",
+  "tip_web_evidence": "14cc45fdab0675c44750da2d724c8e9436fc33bf",
+  "tip_impl_c_esc": "ae63355",
+  "tip_impl_b_wave17": "becd1e4",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-g18-esc-clear-pinned.png",
+    "01b-g18-esc-clear-after-escape.png",
+    "01c-g18-menu-clear-linked-cursor.png",
+    "02-nb-workspace.png",
+    "02b-nb-stft-pin-host-crop.png",
+    "02c-nb-pinned-dwell.png",
+    "02d-nb-esc-cleared-pin.png",
+    "03-wave17-g08-shell-keyboard.png",
+    "03b-wave17-rail-linked-twin.png",
+    "03c-wave17-g07-feed-fields.png",
+    "fold-web-c9ed974/* (16 files)"
+  ],
+  "docs": [
+    "G18-ESC-CLEAR-HANDOFF.md",
+    "G18-LINKED-CURSOR-HANDOFF.md",
+    "BOT_B_WAVE17_G08_G07_RAIL_TWIN.md"
+  ],
+  "observations": {
+    "esc_clear": {
+      "shell_attr": "true",
+      "cleared": true,
+      "store_after": {
+        "pinned": false,
+        "timeSec": 0,
+        "frequencyHz": 0,
+        "selectedFrame": null
+      },
+      "menu_clear_ok": true
+    },
+    "nb_multi": {
+      "workspace": true,
+      "pin_host": true,
+      "dwell_scrubber": "true",
+      "multi_view_nodes": 1,
+      "multi_view_attr": "true",
+      "linked_cursor_attr": "true",
+      "pinned_label": "帧 2",
+      "after_esc": {
+        "pin": null,
+        "mode": "statistical"
+      }
+    },
+    "wave17_g08": {
+      "shell_wave": "wave9 wave11 wave14 wave17",
+      "shell_keyboard": "wave17",
+      "has_wave17": true,
+      "arrow_changed": true,
+      "before": "278",
+      "after": "270"
+    },
+    "wave17_rail": {
+      "twin": "wave17",
+      "readout": "联动光标 · t=0.300000s · f=8.000000 MHz · frame #4"
+    },
+    "wave17_g07": {
+      "worker_chrome": "wave17",
+      "feed_empty": "true",
+      "created": true,
+      "updated": true,
+      "ui_messages": true
+    }
+  },
+  "gaps": []
+}
