@@ -123,7 +123,10 @@ function toStftRequest(params: StftParamsWire, signal: AbortSignal): StftRequest
     sampleRateHz: params.sampleRateHz,
     method: params.method,
     segmentMilliseconds: params.segmentMilliseconds,
+    bandwidthHz: params.bandwidthHz,
+    analysisPoints: params.analysisPoints,
     kaiserBeta: params.kaiserBeta,
+    removeMean: params.removeMean,
     signal,
   };
 }

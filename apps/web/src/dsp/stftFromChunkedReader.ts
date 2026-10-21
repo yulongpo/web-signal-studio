@@ -27,6 +27,10 @@ export interface StftFromChunkedReaderOptions {
   window?: SpectralWindowName;
   method?: StftSupportedMethod;
   kaiserBeta?: number;
+  removeMean?: boolean;
+  segmentMilliseconds?: number;
+  bandwidthHz?: number;
+  analysisPoints?: number;
   maxBytes?: number;
   signal?: AbortSignal;
   /**
@@ -70,6 +74,7 @@ export async function stftFromChunkedReader(
     window = 'hann',
     method = 'welch' as StftSupportedMethod,
     kaiserBeta = DEFAULT_KAISER_BETA,
+    removeMean = false,
     maxBytes = DEFAULT_CHUNK_BYTES,
   } = options;
 
@@ -117,7 +122,8 @@ export async function stftFromChunkedReader(
     }
   }
 
-  const segmentMilliseconds = segmentMillisecondsFromFft(fftSize, sampleRateHz);
+  const segmentMilliseconds =
+    options.segmentMilliseconds ?? segmentMillisecondsFromFft(fftSize, sampleRateHz);
   const stft = await client.analyzeStft(
     {
       begin,
@@ -128,7 +134,10 @@ export async function stftFromChunkedReader(
       sampleRateHz,
       method,
       segmentMilliseconds,
+      bandwidthHz: options.bandwidthHz,
+      analysisPoints: options.analysisPoints,
       kaiserBeta: window === 'kaiser' ? kaiserBeta : undefined,
+      removeMean: removeMean === true,
     },
     iq,
     signal,

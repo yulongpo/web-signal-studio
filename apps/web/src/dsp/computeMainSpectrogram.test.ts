@@ -53,6 +53,8 @@ describe('computeMainSpectrogram', () => {
     expect(result.segmentMilliseconds).toBeCloseTo((256 / 1_000_000) * 1000, 12);
     expect(result.spectrumStatistic).toBeNull();
     expect(result.kaiserBeta).toBeNull();
+    expect(result.removeMean).toBe(false);
+    expect(result.autoNb).toBe(false);
 
     let max = 0;
     for (let i = 0; i < result.power.length; i++) {

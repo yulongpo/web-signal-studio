@@ -180,6 +180,15 @@ export interface UiState {
   dspSpectrumStatistic: SpectrumStatisticName | null;
   /** Kaiser β when window is kaiser; else null. */
   dspKaiserBeta: number | null;
+  /**
+   * Desktop removeMean applied on last STFT. null until settle / demo-fallback.
+   */
+  dspRemoveMean: boolean | null;
+  /**
+   * True when last STFT used desktop auto N/B (segmentMilliseconds===0 + resolve).
+   * false when explicit fftSize path; null until settle.
+   */
+  dspAutoNb: boolean | null;
 
   /** G06 narrowband page + display settings (persist across page/overflow). */
   narrowbandPage: NarrowbandPageId;
@@ -326,6 +335,8 @@ export interface UiState {
       /** null = NA (STFT has no SpectrumStatistic on desktop). */
       spectrumStatistic: SpectrumStatisticName | null;
       kaiserBeta: number | null;
+      removeMean?: boolean;
+      autoNb?: boolean;
     } | null,
   ) => void;
 }
@@ -425,6 +436,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   dspSegmentMs: null,
   dspSpectrumStatistic: null,
   dspKaiserBeta: null,
+  dspRemoveMean: null,
+  dspAutoNb: null,
 
   setActiveTool: (tool) => set({ activeTool: tool }),
   setRightPage: (page) => set({ rightPage: page }),
@@ -820,6 +833,8 @@ export const useUiStore = create<UiState>((set, get) => ({
         dspSegmentMs: null,
         dspSpectrumStatistic: null,
         dspKaiserBeta: null,
+        dspRemoveMean: null,
+        dspAutoNb: null,
       });
       return;
     }
@@ -842,6 +857,8 @@ export const useUiStore = create<UiState>((set, get) => ({
       dspSegmentMs: segmentMs,
       dspSpectrumStatistic: params.spectrumStatistic,
       dspKaiserBeta: kaiserBeta,
+      dspRemoveMean: params.removeMean === true,
+      dspAutoNb: params.autoNb === true,
     });
   },
 }));

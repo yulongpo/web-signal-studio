@@ -216,6 +216,8 @@ export function MainChartHost() {
           segmentMs: result.segmentMilliseconds,
           spectrumStatistic: result.spectrumStatistic,
           kaiserBeta: result.kaiserBeta,
+          removeMean: result.removeMean,
+          autoNb: result.autoNb,
         });
         setIqFormat(session.format);
         setStatusFileLabel(session.fileName);
@@ -245,6 +247,8 @@ export function MainChartHost() {
         segmentMs: result.segmentMilliseconds,
         spectrumStatistic: result.spectrumStatistic,
         kaiserBeta: result.kaiserBeta,
+        removeMean: result.removeMean,
+        autoNb: result.autoNb,
       });
       setIqFormat(null);
       setStatusFileLabel('No file (synthetic fixture)');

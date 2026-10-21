@@ -171,7 +171,10 @@ export class DspWorkerClient {
         sampleRateHz: request.sampleRateHz,
         method: request.method,
         segmentMilliseconds: request.segmentMilliseconds,
+        bandwidthHz: request.bandwidthHz,
+        analysisPoints: request.analysisPoints,
         kaiserBeta: request.kaiserBeta,
+        removeMean: request.removeMean,
       },
       iqBuffer: buffer,
     };

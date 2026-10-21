@@ -4,6 +4,8 @@ import {
   isStftSupportedMethod,
   DEFAULT_KAISER_BETA,
   segmentMillisecondsFromFft,
+  resolveAnalysisSamples,
+  webFftSizeFromAnalysisSamples,
 } from '@wss/contracts';
 import { fftRadix2, isPowerOfTwo, binFrequencyHz } from './fft.js';
 import type { StftEngine } from './interfaces.js';
@@ -43,13 +45,38 @@ export async function computeStft(
   iqInterleaved: Float32Array,
   fft: FftRadix2Fn = fftRadix2,
 ): Promise<StftResult> {
-  const { fftSize, hopSize, window, sampleRateHz } = request;
   throwIfAborted(request.signal);
   if (!isStftSupportedMethod(request.method)) {
     throw new RangeError(
       `STFT method '${String(request.method)}' is BLOCKED on web (only 'welch' is implemented)`,
     );
   }
+
+  let { fftSize, hopSize, window, sampleRateHz } = request;
+
+  // Desktop auto N/B: segmentMilliseconds === 0
+  const segmentMs = request.segmentMilliseconds;
+  let autoNb = false;
+  if (segmentMs === 0) {
+    if (
+      request.bandwidthHz == null ||
+      !(request.bandwidthHz > 0) ||
+      request.analysisPoints == null
+    ) {
+      throw new RangeError(
+        'STFT auto N/B (segmentMilliseconds===0) requires bandwidthHz and analysisPoints — no silent fake auto',
+      );
+    }
+    const plan = resolveAnalysisSamples({
+      sampleRateHz,
+      bandwidthHz: request.bandwidthHz,
+      points: request.analysisPoints,
+      segmentMilliseconds: 0,
+    });
+    fftSize = webFftSizeFromAnalysisSamples(plan.analysisSamples);
+    autoNb = true;
+  }
+
   if (!isPowerOfTwo(fftSize)) {
     throw new RangeError(`STFT fftSize must be power of two, got ${fftSize}`);
   }
@@ -77,8 +104,13 @@ export async function computeStft(
     request.kaiserBeta != null && Number.isFinite(request.kaiserBeta)
       ? request.kaiserBeta
       : DEFAULT_KAISER_BETA;
-  // segmentMilliseconds is contract/publish metadata; framing uses fftSize samples.
-  void (request.segmentMilliseconds ?? segmentMillisecondsFromFft(fftSize, sampleRateHz));
+  // Publish metadata: explicit ms, or derived; auto path keeps 0 as the request value.
+  if (segmentMs == null) {
+    void segmentMillisecondsFromFft(fftSize, sampleRateHz);
+  }
+  void autoNb;
+
+  const removeMean = request.removeMean === true;
   const win = makeWindow(window, fftSize, kaiserBeta);
   const wPow = windowPowerSum(win);
   const scale = 1 / (wPow * sampleRateHz);
@@ -102,11 +134,26 @@ export async function computeStft(
     const start = frameStarts[f]!;
     const frame = new Float64Array(fftSize * 2);
     const use = Math.min(fftSize, nSamples - start);
+
+    let meanI = 0;
+    let meanQ = 0;
+    if (removeMean && use > 0) {
+      for (let n = 0; n < use; n++) {
+        const src = (start + n) * 2;
+        meanI += iqInterleaved[src]!;
+        meanQ += iqInterleaved[src + 1]!;
+      }
+      meanI /= use;
+      meanQ /= use;
+    }
+
     for (let n = 0; n < use; n++) {
       const src = (start + n) * 2;
       const w = win[n]!;
-      frame[n * 2] = iqInterleaved[src]! * w;
-      frame[n * 2 + 1] = iqInterleaved[src + 1]! * w;
+      const i = iqInterleaved[src]! - meanI;
+      const q = iqInterleaved[src + 1]! - meanQ;
+      frame[n * 2] = i * w;
+      frame[n * 2 + 1] = q * w;
     }
     fft(frame, false);
     const row = f * binCount;
