@@ -2,23 +2,20 @@
 
 | Field | Value |
 |-------|-------|
-| Base | 98d858d |
+| Base | aeacc5f |
 | matrix_pass_claimed | **false** |
-| Desktop | 17471a6 `narrowband_workspace` / `plot_widget` contextFramePsd |
+| Desktop | 17471a6 `narrowband_workspace` / contextFramePsd |
 
 ## Decision
 
 | Line | Owner | Status |
 |------|-------|--------|
-| Mode label in display-summary | **Bot-C** | Landed this tip (`narrowbandPsdMode`) |
-| Mode select in NB toolbar | **Bot-C** | Landed (`nb-select-psd-mode`) |
-| Frame / statistical PSD **curve data** | **Bot-D** | Not started ? observe charts still one PSD path |
-| Pinned STFT-frame dwell PSD | **Bot-D** (+ charts paint when series exists) | Desktop needs pinned cursor |
+| Mode select UI->store | **Bot-C** | MET (`nb-select-psd-mode` -> `narrowbandPsdMode`) |
+| Mode label display-summary | **Bot-C** | MET (`data-psd-mode`) |
+| Charts pass mode into DDC | **Bot-D** | MET on main (`08b424e` / `aeacc5f`) |
+| Frame / statistical series | **Bot-D** | MET series API; C consumes |
+| Pinned dwell contextFramePsd | **Bot-D** | Residual |
 
-## Ask Bot-D
-
-1. Expose PSD series for `frame` (dwell / pinned STFT frame bins) vs `statistical` (independent PSD N).
-2. Honor `uiStore.narrowbandPsdMode` (or shared contract) when computing narrowband observe PSD.
-3. Until then, UI slot shows honest labels but series is unchanged.
+Field name contract: `uiStore.narrowbandPsdMode` (`frame` | `statistical`) ? confirmed with Bot-D.
 
 **No PASS.**
