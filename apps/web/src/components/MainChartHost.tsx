@@ -1,10 +1,13 @@
 /**
  * PROVISIONAL - Bot-B main chart host + Bot-D real STFT path.
  * Embeds @wss/charts SpectrumChart (HeatmapCanvas + AxisOverlay + CursorOverlay).
- * Default power comes from synthetic two-tone IQ → DspWorkerClient STFT (labeled fixture).
- * Demo synthPower remains only as loading/fallback — never claimed as real capture.
+ *
+ * Power sources (parallel, explicit labels):
+ * - Opened IQ WAV via FSA / file input → stftFromChunkedReader (file-stft-worker / fsa-wav-stft)
+ * - No file / open failed / FSA unsupported → synthetic two-tone fixture (synthetic-stft-worker)
+ * - Worker failure → demo synthPower fallback (never claimed as capture)
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { SpectrumChart } from '@wss/charts/SpectrumChart';
 import type { ColormapName } from '@wss/charts/lut/colormaps';
 import { useUiStore } from '../store/uiStore';
@@ -13,6 +16,12 @@ import {
   computeMainSpectrogram,
   type MainSpectrogramResult,
 } from '../dsp/computeMainSpectrogram';
+import { computeFileSpectrogram } from '../dsp/computeFileSpectrogram';
+import {
+  getIqFileEpoch,
+  getIqFileSession,
+  subscribeIqFileSession,
+} from '../dsp/iqFileSession';
 import type { DspSourceKind } from '../types/provisional';
 
 /** Demo-only procedural frames (loading / error fallback). Not DSP output. */
@@ -36,15 +45,50 @@ const PALETTE_OK: ColormapName[] = ['viridis', 'inferno', 'magma', 'gray'];
 const FALLBACK_BINS = 256;
 const FALLBACK_FRAMES = 128;
 
+type ChartSpec = {
+  power: Float32Array;
+  binCount: number;
+  frameCount: number;
+  freqHz: { min: number; max: number };
+  timeSec: { min: number; max: number };
+  sourceLabel: string;
+};
+
+function chipLabelFor(kind: DspSourceKind): string {
+  switch (kind) {
+    case 'synthetic-stft-worker':
+      return 'DSP: STFT worker (synthetic)';
+    case 'file-stft-worker':
+      return 'DSP: file STFT';
+    case 'fsa-wav-stft':
+      return 'DSP: FSA WAV STFT';
+    case 'demo-fallback':
+      return 'DSP: demo fallback';
+    default:
+      return 'DSP: loading…';
+  }
+}
+
+function kindForVia(via: 'fsa' | 'input'): DspSourceKind {
+  return via === 'fsa' ? 'fsa-wav-stft' : 'file-stft-worker';
+}
+
 export function MainChartHost() {
   const chartMode = useUiStore((s) => s.chartMode);
   const paletteId = useUiStore((s) => s.paletteId);
   const level = useUiStore((s) => s.level);
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
   const setDspSourceStore = useUiStore((s) => s.setDspSource);
+  const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const client = useDspWorkerClient();
 
-  const [spec, setSpec] = useState<MainSpectrogramResult | null>(null);
+  const iqEpoch = useSyncExternalStore(
+    subscribeIqFileSession,
+    getIqFileEpoch,
+    getIqFileEpoch,
+  );
+
+  const [spec, setSpec] = useState<ChartSpec | null>(null);
   const [dspSource, setDspSource] = useState<DspSourceKind>('loading');
 
   const fallbackPower = useMemo(
@@ -57,23 +101,56 @@ export function MainChartHost() {
     const ac = new AbortController();
     setDspSource('loading');
     setDspSourceStore('loading');
-    void computeMainSpectrogram({ client, signal: ac.signal })
-      .then((result) => {
+
+    const session = getIqFileSession();
+
+    const run = async () => {
+      if (session) {
+        const result = await computeFileSpectrogram({
+          reader: session.reader,
+          client,
+          sampleRateHz: session.sampleRateHz,
+          sourceLabel: session.sourceLabel,
+          signal: ac.signal,
+        });
         if (ac.signal.aborted) return;
-        setSpec(result);
-        setDspSource('synthetic-stft-worker');
-        setDspSourceStore('synthetic-stft-worker');
-      })
-      .catch((err: unknown) => {
-        if (ac.signal.aborted) return;
-        if (err instanceof Error && err.name === 'AbortError') return;
-        console.warn('[MainChartHost] STFT worker path failed; using demo fallback', err);
-        setSpec(null);
-        setDspSource('demo-fallback');
-        setDspSourceStore('demo-fallback');
+        const kind = kindForVia(session.via);
+        setSpec({
+          power: result.power,
+          binCount: result.binCount,
+          frameCount: result.frameCount,
+          freqHz: result.freqHz,
+          timeSec: result.timeSec,
+          sourceLabel: result.sourceLabel,
+        });
+        setDspSource(kind);
+        setDspSourceStore(kind);
+        setStatusFileLabel(session.fileName);
+        return;
+      }
+
+      const result: MainSpectrogramResult = await computeMainSpectrogram({
+        client,
+        signal: ac.signal,
       });
+      if (ac.signal.aborted) return;
+      setSpec(result);
+      setDspSource('synthetic-stft-worker');
+      setDspSourceStore('synthetic-stft-worker');
+      setStatusFileLabel('No file (synthetic fixture)');
+    };
+
+    void run().catch((err: unknown) => {
+      if (ac.signal.aborted) return;
+      if (err instanceof Error && err.name === 'AbortError') return;
+      console.warn('[MainChartHost] STFT path failed; using demo fallback', err);
+      setSpec(null);
+      setDspSource('demo-fallback');
+      setDspSourceStore('demo-fallback');
+    });
+
     return () => ac.abort();
-  }, [client, setDspSourceStore]);
+  }, [client, iqEpoch, setDspSourceStore, setStatusFileLabel]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;
@@ -87,13 +164,6 @@ export function MainChartHost() {
 
   const levelMax = Math.max(0.2, 1 + level.refLevelDb / 100);
   const levelMin = Math.max(0, levelMax - level.dynamicRangeDb / 100);
-
-  const chipLabel =
-    dspSource === 'synthetic-stft-worker'
-      ? 'DSP: STFT worker'
-      : dspSource === 'demo-fallback'
-        ? 'DSP: demo fallback'
-        : 'DSP: loading…';
 
   return (
     <div
@@ -110,7 +180,7 @@ export function MainChartHost() {
         data-dsp-source={dspSource}
         title={spec?.sourceLabel ?? dspSource}
       >
-        {chipLabel}
+        {chipLabelFor(dspSource)}
       </span>
       <SpectrumChart
         power={power}

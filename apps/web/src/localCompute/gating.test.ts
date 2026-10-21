@@ -176,6 +176,54 @@ describe('detection gating', () => {
     expect(uiMessagesForBanner(null, blockedTask)[0]?.code).toBe('SOURCE_MISSING');
   });
 
+  it('renders WEIGHT_HASH_MISMATCH from server uiMessages (alias of MODEL_HASH_MISMATCH)', () => {
+    const weightHash: LocalComputeDetectionCapabilities = {
+      ffscn: false,
+      scn: false,
+      reasons: ['BLOCKED: WEIGHT_HASH_MISMATCH for ffscn'],
+      uiMessages: [
+        {
+          code: 'MODEL_HASH_MISMATCH',
+          severity: 'error',
+          en: "Detection model hash/version does not match the configured expectation.",
+          zh: "检测模型哈希/版本与配置期望不一致。",
+        },
+        {
+          code: 'WEIGHT_HASH_MISMATCH',
+          severity: 'error',
+          en: "Detection model hash/version does not match the configured expectation.",
+          zh: "检测模型哈希/版本与配置期望不一致。",
+        },
+      ],
+    };
+    expect(LOCAL_COMPUTE_UI_CODES).toContain('WEIGHT_HASH_MISMATCH');
+    expect(isKnownUiCode('WEIGHT_HASH_MISMATCH')).toBe(true);
+    const msgs = uiMessagesForBanner(weightHash);
+    expect(msgs.map((m) => m.code)).toEqual(['MODEL_HASH_MISMATCH', 'WEIGHT_HASH_MISMATCH']);
+    expect(pickUiMessageText(msgs[1]!, 'en')).toBe("Detection model hash/version does not match the configured expectation.");
+    expect(pickUiMessageText(msgs[1]!, 'zh')).toBe("检测模型哈希/版本与配置期望不一致。");
+    const gate = gateDisableReason(weightHash, 'ffscn', true, true, 'zh');
+    // Prefer MODEL_HASH_MISMATCH (listed before WEIGHT alias) when both present.
+    expect(gate?.code).toBe('MODEL_HASH_MISMATCH');
+    expect(gate?.text).toBe("检测模型哈希/版本与配置期望不一致。");
+    expect(shouldDrawDetectionCandidates(
+      makeTask({
+        status: 'BLOCKED',
+        result: { candidates: [{ score: 1 }] },
+        uiMessages: weightHash.uiMessages,
+      }),
+      stubRuntime,
+    )).toBe(false);
+    expect(candidatesForDraw(
+      makeTask({
+        status: 'BLOCKED',
+        result: { candidates: [{ score: 1 }] },
+        uiMessages: weightHash.uiMessages,
+      }),
+      stubRuntime,
+    )).toEqual([]);
+  });
+
   it('draws only when succeeded + verifiedForward + PYTORCH_* engine', () => {
     const ok = makeTask({
       status: 'succeeded',

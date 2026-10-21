@@ -1,9 +1,16 @@
 /**
  * PROVISIONAL — Bot-B single-row spectrum toolbar with overflow for low-priority actions.
  * Includes wideband / narrowband workspace mode toggle (StatusBar stays in sync via store).
+ * Open IQ: FSA pickAndOpenIqWav when available, else <input type=file> + openIqWavFromBlob.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
+import {
+  clearOpenedIq,
+  detectFsaCapabilities,
+  openIqFromFileBlob,
+  openIqViaFsa,
+} from '../dsp/openIqForMainChart';
 
 const STFT_N_OPTIONS = [256, 512, 1024, 2048, 4096] as const;
 const PALETTES = ['viridis', 'inferno', 'magma', 'gray'] as const;
@@ -24,7 +31,9 @@ export function SpectrumToolbar() {
   const setWorkspaceMode = useUiStore((s) => s.setWorkspaceMode);
 
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
+  const iqInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!overflowOpen) return;
@@ -40,6 +49,37 @@ export function SpectrumToolbar() {
     window.addEventListener('mousedown', onDown);
     return () => window.removeEventListener('mousedown', onDown);
   }, [overflowOpen]);
+
+  const onOpenIqWav = async () => {
+    setIqOpenError(null);
+    const caps = detectFsaCapabilities();
+    if (caps.openLocalFile) {
+      const outcome = await openIqViaFsa();
+      if (outcome.ok) return;
+      if (outcome.reason === 'cancelled') return;
+      if (outcome.reason === 'unsupported') {
+        iqInputRef.current?.click();
+        return;
+      }
+      setIqOpenError(outcome.message);
+      return;
+    }
+    iqInputRef.current?.click();
+  };
+
+  const onIqFilePicked = async (file: File | undefined) => {
+    if (!file) return;
+    setIqOpenError(null);
+    const outcome = await openIqFromFileBlob(file, { fileName: file.name });
+    if (!outcome.ok && outcome.reason !== 'cancelled') {
+      setIqOpenError(outcome.message);
+    }
+  };
+
+  const onClearIq = () => {
+    setIqOpenError(null);
+    clearOpenedIq();
+  };
 
   return (
     <div className="spectrum-toolbar" data-testid="spectrum-toolbar" role="toolbar">
@@ -97,6 +137,38 @@ export function SpectrumToolbar() {
           PSD
         </button>
         <span className="toolbar-sep" aria-hidden />
+        <button
+          type="button"
+          data-testid="btn-open-iq-wav"
+          onClick={() => void onOpenIqWav()}
+          title="Open IQ WAV (FSA when available, else file picker)"
+        >
+          Open IQ
+        </button>
+        <button
+          type="button"
+          data-testid="btn-clear-iq-wav"
+          onClick={onClearIq}
+          title="Clear opened IQ and return to synthetic fixture"
+        >
+          Clear IQ
+        </button>
+        <input
+          ref={iqInputRef}
+          type="file"
+          accept=".wav,audio/wav,audio/x-wav"
+          hidden
+          data-testid="input-iq-wav"
+          onChange={(e) => {
+            void onIqFilePicked(e.target.files?.[0]);
+            e.target.value = '';
+          }}
+        />
+        {iqOpenError ? (
+          <span className="toolbar-iq-error" data-testid="iq-open-error" title={iqOpenError}>
+            IQ open failed
+          </span>
+        ) : null}
         <button
           type="button"
           data-testid="btn-open-level"

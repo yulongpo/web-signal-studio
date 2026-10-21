@@ -504,6 +504,22 @@ body,
 .dsp-source-chip[data-dsp-source='loading'] {
   color: #9aa7b5;
 }
+.dsp-source-chip[data-dsp-source='file-stft-worker'] {
+  color: #b5d4f0;
+  border-color: #1e3d5a;
+}
+.dsp-source-chip[data-dsp-source='fsa-wav-stft'] {
+  color: #b5e0f0;
+  border-color: #1e4a5a;
+}
+.toolbar-iq-error {
+  color: #f0b5b5;
+  font-size: 11px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .status-dsp {
   font-variant-numeric: tabular-nums;
 }

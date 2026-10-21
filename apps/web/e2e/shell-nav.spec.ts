@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const RAIL_IDS = ['display', 'detect', 'marker', 'channel'] as const;
 
@@ -102,6 +104,36 @@ test.describe('shell navigation', () => {
     await expect(page.getByTestId('btn-workspace-wideband')).toHaveAttribute('data-active', 'true');
     await expect(page.getByTestId('status-workspace')).toHaveText('wideband');
     await expect(page.getByTestId('workspace-narrowband-stub')).toHaveCount(0);
+  });
+
+
+  test('Open IQ via file input shows file-stft-worker chip (or stays synthetic on parse fail)', async ({
+    page,
+  }) => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const wavPath = path.join(here, 'fixtures', 'tiny-iq.wav');
+    await page.goto('/');
+    await expect(page.getByTestId('btn-open-iq-wav')).toBeVisible();
+    await expect(page.getByTestId('input-iq-wav')).toBeAttached();
+    await page.getByTestId('input-iq-wav').setInputFiles(wavPath);
+    const host = page.getByTestId('main-chart-host');
+    await expect
+      .poll(async () => host.getAttribute('data-dsp-source'), { timeout: 20000 })
+      .not.toBe('loading');
+    const source = await host.getAttribute('data-dsp-source');
+    expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker']).toContain(source);
+    if (source === 'file-stft-worker') {
+      await expect(host).toHaveAttribute('data-dsp-source', 'file-stft-worker');
+      const label = await host.getAttribute('data-dsp-label');
+      expect(label?.toLowerCase()).not.toContain('synthetic');
+      await expect(page.getByTestId('status-file')).toContainText('tiny-iq.wav');
+    }
+    await page.getByTestId('btn-clear-iq-wav').click();
+    await expect
+      .poll(async () => host.getAttribute('data-dsp-source'), { timeout: 20000 })
+      .not.toBe('loading');
+    const after = await host.getAttribute('data-dsp-source');
+    expect(['synthetic-stft-worker', 'demo-fallback']).toContain(after);
   });
 
 });
