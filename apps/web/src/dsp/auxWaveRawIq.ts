@@ -45,6 +45,14 @@ export function viteFsUrlFor(absPath: string): string {
   return `/@fs${withSlash}`;
 }
 
+export type DemoSigmfAnnotation = {
+  sampleStart: number;
+  sampleCount: number;
+  freqLowerHz?: number;
+  freqUpperHz?: number;
+  label?: string;
+};
+
 export type DemoSigmfHandle = {
   reader: ChunkedReader;
   sampleRateHz: number;
@@ -53,7 +61,37 @@ export type DemoSigmfHandle = {
   sourceLabel: string;
   demoDir: string;
   stem: string;
+  /** Capture center RF (Hz) from SigMF captures[0], if present. */
+  centerFrequencyHz?: number;
+  /** Parsed annotations for LO / window defaults (demo only). */
+  annotations: DemoSigmfAnnotation[];
 };
+
+
+function parseDemoAnnotations(raw: unknown): DemoSigmfAnnotation[] {
+  if (!Array.isArray(raw)) return [];
+  const out: DemoSigmfAnnotation[] = [];
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const rec = item as Record<string, unknown>;
+    const sampleStart = Number(rec["core:sample_start"]);
+    const sampleCount = Number(rec["core:sample_count"]);
+    if (!Number.isFinite(sampleStart) || !Number.isFinite(sampleCount) || sampleCount <= 0) {
+      continue;
+    }
+    const freqLower = Number(rec["core:freq_lower_edge"]);
+    const freqUpper = Number(rec["core:freq_upper_edge"]);
+    const label = typeof rec["core:label"] === "string" ? rec["core:label"] : undefined;
+    out.push({
+      sampleStart,
+      sampleCount,
+      freqLowerHz: Number.isFinite(freqLower) ? freqLower : undefined,
+      freqUpperHz: Number.isFinite(freqUpper) ? freqUpper : undefined,
+      label,
+    });
+  }
+  return out;
+}
 
 let cached: DemoSigmfHandle | null = null;
 let loadPromise: Promise<DemoSigmfHandle> | null = null;
@@ -161,6 +199,8 @@ export async function ensureDemoSigmfReader(options: {
       sourceLabel: `sigmf_data_demo:${SIGMF_DATA_DEMO_STEM} (${demoDir})`,
       demoDir,
       stem: SIGMF_DATA_DEMO_STEM,
+      centerFrequencyHz: handle.meta.centerFrequencyHz,
+      annotations: parseDemoAnnotations(handle.meta.raw.annotations),
     };
     cached = opened;
     return opened;
