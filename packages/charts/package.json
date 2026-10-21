@@ -39,6 +39,9 @@
     ".": "./src/index.ts",
     "./react": "./src/react/index.ts",
     "./HeatmapCanvas": "./src/react/HeatmapCanvas.tsx",
-    "./SpectrumChart": "./src/react/SpectrumChart.tsx"
+    "./SpectrumChart": "./src/react/SpectrumChart.tsx",
+    "./WaveformChart": "./src/react/WaveformChart.tsx",
+    "./NavigationChart": "./src/react/NavigationChart.tsx",
+    "./VerticalSplitter": "./src/react/VerticalSplitter.tsx"
   }
 }
