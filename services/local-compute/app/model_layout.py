@@ -7,10 +7,14 @@ LOCAL_COMPUTE_FFSCN_PATH / LOCAL_COMPUTE_SCN_PATH for explicit files.
 Expected layout under MODEL_DIR (any subset is fine):
 
   <MODEL_DIR>/
-    ffscn.engine | ffscn.onnx | ffscn.pth | model_epoch_*.pth | epoch_*.pth
-    scn.engine   | scn.onnx   | scn.pth   | epoch_*.pth
+    # Current reference trees ship **PyTorch .pth only**.
+    # TensorRT .engine / ONNX are **N/A** for surveyed trees — do not stub fake engines.
+    # Discovery still accepts .engine/.onnx if an operator later provides real artifacts.
+    ffscn.pth | model_epoch_*.pth | epoch_*.pth
+    scn.pth   | epoch_*.pth
     ffscn/ ...
     scn/ ...
+    weights.sha256.json   # optional expected-hash manifest (see expected_weight_sha)
 
 Reference trees (read-only on this workstation):
   D:\\project\\FFSCN_train2\\weights\\model_epoch_0210.pth
@@ -22,33 +26,53 @@ weights, or set LOCAL_COMPUTE_FFSCN_PATH / LOCAL_COMPUTE_SCN_PATH directly.
 Source trees for architecture imports:
   LOCAL_COMPUTE_FFSCN_HOME  (default probe: D:\\project\\FFSCN_train2\\FFSCN_TEST_GUI)
   LOCAL_COMPUTE_SCN_HOME    (default probe: D:\\project\\train_SCN)
+
+Optional expected SHA-256 (any one source wins, first match):
+  LOCAL_COMPUTE_FFSCN_SHA256 / LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256
+  LOCAL_COMPUTE_SCN_SHA256   / LOCAL_COMPUTE_SCN_WEIGHT_SHA256
+  JSON manifest under MODEL_DIR (weights.sha256.json | model_hashes.json)
+  or LOCAL_COMPUTE_WEIGHT_HASH_MANIFEST pointing at a JSON file.
+Missing expected-hash config is OK — probe/load continues (hash check is optional).
 """
 
 from __future__ import annotations
 
+import json
+import logging
 import os
+from functools import lru_cache
 from pathlib import Path
 
+log = logging.getLogger("local-compute.model_layout")
+
 FFSCN_FILE_NAMES = (
-    "ffscn.engine",
-    "ffscn.onnx",
     "ffscn.pth",
-    "FFSCN.engine",
     "FFSCN.pth",
     "model_epoch_0210.pth",
     "epoch_1200.pth",
+    # Legacy discovery names (not present in current reference trees):
+    "ffscn.engine",
+    "ffscn.onnx",
+    "FFSCN.engine",
 )
 SCN_FILE_NAMES = (
-    "scn.engine",
-    "scn.onnx",
     "scn.pth",
-    "SCN.engine",
     "SCN.pth",
     "epoch_105.pth",
+    # Legacy discovery names (N/A for current reference trees):
+    "scn.engine",
+    "scn.onnx",
+    "SCN.engine",
 )
 
 FFSCN_GLOBS = ("ffscn*.pth", "FFSCN*.pth", "model_epoch_*.pth", "epoch_*.pth")
 SCN_GLOBS = ("scn*.pth", "SCN*.pth", "epoch_*.pth")
+
+MANIFEST_BASENAMES = (
+    "weights.sha256.json",
+    "model_hashes.json",
+    "weight_hashes.json",
+)
 
 
 def _split_env(raw: str) -> list[str]:
@@ -89,8 +113,142 @@ def explicit_path(env_key: str) -> Path | None:
 
 
 def expected_sha(env_key: str) -> str | None:
+    """Legacy helper: single env key. Prefer expected_weight_sha(family)."""
     raw = (os.environ.get(env_key) or "").strip().lower()
     return raw or None
+
+
+def _normalize_digest(raw: object) -> str | None:
+    if raw is None:
+        return None
+    text = str(raw).strip().lower()
+    if text.startswith("sha256:"):
+        text = text[7:].strip()
+    if not text:
+        return None
+    # Accept hex digests only (64 chars preferred; shorter rejected as config error upstream)
+    if all(c in "0123456789abcdef" for c in text):
+        return text
+    return None
+
+
+@lru_cache(maxsize=8)
+def _load_manifest_file(path_str: str) -> dict:
+    path = Path(path_str)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        log.warning("weight hash manifest unreadable %s: %s", path, exc)
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return data
+
+
+def clear_hash_manifest_cache() -> None:
+    _load_manifest_file.cache_clear()
+
+
+def _manifest_candidates() -> list[Path]:
+    out: list[Path] = []
+    seen: set[str] = set()
+
+    def _push(p: Path) -> None:
+        key = str(p)
+        if key in seen:
+            return
+        seen.add(key)
+        out.append(p)
+
+    explicit = (os.environ.get("LOCAL_COMPUTE_WEIGHT_HASH_MANIFEST") or "").strip().strip(
+        '"'
+    ).strip("'")
+    if explicit:
+        _push(Path(explicit))
+    for root in model_dir_roots():
+        for name in MANIFEST_BASENAMES:
+            _push(root / name)
+    return out
+
+
+def _digest_from_manifest(family: str, weight_path: Path | None) -> str | None:
+    family_u = family.upper()
+    family_keys = {
+        "FFSCN": ("ffscn", "FFSCN", "ffscn_sha256", "FFSCN_SHA256"),
+        "SCN": ("scn", "SCN", "scn_sha256", "SCN_SHA256"),
+    }.get(family_u, ())
+
+    for manifest_path in _manifest_candidates():
+        if not manifest_path.is_file():
+            continue
+        data = _load_manifest_file(str(manifest_path.resolve()))
+        if not data:
+            continue
+        # Family-level keys
+        for key in family_keys:
+            dig = _normalize_digest(data.get(key))
+            if dig:
+                return dig
+        # Nested {"ffscn": {"sha256": "..."}}
+        nested = data.get(family_u.lower()) or data.get(family_u)
+        if isinstance(nested, dict):
+            dig = _normalize_digest(
+                nested.get("sha256") or nested.get("hash") or nested.get("digest")
+            )
+            if dig:
+                return dig
+        # byFile / files map keyed by basename
+        by_file = data.get("byFile") or data.get("files") or data.get("weights")
+        if isinstance(by_file, dict) and weight_path is not None:
+            dig = _normalize_digest(by_file.get(weight_path.name))
+            if dig:
+                return dig
+            dig = _normalize_digest(by_file.get(str(weight_path)))
+            if dig:
+                return dig
+            try:
+                dig = _normalize_digest(by_file.get(str(weight_path.resolve())))
+                if dig:
+                    return dig
+            except OSError:
+                pass
+        # Flat basename keys at top level
+        if weight_path is not None:
+            dig = _normalize_digest(data.get(weight_path.name))
+            if dig:
+                return dig
+    return None
+
+
+def expected_weight_sha(family: str, weight_path: Path | None = None) -> str | None:
+    """Resolve optional expected SHA-256 for a detection family.
+
+    Priority:
+      1. LOCAL_COMPUTE_{FAMILY}_SHA256
+      2. LOCAL_COMPUTE_{FAMILY}_WEIGHT_SHA256  (alias)
+      3. JSON manifest under MODEL_DIR / LOCAL_COMPUTE_WEIGHT_HASH_MANIFEST
+
+    Returns None when no expected hash is configured (check is optional).
+    """
+    family_u = family.upper()
+    if family_u == "FFSCN":
+        env_keys = (
+            "LOCAL_COMPUTE_FFSCN_SHA256",
+            "LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256",
+        )
+    elif family_u == "SCN":
+        env_keys = (
+            "LOCAL_COMPUTE_SCN_SHA256",
+            "LOCAL_COMPUTE_SCN_WEIGHT_SHA256",
+        )
+    else:
+        env_keys = ()
+
+    for key in env_keys:
+        dig = _normalize_digest(os.environ.get(key) or "")
+        if dig:
+            return dig
+    return _digest_from_manifest(family_u, weight_path)
 
 
 def _is_weight_file(path: Path) -> bool:

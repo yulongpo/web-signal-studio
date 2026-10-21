@@ -6,9 +6,11 @@
 |-----|---------|
 | `LOCAL_COMPUTE_MODEL_DIR` | Primary search root (preferred) |
 | `LOCAL_COMPUTE_MODEL_DIRS` | Extra roots (`;` / `,` separated) |
-| `LOCAL_COMPUTE_FFSCN_PATH` | Explicit FFSCN weight file (`.pth` / `.engine` / `.onnx`) |
-| `LOCAL_COMPUTE_SCN_PATH` | Explicit SCN weight file |
-| `LOCAL_COMPUTE_FFSCN_SHA256` / `LOCAL_COMPUTE_SCN_SHA256` | Optional expected digest (mismatch → BLOCKED) |
+| `LOCAL_COMPUTE_FFSCN_PATH` | Explicit FFSCN weight file (**.pth**; TensorRT `.engine` **N/A** for current reference trees) |
+| `LOCAL_COMPUTE_SCN_PATH` | Explicit SCN weight file (**.pth**) |
+| `LOCAL_COMPUTE_FFSCN_SHA256` / `LOCAL_COMPUTE_SCN_SHA256` | Optional expected SHA-256 (mismatch → `BLOCKED: WEIGHT_HASH_MISMATCH`) |
+| `LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256` / `LOCAL_COMPUTE_SCN_WEIGHT_SHA256` | Aliases of the above |
+| `LOCAL_COMPUTE_WEIGHT_HASH_MANIFEST` | Optional JSON path; default also probes `<MODEL_DIR>/weights.sha256.json` |
 | `LOCAL_COMPUTE_FFSCN_HOME` | Algorithm tree (default probe: `D:\project\FFSCN_train2\FFSCN_TEST_GUI`) |
 | `LOCAL_COMPUTE_SCN_HOME` | Algorithm tree (default probe: `D:\project\train_SCN`) |
 | `LOCAL_COMPUTE_ALLOW_CPU_INFERENCE` | `1` to allow ready=true on CPU torch (default requires CUDA) |
@@ -31,6 +33,30 @@ $env:LOCAL_COMPUTE_FFSCN_HOME = 'D:\project\FFSCN_train2\FFSCN_TEST_GUI'
 $env:LOCAL_COMPUTE_SCN_HOME   = 'D:\project\train_SCN'
 ```
 
+
+## Optional weight hash hardening
+
+Expected SHA-256 is **optional**. When unset, capabilities still probe/load (subject to torch/HOME/CUDA). When set (env or JSON), a mismatch keeps `detection.ffscn` / `detection.scn` **false**, emits `uiMessages` codes `MODEL_HASH_MISMATCH` + `WEIGHT_HASH_MISMATCH`, and **never** runs smoke forward / invents candidates.
+
+Manifest example (`<MODEL_DIR>/weights.sha256.json`):
+
+```json
+{
+  "ffscn": "<64-hex>",
+  "scn": "<64-hex>",
+  "byFile": {
+    "model_epoch_0210.pth": "<64-hex>",
+    "epoch_105.pth": "<64-hex>"
+  }
+}
+```
+
+Priority: `LOCAL_COMPUTE_*_SHA256` → `LOCAL_COMPUTE_*_WEIGHT_SHA256` → manifest family key → `byFile` basename.
+
+## TensorRT / `.engine` status
+
+**N/A for current reference trees** (`train_SCN`, `FFSCN_train2`). Do **not** invent or stub a fake `.engine` path. Real readiness today is **PyTorch `.pth` + verified load/forward**. A future TensorRT export would be a separate package.
+
 ## License summary
 
 No SPDX LICENSE files were found under `train_SCN` or `FFSCN_train2`. Treat weights and algorithm sources as **internal project IP**. Do not publish weights to the public web app bundle; keep them on the operator machine and configure paths locally.
@@ -41,10 +67,11 @@ No SPDX LICENSE files were found under `train_SCN` or `FFSCN_train2`. Treat weig
 
 - `detection.ffscn` / `detection.scn` become `true` **only** after:
   1. weight file present,
-  2. PyTorch importable,
-  3. CUDA available (unless `LOCAL_COMPUTE_ALLOW_CPU_INFERENCE=1`),
-  4. algorithm HOME importable,
-  5. load + smoke forward succeeds.
+  2. optional expected SHA-256 matches when configured (else skip),
+  3. PyTorch importable,
+  4. CUDA available (unless `LOCAL_COMPUTE_ALLOW_CPU_INFERENCE=1`),
+  5. algorithm HOME importable,
+  6. load + smoke forward succeeds.
 - Otherwise reasons/uiMessages stay BLOCKED (`MODEL_*`, `TORCH_*`, `STUB_RUNTIME`, `NO_FAKE_INFERENCE`, …).
 
 ## `POST /tasks` (Bot-B)

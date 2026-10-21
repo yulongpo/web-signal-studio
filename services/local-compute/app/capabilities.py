@@ -3,7 +3,8 @@
 Hard rules:
 - detection.ffscn / detection.scn stay false unless a *real* verified runtime exists
   (torch load + smoke forward succeeded for that family).
-- Missing / incompatible models produce explicit BLOCKED reasons (path, hash, GPU/torch).
+- Missing / incompatible models produce explicit BLOCKED reasons (path, WEIGHT_HASH_MISMATCH, GPU/torch).
+- Expected weight hash is optional (env aliases or JSON manifest); mismatch => BLOCKED, no fake inference.
 - When model files are present, report identity metadata (path/sha256) but never
   invent forward outputs.
 - Service stays up under degradation; DSP stubs may remain available while
@@ -25,7 +26,8 @@ from pathlib import Path
 from . import PROTOCOL_VERSION, __version__
 from .model_layout import (
     candidate_paths,
-    expected_sha,
+    clear_hash_manifest_cache,
+    expected_weight_sha,
     explicit_path,
     first_present,
     model_search_root_strings,
@@ -104,6 +106,12 @@ UI_COPY: dict[str, tuple[str, str, str]] = {
         "缺少算法源码目录（请设置 LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME）。",
     ),
     "MODEL_HASH_MISMATCH": (
+        "error",
+        "Detection model hash/version does not match the configured expectation.",
+        "检测模型哈希/版本与配置期望不一致。",
+    ),
+    # Alias used in BLOCKED reasons / CAO packages; same copy as MODEL_HASH_MISMATCH.
+    "WEIGHT_HASH_MISMATCH": (
         "error",
         "Detection model hash/version does not match the configured expectation.",
         "检测模型哈希/版本与配置期望不一致。",
@@ -198,14 +206,18 @@ def _sha256_file(path: Path, max_bytes: int = 64 * 1024 * 1024) -> str | None:
 def _probe_one(
     *,
     family: str,
-    expected: str | None,
-) -> tuple[list[ModelInfo], list[str], list[str], bool, Path | None]:
-    """Return (models, reasons, ui_codes, present_any, first_present_path)."""
+) -> tuple[list[ModelInfo], list[str], list[str], bool, Path | None, bool]:
+    """Return (models, reasons, ui_codes, present_any, first_present_path, hash_ok).
+
+    hash_ok is True when no expected digest is configured, or the first present
+    weight matches. Mismatch / unreadable digest with an expectation => False.
+    """
     models: list[ModelInfo] = []
     reasons: list[str] = []
     ui_codes: list[str] = []
     present_any = False
     first: Path | None = None
+    hash_ok = True
     seen: set[str] = set()
     explicit = explicit_path(
         "LOCAL_COMPUTE_FFSCN_PATH" if family == "FFSCN" else "LOCAL_COMPUTE_SCN_PATH"
@@ -221,24 +233,39 @@ def _probe_one(
             if first is None:
                 first = path
             digest = _sha256_file(path)
+            # Resolve expected hash per path (env aliases + JSON manifest).
+            # Missing expected config => optional check skipped (hash_ok stays True).
+            expected = expected_weight_sha(family, path)
             notes = f"File present ({path.suffix.lower() or 'bin'})"
             if expected:
                 if digest is None:
+                    hash_ok = False
                     reasons.append(
-                        f"BLOCKED: {family} hash unavailable for {path} "
-                        "(file too large or unreadable)"
+                        f"BLOCKED: WEIGHT_HASH_MISMATCH unavailable for {family} "
+                        f"at {path} (file too large or unreadable; expected hash configured)"
                     )
                     ui_codes.append("MODEL_HASH_UNAVAILABLE")
                     notes = "present but hash unread; expected sha256 configured"
                 elif digest.lower() != expected.lower():
+                    hash_ok = False
                     reasons.append(
-                        f"BLOCKED: {family} hash/version mismatch for {path} "
-                        f"(got {digest[:12]}..., expected {expected[:12]}...)"
+                        f"BLOCKED: WEIGHT_HASH_MISMATCH for {family} at {path} "
+                        f"(got {digest[:12]}..., expected {expected[:12]}...; "
+                        "hash/version mismatch)"
                     )
                     ui_codes.append("MODEL_HASH_MISMATCH")
-                    notes = "sha256 mismatch vs LOCAL_COMPUTE_*_SHA256"
+                    ui_codes.append("WEIGHT_HASH_MISMATCH")
+                    notes = (
+                        "sha256 mismatch vs LOCAL_COMPUTE_*_SHA256 / "
+                        "LOCAL_COMPUTE_*_WEIGHT_SHA256 / weights.sha256.json"
+                    )
                 else:
                     notes = "sha256 matches configured expectation"
+            else:
+                notes = (
+                    f"File present ({path.suffix.lower() or 'bin'}); "
+                    "no expected-hash configured (optional)"
+                )
             models.append(
                 ModelInfo(
                     id=f"{family}:{path.name}",
@@ -270,7 +297,7 @@ def _probe_one(
             "MODEL_MISSING_FFSCN" if family == "FFSCN" else "MODEL_MISSING_SCN"
         )
 
-    return models, reasons, ui_codes, present_any, first
+    return models, reasons, ui_codes, present_any, first, hash_ok
 
 
 def _nvidia_smi_probe() -> GpuPrecheck:
@@ -321,14 +348,22 @@ def _nvidia_smi_probe() -> GpuPrecheck:
 
 def probe_detection_readiness() -> DetectionReadiness:
     """Model + torch precheck used by /capabilities and task admission."""
-    ffscn_models, ffscn_reasons, ffscn_ui, ffscn_present, ffscn_path = _probe_one(
-        family="FFSCN",
-        expected=expected_sha("LOCAL_COMPUTE_FFSCN_SHA256"),
-    )
-    scn_models, scn_reasons, scn_ui, scn_present, scn_path = _probe_one(
-        family="SCN",
-        expected=expected_sha("LOCAL_COMPUTE_SCN_SHA256"),
-    )
+    (
+        ffscn_models,
+        ffscn_reasons,
+        ffscn_ui,
+        ffscn_present,
+        ffscn_path,
+        ffscn_hash_ok,
+    ) = _probe_one(family="FFSCN")
+    (
+        scn_models,
+        scn_reasons,
+        scn_ui,
+        scn_present,
+        scn_path,
+        scn_hash_ok,
+    ) = _probe_one(family="SCN")
 
     gpu = _nvidia_smi_probe()
     torch_probe = probe_torch()
@@ -384,7 +419,7 @@ def probe_detection_readiness() -> DetectionReadiness:
     )
 
     if torch_ok_for_ready:
-        if ffscn_present and ffscn_path is not None:
+        if ffscn_present and ffscn_path is not None and ffscn_hash_ok:
             home = source_home("FFSCN")
             if home is None:
                 reasons.append("BLOCKED: FFSCN algorithm home missing")
@@ -397,7 +432,10 @@ def probe_detection_readiness() -> DetectionReadiness:
                 else:
                     reasons.append(f"BLOCKED: FFSCN {smoke.detail}")
                     ui_codes.append("MODEL_LOAD_FAILED")
-        if scn_present and scn_path is not None:
+        elif ffscn_present and not ffscn_hash_ok:
+            # Expected-hash configured and failed — never load/forward.
+            ffscn_ready = False
+        if scn_present and scn_path is not None and scn_hash_ok:
             home = source_home("SCN")
             if home is None:
                 reasons.append("BLOCKED: SCN algorithm home missing")
@@ -410,6 +448,8 @@ def probe_detection_readiness() -> DetectionReadiness:
                 else:
                     reasons.append(f"BLOCKED: SCN {smoke.detail}")
                     ui_codes.append("MODEL_LOAD_FAILED")
+        elif scn_present and not scn_hash_ok:
+            scn_ready = False
 
     if ffscn_ready or scn_ready:
         ui_codes.append("REAL_RUNTIME")
@@ -434,9 +474,13 @@ def probe_detection_readiness() -> DetectionReadiness:
         engine = STUB_ENGINE_LABEL
 
     # Hash mismatch / path missing must force not-ready even if smoke somehow ran
-    if any("hash/version mismatch" in r for r in ffscn_reasons):
+    if (not ffscn_hash_ok) or any(
+        "WEIGHT_HASH_MISMATCH" in r or "hash/version mismatch" in r for r in ffscn_reasons
+    ):
         ffscn_ready = False
-    if any("hash/version mismatch" in r for r in scn_reasons):
+    if (not scn_hash_ok) or any(
+        "WEIGHT_HASH_MISMATCH" in r or "hash/version mismatch" in r for r in scn_reasons
+    ):
         scn_ready = False
     if any("configured path missing" in r for r in ffscn_reasons):
         ffscn_ready = False
@@ -619,5 +663,6 @@ __all__ = [
     "family_ready",
     "build_capabilities",
     "clear_torch_cache",
+    "clear_hash_manifest_cache",
     "REAL_ENGINE_LABELS",
 ]
