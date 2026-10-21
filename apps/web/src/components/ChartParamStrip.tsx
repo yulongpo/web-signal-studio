@@ -84,6 +84,10 @@ export function SpecParamStrip() {
   const setWorkspaceMode = useUiStore((s) => s.setWorkspaceMode);
   const level = useUiStore((s) => s.level);
   const display = useUiStore((s) => s.display);
+  const dspSource = useUiStore((s) => s.dspSource);
+  const dspFftEngineActive = useUiStore((s) => s.dspFftEngineActive);
+  const detectRunFeed = useUiStore((s) => s.detectRunFeed);
+  const detectRunSelectedId = useUiStore((s) => s.detectRunSelectedId);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -144,11 +148,28 @@ export function SpecParamStrip() {
     if (!outcome.ok && outcome.reason !== 'cancelled') setIqOpenError(outcome.message);
   };
 
-  return (
+  
+  const fftEngineLabel = dspFftEngineActive
+    ? dspFftEngineActive.fellBackToJs
+      ? `${dspFftEngineActive.requested}→js`
+      : dspFftEngineActive.active
+    : '—';
+  const selectedRun =
+    detectRunFeed.find((r) => r.runId === detectRunSelectedId) ??
+    detectRunFeed[0] ??
+    null;
+  const feedStamp =
+    detectRunFeed.length === 0
+      ? '—'
+      : selectedRun
+        ? `${selectedRun.status}/${selectedRun.kind} · n=${detectRunFeed.length}`
+        : `n=${detectRunFeed.length}`;
+
+return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19" data-strip-dsp="wave19"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -293,8 +314,10 @@ export function SpecParamStrip() {
         <span
           className="chart-strip-qlabel chart-strip-qlabel-value"
           data-testid="chart-strip-qlabel-window-value"
-          data-strip-wave="wave14"
+          data-strip-wave="wave14 wave19"
           data-strip-empty="true"
+          data-strip-partial="true"
+          data-strip-reason="no-window-fn-in-store"
         >
           —
         </span>
@@ -308,11 +331,70 @@ export function SpecParamStrip() {
         <span
           className="chart-strip-qlabel chart-strip-qlabel-value"
           data-testid="chart-strip-qlabel-overlap-value"
-          data-strip-wave="wave14"
+          data-strip-wave="wave14 wave19"
           data-strip-empty="true"
+          data-strip-partial="true"
+          data-strip-reason="no-overlap-in-store"
         >
           —
         </span>
+
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-dsp-source"
+          data-strip-wave="wave19"
+          title="DSP source (uiStore.dspSource)"
+        >
+          DSP
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-dsp-source-value"
+          data-strip-wave="wave19"
+          data-dsp-source={dspSource}
+          data-strip-empty={dspSource === 'loading' ? 'true' : 'false'}
+        >
+          {dspSource === 'loading' ? '—' : dspSource}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-fft-engine"
+          data-strip-wave="wave19"
+          title="FFT engine (uiStore.dspFftEngineActive)"
+        >
+          FFT
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-fft-engine-value"
+          data-strip-wave="wave19"
+          data-fft-requested={dspFftEngineActive?.requested ?? ''}
+          data-fft-active={dspFftEngineActive?.active ?? ''}
+          data-fft-fallback={dspFftEngineActive?.fellBackToJs ? 'true' : 'false'}
+          data-strip-empty={dspFftEngineActive ? 'false' : 'true'}
+        >
+          {fftEngineLabel}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-detect-feed"
+          data-strip-wave="wave19"
+          title="detectRunFeed path stamp (real LocalCompute feed only)"
+        >
+          Detect
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-detect-feed-value"
+          data-strip-wave="wave19"
+          data-detect-feed-count={String(detectRunFeed.length)}
+          data-detect-feed-status={selectedRun?.status ?? ''}
+          data-detect-feed-kind={selectedRun?.kind ?? ''}
+          data-strip-empty={detectRunFeed.length === 0 ? 'true' : 'false'}
+        >
+          {feedStamp}
+        </span>
+
         <div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
           <button
             type="button"
@@ -387,7 +469,25 @@ export function SpecParamStrip() {
                 <span className="chart-strip-qlabel">参考单位</span>
                 <span className="chart-strip-qlabel-value" data-strip-unit="dB">dB</span>
               </div>
-              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-window" data-strip-wave="wave14">
+                            <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-dsp-source" data-strip-wave="wave19">
+                <span className="chart-strip-qlabel">DSP</span>
+                <span className="chart-strip-qlabel-value" data-dsp-source={dspSource} data-strip-empty={dspSource === 'loading' ? 'true' : 'false'}>
+                  {dspSource === 'loading' ? '—' : dspSource}
+                </span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-fft-engine" data-strip-wave="wave19">
+                <span className="chart-strip-qlabel">FFT</span>
+                <span className="chart-strip-qlabel-value" data-strip-empty={dspFftEngineActive ? 'false' : 'true'}>
+                  {fftEngineLabel}
+                </span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-detect-feed" data-strip-wave="wave19">
+                <span className="chart-strip-qlabel">Detect feed</span>
+                <span className="chart-strip-qlabel-value" data-detect-feed-count={String(detectRunFeed.length)} data-strip-empty={detectRunFeed.length === 0 ? 'true' : 'false'}>
+                  {feedStamp}
+                </span>
+              </div>
+<div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-window" data-strip-wave="wave14">
                 <span className="chart-strip-qlabel">窗函数</span>
                 <span className="chart-strip-qlabel-value" data-strip-empty="true">—</span>
               </div>
