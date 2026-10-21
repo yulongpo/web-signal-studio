@@ -1,7 +1,8 @@
 /**
  * Browser-honest save parity for Qt QFileDialog::getSaveFileName.
  * Prefer showSaveFilePicker; fall back to <a download>. Never fakes a native dialog.
- * Wave16: optional dialogTitle + filterDescription for picker chrome labels only.
+ * Wave16/wave33: optional dialogTitle + filterDescription for picker chrome labels only.
+ * data-native-qfiledialog remains false — never claim native MET.
  */
 export type BrowserSaveResult =
   | { ok: true; method: 'showSaveFilePicker' | 'download-anchor' }
@@ -24,6 +25,10 @@ export async function browserSaveFile(input: {
   const ext = '.' + (input.suggestedName.split('.').pop() || 'bin');
   const filterDescription =
     input.filterDescription?.trim() || input.mimeType || 'File';
+  // Wave33 D2: normalize common mime → extension accept map for picker chrome.
+  const acceptExts = [ext];
+  if (ext === '.json' && !acceptExts.includes('.json')) acceptExts.push('.json');
+  if (ext === '.csv' && !acceptExts.includes('.csv')) acceptExts.push('.csv');
 
   const w = window as Window & {
     showSaveFilePicker?: (opts: {
@@ -45,7 +50,7 @@ export async function browserSaveFile(input: {
           {
             description: filterDescription,
             accept: {
-              [input.mimeType]: [ext],
+              [input.mimeType || 'application/octet-stream']: acceptExts,
             },
           },
         ],

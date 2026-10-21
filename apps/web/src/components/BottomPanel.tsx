@@ -1490,7 +1490,13 @@ export function BottomPanel() {
                       <span>runId</span>
                       <span>选中</span>
 </div>
-                    <ul className="bottom-detect-list" data-testid="bottom-detect-run-list" data-live-feed="local-compute">
+                    <ul
+                      className="bottom-detect-list"
+                      data-testid="bottom-detect-run-list"
+                      data-live-feed="local-compute"
+                      data-native-worker="false"
+                      data-wave="wave33"
+                    >
                       {filteredDetectRuns.length === 0 ? (
                         <li data-testid="bottom-detect-run-empty">
                           <span>尚无检测 run（等待真实 Detect / Worker 回填）</span>
@@ -1524,7 +1530,13 @@ export function BottomPanel() {
                   </div>
                   <div className="bottom-detect-col" data-testid="bottom-detect-col-detail">
                     <h4 className="bottom-detect-col-title">运行详情</h4>
-                                        <dl className="bottom-detect-inspector" data-testid="bottom-detect-inspector" data-worker-chrome="wave17">
+                                        <dl
+                      className="bottom-detect-inspector"
+                      data-testid="bottom-detect-inspector"
+                      data-worker-chrome="wave17 wave33"
+                      data-native-worker="false"
+                      data-progress-source="local-compute-status-json"
+                    >
                       <div>
                         <dt>kind</dt>
                         <dd data-testid="bottom-detect-inspector-engine">{selectedDetectRun?.kind ?? '—'}</dd>
@@ -1576,6 +1588,33 @@ export function BottomPanel() {
                             ? selectedDetectRun.result == null
                               ? 'null (honest)'
                               : 'present'
+                            : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>error / message</dt>
+                        <dd
+                          data-testid="bottom-detect-inspector-error"
+                          data-has-error={
+                            selectedDetectRun &&
+                            (selectedDetectRun.status === 'failed' ||
+                              selectedDetectRun.status === 'BLOCKED' ||
+                              Boolean(selectedDetectRun.blockReasons?.length))
+                              ? 'true'
+                              : 'false'
+                          }
+                        >
+                          {selectedDetectRun
+                            ? selectedDetectRun.blockReasons?.length
+                              ? selectedDetectRun.blockReasons.join('; ')
+                              : selectedDetectRun.status === 'failed' ||
+                                  selectedDetectRun.status === 'BLOCKED'
+                                ? `status=${selectedDetectRun.status} (LocalCompute JSON; no Qt Worker)`
+                                : selectedDetectRun.status === 'cancelled'
+                                  ? 'cancelled (honest)'
+                                  : ['queued', 'running'].includes(selectedDetectRun.status)
+                                    ? `in-flight ${typeof selectedDetectRun.progress === 'number' ? Math.round(selectedDetectRun.progress * 100) + '%' : ''} — cancel via LocalCompute`
+                                    : '—'
                             : '—'}
                         </dd>
                       </div>

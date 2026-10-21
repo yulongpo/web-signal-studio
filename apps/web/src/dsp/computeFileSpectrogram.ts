@@ -100,7 +100,30 @@ export async function computeFileSpectrogram(
     segmentMilliseconds = 0;
     autoNb = true;
   } else if (options.segmentMilliseconds != null && options.segmentMilliseconds > 0) {
-    segmentMilliseconds = options.segmentMilliseconds;
+    // Wave33 A1: fixed SegmentMs → resolveAnalysisSamples PoT (no non-PoT invent).
+    if (
+      options.bandwidthHz != null &&
+      options.bandwidthHz > 0 &&
+      options.analysisPoints != null
+    ) {
+      const plan = resolveAnalysisSamples({
+        sampleRateHz: options.sampleRateHz,
+        bandwidthHz: options.bandwidthHz,
+        points: options.analysisPoints,
+        segmentMilliseconds: options.segmentMilliseconds,
+      });
+      const resolved = webFftSizeFromAnalysisSamples(plan.analysisSamples);
+      const overlap = hopSize > 0 && fftSize > 0 ? 1 - hopSize / fftSize : 0.75;
+      fftSize = resolved;
+      hopSize = Math.max(
+        1,
+        Math.floor(fftSize * (1 - Math.min(Math.max(overlap, 0), 0.999999))),
+      );
+      segmentMilliseconds = options.segmentMilliseconds;
+      autoNb = false;
+    } else {
+      segmentMilliseconds = options.segmentMilliseconds;
+    }
   } else {
     segmentMilliseconds = segmentMillisecondsFromFft(fftSize, options.sampleRateHz);
   }

@@ -1,6 +1,6 @@
 /**
- * G08 wave23: rebuild MainWindow::buildMenus QKeySequence parity.
- * New/Open/Save/Undo/Redo/Delete + Alt+Left/Right view history.
+ * G08 wave23/wave33: rebuild MainWindow::buildMenus QKeySequence parity.
+ * New/Open/Save/Undo/Redo/Delete/SelectAll + Alt+Left/Right view history.
  * Skips when focus is a typing target (Qt QLineEdit preference).
  */
 import { useEffect, useRef } from 'react';
@@ -20,11 +20,14 @@ export type MenuBarShortcutHandlers = {
   onUndo: () => void;
   onRedo: () => void;
   onDeleteMark: () => void;
+  /** Desktop QKeySequence::SelectAll (~main_window.cpp L4234). */
+  onSelectAllMarks: () => void;
   viewHistoryBack: () => void;
   viewHistoryForward: () => void;
   canUndo: boolean;
   canRedo: boolean;
   canDeleteMark: boolean;
+  canSelectAllMarks: boolean;
   canViewBack: boolean;
   canViewForward: boolean;
   canSave: boolean;
@@ -94,6 +97,13 @@ export function useMenuBarShortcuts(handlers: MenuBarShortcutHandlers): void {
         if (!h.canRedo) return;
         e.preventDefault();
         h.onRedo();
+        return;
+      }
+      // Wave33 B1: Ctrl+A SelectAll marks (desktop ShortcutOverride SelectAll).
+      if (key === 'a' && !e.shiftKey) {
+        if (!h.canSelectAllMarks) return;
+        e.preventDefault();
+        h.onSelectAllMarks();
         return;
       }
     };

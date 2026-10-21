@@ -122,6 +122,7 @@ export function MainChartHost() {
   const stftKaiserBetaPref = useUiStore((s) => s.stftKaiserBetaPref);
   const stftAutoNbPref = useUiStore((s) => s.stftAutoNbPref);
   const stftRemoveMeanPref = useUiStore((s) => s.stftRemoveMeanPref);
+  const stftSegmentMsPref = useUiStore((s) => s.stftSegmentMsPref);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
   const navWindowTime = useUiStore((s) => s.navWindowTime);
@@ -183,6 +184,8 @@ export function MainChartHost() {
     const kaiserBeta = stftKaiserBetaPref;
     const removeMean = stftRemoveMeanPref;
     const autoNb = stftAutoNbPref;
+    // Wave33 A1: fixed SegmentMs when auto-N off. A2 still uses full-band fs
+    // (no visible-span store key — C owns chart freq view; do not dual-write).
 
     const run = async () => {
       if (session) {
@@ -202,10 +205,15 @@ export function MainChartHost() {
             ? {
                 segmentMilliseconds: 0 as const,
                 // Full-band IQ: display bandwidth = fs (desktop upper-lower).
+                // Job A: no uiStore visible-bandwidth key; C owns chart freq span.
                 bandwidthHz: session.sampleRateHz,
                 analysisPoints: fftSize,
               }
-            : {}),
+            : {
+                segmentMilliseconds: stftSegmentMsPref,
+                bandwidthHz: session.sampleRateHz,
+                analysisPoints: fftSize,
+              }),
         });
         if (ac.signal.aborted) return;
         const kind = kindForVia(session.via);
@@ -254,7 +262,11 @@ export function MainChartHost() {
               bandwidthHz: 1_000_000,
               analysisPoints: fftSize,
             }
-          : {}),
+          : {
+              segmentMilliseconds: stftSegmentMsPref,
+              bandwidthHz: 1_000_000,
+              analysisPoints: fftSize,
+            }),
       });
       if (ac.signal.aborted) return;
       setSpec(result);
@@ -290,7 +302,7 @@ export function MainChartHost() {
     });
 
     return () => ac.abort();
-  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, stftKaiserBetaPref, stftAutoNbPref, stftRemoveMeanPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
+  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, stftKaiserBetaPref, stftAutoNbPref, stftRemoveMeanPref, stftSegmentMsPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;

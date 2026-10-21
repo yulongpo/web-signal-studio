@@ -30,6 +30,8 @@ const STFT_WINDOW_OPTIONS = [
   'kaiser',
 ] as const;
 const STFT_OVERLAP_PCT_OPTIONS = [0, 25, 50, 75, 90] as const;
+/** Desktop SpectralSettings duration_ values (ms) when auto-N off. */
+const STFT_SEGMENT_MS_OPTIONS = [0.1, 1, 10, 100] as const;
 
 export function AuxParamStrip() {
   const auxChartKind = useUiStore((s) => s.auxChartKind);
@@ -124,6 +126,10 @@ export function SpecParamStrip() {
   const setStftAutoNbPref = useUiStore((s) => s.setStftAutoNbPref);
   const stftRemoveMeanPref = useUiStore((s) => s.stftRemoveMeanPref);
   const setStftRemoveMeanPref = useUiStore((s) => s.setStftRemoveMeanPref);
+  const stftSegmentMsPref = useUiStore((s) => s.stftSegmentMsPref);
+  const setStftSegmentMsPref = useUiStore((s) => s.setStftSegmentMsPref);
+  const [overlapDraft, setOverlapDraft] = useState<string | null>(null);
+  const [segmentDraft, setSegmentDraft] = useState<string | null>(null);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -239,7 +245,7 @@ return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26 wave29" data-strip-dsp="wave19 wave21 wave25 wave26 wave29" data-stft-n-drives-compute="wave22"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26 wave29 wave33" data-strip-dsp="wave19 wave21 wave25 wave26 wave29 wave33" data-stft-n-drives-compute="wave22" data-stft-segment-ms="wave33" data-native-qfiledialog="false"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -665,9 +671,34 @@ return (
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-overlap">重叠 %</span>
                 <select
                   data-testid="select-stft-overlap"
-                  value={String(Math.round(stftOverlapPref * 100))}
-                  onChange={(e) => setStftOverlapPref(Number(e.target.value) / 100)}
-                  title="Desired overlap % (hop = fft*(1-overlap))"
+                  value={
+                    overlapDraft != null
+                      ? overlapDraft
+                      : String(Math.round(stftOverlapPref * 100))
+                  }
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const pct = Number(raw);
+                    if (
+                      !Number.isFinite(pct) ||
+                      !STFT_OVERLAP_PCT_OPTIONS.includes(
+                        pct as (typeof STFT_OVERLAP_PCT_OPTIONS)[number],
+                      )
+                    ) {
+                      setOverlapDraft(raw);
+                      return;
+                    }
+                    setOverlapDraft(null);
+                    setStftOverlapPref(pct / 100);
+                  }}
+                  onBlur={() => setOverlapDraft(null)}
+                  title={
+                    overlapDraft != null
+                      ? `Invalid overlap draft "${overlapDraft}" — lastValid=${Math.round(stftOverlapPref * 100)}% (allowed: ${STFT_OVERLAP_PCT_OPTIONS.join("/")})`
+                      : `Desired overlap % (hop = fft*(1-overlap)); lastValid=${Math.round(stftOverlapPref * 100)}%`
+                  }
+                  data-last-valid={String(Math.round(stftOverlapPref * 100))}
+                  data-invalid-draft={overlapDraft != null ? "true" : "false"}
                 >
                   {STFT_OVERLAP_PCT_OPTIONS.map((pct) => (
                     <option key={pct} value={pct}>
@@ -717,7 +748,9 @@ return (
               <div
                 className="overflow-item overflow-qlabel-only"
                 data-testid="overflow-spectral-statistic"
-                data-strip-wave="wave25"
+                data-strip-wave="wave25 wave33"
+                data-psd-only="true"
+                data-stft-statistic="NA_PSD_ONLY"
                 data-statistic-status={STFT_SPECTRUM_STATISTIC_STATUS}
               >
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-statistic">统计类型</span>
@@ -728,18 +761,19 @@ return (
               <div
                 className="overflow-item overflow-qlabel-only"
                 data-testid="overflow-spectral-segment-ms"
-                data-strip-wave="wave25 wave26 wave29"
+                data-strip-wave="wave25 wave26 wave29 wave33"
                 data-auto-n={stftAutoNbPref ? "on" : "off"}
                 data-dsp-auto-nb={dspAutoNb == null ? "" : dspAutoNb ? "true" : "false"}
-                title="Desktop segmentMilliseconds: 0 = auto N/B via resolveAnalysisSamples (bandwidthHz + analysisPoints=stftN)"
+                data-object-name="stftSegmentMs"
+                title="Desktop segmentMilliseconds: 0 = auto N/B; fixed 0.1/1/10/100 ms via resolveAnalysisSamples PoT"
               >
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-segment-ms">分段时长</span>
                 <span className="muted" data-testid="overflow-stft-segment-ms">
                   {stftAutoNbPref
                     ? dspAutoNb
-                      ? `auto N/B → ${segmentMsLabel}`
+                      ? `auto N/B · ${segmentMsLabel}`
                       : "auto N/B (pending settle)"
-                    : segmentMsLabel}
+                    : `${stftSegmentMsPref} ms (pref) · settle ${segmentMsLabel}`}
                 </span>
                 <label className="overflow-toggle" data-testid="overflow-stft-auto-nb-toggle">
                   <input
@@ -750,15 +784,57 @@ return (
                   />
                   <span data-testid="overflow-stft-auto-nb-label">auto N/B (segmentMs=0)</span>
                 </label>
+                {!stftAutoNbPref ? (
+                  <label className="overflow-field" data-testid="overflow-stft-segment-ms-field">
+                    <span className="chart-strip-qlabel">SegmentMs</span>
+                    <select
+                      data-testid="select-stft-segment-ms"
+                      value={
+                        segmentDraft != null
+                          ? segmentDraft
+                          : String(stftSegmentMsPref)
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        const ms = Number(raw);
+                        if (
+                          !Number.isFinite(ms) ||
+                          !STFT_SEGMENT_MS_OPTIONS.includes(
+                            ms as (typeof STFT_SEGMENT_MS_OPTIONS)[number],
+                          )
+                        ) {
+                          setSegmentDraft(raw);
+                          return;
+                        }
+                        setSegmentDraft(null);
+                        setStftSegmentMsPref(ms);
+                      }}
+                      onBlur={() => setSegmentDraft(null)}
+                      title={
+                        segmentDraft != null
+                          ? `Invalid SegmentMs draft "${segmentDraft}" — lastValid=${stftSegmentMsPref} ms (allowed: ${STFT_SEGMENT_MS_OPTIONS.join("/")})`
+                          : `Fixed SegmentMs when auto-N off (desktop duration_); lastValid=${stftSegmentMsPref} ms`
+                      }
+                      data-last-valid={String(stftSegmentMsPref)}
+                      data-invalid-draft={segmentDraft != null ? "true" : "false"}
+                    >
+                      {STFT_SEGMENT_MS_OPTIONS.map((ms) => (
+                        <option key={ms} value={ms}>
+                          {ms} ms
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                ) : null}
                 <span
                   className="overflow-disabled-copy muted"
                   data-testid="overflow-stft-segment-auto-n"
                   data-blocked="false"
-                  data-strip-wave="wave29"
+                  data-strip-wave="wave29 wave33"
                 >
                   {stftAutoNbPref
                     ? "uses resolveAnalysisSamples(bandwidth=fs, points=stftN)"
-                    : "fixed fftSize=stftN (derived seg ms)"}
+                    : "fixed SegmentMs → resolveAnalysisSamples PoT (bandwidth=fs)"}
                 </span>
               </div>
               <label

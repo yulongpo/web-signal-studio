@@ -271,6 +271,18 @@ export function MenuBar() {
     close();
   };
 
+  /** Wave33 B1: desktop QKeySequence::SelectAll — all marks in M06 session. */
+  const onSelectAllMarks = () => {
+    if (!hook) return;
+    const ids = (hook.session.annotations.annotations ?? []).map((a) => a.id);
+    if (ids.length === 0) return;
+    const activeId: string | undefined = ids.includes(activeMarkId ?? '')
+      ? (activeMarkId ?? undefined)
+      : ids[0];
+    hook.setSelection({ activeMarkId: activeId, selectedMarkIds: ids });
+    setM06Tick((t) => t + 1);
+  };
+
   const openRenameDialog = () => {
     if (!hook || !activeMarkId) return;
     const ann = hook.session.annotations.annotations.find((a) => a.id === activeMarkId);
@@ -309,11 +321,13 @@ export function MenuBar() {
     onUndo,
     onRedo,
     onDeleteMark,
+    onSelectAllMarks,
     viewHistoryBack,
     viewHistoryForward,
     canUndo,
     canRedo,
     canDeleteMark,
+    canSelectAllMarks: Boolean(hook),
     canViewBack,
     canViewForward,
     canSave: projectSource === 'json',
@@ -386,6 +400,8 @@ export function MenuBar() {
                 type="button"
                 role="menuitem"
                 data-testid="menu-open-project-folder"
+                data-honesty="directory-picker-only"
+                title="Browser Directory Picker only — does not load a Qt project folder tree; use Open project JSON for real projects."
                 onClick={() => void onOpenProjectFolder()}
               >
                 打开工程文件夹…
@@ -407,6 +423,8 @@ export function MenuBar() {
                 type="button"
                 role="menuitem"
                 data-testid="menu-load-sample"
+                data-honesty="in-memory-sample"
+                title="Loads the in-memory sample project fixture (not a native Qt sample path / QFileDialog)."
                 onClick={() => {
                   loadSampleProject();
                   close();
@@ -440,11 +458,35 @@ export function MenuBar() {
               
                 <span className="menubar-accel" aria-hidden>Ctrl+S</span>
               </button>
-              <div className="menubar-item menubar-submenu" data-testid="menu-recent-projects">
-                <button type="button" role="menuitem" className="menubar-submenu-trigger" tabIndex={-1}>
+              <div
+                className="menubar-item menubar-submenu"
+                data-testid="menu-recent-projects"
+                data-a11y="wave33"
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setOpenMenu(null);
+                  }
+                }}
+              >
+                <button type="button" role="menuitem" className="menubar-submenu-trigger" tabIndex={0}>
                   最近打开的工程
                 </button>
-                <div className="menubar-dropdown menubar-submenu-panel" role="menu">
+                <div
+                  className="menubar-dropdown menubar-submenu-panel"
+                  role="menu"
+                  tabIndex={-1}
+                  data-testid="menu-recent-panel"
+                  data-focus-trap="esc-close"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setOpenMenu(null);
+                    }
+                  }}
+                >
                   {recentEntries.length === 0 ? (
                     <button type="button" role="menuitem" disabled data-testid="menu-recent-empty">
                       暂无历史工程
@@ -563,7 +605,28 @@ export function MenuBar() {
               
                 <span className="menubar-accel" aria-hidden>Del</span>
               </button>
-                            <button
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-edit-select-all-marks"
+                data-accel="Ctrl+A"
+                data-wave="wave33"
+                disabled={!hook}
+                title={
+                  hook
+                    ? 'Select all marks (desktop QKeySequence::SelectAll)'
+                    : 'M-06 hook not installed'
+                }
+                onClick={() => {
+                  onSelectAllMarks();
+                  close();
+                }}
+              >
+                全选标记
+              
+                <span className="menubar-accel" aria-hidden>Ctrl+A</span>
+              </button>
+              <button
                 type="button"
                 role="menuitem"
                 data-testid="menu-edit-rename-mark"
