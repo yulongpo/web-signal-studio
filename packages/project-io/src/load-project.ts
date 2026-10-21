@@ -22,6 +22,14 @@ export interface LoadedProject {
   document: ProjectDocumentJson;
 }
 
+/**
+ * Parse native project JSON text.
+ *
+ * Important: sample indexes must be canonical decimal **strings** on the wire.
+ * JSON.parse of a numeric literal past Number.MAX_SAFE_INTEGER loses
+ * precision irreversibly - a reviver cannot restore rounded digits. Do not emit
+ * bare JSON Numbers for sampleCount / begin / end / start / end indexes.
+ */
 export function parseProjectJson(text: string): LoadedProject {
   let raw: unknown;
   try {

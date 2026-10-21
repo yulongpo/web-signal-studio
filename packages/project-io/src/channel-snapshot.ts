@@ -4,6 +4,7 @@ import {
   type AnnotationChannelSnapshotJson,
   type AnnotationSourceKind,
   type ChannelBindingKind,
+  type ProjectChannelJson,
   type ReviewStatus,
   type SourceIdentityJson,
   type ViewRange,
@@ -87,6 +88,64 @@ export function decodeChannelSnapshotJson(
   };
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+/** Narrow an unknown embedded object to AnnotationChannelSnapshotJson shape (ids + range present). */
+export function isAnnotationChannelSnapshotJson(
+  value: unknown,
+): value is AnnotationChannelSnapshotJson {
+  if (!isPlainObject(value)) return false;
+  return (
+    typeof value.annotationId === 'string' &&
+    typeof value.segmentId === 'string' &&
+    typeof value.revisionId === 'string' &&
+    typeof value.name === 'string' &&
+    isPlainObject(value.range) &&
+    typeof value.bindingKind === 'string' &&
+    typeof value.sourceKind === 'string' &&
+    typeof value.reviewStatus === 'string' &&
+    isPlainObject(value.sourceIdentity)
+  );
+}
+
+/**
+ * Attach a typed in-memory snapshot onto a project channel for v6 persistence.
+ * Sets sourceSnapshot (wire JSON with decimal sample strings) plus related id fields.
+ */
+export function attachChannelSnapshot(
+  channel: ProjectChannelJson,
+  snapshot: AnnotationChannelSnapshot,
+): ProjectChannelJson {
+  const encoded = encodeChannelSnapshotJson(snapshot);
+  return {
+    ...channel,
+    annotationId: snapshot.annotationId,
+    segmentId: snapshot.segmentId,
+    revisionId: snapshot.revisionId,
+    sourceSnapshot: encoded as unknown as Record<string, unknown>,
+    sourceIdentity: { ...snapshot.sourceIdentity } as Record<string, unknown>,
+  };
+}
+
+/**
+ * Read/decode a channel's embedded sourceSnapshot.
+ * Returns undefined when no snapshot is present.
+ * v6 requires boundRange; pre-v6 falls back to range (via decodeChannelSnapshotJson).
+ */
+export function readChannelSnapshot(
+  channel: ProjectChannelJson,
+  projectVersion = 6,
+): AnnotationChannelSnapshot | undefined {
+  const raw = channel.sourceSnapshot;
+  if (raw == null) return undefined;
+  if (!isAnnotationChannelSnapshotJson(raw)) {
+    throw new ProjectIoError('channel.sourceSnapshot is not a valid AnnotationChannelSnapshotJson');
+  }
+  return decodeChannelSnapshotJson(raw, projectVersion);
+}
+
 export function makeLocatedSegmentSnapshot(input: {
   annotationId: string;
   segmentId: string;
@@ -132,3 +191,4 @@ export function viewRangeJsonFromDecimals(
     frequency: { lowerHz, upperHz },
   };
 }
+

@@ -24,7 +24,25 @@ export {
 export {
   encodeChannelSnapshotJson,
   decodeChannelSnapshotJson,
+  isAnnotationChannelSnapshotJson,
+  attachChannelSnapshot,
+  readChannelSnapshot,
   makeLocatedSegmentSnapshot,
   viewRangeJsonFromDecimals,
   type AnnotationChannelSnapshot,
 } from './channel-snapshot.js';
+
+/**
+ * Bot-B web shell: prefer openProjectFromJsonText / saveProjectToJsonText
+ * (and annotation counterparts) over hand-rolled JSON.
+ */
+export {
+  openProjectFromJsonText,
+  saveProjectToJsonText,
+  openAnnotationsFromJsonText,
+  saveAnnotationsToJsonText,
+  summarizeLoadedProject,
+  type OpenProjectResult,
+  type SaveProjectOptions,
+  type ProjectSessionSummary,
+} from './project-session.js';
