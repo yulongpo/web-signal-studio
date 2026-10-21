@@ -109,3 +109,25 @@ export function resolveInteractionCursor(opts: {
   return "default";
 }
 
+/** CSS cursor for Kind::Navigation overview window @ 17471a6. */
+export type NavigationOverviewCursor = "grab" | "grabbing" | "pointer";
+
+/**
+ * Match PlotWidget::updateHover Navigation branch @ 17471a6:
+ * - gesture + navigationInside + changed → ClosedHandCursor → grabbing
+ * - navigationWindow().contains(point) → OpenHandCursor → grab
+ * - else → PointingHandCursor → pointer
+ *
+ * "create" drag outside the window keeps pointer (not ClosedHand).
+ */
+export function resolveNavigationOverviewCursor(opts: {
+  insideWindow: boolean;
+  /** True only while dragging the overview window (move), not create-drag. */
+  draggingWindow?: boolean;
+}): NavigationOverviewCursor {
+  const { insideWindow, draggingWindow = false } = opts;
+  if (draggingWindow) return "grabbing";
+  if (insideWindow) return "grab";
+  return "pointer";
+}
+

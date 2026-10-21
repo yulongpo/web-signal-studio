@@ -1,10 +1,10 @@
-{
-  "bot": "bot-c",
-  "scope": "G11 OpenHandCursor",
-  "baseSha": "97fc7c0ab94507fc2c9d534b1c3e568458e128c7",
-  "baseShort": "97fc7c0",
-  "desktop": "17471a6",
-  "selfPass": false,
-  "notes": "Axis pan OpenHand/ClosedHand via resolveInteractionCursor + HeatmapCanvas style.cursor. Plot ZoomBox crosshair preserved. No PASS.",
-  "base": "97fc7c0"
-}
+{
+  "bot": "bot-c",
+  "scope": "G11 overview OpenHand",
+  "baseSha": "9248453b0f58375bd50e93719a6371574c3d0a84",
+  "baseShort": "9248453",
+  "desktop": "17471a6",
+  "selfPass": false,
+  "notes": "NavigationChart overview window OpenHand/ClosedHand/PointingHand via resolveNavigationOverviewCursor. No PASS.",
+  "base": "9248453"
+}
