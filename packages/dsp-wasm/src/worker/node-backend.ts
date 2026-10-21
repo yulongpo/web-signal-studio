@@ -12,22 +12,25 @@ import { Worker } from 'node:worker_threads';
 import type { WorkerBackend } from './backends.js';
 import type { DspWorkerRequest, DspWorkerResponse } from './protocol.js';
 
-const ENTRY = fileURLToPath(new URL('./node-worker-entry.ts', import.meta.url));
-const CONTRACTS = fileURLToPath(
-  new URL('../../../contracts/src/index.ts', import.meta.url),
-);
-
 let bundlePromise: Promise<string> | null = null;
+
+function resolveNodeWorkerPaths(): { entry: string; contracts: string } {
+  return {
+    entry: fileURLToPath(new URL('./node-worker-entry.ts', import.meta.url)),
+    contracts: fileURLToPath(new URL('../../../contracts/src/index.ts', import.meta.url)),
+  };
+}
 
 async function ensureWorkerBundle(): Promise<string> {
   if (!bundlePromise) {
     bundlePromise = (async () => {
-      const hash = createHash('sha1').update(ENTRY).update(String(existsSync(ENTRY))).digest('hex').slice(0, 12);
+      const { entry, contracts } = resolveNodeWorkerPaths();
+      const hash = createHash('sha1').update(entry).update(String(existsSync(entry))).digest('hex').slice(0, 12);
       const outfile = path.join(tmpdir(), `wss-dsp-node-worker-${hash}.mjs`);
       // Always rebuild — sources change during development; tmp path is cheap.
       const esbuild = await import('esbuild');
       await esbuild.build({
-        entryPoints: [ENTRY],
+        entryPoints: [entry],
         bundle: true,
         platform: 'node',
         format: 'esm',
@@ -35,7 +38,7 @@ async function ensureWorkerBundle(): Promise<string> {
         target: 'node20',
         // Workspace packages are TypeScript with .js import specifiers.
         alias: {
-          '@wss/contracts': CONTRACTS,
+          '@wss/contracts': contracts,
         },
         logLevel: 'silent',
       });

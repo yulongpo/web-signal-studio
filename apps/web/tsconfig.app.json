@@ -38,6 +38,15 @@
       "@wss/charts/*": [
         "../../packages/charts/src/*"
       ],
+      "@wss/dsp-wasm": [
+        "../../packages/dsp-wasm/src/index.ts"
+      ],
+      "@wss/file-io": [
+        "../../packages/file-io/src/index.ts"
+      ],
+      "@wss/contracts": [
+        "../../packages/contracts/src/index.ts"
+      ],
       "@wss/charts/lut/colormaps": [
         "../../packages/charts/src/lut/colormaps.ts"
       ]
@@ -48,3 +57,4 @@
     "src"
   ]
 }
+

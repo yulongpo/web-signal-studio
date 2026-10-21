@@ -1,7 +1,8 @@
 /**
- * DspWorkerClient — cancelable PSD / STFT / DDC over an injectable WorkerBackend.
+ * DspWorkerClient 鈥?cancelable PSD / STFT / DDC over an injectable WorkerBackend.
  * Default backend is InProcessAsyncBackend (Node/vitest friendly).
  * Use createNodeDspWorkerClient() for a real worker_threads path.
+ * Use createBrowserDspWorkerClient() for a browser module Worker path.
  */
 
 import type {
@@ -15,7 +16,10 @@ import type {
 } from '@wss/contracts';
 import { sampleIndexFromDecimal, sampleIndexToDecimal } from '@wss/contracts';
 import { InProcessAsyncBackend, type WorkerBackend } from './backends.js';
-import { createNodeWorkerBackend, type NodeWorkerBackend } from './node-backend.js';
+import {
+  BrowserWorkerBackend,
+  type BrowserWorkerBackendOptions,
+} from './browser-backend.js';
 import type {
   DdcResultWire,
   DspWorkerRequest,
@@ -243,8 +247,18 @@ export function createDspWorkerClient(options?: DspWorkerClientOptions): DspWork
   return new DspWorkerClient(options);
 }
 
-/** Real worker_threads client (bundles handler via esbuild). */
+/** Real worker_threads client (bundles handler via esbuild). Lazy-imports node-backend. */
 export async function createNodeDspWorkerClient(): Promise<DspWorkerClient> {
-  const backend: NodeWorkerBackend = await createNodeWorkerBackend();
+  const { createNodeWorkerBackend } = await import('./node-backend.js');
+  const backend = await createNodeWorkerBackend();
   return new DspWorkerClient({ backend });
 }
+
+/** Browser module Worker client (Vite: new URL('./dsp-worker.ts', import.meta.url)). */
+export function createBrowserDspWorkerClient(
+  options?: BrowserWorkerBackendOptions,
+): DspWorkerClient {
+  const backend = new BrowserWorkerBackend(options);
+  return new DspWorkerClient({ backend });
+}
+
