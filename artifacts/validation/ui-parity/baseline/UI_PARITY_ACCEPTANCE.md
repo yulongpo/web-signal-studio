@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 01:19` Asia/Shanghai: Web **`eca5a16`** vs desktop `17471a6` — G08/G07/G18 PARTIAL deepened (B wave17 keyboard + inspector feed + rail twin). G19 native QFileDialog residual. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_eca5a16.md`. **No PASS.**
+
+| ID | Prior (`c9ed974`) | Now (`eca5a16`) | Note |
+|----|-------------------|-----------------|------|
+| **G08** | PARTIAL | **PARTIAL 加深** | keyboard MET；full re-shot → **未 CLOSED** |
+| **G07** | PARTIAL | **PARTIAL 加深** | inspector feed MET；全 Qt Worker → **未 CLOSED** |
+| **G18** | PARTIAL | **PARTIAL 加深** | rail twin MET；NB/Esc → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_eca5a16.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:14` Asia/Shanghai: Web **`c9ed974`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave16 MeasuredEvidenceTrace + Inspector + OS chrome). True native QFileDialog still residual. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_c9ed974.md`. **No PASS.**
 
 | ID | Prior (`2bcef55`) | Now (`c9ed974`) | Note |
