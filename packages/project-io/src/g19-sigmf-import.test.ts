@@ -107,7 +107,12 @@ describe.runIf(demoPresent)('G19–G20 SigMF demo import stream (HH-laptop demo)
     expect(state.fileCount).toBe(1);
     expect(state.sampleCount).toBe('400000');
     expect(state.annotationCount).toBeGreaterThanOrEqual(4);
-    expect(state.treeLabels.some((l) => l.includes('400000'))).toBe(true);
+    expect(state.sourceGroupLabels).toEqual(['ImportedLabel', 'Manual', 'Algorithm']);
+    expect(state.markNodeCount).toBeGreaterThanOrEqual(4);
+    const fileNode = hook.getTree()[0]?.children?.[0]?.children?.[0];
+    expect(fileNode?.kind).toBe('file');
+    expect(fileNode?.detail ?? '').toMatch(/400000 samples/);
+    expect(fileNode?.children?.some((c) => c.kind === 'marks')).toBe(true);
 
     const target: Record<string, unknown> = {};
     installG19E2eHook(target as { [typeof WSS_G19_HOOK_KEY]?: ReturnType<typeof createG19E2eHook> });

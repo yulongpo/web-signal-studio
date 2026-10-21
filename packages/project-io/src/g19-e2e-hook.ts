@@ -1,20 +1,25 @@
 /**
- * G19–G20 testable hook (Bot-F).
+ * G19-G20 testable hook (Bot-F).
  *
  * Bot-B can install on `window.__wssG19` in Playwright / e2e bootstrap:
  *   import { installG19E2eHook } from '@wss/project-io';
  *   installG19E2eHook(window);
  *
- * Does not edit uiStore / ProjectTree — B maps `getTree()` into the left rail.
+ * Does not edit uiStore / ProjectTree - B maps `getTree()` into the left rail.
  */
 
+import type { AnnotationsDocumentJson } from '@wss/contracts';
 import {
   SIGMF_DEMO_DATA_PATH,
   SIGMF_DEMO_JSON_PATH,
   SIGMF_DEMO_META_PATH,
   listAllowedDemoIqPaths,
 } from './demo-iq-paths.js';
-import { engineeringTreeFromProject, type EngineeringTreeNode } from './engineering-tree.js';
+import {
+  engineeringTreeFromSession,
+  listMarkNodes,
+  type EngineeringTreeNode,
+} from './engineering-tree.js';
 import {
   importSigmfStream,
   type ImportSigmfStreamResult,
@@ -31,6 +36,8 @@ export interface G19E2eHookState {
   sampleRateHz?: number;
   centerFrequencyHz?: number;
   annotationCount: number;
+  markNodeCount: number;
+  sourceGroupLabels: string[];
   treeLabels: string[];
   lastRow?: ImportStreamRow;
   companionSchema?: string;
@@ -48,30 +55,58 @@ export interface G19E2eHookApi {
     mode?: 'append' | 'replace';
     fileId?: string;
   }): G19E2eHookState;
+  /** Replace annotations doc used for three-source tree (host/B wiring). */
+  setAnnotations(doc: AnnotationsDocumentJson | null): G19E2eHookState;
   getState(): G19E2eHookState;
+  /** Full tree including Marks / ImportedLabel|Manual|Algorithm groups. */
   getTree(): EngineeringTreeNode[];
+  listMarks(): EngineeringTreeNode[];
   exportProjectJson(): string | null;
   exportAnnotationsJson(): string | null;
   clear(): void;
   readonly lastResult: ImportSigmfStreamResult | null;
 }
 
-function toState(result: ImportSigmfStreamResult | null): G19E2eHookState {
+function collectSourceLabels(tree: EngineeringTreeNode[]): string[] {
+  const out: string[] = [];
+  const walk = (n: EngineeringTreeNode) => {
+    if (n.kind === 'annotationSource' && n.sourceKind) out.push(n.sourceKind);
+    for (const c of n.children ?? []) walk(c);
+  };
+  for (const r of tree) walk(r);
+  return out;
+}
+
+function toState(
+  result: ImportSigmfStreamResult | null,
+  annotationsOverride: AnnotationsDocumentJson | null,
+): G19E2eHookState {
   if (!result) {
-    return { fileCount: 0, annotationCount: 0, treeLabels: [] };
+    return {
+      fileCount: 0,
+      annotationCount: 0,
+      markNodeCount: 0,
+      sourceGroupLabels: [],
+      treeLabels: [],
+    };
   }
+  const annotations = annotationsOverride ?? result.annotations;
+  const tree = engineeringTreeFromSession(result.project, {
+    annotations,
+    includeEmptySourceGroups: true,
+  });
   const file = result.project.files[0];
-  const folder = result.tree[0]?.children?.[0];
-  const labels =
-    folder?.children?.map((n) => n.label) ??
-    result.tree.map((n) => n.label);
+  const iq = tree[0]?.children?.[0];
+  const labels = iq?.children?.map((n) => n.label) ?? tree.map((n) => n.label);
   return {
     fileCount: result.project.files.length,
     activeFileId: result.project.activeFileId,
     sampleCount: file?.metadata.sampleCount,
     sampleRateHz: file?.metadata.sampleRateHz,
     centerFrequencyHz: file?.metadata.centerFrequencyHz,
-    annotationCount: result.annotations.annotations.length,
+    annotationCount: annotations.annotations.length,
+    markNodeCount: listMarkNodes(tree).length,
+    sourceGroupLabels: collectSourceLabels(tree),
     treeLabels: labels,
     lastRow: result.row,
     companionSchema: result.companionSchema,
@@ -80,6 +115,7 @@ function toState(result: ImportSigmfStreamResult | null): G19E2eHookState {
 
 export function createG19E2eHook(): G19E2eHookApi {
   let last: ImportSigmfStreamResult | null = null;
+  let annotationsOverride: AnnotationsDocumentJson | null = null;
   const api: G19E2eHookApi = {
     get lastResult() {
       return last;
@@ -97,14 +133,30 @@ export function createG19E2eHook(): G19E2eHookApi {
         fileId: input.fileId,
         enforceDemoPath: true,
       });
-      return toState(last);
+      annotationsOverride = null;
+      return toState(last, annotationsOverride);
     },
-    getState: () => toState(last),
-    getTree: () => (last ? engineeringTreeFromProject(last.project) : []),
+    setAnnotations(doc) {
+      annotationsOverride = doc;
+      return toState(last, annotationsOverride);
+    },
+    getState: () => toState(last, annotationsOverride),
+    getTree: () => {
+      if (!last) return [];
+      return engineeringTreeFromSession(last.project, {
+        annotations: annotationsOverride ?? last.annotations,
+        includeEmptySourceGroups: true,
+      });
+    },
+    listMarks: () => listMarkNodes(api.getTree()),
     exportProjectJson: () => (last ? saveProjectToJsonText(last.project) : null),
-    exportAnnotationsJson: () => (last ? saveAnnotationsToJsonText(last.annotations) : null),
+    exportAnnotationsJson: () => {
+      if (!last) return null;
+      return saveAnnotationsToJsonText(annotationsOverride ?? last.annotations);
+    },
     clear() {
       last = null;
+      annotationsOverride = null;
     },
   };
   return api;

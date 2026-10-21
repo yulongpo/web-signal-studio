@@ -29,6 +29,10 @@ export {
   WSS_G19_HOOK_KEY,
   G19_DEMO_PATHS,
   engineeringTreeFromProject,
+  engineeringTreeFromSession,
+  listMarkNodes,
+  ANNOTATION_SOURCE_TREE_COLORS,
+  ANNOTATION_SOURCE_TREE_LABELS,
   type EngineeringTreeNode,
   type G19E2eHookApi,
 } from '@wss/project-io';
