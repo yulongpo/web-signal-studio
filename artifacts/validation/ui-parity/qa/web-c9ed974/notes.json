@@ -1,0 +1,77 @@
+{
+  "id": "qa-web-c9ed974-wave16-measured-inspector",
+  "tip_web_evidence": "c9ed97458520f4735d21e4472767ca5a878b37c6",
+  "tip_impl_b_wave16": "b50b3c5",
+  "tip_impl_c_g18": "2bcef55",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-wave16-os-dialog-chrome.png",
+    "01b-wave16-os-dialog-crop.png",
+    "02-wave16-inspector-measured-stub.png",
+    "02b-wave16-inspector-panel-crop.png",
+    "02c-wave16-measured-stub-crop.png",
+    "03-wave16-inspector-measured-svg.png",
+    "03b-wave16-measured-svg-crop.png",
+    "04-wave16-auxiliary-with-trace.png",
+    "05-g18-linked-cursor-pinned.png",
+    "05b-g18-linked-cursor-cleared.png",
+    "fold-web-85596ed/* (11 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE16_G19_MEASURED_INSPECTOR_OS.md",
+    "G18-LINKED-CURSOR-HANDOFF.md"
+  ],
+  "observations": {
+    "os_dialog": {
+      "chrome": "wave16",
+      "native_qfiledialog": "false",
+      "title": true
+    },
+    "seed": {
+      "ok": true,
+      "state": {
+        "canUndo": true,
+        "canRedo": false,
+        "undoLabel": "Set active selection",
+        "undoDepth": 2,
+        "redoDepth": 0,
+        "annotationCount": 1,
+        "activeMarkId": "qa-wave16-mark-1",
+        "selectedMarkIds": [
+          "qa-wave16-mark-1"
+        ],
+        "hoveredMarkId": null
+      }
+    },
+    "inspector": {
+      "mode": "inspector",
+      "toggle_visible": true
+    },
+    "measured_stub": {
+      "invented": "false",
+      "measured_trace": "empty",
+      "reason": "no-timeAnalysis",
+      "point_count": "0"
+    },
+    "inject_trace": {
+      "ok": true,
+      "hasReplace": true
+    },
+    "measured_svg": {
+      "measured_trace": "valid",
+      "point_count": "5",
+      "kind": "measured-causal-mean-power-v1",
+      "invented": "false",
+      "svg_visible": true
+    },
+    "auxiliary_cols": "3",
+    "g18": {
+      "attempted": true,
+      "pinned": true,
+      "cleared": true
+    }
+  },
+  "gaps": []
+}
