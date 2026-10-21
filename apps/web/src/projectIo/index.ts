@@ -23,4 +23,12 @@ export {
   WSS_M06_HOOK_KEY,
   type M06SessionSnapshot,
   type M06E2eHookApi,
+  importSigmfStream,
+  createG19E2eHook,
+  installG19E2eHook,
+  WSS_G19_HOOK_KEY,
+  G19_DEMO_PATHS,
+  engineeringTreeFromProject,
+  type EngineeringTreeNode,
+  type G19E2eHookApi,
 } from '@wss/project-io';
