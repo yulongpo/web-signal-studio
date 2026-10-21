@@ -1,8 +1,18 @@
-﻿DESKTOP: LAUNCHED briefly from a143-native W6 runtime
-  D:\project\signal_studio_rebuild\out\tasks\wideband-ux-optimization\a143-native\W6\local-builds\dependency-refusal-published\missing-models\runtime\SignalStudio.exe
-Primary-screen capture: desktop-main-window-primary.png (may include desktop chrome; window may not have finished full paint in 5s).
-Also copied archival reference shots:
-  desktop-ref-wideband-release.png
-  desktop-ref-narrowband-release.png
-from docs/acceptance/chart-rendering-final/
-Stopped process after capture. Asia/Shanghai 2026-10-21 20:51:13
+﻿DESKTOP BASELINE REFRESH — tip 17471a6 (NOT a UI/matrix PASS claim)
+
+| Field | Value |
+|-------|--------|
+| tip | `17471a6488383b456281d12cb1a6d3d80290205d` |
+| worktree tip | fb2e020 (after CAO merge of 03e5f76) |
+| captured_at | 2026-10-21 21:33:02 Asia/Shanghai |
+| exe | `D:\project\signal_studio_rebuild\out\vs2026-qt611-release_bin\SignalStudio.exe` |
+| replaced | desktop-main-window-primary.png, desktop-ref-wideband-release.png, desktop-ref-narrowband-release.png |
+
+Primary: maximized launch, ~12s wait, primary-screen -> desktop-main-window-primary.png
+Wide/narrow refs: refreshed from docs/acceptance/chart-rendering-final on same rebuild tip tree.
+
+Blocked / gaps:
+- none for file replace; interactive rail/IQ desktop walkthrough still not scripted
+
+ui_parity_pass_claimed: false
+matrix_pass_claimed: false

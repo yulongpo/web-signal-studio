@@ -95,7 +95,7 @@ Smoke targets: `apps/web`, `services/local-compute`.
 | Baseline seeded in wss-wt-g | DONE |
 | G25/G26 folded into this checklist | DONE @ `7a84739` / `f77b933` |
 | Detection-path smoke (local-compute TRT + degrade) | **PASS** @ `563458a` (evidence in `qa/qa-detect-*`) |
-| Desktop baseline PNGs for UI compare | **STALE** — do not use for PASS (`qa/desktop-stale-note.txt`) |
+| Desktop baseline PNGs for UI compare | **Refreshed @ 17471a6** (aseline/desktop-*.png + note); still **no PASS claimed** |
 | `qa/` full UI screenshot pack | WIP — wait B/C tip + A re-audit |
 | UI parity closeout / matrix flip | WIP — no PASS from stale desktop shots |
 

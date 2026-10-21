@@ -1,6 +1,7 @@
-﻿# Desktop baseline PNGs — STALE (CAO 2026-10-21 21:17 Asia/Shanghai)
+﻿# Desktop baseline status — UPDATED
 
-Desktop branch refreshed. Do **not** use `../baseline/desktop-*.png` to judge UI-parity PASS until Bot-A re-audits / re-captures.
+As of 2026-10-21 21:33:02 Asia/Shanghai, `artifacts/validation/ui-parity/baseline/desktop-*.png` were **refreshed** from tip `17471a6488383b456281d12cb1a6d3d80290205d`.
 
-- Detection-path smoke (this folder's `qa-detect-*`) is independent of desktop screenshot parity.
-- Full UI smoke waits B/C tip + A baseline re-audit.
+- Prior STALE warning no longer applies to those desktop baseline files.
+- Web `baseline/web-*.png` were not replaced by this desktop refresh.
+- **Still not a UI/matrix PASS** — CAO decides after review.
