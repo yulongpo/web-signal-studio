@@ -56,3 +56,8 @@ npx playwright test
 2. CI 中 e2e job 显式 `if: false`（浏览器缓存成本）；以本地 Playwright 为准。
 3. `App.tsx` 壳与 Bot-B 的 `ProjectTree`/`StatusBar`/store 并行演进，本轮为过 typecheck 补齐了 `provisional` 类型导出。
 4. 无许可证扫描 / SBOM（Q-03）。
+## 工作树隔离（CAO 协调）
+
+- Bot-G 仅在 `D:\project\wss-wt-g`（分支 `work/bot-g-qa`）操作；**禁止**在共享 `D:\project\web_signal_studio` 上 checkout 切走 `main`。
+- 包名统一 `@wss/*`（`@wss/web`、`@wss/contracts`、`@wss/dsp-wasm`、`@wss/charts`、`@wss/domain`、`@wss/file-io`）。
+- worktree 复跑证据：`artifacts/validation/p1g-wt/summary.txt`（lint/tsc/unit/build/e2e 均为 0）。
