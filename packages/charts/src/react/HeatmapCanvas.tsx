@@ -131,6 +131,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
   const [error, setError] = useState<string | null>(null);
   const [webglState, setWebglState] = useState<WebGlUiState>("ok");
   const [restoreEpoch, setRestoreEpoch] = useState(0);
+  const [layoutEpoch, setLayoutEpoch] = useState(0);
   const [interactionMode, setInteractionMode] = useState<PreviewRefineMode>("idle");
   const [view, setView] = useState<ViewState>(() => ({
     xDomain: toViewDomain(xDomain),
@@ -186,6 +187,8 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     if (!canvas) return;
     try {
       const handle = createWebGL2Context(canvas, {
+        // Keep color buffer for Playwright / host screenshots of the GL layer.
+        preserveDrawingBuffer: true,
         onContextLost: () => {
           const plan = planHeatmapContextRestore("lost", !!rendererRef.current);
           setWebglState(plan.uiState);
@@ -239,6 +242,36 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     };
     // orientation change rebuilds
   }, [orientation]);
+
+  // Re-measure CSS box + DPR on container resize / window resize (C-03).
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    let raf = 0;
+    const bump = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setLayoutEpoch((n) => n + 1));
+    };
+    bump();
+    const RO = typeof ResizeObserver !== "undefined" ? ResizeObserver : null;
+    const ro = RO ? new RO(bump) : null;
+    ro?.observe(wrap);
+    window.addEventListener("resize", bump);
+    // CDP / OS DPR changes do not always fire resize or ResizeObserver.
+    let lastDpr = window.devicePixelRatio;
+    const dprTimer = window.setInterval(() => {
+      if (window.devicePixelRatio !== lastDpr) {
+        lastDpr = window.devicePixelRatio;
+        bump();
+      }
+    }, 100);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro?.disconnect();
+      window.removeEventListener("resize", bump);
+      window.clearInterval(dprTimer);
+    };
+  }, []);
 
   // Resize + draw
   useEffect(() => {
@@ -390,6 +423,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     axisOverlay,
     cursorOverlay,
     restoreEpoch,
+    layoutEpoch,
     webglState,
   ]);
 

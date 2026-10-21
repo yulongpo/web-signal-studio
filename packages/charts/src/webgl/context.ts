@@ -78,10 +78,11 @@ export function createWebGL2Context(
       return gl;
     },
     dispose() {
+      // Detach only. Do NOT call WEBGL_lose_context.loseContext() here:
+      // React Strict Mode remounts would race (lose event lands on the new
+      // listeners) and leave data-webgl-state stuck at "lost" in Playwright.
       canvas.removeEventListener("webglcontextlost", loseHandler);
       canvas.removeEventListener("webglcontextrestored", restoreHandler);
-      const ext = gl.getExtension("WEBGL_lose_context");
-      ext?.loseContext();
     },
   };
 }

@@ -1,7 +1,7 @@
 {
   "bot": "bot-c",
   "gate": "C-03",
-  "writtenAt": "2026-10-21T10:52:04.219Z",
+  "writtenAt": "2026-10-21T11:06:13.531Z",
   "before": {
     "cssW": 780,
     "cssH": 439,
@@ -10,19 +10,55 @@
     "dpr": 1,
     "dataDpr": "1",
     "dataBufferWidth": "780",
-    "dataBufferHeight": "439"
+    "dataBufferHeight": "439",
+    "webglState": "ok",
+    "expectedBufferW": 780,
+    "expectedBufferH": 439
   },
-  "after": {
+  "afterViewport": {
     "cssW": 475,
     "cssH": 319,
-    "bufferWidth": 780,
-    "bufferHeight": 439,
+    "bufferWidth": 475,
+    "bufferHeight": 319,
     "dpr": 1,
     "dataDpr": "1",
-    "dataBufferWidth": "780",
-    "dataBufferHeight": "439"
+    "dataBufferWidth": "475",
+    "dataBufferHeight": "319",
+    "webglState": "ok",
+    "expectedBufferW": 475,
+    "expectedBufferH": 319
+  },
+  "afterDeviceScaleFactor2": {
+    "cssW": 475,
+    "cssH": 319,
+    "bufferWidth": 950,
+    "bufferHeight": 638,
+    "dpr": 2,
+    "dataDpr": "2",
+    "dataBufferWidth": "950",
+    "dataBufferHeight": "638",
+    "webglState": "ok",
+    "expectedBufferW": 950,
+    "expectedBufferH": 638
+  },
+  "proportionality": {
+    "before": {
+      "bufferOverCssW": 1,
+      "bufferOverCssH": 1,
+      "dpr": 1
+    },
+    "afterViewport": {
+      "bufferOverCssW": 1,
+      "bufferOverCssH": 1,
+      "dpr": 1
+    },
+    "afterDeviceScaleFactor2": {
+      "bufferOverCssW": 2,
+      "bufferOverCssH": 2,
+      "dpr": 2
+    }
   },
   "screenshot": "c03_resize_chart.png",
   "status": "WIP",
-  "note": "Playwright viewport resize; canvas backing store reflects DPR"
+  "note": "ResizeObserver + window resize; bufferWidth ≈ cssW * dpr (Playwright + CDP deviceScaleFactor=2)"
 }

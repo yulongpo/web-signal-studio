@@ -68,6 +68,26 @@ jobs:
       - name: build
         run: npm run build -w @wss/web
 
+
+  packages-charts:
+    name: '@wss/charts typecheck unit'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: npm ci (repo root)
+        run: npm ci
+      - name: typecheck charts
+        run: npm run typecheck -w @wss/charts
+      - name: unit charts
+        run: npm test -w @wss/charts
+      # Playwright charts QA evidence (WebGL) is run on HH-laptop / local;
+      # artifacts land in artifacts/validation/bot-c/ and docs/acceptance/evidence/bot-c/.
+
   e2e:
     name: e2e (disabled in CI for now)
     if: false
