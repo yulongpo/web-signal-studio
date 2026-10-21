@@ -168,7 +168,7 @@ export class ArrayBufferChunkedReader implements ChunkedReader {
   }
 }
 
-function decodeToFloat32Iq(view: DataView, format: SampleFormatDescriptor, sampleCount: number): Float32Array {
+export function decodeToFloat32Iq(view: DataView, format: SampleFormatDescriptor, sampleCount: number): Float32Array {
   const complex = format.structure === 'complex_iq';
   const out = new Float32Array(sampleCount * (complex ? 2 : 1));
   const little = format.byteOrder !== 'be';
