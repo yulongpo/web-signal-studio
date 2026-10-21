@@ -13,3 +13,18 @@ export {
 } from './WasmFftEngine.js';
 export { WasmReferencePsdEngine, computePsdWithFft } from './WasmPsdEngine.js';
 export { WasmReferenceStftEngine, computeStftWithFft } from './WasmStftEngine.js';
+export {
+  WasmFirEngine,
+  WasmRationalResample,
+  ensureWasmFir,
+  wasmApplyFirComplex,
+  wasmApplyFirComplexWithModule,
+  wasmRationalResampleIq,
+  wasmRationalResampleIqWithModule,
+  wasmMixDownLo,
+  wasmMixDownLoWithModule,
+} from './WasmFirEngine.js';
+export {
+  WasmReferenceDdcEngine,
+  computeDdcWithWasmModule,
+} from './WasmDdcEngine.js';
