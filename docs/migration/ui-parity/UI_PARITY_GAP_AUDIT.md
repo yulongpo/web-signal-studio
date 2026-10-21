@@ -1,3 +1,13 @@
+> Bot-A `2026-10-21 23:20` Asia/Shanghai: Web **`9248453`** vs desktop `17471a6` — G19/G02/G08/G07 PARTIAL deepened (B `d54af1b`: AnnotationPanel paint, Spec QLabel, column resize, BottomPanel shell); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_9248453.md`. **No PASS.**
+
+| ID | Prior (`f4c67be`) | Now (`9248453`) | Note |
+|----|---------------------|-------------------|------|
+| **G19** | PARTIAL 加深（multi-select paint 缺） | **PARTIAL 加深** | `d54af1b` current/selected/hover paint MET；Qt table/paging/quality 残 → **未 CLOSED** |
+| **G02** | PARTIAL 加深（strip QLabel 残） | **PARTIAL 加深** | `d54af1b` STFT点数/色板/参考·动态 QLabel MET；overflow QLabel 残 → **未 CLOSED** |
+| **G08** | PARTIAL（278/390 MET；resize 缺） | **PARTIAL 加深** | `d54af1b` resize+persist MET；底栏高度 resize 残 → **未 CLOSED** |
+| **G07** | PARTIAL（handoff→B） | **PARTIAL 加深** | `d54af1b` Annotation+Detection shell MET；完整 Qt panel 残 → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_9248453.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-21 23:12` Asia/Shanghai: Web **`f4c67be`** vs desktop `17471a6` — G11/G17/G06 PARTIAL deepened (C OpenHand `363744f`, E full param grid `f87b94b`, D G06 BLOCKED re-affirm `e3b86f0` + G07→B handoff); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f4c67be.md`. **No PASS.**
 
 | ID | Prior (`8733cc1`) | Now (`f4c67be`) | Note |
