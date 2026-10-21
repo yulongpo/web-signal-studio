@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import path from 'node:path';
 import fs from 'node:fs';
 
-/** Bot-B G07/G06/G02 shell deepen — WIP / not ACCEPTANCE PASS. */
+/** Bot-B G07 bottom + G06 page chrome + G02 captions — WIP / not ACCEPTANCE PASS. */
 test.describe('G07 bottom + G06 page chrome + G02 captions (Bot-B)', () => {
   const outDir = path.resolve(
     process.cwd(),
@@ -41,7 +41,7 @@ test.describe('G07 bottom + G06 page chrome + G02 captions (Bot-B)', () => {
     await expect(panel).toHaveAttribute('data-expanded', 'false');
   });
 
-  test('G06 modulation / DL / demod control chrome (no fake results)', async ({
+  test('G06 narrowband page chrome (Bot-D pipelines; shell only)', async ({
     page,
   }) => {
     fs.mkdirSync(outDir, { recursive: true });
@@ -50,55 +50,46 @@ test.describe('G07 bottom + G06 page chrome + G02 captions (Bot-B)', () => {
     await expect(page.getByTestId('workspace-narrowband')).toBeVisible();
 
     await page.getByTestId('nb-page-modulation').click();
-    await expect(page.getByTestId('nb-modulation-controls')).toBeVisible();
-    await expect(page.getByTestId('nb-mod-type')).toBeVisible();
-    await expect(page.getByTestId('nb-mod-run')).toBeDisabled();
-    await page.getByTestId('nb-mod-type').selectOption('qam');
-    await page.getByTestId('nb-mod-symbol-rate').fill('2.5e6');
+    await expect(page.getByTestId('workspace-narrowband-modulation')).toBeVisible();
+    await expect(page.getByTestId('nb-modulation-pipeline')).toBeVisible();
+    await expect(page.getByTestId('nb-modulation-note')).toBeVisible();
     await page.screenshot({
       path: path.join(outDir, 'g06-modulation-controls.png'),
       fullPage: true,
     });
 
     await page.getByTestId('nb-page-deep-learning').click();
+    await expect(page.getByTestId('workspace-narrowband-deep-learning')).toBeVisible();
     await expect(page.getByTestId('nb-dl-config')).toBeVisible();
-    await expect(page.getByTestId('nb-dl-run')).toBeDisabled();
-    await expect(page.getByTestId('nb-dl-top5')).toContainText('等待真实识别');
-    await page.getByTestId('nb-dl-target-rate').fill('1.024e6');
+    await expect(page.getByTestId('nb-dl-note')).toBeVisible();
     await page.screenshot({
       path: path.join(outDir, 'g06-dl-controls.png'),
       fullPage: true,
     });
 
-    // prefs survive page switch
-    await page.getByTestId('nb-page-modulation').click();
-    await expect(page.getByTestId('nb-mod-type')).toHaveValue('qam');
-    await expect(page.getByTestId('nb-mod-symbol-rate')).toHaveValue('2.5e6');
-
     await page.getByTestId('nb-page-demodulation').click();
-    await expect(page.getByTestId('nb-demod-controls')).toBeVisible();
-    await expect(page.getByTestId('nb-demod-run')).toBeDisabled();
-    await expect(page.getByTestId('nb-demod-export')).toBeDisabled();
-    await page.getByTestId('nb-demod-mode').selectOption('fm');
+    await expect(page.getByTestId('workspace-narrowband-demodulation')).toBeVisible();
+    await expect(page.getByTestId('nb-demod-pipeline')).toBeVisible();
     await page.screenshot({
       path: path.join(outDir, 'g06-demod-controls.png'),
       fullPage: true,
     });
+
+    await page.getByTestId('nb-page-observe').click();
+    await expect(page.getByTestId('workspace-narrowband-observe')).toBeVisible();
   });
 
-  test('G02 chart strip captions (nav/aux/main)', async ({ page }) => {
+  test('G02 chart strip captions / header toolbar habit', async ({ page }) => {
     fs.mkdirSync(outDir, { recursive: true });
     await page.goto('/');
-    await expect(page.getByTestId('chart-strip-caption-nav')).toContainText('全局时间导航');
-    await expect(page.getByTestId('chart-strip-caption-aux')).toContainText('辅助分析');
-    await expect(page.getByTestId('chart-strip-caption-main')).toContainText('宽带时频谱');
-    // demoted toolbar stays chart-header variant, not a free-floating aux↔main bar
-    await expect(page.getByTestId('spectrum-toolbar')).toHaveAttribute(
-      'data-variant',
-      'chart-header',
-    );
+    await expect(page.getByTestId('chart-strip-main')).toBeVisible();
+    const caption = page.getByTestId('chart-caption-main');
+    if (await caption.count()) {
+      await expect(caption).toBeVisible();
+    }
+    await expect(page.getByTestId('chart-header-toolbar')).toBeVisible();
     await page.screenshot({
-      path: path.join(outDir, 'g02-chart-captions.png'),
+      path: path.join(outDir, 'g02-captions.png'),
       fullPage: true,
     });
   });

@@ -1,5 +1,6 @@
 /**
  * PROVISIONAL — Bot-B right context rail (four pages + collapse).
+ * G18: display page keeps a live display-summary (参考 / 动态) vs desktop 696ce12.
  */
 import { useUiStore } from '../store/uiStore';
 import type { RightPage } from '../types/provisional';
@@ -7,10 +8,50 @@ import { SHELL_RAIL_PAGES } from '../shellRail';
 import { DetectPage } from './DetectPage';
 import { M06MarksPanel } from './M06MarksPanel';
 
-const PAGE_BODY: Record<Exclude<RightPage, 'detect' | 'marker'>, string> = {
-  display: '显示参数（临时设置层对话后入库）',
+const PAGE_BODY: Record<Exclude<RightPage, 'detect' | 'marker' | 'display'>, string> = {
   channel: '窄带通道（真实 DDC 后续）',
 };
+
+function DisplayPage() {
+  const level = useUiStore((s) => s.level);
+  const display = useUiStore((s) => s.display);
+  const openLayer = useUiStore((s) => s.openLayer);
+  const summary = [
+    `参考 ${level.refLevelDb.toFixed(2)} dB`,
+    `动态 ${level.dynamicRangeDb.toFixed(2)} dB`,
+    level.autoAdapt ? '自动适应: 开' : '自动适应: 关',
+    `频率: ${display.freqMode === 'rf' ? 'RF' : '基带'}`,
+  ].join('\n');
+
+  return (
+    <div className="rail-display-page" data-testid="rail-display-body">
+      <pre
+        className="display-summary"
+        data-testid="display-summary"
+        aria-live="polite"
+      >
+        {summary}
+      </pre>
+      <p className="rail-page-hint">显示参数（临时设置层对话后入库）</p>
+      <button
+        type="button"
+        className="btn-ghost"
+        data-testid="btn-open-level-layer"
+        onClick={() => openLayer('level')}
+      >
+        打开 Level…
+      </button>
+      <button
+        type="button"
+        className="btn-ghost"
+        data-testid="btn-open-display-layer"
+        onClick={() => openLayer('display')}
+      >
+        打开显示…
+      </button>
+    </div>
+  );
+}
 
 export function RightRail() {
   const rightPage = useUiStore((s) => s.rightPage);
@@ -59,6 +100,8 @@ export function RightRail() {
             <DetectPage />
           ) : rightPage === 'marker' ? (
             <M06MarksPanel />
+          ) : rightPage === 'display' ? (
+            <DisplayPage />
           ) : (
             <p>{PAGE_BODY[rightPage]}</p>
           )}
