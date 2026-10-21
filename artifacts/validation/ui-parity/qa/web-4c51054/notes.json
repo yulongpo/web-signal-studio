@@ -1,0 +1,45 @@
+{
+  "id": "qa-web-4c51054-fold-f9a56b8",
+  "tip_web_evidence": "4c51054c8bd46b35ff4c4692069304211c31eee9",
+  "tip_impl_base_f9a56b8": "f9a56b86811a274b7f0e80e09d0401bd47710109",
+  "tip_impl_base_701872b": "701872b740a776834c41e6cb210793fc63f43ae4",
+  "tip_impl_base_5a0b035": "5a0b035af8d448356ef66152e235c0ab9cb118fd",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-wave7-g19-edit-empty.png",
+    "01b-wave7-g19-edit-empty-crop.png",
+    "02-wave7-g07-engine-slots.png",
+    "02b-wave7-g07-engine-slots-crop.png",
+    "03-wave7-g02-strip-overflow.png",
+    "04-wave7-g08-shell-edges.png",
+    "BOT_B_WAVE7_G19_G07_G02_G08.md",
+    "BOT_B_WAVE8_G19_G02_G08_G18.md",
+    "COMPARISON_NOTES.md",
+    "capture-notes.json",
+    "notes.json",
+    "fold-web-f9a56b8/* (11 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE7_G19_G07_G02_G08.md",
+    "BOT_B_WAVE8_G19_G02_G08_G18.md",
+    "COMPARISON_NOTES.md"
+  ],
+  "observations": {
+    "folded_from": "web-f9a56b8",
+    "wave7_mid_pngs": [
+      "01-wave7-g19-edit-empty.png",
+      "01b-wave7-g19-edit-empty-crop.png",
+      "02-wave7-g07-engine-slots.png",
+      "02b-wave7-g07-engine-slots-crop.png",
+      "03-wave7-g02-strip-overflow.png",
+      "04-wave7-g08-shell-edges.png"
+    ],
+    "audit_tip": "INCREMENTAL_f9a56b8 via 4c51054 / 6dea43f"
+  },
+  "gaps": [
+    "wave8 dwell-pin live PNG still gap from f9a56b8 fold",
+    "Overlay / G18 series curve not freshly re-shot at 4c51054"
+  ]
+}

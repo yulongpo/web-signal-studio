@@ -1,0 +1,39 @@
+{
+  "id": "qa-web-f9a56b8-wave8-fold-mid701",
+  "tip_web_evidence": "f9a56b86811a274b7f0e80e09d0401bd47710109",
+  "tip_impl_base_701872b": "701872b740a776834c41e6cb210793fc63f43ae4",
+  "tip_impl_base_5a0b035": "5a0b035af8d448356ef66152e235c0ab9cb118fd",
+  "tip_impl_b_wave8": "9e175d4",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-wave7-g19-edit-empty.png",
+    "01b-wave7-g19-edit-empty-crop.png",
+    "02-wave7-g07-engine-slots.png",
+    "02b-wave7-g07-engine-slots-crop.png",
+    "03-wave7-g02-strip-overflow.png",
+    "04-wave7-g08-shell-edges.png",
+    "BOT_B_WAVE7_G19_G07_G02_G08.md",
+    "BOT_B_WAVE8_G19_G02_G08_G18.md"
+  ],
+  "docs": [
+    "BOT_B_WAVE7_G19_G07_G02_G08.md",
+    "BOT_B_WAVE8_G19_G02_G08_G18.md"
+  ],
+  "observations": {
+    "folded_mid_701872b_wave7": [
+      "01-wave7-g19-edit-empty.png",
+      "01b-wave7-g19-edit-empty-crop.png",
+      "02-wave7-g07-engine-slots.png",
+      "02b-wave7-g07-engine-slots-crop.png",
+      "03-wave7-g02-strip-overflow.png",
+      "04-wave7-g08-shell-edges.png"
+    ],
+    "wave8_dwell_pin_live": false
+  },
+  "gaps": [
+    "wave8 G18 dwell-pin live capture timed out (rail-dwell-pin / display tab) on this box run; BOT_B_WAVE8 doc folded; mid wave7 PNGs from 5a0b035/701872b retained",
+    "Overlay mark / full G18 series switch not re-shot at f9a56b8 (IQ/load hangs in prior tips)"
+  ]
+}
