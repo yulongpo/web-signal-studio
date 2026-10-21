@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:13` Asia/Shanghai: Web **`ba3bb76`** vs desktop `17471a6` — G02 PARTIAL deepened (D StftRequest contract). BLOCKED methods not MET. Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ba3bb76/`. **No PASS.**
+
+| ID | Prior (`bb9b1ef`) | Now (`ba3bb76`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL | **PARTIAL 加深** | welch MET；periodogram/bartlett/multitaper/burg **BLOCKED** |
+| **G08** / **G18** | PARTIAL | **unchanged PARTIAL** | carry forward |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_ba3bb76/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:10` Asia/Shanghai: Web **`bb9b1ef`** vs desktop `17471a6` — evidence-only G web-2091dc0. G08 PARTIAL corroborated (not CLOSED). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_bb9b1ef/`. **No PASS.**
 
 | ID | Prior (`663b522`) | Now (`bb9b1ef`) | Note |
