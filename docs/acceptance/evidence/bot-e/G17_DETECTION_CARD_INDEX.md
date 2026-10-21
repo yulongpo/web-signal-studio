@@ -23,5 +23,5 @@
 
 See `g17_detection_card_summary_2026-10-21.json`.
 
-**Tip (HEAD):** 2b1d6a2a73ac4c98a14a54130003e70a37fa87b8 (2b1d6a2)
+**Tip (HEAD):** 8bf1390b08a855fc37659df71d3f05dad24ae83d (8bf1390)
 
