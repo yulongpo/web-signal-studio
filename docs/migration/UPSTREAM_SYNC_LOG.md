@@ -15,3 +15,8 @@
 - 仅 `fetch` / 只读 `log` / `diff`；禁止 push 源仓。
 - 发现新提交：先更新本日志 → 更新 `01_SOURCE_TO_WEB_PARITY_MATRIX` → 回归审计。
 - 验收前必须再核对一次源 HEAD。
+## 2026-10-21 21:05+08 Bot-A UI parity reinforcement (casual SHA check)
+
+- upstream-readonly / golden: still `0f108d0` (no new upstream commit for sync).
+- local `D:\project\signal_studio_rebuild` tip `696ce12` (ahead origin 3) — used read-only for UI path evidence only; not promoted as new baseline SHA.
+- Deliverables: `artifacts/validation/ui-parity/baseline/UI_PARITY_GAP_AUDIT.md` + `UI_PARITY_ACCEPTANCE.md` (G01–G26).
