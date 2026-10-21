@@ -11,6 +11,13 @@ artifacts/validation/bot-c/*
 artifacts/validation/bot-d/*
 !artifacts/validation/bot-d/*.json
 !artifacts/validation/bot-d/*.md
+!artifacts/validation/ui-parity/
+artifacts/validation/ui-parity/*
+!artifacts/validation/ui-parity/bot-f/
+artifacts/validation/ui-parity/bot-f/*
+!artifacts/validation/ui-parity/bot-f/*.json
+!artifacts/validation/ui-parity/bot-f/*.md
+!artifacts/validation/ui-parity/bot-f/*.png
 !artifacts/validation/license/
 artifacts/validation/license/*
 !artifacts/validation/license/*.json
