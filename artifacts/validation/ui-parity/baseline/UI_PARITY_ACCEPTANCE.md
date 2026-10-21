@@ -1,3 +1,4 @@
+> Bot-A `2026-10-22 02:50` Asia/Shanghai: Web **`1ec1eca`** vs desktop `17471a6` — G qa/web-4db4208 evidence. G02/G08 PARTIAL not CLOSED. G06/G17 BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_1ec1eca/MATRIX.md`. **No PASS.**
 > Bot-A `2026-10-22 02:47` Asia/Shanghai: Web **`4db4208`** vs desktop `17471a6` — post-merge refresh. G02 PARTIAL not CLOSED. G06/G17 BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4db4208/MATRIX.md`. **No PASS.**
 > Bot-A `2026-10-22 02:45` Asia/Shanghai: Web **`ee6b4ea`** vs desktop `17471a6` — post-merge refresh. G02 PARTIAL not CLOSED (D formal non-PoT/STFT-DDC BLOCKED). G06/G17 BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ee6b4ea/MATRIX.md`. **No PASS.**
 > Bot-A CAO FYI `2026-10-22 02:43` Asia/Shanghai (on `INCREMENTAL_31cc4bf`): D formally **BLOCKED** non-PoT + STFT-DDC. G02 **PARTIAL** not CLOSED. Multitaper/Burg BLOCKED. **No PASS.**
