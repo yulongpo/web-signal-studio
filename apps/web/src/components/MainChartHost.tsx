@@ -256,7 +256,7 @@ export function MainChartHost() {
   const levelMax = Math.max(0.2, 1 + level.refLevelDb / 100);
   const levelMin = Math.max(0, levelMax - level.dynamicRangeDb / 100);
   const sampleRateHz = spec?.sampleRateHz ?? 0;
-  // G11: navigate (default) box-drag zooms the view (>=8px diagonal via HeatmapCanvas).
+  // G11: navigate (default) plot-body box-drag zooms (>=8px both edges). Pan is axis-only (desktop 17471a6).
   // G14: detection-roi owns ROI boxes; legacy 'select' still draws a box but is retired as an entry.
   const gesture =
     activeTool === 'zoom' || activeTool === 'navigate'

@@ -1,10 +1,10 @@
 {
   "bot": "bot-c",
-  "scope": "G11/G02 residual",
-  "baseSha": "e9153b861b80ee61100cf6a6b29b6d76d36f60a5",
-  "baseShort": "e9153b8",
+  "scope": "G11 axis-only pan",
+  "baseSha": "23412f2",
+  "baseShort": "23412f2",
   "desktop": "17471a6",
   "selfPass": false,
-  "notes": "Box-zoom both-edges>=8; physical caption displayUnit scaling. G18 deferred to Bot-B. No PASS.",
-  "base": "e9153b8"
+  "notes": "Axis-only pan under desktop-axis; plot-body zoom-box under navigate. Hit-zones match PlotWidget zoneAt. No PASS.",
+  "base": "23412f2"
 }

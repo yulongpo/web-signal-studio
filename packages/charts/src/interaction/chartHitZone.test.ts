@@ -1,0 +1,90 @@
+﻿import { describe, expect, it } from "vitest";
+import {
+  hitChartZone,
+  resolvePointerDragMode,
+} from "./chartHitZone.js";
+
+const M = { left: 52, right: 12, top: 10, bottom: 36 };
+
+describe("hitChartZone (desktop 17471a6)", () => {
+  const W = 400;
+  const H = 300;
+
+  it("classifies plot body", () => {
+    expect(hitChartZone(200, 150, W, H, M)).toBe("plot");
+    expect(hitChartZone(M.left, M.top, W, H, M)).toBe("plot");
+  });
+
+  it("classifies x-axis below plot only within x-span", () => {
+    expect(hitChartZone(200, H - 10, W, H, M)).toBe("x-axis");
+    expect(hitChartZone(M.left + 1, H - 1, W, H, M)).toBe("x-axis");
+    // bottom-left corner is none (desktop zoneAt)
+    expect(hitChartZone(10, H - 10, W, H, M)).toBe("none");
+  });
+
+  it("classifies y-axis left of plot only within y-span", () => {
+    expect(hitChartZone(10, 150, W, H, M)).toBe("y-axis");
+    expect(hitChartZone(M.left - 1, M.top, W, H, M)).toBe("y-axis");
+    // top-left above plot is none
+    expect(hitChartZone(10, 2, W, H, M)).toBe("none");
+  });
+});
+
+describe("resolvePointerDragMode axis-only pan", () => {
+  it("axes always pan one dimension", () => {
+    expect(
+      resolvePointerDragMode({
+        zone: "y-axis",
+        gesture: "zoom-box",
+        axisOnlyPan: true,
+      }),
+    ).toBe("pan-y");
+    expect(
+      resolvePointerDragMode({
+        zone: "x-axis",
+        gesture: "pan",
+        axisOnlyPan: true,
+      }),
+    ).toBe("pan-x");
+  });
+
+  it("plot + zoom-box stays zoom-box", () => {
+    expect(
+      resolvePointerDragMode({
+        zone: "plot",
+        gesture: "zoom-box",
+        axisOnlyPan: true,
+      }),
+    ).toBe("zoom-box");
+  });
+
+  it("plot + pan is none when axisOnlyPan (no plot-body pan)", () => {
+    expect(
+      resolvePointerDragMode({
+        zone: "plot",
+        gesture: "pan",
+        axisOnlyPan: true,
+      }),
+    ).toBe("none");
+  });
+
+  it("plot + pan may pan-both when not axisOnlyPan (legacy uniform)", () => {
+    expect(
+      resolvePointerDragMode({
+        zone: "plot",
+        gesture: "pan",
+        axisOnlyPan: false,
+      }),
+    ).toBe("pan-both");
+  });
+
+  it("none zone yields none", () => {
+    expect(
+      resolvePointerDragMode({
+        zone: "none",
+        gesture: "zoom-box",
+        axisOnlyPan: true,
+      }),
+    ).toBe("none");
+  });
+});
