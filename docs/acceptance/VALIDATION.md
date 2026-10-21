@@ -68,3 +68,9 @@ npx playwright test
 - Cause: missing `@oxlint/binding-linux-x64-gnu` after `npm ci` (optional native binding)
 - Fix: `ensure oxlint linux binding` step in `.github/workflows/ci.yml` on `work/bot-g-qa`
 - Evidence: `docs/acceptance/evidence/ci-fail-f6a40c2_REPORT.md`
+
+## Remote CI — main a904334 (2026-10-21)
+
+- Run: https://github.com/yulongpo/web-signal-studio/actions/runs/39583728389 — **failure** at `npm ci` (`Missing: @wss/web@0.0.0 from lock file`)
+- Fix on `work/bot-g-qa`: sync root/apps lock names; CI `npm ci` at repo root + `-w @wss/web`; keep oxlint linux binding step
+- Evidence: `docs/acceptance/evidence/ci-fail-a904334_REPORT.md`

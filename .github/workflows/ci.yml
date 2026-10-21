@@ -20,55 +20,46 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            apps/web/package-lock.json
-      - name: npm ci (apps/web)
-        working-directory: apps/web
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
-      # oxlint optional native binding: npm ci often skips linux-x64-gnu (optional + libc
-      # matching; npm/cli#4828). Main run 39583037963 failed at lint with
-      # "Cannot find module '@oxlint/binding-linux-x64-gnu'". Force-install for ubuntu.
+          cache-dependency-path: package-lock.json
+      # Monorepo root lock (workspaces). apps/web nested lock alone is out of sync with
+      # package name @wss/web and caused npm ci EUSAGE on main a904334 / run 39583728389.
+      - name: npm ci (repo root)
+        run: npm ci
+      # oxlint optional native binding: npm ci often skips linux-x64-gnu (npm/cli#4828).
       - name: ensure oxlint linux binding
         working-directory: apps/web
         run: |
           VER="$(node -p "require('oxlint/package.json').version")"
           npm install --no-save "@oxlint/binding-linux-x64-gnu@${VER}"
       - name: lint
-        working-directory: apps/web
-        run: npm run lint
+        run: npm run lint -w @wss/web
       - name: typecheck
-        working-directory: apps/web
-        run: npm run typecheck
+        run: npm run typecheck -w @wss/web
       - name: unit
-        working-directory: apps/web
-        run: npm test
+        run: npm run test -w @wss/web
       - name: build
-        working-directory: apps/web
-        run: npm run build
+        run: npm run build -w @wss/web
 
   e2e:
     name: e2e (disabled in CI for now)
     if: false
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-      - run: |
-          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+          cache-dependency-path: package-lock.json
+      - run: npm ci
       - name: ensure oxlint linux binding
+        working-directory: apps/web
         run: |
           VER="$(node -p "require('oxlint/package.json').version")"
           npm install --no-save "@oxlint/binding-linux-x64-gnu@${VER}"
-      - run: npx playwright install --with-deps chromium
-      - run: |
+      - working-directory: apps/web
+        run: npx playwright install --with-deps chromium
+      - working-directory: apps/web
+        run: |
           export NODE_PATH="$PWD/node_modules"
           npx playwright test
