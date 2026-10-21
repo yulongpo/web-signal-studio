@@ -258,7 +258,7 @@ export function SpecParamStrip() {
               ref={overflowMenuRef}
             >
               <label className="overflow-item">
-                <span>STFT N</span>
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft">STFT点数</span>
                 <select
                   data-testid="select-stft-n"
                   value={stftN}
@@ -272,7 +272,7 @@ export function SpecParamStrip() {
                 </select>
               </label>
               <label className="overflow-item">
-                <span>Palette</span>
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-palette">色板</span>
                 <select
                   data-testid="select-palette"
                   value={paletteId}
@@ -296,7 +296,7 @@ export function SpecParamStrip() {
                   setOverflowOpen(false);
                 }}
               >
-                Detection ROI
+                检测ROI
               </button>
               <button
                 type="button"
@@ -308,7 +308,7 @@ export function SpecParamStrip() {
                   setOverflowOpen(false);
                 }}
               >
-                Mark
+                标记
               </button>
             </div>
           ) : null}

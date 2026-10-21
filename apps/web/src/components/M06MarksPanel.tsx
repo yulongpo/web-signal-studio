@@ -1,11 +1,30 @@
 /**
  * M-06 marks panel + AnnotationPanel multi-select paint (desktop 17471a6 colors).
- * current #205d7c · selected #183f59 · hover #22425a — independent cues.
+ * G19: paging(200) / quality filter+actions / table chrome. current #205d7c · selected #183f59 · hover #22425a.
  */
-import { useCallback, useEffect, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
+import type { ReviewStatus } from '@wss/contracts';
 import type { M06SessionSnapshot } from '../projectIo';
 
-type MarkRow = { id: string; name: string; start: string; end: string; deleted?: boolean };
+type MarkRow = {
+  id: string;
+  name: string;
+  start: string;
+  end: string;
+  deleted?: boolean;
+  reviewStatus: ReviewStatus;
+  sourceKind?: string;
+};
+
+const PAGE_SIZE = 200;
+
+const QUALITY_LABEL: Record<ReviewStatus, string> = {
+  Pending: '待判断',
+  Accepted: '已采纳',
+  Rejected: '已忽略',
+};
+
+type QualityFilter = 'all' | ReviewStatus;
 
 function readHookState(): {
   snapshot: M06SessionSnapshot | null;
@@ -30,9 +49,11 @@ function readHookState(): {
   const marks: MarkRow[] = anns.map((a) => ({
     id: a.id,
     name: a.name ?? a.id,
-    start: String(a.start),
-    end: String(a.end),
+    start: String(a.start ?? ''),
+    end: String(a.end ?? ''),
     deleted: Boolean(a.deleted),
+    reviewStatus: (a.reviewStatus ?? 'Pending') as ReviewStatus,
+    sourceKind: a.sourceKind,
   }));
   let channelHasSnapshot = false;
   let channelAnnotationId: string | undefined;
@@ -56,6 +77,8 @@ function readHookState(): {
 export function M06MarksPanel() {
   const [tick, setTick] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [qualityFilter, setQualityFilter] = useState<QualityFilter>('all');
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
@@ -73,7 +96,26 @@ export function M06MarksPanel() {
     channelAnnotationId,
   } = readHookState();
   const hookReady = Boolean(window.__wssM06);
-  const visible = marks.filter((m) => !m.deleted);
+
+  const filtered = useMemo(() => {
+    return marks.filter((m) => {
+      if (m.deleted) return false;
+      if (qualityFilter !== 'all' && m.reviewStatus !== qualityFilter) return false;
+      return true;
+    });
+  }, [marks, qualityFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE) || 1);
+  const safePage = Math.min(page, totalPages - 1);
+  const pageRows = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(0);
+  }, [qualityFilter]);
+
+  useEffect(() => {
+    if (page !== safePage) setPage(safePage);
+  }, [page, safePage]);
 
   const selectMark = (markId: string, additive: boolean) => {
     const hook = window.__wssM06;
@@ -93,9 +135,23 @@ export function M06MarksPanel() {
   const selectAllVisible = (on: boolean) => {
     const hook = window.__wssM06;
     if (!hook) return;
-    const ids = on ? visible.map((m) => m.id) : [];
-    const activeId = ids.includes(active ?? '') ? active : ids[0] ?? null;
+    const ids = on ? filtered.map((m) => m.id) : [];
+    // CI fix: setSelection.activeMarkId is string | undefined (not null).
+    const activeId: string | undefined = ids.includes(active ?? '')
+      ? (active ?? undefined)
+      : ids[0];
     hook.setSelection({ activeMarkId: activeId, selectedMarkIds: ids });
+    refresh();
+  };
+
+  const applyQuality = (status: ReviewStatus) => {
+    const hook = window.__wssM06;
+    if (!hook || selected.length === 0) return;
+    for (const id of selected) {
+      const current = hook.session.annotations.annotations.find((a) => a.id === id);
+      if (!current) continue;
+      hook.session.replaceMark({ ...current, reviewStatus: status });
+    }
     refresh();
   };
 
@@ -109,7 +165,7 @@ export function M06MarksPanel() {
   };
 
   const allSelected =
-    visible.length > 0 && visible.every((m) => selected.includes(m.id));
+    filtered.length > 0 && filtered.every((m) => selected.includes(m.id));
   const someSelected = selected.length > 0 && !allSelected;
 
   return (
@@ -124,7 +180,8 @@ export function M06MarksPanel() {
       <p data-testid="m06-hook-status">{hookReady ? 'hook:ready' : 'hook:missing'}</p>
       <p data-testid="m06-mark-count">marks:{snapshot?.annotationCount ?? 0}</p>
       <p data-testid="annotation-selection-summary">
-        匹配 {visible.length} / 总数 {marks.length} / 已选 {selected.length}
+        匹配 {filtered.length} / 总数 {marks.length} / 已选 {selected.length} · 页{' '}
+        {safePage + 1}/{totalPages}
       </p>
       <p data-testid="m06-undo-depth">undoDepth:{snapshot?.undoDepth ?? 0}</p>
       <p data-testid="m06-redo-depth">redoDepth:{snapshot?.redoDepth ?? 0}</p>
@@ -149,6 +206,43 @@ export function M06MarksPanel() {
           />
           全选
         </label>
+        <label className="annotation-quality-filter" data-testid="annotation-quality-filter">
+          <span>质量</span>
+          <select
+            data-testid="annotation-quality-filter-select"
+            value={qualityFilter}
+            onChange={(e) => setQualityFilter(e.target.value as QualityFilter)}
+          >
+            <option value="all">全部质量</option>
+            <option value="Pending">待判断</option>
+            <option value="Accepted">已采纳</option>
+            <option value="Rejected">已忽略</option>
+          </select>
+        </label>
+        <button
+          type="button"
+          data-testid="m06-quality-accept"
+          disabled={selected.length === 0}
+          onClick={() => applyQuality('Accepted')}
+        >
+          已采纳
+        </button>
+        <button
+          type="button"
+          data-testid="m06-quality-reject"
+          disabled={selected.length === 0}
+          onClick={() => applyQuality('Rejected')}
+        >
+          已忽略
+        </button>
+        <button
+          type="button"
+          data-testid="m06-quality-pending"
+          disabled={selected.length === 0}
+          onClick={() => applyQuality('Pending')}
+        >
+          待判断
+        </button>
         <button
           type="button"
           data-testid="m06-btn-undo"
@@ -166,15 +260,46 @@ export function M06MarksPanel() {
           重做
         </button>
       </div>
+      <div className="annotation-paging" data-testid="annotation-paging">
+        <button
+          type="button"
+          data-testid="annotation-prev-page"
+          disabled={safePage === 0}
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+        >
+          上一页
+        </button>
+        <button
+          type="button"
+          data-testid="annotation-next-page"
+          disabled={(safePage + 1) * PAGE_SIZE >= filtered.length}
+          onClick={() =>
+            setPage((p) => ((p + 1) * PAGE_SIZE < filtered.length ? p + 1 : p))
+          }
+        >
+          下一页
+        </button>
+        <span className="muted" data-testid="annotation-page-size">
+          每页 {PAGE_SIZE}
+        </span>
+      </div>
+      <div className="annotation-table-header" data-testid="annotation-table-header">
+        <span className="col-check" />
+        <span className="col-name">名称</span>
+        <span className="col-quality">质量</span>
+        <span className="col-range">范围</span>
+      </div>
       <ul
         className="annotation-mark-table"
         data-testid="m06-mark-list"
         data-annotation-paint="desktop-multi"
+        data-page={String(safePage + 1)}
+        data-page-size={String(PAGE_SIZE)}
       >
-        {visible.length === 0 ? (
+        {pageRows.length === 0 ? (
           <li data-testid="m06-mark-list-empty">无标记</li>
         ) : (
-          visible.map((m) => {
+          pageRows.map((m) => {
             const isSelected = selected.includes(m.id);
             const isCurrent = active === m.id;
             const isHovered = hoveredId === m.id;
@@ -196,6 +321,7 @@ export function M06MarksPanel() {
                 data-selected={isSelected ? 'true' : 'false'}
                 data-current={isCurrent ? 'true' : 'false'}
                 data-hovered={isHovered ? 'true' : 'false'}
+                data-review={m.reviewStatus}
                 onMouseEnter={() => setHoveredId(m.id)}
                 onMouseLeave={() => setHoveredId((id) => (id === m.id ? null : id))}
                 onClick={(e: MouseEvent<HTMLLIElement>) => {
@@ -207,6 +333,7 @@ export function M06MarksPanel() {
                   aria-hidden
                 />
                 <span className="annotation-mark-name">{m.name}</span>
+                <span className="annotation-mark-quality">{QUALITY_LABEL[m.reviewStatus]}</span>
                 <span className="annotation-mark-range">
                   [{m.start},{m.end}]
                 </span>
