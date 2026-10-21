@@ -1,0 +1,64 @@
+{
+  "id": "qa-web-5c569c2-nb-psd-vline-wave19-strip",
+  "tip_web_evidence": "5c569c24ef6208e28d137829a9a16fe60fe09c17",
+  "tip_impl_c_psd_vline": "0a604d1",
+  "tip_impl_b_wave19": "f7a4b13",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "captures": [
+    "01-g02-strip-dsp-wave19.png",
+    "01b-g02-strip-dsp-crop.png",
+    "02-rail-twin-regression-pinned.png",
+    "02b-esc-clear-wb-regression.png",
+    "03-nb-psd-freq-vline-pinned.png",
+    "03b-nb-psd-panel-vline-crop.png",
+    "03c-nb-psd-vline-esc-cleared.png",
+    "fold-web-14cc45f/* (17 files)"
+  ],
+  "docs": [
+    "G18-NB-PSD-FREQ-VLINE-HANDOFF.md",
+    "BOT_B_WAVE19_G02_DSP_FEED_STAMPS.md",
+    "G18-ESC-CLEAR-HANDOFF.md"
+  ],
+  "observations": {
+    "g02": {
+      "strip_dsp": "wave19",
+      "strip_wave": "wave11 wave14 wave19",
+      "has_wave19": true,
+      "dsp_source": "loading",
+      "fft_active": "js",
+      "detect_feed_count": "0",
+      "detect_feed_empty": "true",
+      "window_partial": "true",
+      "overlap_reason": "no-overlap-in-store"
+    },
+    "rail_twin": {
+      "pinned": true,
+      "readout": "联动光标 · t=0.420000s · f=12.500000 MHz · frame #2",
+      "twin_wave": "wave17"
+    },
+    "esc_clear_wb": {
+      "cleared": true
+    },
+    "nb_psd_vline": {
+      "store_pin": {
+        "pinned": false,
+        "timeSec": 0,
+        "frequencyHz": 0,
+        "selectedFrame": null
+      },
+      "vline_attr": "true",
+      "linked_attr": "true",
+      "after_esc": {
+        "linkedPinned": false,
+        "dwell": null,
+        "psdMode": "statistical"
+      }
+    }
+  },
+  "gaps": [
+    "nb-chart-psd not mounted (DDC/IQ wait); panel data-g18-nb-psd-freq-vline stamp proven without hang"
+  ]
+}
