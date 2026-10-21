@@ -28,7 +28,7 @@ export function VerticalSplitter(props: VerticalSplitterProps) {
     sizePx,
     minPx = 48,
     maxPx = 800,
-    defaultPx = 160,
+    defaultPx = 205,
     onChange,
     testId = "vertical-splitter",
     className,
