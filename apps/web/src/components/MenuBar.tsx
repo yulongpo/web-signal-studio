@@ -4,6 +4,7 @@
  * Wire real hooks where present; disabled/honest for unavailable. No fake demod.
  */
 import { useEffect, useRef, useState } from 'react';
+import { useMenuBarShortcuts } from '../hooks/useMenuBarShortcuts';
 import { asProjectSessionHook, useUiStore } from '../store/uiStore';
 import {
   clearOpenedIq,
@@ -298,6 +299,26 @@ export function MenuBar() {
   const canViewBack = viewHistoryIndex > 0;
   const canViewForward = viewHistoryIndex < viewHistory.length - 1;
 
+  useMenuBarShortcuts({
+    onNewProject,
+    onOpenProjectJson: () => {
+      setOpenMenu(null);
+      projectInputRef.current?.click();
+    },
+    onSaveProject,
+    onUndo,
+    onRedo,
+    onDeleteMark,
+    viewHistoryBack,
+    viewHistoryForward,
+    canUndo,
+    canRedo,
+    canDeleteMark,
+    canViewBack,
+    canViewForward,
+    canSave: projectSource === 'json',
+  });
+
   const openDetect = () => {
     setRightPanelCollapsed(false);
     setRightPage('detect');
@@ -322,6 +343,8 @@ export function MenuBar() {
       className="menubar command-bar"
       data-testid="menubar"
       data-variant="command-bar"
+      data-menubar-shortcuts="wave23"
+      data-g08-shortcuts="wave23"
       role="menubar"
       aria-label="application menu"
       style={{ height: 34 }}
@@ -354,8 +377,10 @@ export function MenuBar() {
           </button>
           {openMenu === 'file' ? (
             <div className="menubar-dropdown" data-testid="menubar-file-menu" role="menu">
-              <button type="button" role="menuitem" data-testid="menu-new-project" onClick={onNewProject}>
+              <button type="button" role="menuitem" data-testid="menu-new-project" data-accel="Ctrl+N" onClick={onNewProject}>
                 新建工程…
+              
+                <span className="menubar-accel" aria-hidden>Ctrl+N</span>
               </button>
               <button
                 type="button"
@@ -368,13 +393,15 @@ export function MenuBar() {
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-open-project"
+                data-testid="menu-open-project" data-accel="Ctrl+O"
                 onClick={() => {
                   close();
                   projectInputRef.current?.click();
                 }}
               >
                 打开工程 JSON…
+              
+                <span className="menubar-accel" aria-hidden>Ctrl+O</span>
               </button>
               <button
                 type="button"
@@ -405,11 +432,13 @@ export function MenuBar() {
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-save-project"
+                data-testid="menu-save-project" data-accel="Ctrl+S"
                 disabled={projectSource !== 'json'}
                 onClick={onSaveProject}
               >
                 保存工程
+              
+                <span className="menubar-accel" aria-hidden>Ctrl+S</span>
               </button>
               <div className="menubar-item menubar-submenu" data-testid="menu-recent-projects">
                 <button type="button" role="menuitem" className="menubar-submenu-trigger" tabIndex={-1}>
@@ -496,28 +525,32 @@ export function MenuBar() {
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-edit-undo"
+                data-testid="menu-edit-undo" data-accel="Ctrl+Z"
                 disabled={!canUndo}
                 title={m06Ready() ? undefined : '标记撤销需 M-06 hook（未安装则不可用）'}
                 onClick={onUndo}
               >
                 撤销标记命令
+              
+                <span className="menubar-accel" aria-hidden>Ctrl+Z</span>
               </button>
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-edit-redo"
+                data-testid="menu-edit-redo" data-accel="Ctrl+Y"
                 disabled={!canRedo}
                 title={m06Ready() ? undefined : '标记重做需 M-06 hook（未安装则不可用）'}
                 onClick={onRedo}
               >
                 重做标记命令
+              
+                <span className="menubar-accel" aria-hidden>Ctrl+Y</span>
               </button>
               <div className="menubar-sep" role="separator" />
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-edit-delete-marks"
+                data-testid="menu-edit-delete-marks" data-accel="Del"
                 disabled={!canDeleteMark}
                 title={
                   canDeleteMark
@@ -527,6 +560,8 @@ export function MenuBar() {
                 onClick={onDeleteMark}
               >
                 删除所选标记
+              
+                <span className="menubar-accel" aria-hidden>Del</span>
               </button>
                             <button
                 type="button"
@@ -623,7 +658,7 @@ export function MenuBar() {
                             <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-view-back"
+                data-testid="menu-view-back" data-accel="Alt+Left"
                 disabled={!canViewBack}
                 title={canViewBack ? "视图后退" : "No earlier view history"}
                 onClick={() => {
@@ -632,11 +667,13 @@ export function MenuBar() {
                 }}
               >
                 视图后退
+              
+                <span className="menubar-accel" aria-hidden>Alt+Left</span>
               </button>
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-view-forward"
+                data-testid="menu-view-forward" data-accel="Alt+Right"
                 disabled={!canViewForward}
                 title={canViewForward ? "视图前进" : "No newer view history"}
                 onClick={() => {
@@ -645,6 +682,8 @@ export function MenuBar() {
                 }}
               >
                 视图前进
+              
+                <span className="menubar-accel" aria-hidden>Alt+Right</span>
               </button>
               <button
                 type="button"

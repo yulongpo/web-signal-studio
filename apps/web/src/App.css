@@ -3002,3 +3002,19 @@ span[data-editable-col]:hover {
   outline: 1px solid #61c3ca;
   outline-offset: 1px;
 }
+
+
+/* G08 wave23 — menu QKeySequence accel hints (rebuild MainWindow::buildMenus) */
+.menubar-dropdown button[role="menuitem"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.menubar-accel {
+  margin-left: auto;
+  font-size: 11px;
+  opacity: 0.55;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
