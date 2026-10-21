@@ -1,4 +1,4 @@
-﻿# ACCEPTANCE_MATRIX（初稿）
+# ACCEPTANCE_MATRIX（初稿）
 
 > 维护：WSS-QA-G。状态含义：`TODO` 未测 · `WIP` 实现中 · `PASS` 有 `artifacts/validation/` 证据 · `FAIL` 有失败证据 · `N/A` 本阶段不适用 · `BLOCKED` 外部阻断。  
 > **禁止**仅凭实现者口头/聊天自述改为 `PASS`。
@@ -36,8 +36,8 @@
 
 | ID | 项 | 状态 | 证据 |
 |----|----|------|------|
-| Q-01 | `.github/workflows/ci.yml` lint/typecheck/unit/build | WIP | 本仓库 workflow 文件 |
-| Q-02 | Playwright E2E（真实本机/CI 服务） | TODO | |
+| Q-01 | `.github/workflows/ci.yml` lint/typecheck/unit/build | PASS | workflow 硬失败；见 VALIDATION |
+| Q-02 | Playwright E2E（真实本机/CI 服务） | PASS（本地） | `tests/e2e/shell-nav.spec.ts` + `artifacts/validation/p1g/e2e.log` |
 | Q-03 | 许可证 / 依赖扫描 | TODO | |
 | Q-04 | 无密钥 / 大样本入 Git | WIP | `.gitignore` 抽查 |
 | Q-05 | `artifacts/delivery/manifest.json` | TODO | |
