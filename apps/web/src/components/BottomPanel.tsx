@@ -671,7 +671,7 @@ export function BottomPanel() {
       <div
         className="bottom-panel-resize"
         data-testid="bottom-panel-resize"
-        data-shell-edge="bottom" data-shell-reshot="wave8" data-edge-side="bottom" data-shell-focus="wave9" data-shell-wave="wave11" tabIndex={0}
+        data-shell-edge="bottom" data-bottom-desktop-min="29" data-bottom-desktop-range="100-500" data-shell-reshot="wave8" data-edge-side="bottom" data-shell-focus="wave9" data-shell-wave="wave11 wave14" tabIndex={0}
         data-hit-min-px="29"
         data-collapse-min="true"
         role="separator"
@@ -1337,8 +1337,30 @@ export function BottomPanel() {
                   className="bottom-detect-engine-slots"
                   data-testid="bottom-detect-engine-slots"
                   data-multi-engine="local-compute-caps"
+                  data-worker-chrome="wave14"
                 >
-                  <h4 className="bottom-detect-col-title">引擎槽（仅真实 capabilities）</h4>
+                  <h4 className="bottom-detect-col-title">Worker / 引擎槽（仅真实 LocalCompute）</h4>
+                  <div
+                    className="bottom-detect-worker-status"
+                    data-testid="bottom-detect-worker-status"
+                    data-online={detectCapabilities ? 'true' : 'false'}
+                  >
+                    <span data-testid="bottom-detect-worker-protocol">
+                      protocol: {detectCapabilities?.protocolVersion ?? '—'}
+                    </span>
+                    <span data-testid="bottom-detect-worker-service">
+                      service: {detectCapabilities?.serviceVersion ?? '—'}
+                    </span>
+                    <span data-testid="bottom-detect-worker-feed-counts">
+                      feed:{' '}
+                      {(() => {
+                        const feed = detectRunFeed ?? [];
+                        const n = (s: string) => feed.filter((r) => r.status === s).length;
+                        if (!feed.length) return '—';
+                        return `q${n('queued')}/r${n('running')}/s${n('succeeded')}/f${n('failed')}/c${n('cancelled')}/b${n('BLOCKED')}`;
+                      })()}
+                    </span>
+                  </div>
                   <ul data-testid="bottom-detect-engine-list">
                     <li data-testid="bottom-detect-engine-ffscn" data-available={detectCapabilities?.detection?.ffscn ? 'true' : 'false'}>
                       FFSCN: {detectCapabilities ? (detectCapabilities.detection.ffscn ? 'available' : 'unavailable') : 'caps offline'}
@@ -1347,7 +1369,7 @@ export function BottomPanel() {
                       SCN: {detectCapabilities ? (detectCapabilities.detection.scn ? 'available' : 'unavailable') : 'caps offline'}
                     </li>
                     {(detectCapabilities?.models ?? []).length === 0 ? (
-                      <li data-testid="bottom-detect-engine-models-empty">models: none reported</li>
+                      <li data-testid="bottom-detect-engine-models-empty">models: {detectCapabilities ? 'none reported' : '—'}</li>
                     ) : (
                       detectCapabilities!.models.map((m) => (
                         <li
@@ -1361,8 +1383,23 @@ export function BottomPanel() {
                       ))
                     )}
                   </ul>
+                  <ul
+                    className="bottom-detect-blocked-gaps"
+                    data-testid="bottom-detect-blocked-gaps"
+                    data-honest-blocked="g06-g17"
+                  >
+                    <li data-testid="bottom-detect-gap-eye" data-blocked="true" data-available="false">
+                      eye-diagram: BLOCKED (not LocalCompute · not invented)
+                    </li>
+                    <li data-testid="bottom-detect-gap-bitstream" data-blocked="true" data-available="false">
+                      bitstream: BLOCKED (not LocalCompute · not invented)
+                    </li>
+                    <li data-testid="bottom-detect-gap-demod" data-blocked="true" data-available="false">
+                      demod/recognition: BLOCKED (not invented)
+                    </li>
+                  </ul>
                   <p className="bottom-hint muted" data-testid="bottom-detect-engine-honesty">
-                    No invented FFSCN/SCN/demod/recognition engines; slots mirror LocalCompute capabilities only.
+                    No invented FFSCN/SCN/demod/recognition/eye/bitstream engines or runs — missing slots stay — / BLOCKED.
                   </p>
                 </div>
 <div className="bottom-detect-columns" data-testid="bottom-detect-columns">

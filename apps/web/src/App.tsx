@@ -137,8 +137,8 @@ export default function App() {
         data-shell-right-collapsed={shellCols.rightCollapsed ? 'true' : 'false'}
         data-shell-right-collapse-min={String(RIGHT_COLLAPSE_MIN)}
         data-shell-resizable="true"
-        data-shell-edge-pair="lr" data-shell-persist="wss.shellColumns.v1"
-        data-shell-reshot="wave8" data-shell-wave="wave9 wave11"
+        data-shell-edge-pair="lr" data-shell-persist="wss.shellColumns.v1" data-shell-desktop-left="278" data-shell-desktop-right="390"
+        data-shell-reshot="wave8" data-shell-wave="wave9 wave11 wave14"
         style={{
           gridTemplateColumns: collapsed
             ? `${leftColPx}px 6px 1fr 48px`
@@ -149,6 +149,9 @@ export default function App() {
         <div
           className="shell-col-resize shell-col-resize-left"
           data-testid="shell-col-resize-left"
+          aria-valuemin={LEFT_COLLAPSE_MIN}
+          aria-valuemax={800}
+          aria-valuenow={leftColPx}
           data-shell-edge="left"
           data-edge-side="left"
           data-hit-min-px="8"
@@ -232,6 +235,9 @@ defaultPx={auxDefaultPx}
       <div
           className="shell-col-resize shell-col-resize-right"
           data-testid="shell-col-resize-right"
+          aria-valuemin={RIGHT_COLLAPSE_MIN}
+          aria-valuemax={800}
+          aria-valuenow={rightColPx}
           data-shell-edge="right"
           data-edge-side="right"
           data-hit-min-px="8"

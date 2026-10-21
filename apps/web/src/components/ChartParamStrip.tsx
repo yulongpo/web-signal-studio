@@ -83,6 +83,7 @@ export function SpecParamStrip() {
   const workspaceMode = useUiStore((s) => s.workspaceMode);
   const setWorkspaceMode = useUiStore((s) => s.setWorkspaceMode);
   const level = useUiStore((s) => s.level);
+  const display = useUiStore((s) => s.display);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -147,7 +148,7 @@ export function SpecParamStrip() {
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -266,7 +267,53 @@ export function SpecParamStrip() {
         <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-palette-value">
           {paletteId}
         </span>
-<div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-freq-mode"
+          data-strip-wave="wave14"
+          title="显示频率模式（图头）"
+        >
+          频率
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-freq-mode-value"
+          data-strip-wave="wave14"
+        >
+          {display.freqMode === 'rf' ? 'RF' : '基带'}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-window"
+          data-strip-wave="wave14"
+          title="窗函数 — 未接 DSP 时诚实为空"
+        >
+          窗
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-window-value"
+          data-strip-wave="wave14"
+          data-strip-empty="true"
+        >
+          —
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-overlap"
+          data-strip-wave="wave14"
+        >
+          重叠
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-overlap-value"
+          data-strip-wave="wave14"
+          data-strip-empty="true"
+        >
+          —
+        </span>
+        <div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
           <button
             type="button"
             data-testid="btn-toolbar-overflow"
@@ -339,6 +386,18 @@ export function SpecParamStrip() {
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-ref-unit" data-strip-wave="wave11">
                 <span className="chart-strip-qlabel">参考单位</span>
                 <span className="chart-strip-qlabel-value" data-strip-unit="dB">dB</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-window" data-strip-wave="wave14">
+                <span className="chart-strip-qlabel">窗函数</span>
+                <span className="chart-strip-qlabel-value" data-strip-empty="true">—</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-overlap" data-strip-wave="wave14">
+                <span className="chart-strip-qlabel">重叠比</span>
+                <span className="chart-strip-qlabel-value" data-strip-empty="true">—</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-colormap" data-strip-wave="wave14">
+                <span className="chart-strip-qlabel">色图</span>
+                <span className="chart-strip-qlabel-value">{paletteId}</span>
               </div>
                             <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-level">
                 <span className="chart-strip-qlabel">参考 / 动态</span>
