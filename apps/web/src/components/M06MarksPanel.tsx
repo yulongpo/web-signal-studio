@@ -200,7 +200,7 @@ export function M06MarksPanel() {
       data-annotation-panel="true"
       data-annotation-edit="inline-replaceMark"
       data-edit-selection={selected.length === 1 ? 'single' : selected.length === 0 ? 'empty' : 'multi'}
-      data-edit-path="replaceMark"
+      data-edit-path="replaceMark" data-qt-reshot="wave8-annotation-panel"
       data-hook-ready={hookReady}
       data-selected-count={selected.length}
     >
@@ -368,10 +368,10 @@ export function M06MarksPanel() {
         data-column-matrix="qt-full"
       >
         <span className="col-h col-h-0" data-col="0"></span>
-        <span className="col-h col-h-1" data-col="1">名字 / annotationId</span>
+        <span className="col-h col-h-1" data-col="1">名称 / annotationId</span>
         <span className="col-h col-h-2" data-col="2">来源</span>
         <span className="col-h col-h-3" data-col="3">当前段</span>
-        <span className="col-h col-h-4" data-col="4">开始 / ms</span>
+        <span className="col-h col-h-4" data-col="4">起始 / ms</span>
         <span className="col-h col-h-5" data-col="5">结束 / ms</span>
         <span className="col-h col-h-6" data-col="6">中心 / MHz</span>
         <span className="col-h col-h-7" data-col="7">带宽 / kHz</span>

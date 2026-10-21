@@ -6,10 +6,10 @@ import type { AnnotationJson, AnnotationSourceKind, ReviewStatus } from '@wss/co
 
 export const ANNOTATION_TABLE_HEADERS = [
   '',
-  '名字 / annotationId',
+  '名称 / annotationId',
   '来源',
   '当前段',
-  '开始 / ms',
+  '起始 / ms',
   '结束 / ms',
   '中心 / MHz',
   '带宽 / kHz',

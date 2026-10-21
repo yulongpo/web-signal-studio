@@ -205,6 +205,53 @@ export function NarrowbandWorkspace() {
             {pinnedDwellIndex == null ? '未钉住' : `帧 ${pinnedDwellIndex}`}
           </span>
         </label>
+        <div
+          className="nb-field nb-dwell-pin"
+          data-testid="nb-dwell-pin"
+          data-pinned={pinnedDwellIndex == null ? 'false' : 'true'}
+        >
+          <span>驻留钉住</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            data-testid="nb-dwell-index-input"
+            value={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
+            placeholder="帧#"
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === '') {
+                setPinnedDwellIndex(null);
+                return;
+              }
+              const n = Number(raw);
+              if (!Number.isFinite(n)) return;
+              setPinnedDwellIndex(Math.max(0, Math.floor(n)));
+              setPsdMode('frame');
+            }}
+          />
+          <button
+            type="button"
+            data-testid="nb-dwell-pin-btn"
+            title="钉住当前索引并切到驻留帧谱"
+            onClick={() => {
+              const idx = pinnedDwellIndex == null ? 0 : pinnedDwellIndex;
+              setPinnedDwellIndex(idx);
+              setPsdMode('frame');
+            }}
+          >
+            钉住
+          </button>
+          <button
+            type="button"
+            data-testid="nb-dwell-clear-btn"
+            disabled={pinnedDwellIndex == null}
+            title="清除钉住"
+            onClick={() => setPinnedDwellIndex(null)}
+          >
+            清除
+          </button>
+        </div>
         <label className="nb-field">
           <span>STFT N</span>
           <select

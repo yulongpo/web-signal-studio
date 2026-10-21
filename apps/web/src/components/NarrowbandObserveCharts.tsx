@@ -199,7 +199,7 @@ export function NarrowbandObserveCharts() {
             'data-nb-psd-series-kind': psdPlot?.kind,
             'data-nb-psd-bins': psdPlot?.y.length,
             'data-nb-psd-frame-index': result?.psdFrameIndexUsed ?? undefined,
-            'data-nb-psd-frame-count': result?.psdFrameCount,
+            'data-nb-psd-frame-count': result?.psdFrameCount ?? undefined,
             'data-nb-psd-pinned-dwell': pinnedDwellIndex ?? undefined,
           }}
         >

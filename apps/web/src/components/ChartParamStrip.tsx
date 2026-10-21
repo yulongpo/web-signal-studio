@@ -22,7 +22,7 @@ export function AuxParamStrip() {
   const toggleLayer = useUiStore((s) => s.toggleLayer);
 
   return (
-    <header className="chart-strip chart-strip-aux" data-testid="chart-strip-aux">
+    <header className="chart-strip chart-strip-aux" data-testid="chart-strip-aux" data-strip-nuance="aux-wave8">
       <span className="chart-strip-caption chart-strip-qlabel" data-testid="chart-strip-caption-aux">
         辅助分析
       </span>
@@ -153,7 +153,10 @@ export function SpecParamStrip() {
       <span className="chart-strip-caption" data-testid="chart-strip-caption-main">
         宽带时频谱
       </span>
-      <span className="chart-strip-caption chart-strip-caption-physical" data-testid="chart-strip-caption-physical">
+      <span className="chart-strip-caption chart-strip-caption-physical" data-testid="chart-strip-caption-physical"
+        data-strip-unit="physical"
+        data-strip-nuance="wave8"
+      >
         物理坐标
       </span>
       <div
@@ -238,6 +241,8 @@ export function SpecParamStrip() {
                 <span
           className="chart-strip-qlabel chart-strip-level-summary"
           data-testid="chart-strip-qlabel-level"
+          data-strip-unit="dB"
+          data-strip-nuance="ref-dyn-units"
           title={`参考 ${level.refLevelDb.toFixed(2)} dB · 动态 ${level.dynamicRangeDb.toFixed(2)} dB`}
         >
           {`参考 ${level.refLevelDb.toFixed(2)} · 动态 ${level.dynamicRangeDb.toFixed(2)}`}
@@ -309,6 +314,14 @@ export function SpecParamStrip() {
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-stft-n">
                 <span className="chart-strip-qlabel">STFT N</span>
                 <span className="muted">{stftN}</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-freq-unit" data-strip-nuance="wave8">
+                <span className="chart-strip-qlabel">频率单位</span>
+                <span className="chart-strip-qlabel-value" data-strip-unit="Hz">Hz / MHz</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-spacing" data-strip-nuance="wave8-spacing">
+                <span className="chart-strip-qlabel">图头间距</span>
+                <span className="chart-strip-qlabel-value">compact</span>
               </div>
                             <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-level">
                 <span className="chart-strip-qlabel">参考 / 动态</span>
