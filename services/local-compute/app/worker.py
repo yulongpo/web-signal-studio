@@ -266,6 +266,7 @@ def start_detection_worker(
     kind: str,
     source_path: str | None,
     apply_update: Callable[..., None],
+    params: dict | None = None,
 ) -> RunHandle:
     """Run real FFSCN/SCN inference when capabilities marked the family ready.
 
@@ -319,6 +320,7 @@ def start_detection_worker(
                 source_path=source_path,
                 cancel_cb=handle.cancel_event.is_set,
                 progress_cb=_progress,
+                params=params,
             )
 
             if handle.cancel_event.is_set() or outcome.cancelled:

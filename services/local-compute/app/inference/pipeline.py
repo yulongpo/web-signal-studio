@@ -27,12 +27,80 @@ class InferenceOutcome:
     message_zh: str | None = None
 
 
+
+def _resolve_selected_weights(family: str, params: dict[str, Any]) -> Path | None:
+    """Honor DetectionCard modelId/enginePath when they point at a tree .engine.
+
+    Hard rules (G26/CAO): only .engine under model search roots; never .pth;
+    never invent a path outside rebuild detection-models roots.
+    """
+    from ..model_layout import model_dir_roots
+
+    raw_path = params.get("enginePath") or params.get("weightsPath")
+    model_id = params.get("modelId") or params.get("engineId")
+    candidate: Path | None = None
+    if isinstance(raw_path, str) and raw_path.strip():
+        candidate = Path(raw_path.strip())
+    elif isinstance(model_id, str) and model_id.strip():
+        # id forms: "ffscn:name.engine" or bare filename
+        name = model_id.strip().split(":")[-1]
+        for root in model_dir_roots():
+            # direct file under root or one level of family folder
+            direct = root / name
+            if direct.is_file():
+                candidate = direct
+                break
+            for child in root.glob(f"*/{name}"):
+                if child.is_file():
+                    candidate = child
+                    break
+            if candidate is not None:
+                break
+    if candidate is None:
+        return None
+    try:
+        resolved = candidate.resolve()
+    except OSError:
+        return None
+    if resolved.suffix.lower() != ".engine":
+        log.warning("reject non-engine selection: %s", resolved)
+        return None
+    roots = []
+    for r in model_dir_roots():
+        try:
+            roots.append(r.resolve())
+        except OSError:
+            roots.append(r)
+    if not any(str(resolved).startswith(str(root)) for root in roots):
+        # also allow canonical rebuild prefix even if env root differs in case
+        rebuild = Path(r"D:/project/signal_studio_rebuild/out/vs2026-qt611-release_bin/detection-models")
+        try:
+            rebuild_r = rebuild.resolve()
+        except OSError:
+            rebuild_r = rebuild
+        if not str(resolved).lower().startswith(str(rebuild_r).lower()):
+            log.warning("reject engine outside model roots: %s", resolved)
+            return None
+    family_u = family.upper()
+    name_l = resolved.name.lower()
+    if family_u == "FFSCN" and not name_l.startswith("ffscn"):
+        log.warning("reject engine family mismatch FFSCN vs %s", resolved)
+        return None
+    if family_u == "SCN" and not name_l.startswith("scn"):
+        log.warning("reject engine family mismatch SCN vs %s", resolved)
+        return None
+    if not resolved.is_file():
+        return None
+    return resolved
+
+
 def run_detection_inference(
     *,
     kind: str,
     source_path: str | None,
     cancel_cb: Callable[[], bool] | None = None,
     progress_cb: Callable[[float, str, str], None] | None = None,
+    params: dict[str, Any] | None = None,
 ) -> InferenceOutcome:
     """Attempt real FFSCN/SCN inference.
 
@@ -54,7 +122,8 @@ def run_detection_inference(
             message_zh="不支持的检测任务类型，无法走真推理",
         )
 
-    weights = first_present(family)
+    params = dict(params or {})
+    weights = _resolve_selected_weights(family, params) or first_present(family)
     home = source_home(family)
 
     # ONNX still N/A

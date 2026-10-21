@@ -106,6 +106,11 @@ export function DetectPage() {
   const [task, setTask] = useState<LocalComputeTaskRecord | null>(null);
   const [busy, setBusy] = useState(false);
   const [errorLine, setErrorLine] = useState<string | null>(null);
+  /** Selectable tree-internal .engine only (G26: .pth never selectable). */
+  const [selectedEngineId, setSelectedEngineId] = useState<string>('');
+  const [spectrumMode, setSpectrumMode] = useState<number>(0);
+  const [timeStrategy, setTimeStrategy] = useState<'sample' | 'roi' | 'coarse'>('sample');
+  const [splitBursts, setSplitBursts] = useState(false);
   const pollTimer = useRef<number | null>(null);
 
   const makeClient = useCallback(
@@ -235,7 +240,14 @@ export function DetectPage() {
     try {
       const { runId } = await client.createTask({
         kind,
-        params: {},
+        params: {
+          modelId: selectedEngine?.id || selectedEngineId || undefined,
+          enginePath: selectedEngine?.path ?? undefined,
+          spectrumMode,
+          timeStrategy,
+          splitBursts,
+          // Draft DetectionCard fields — backend honors modelId/enginePath for .engine only.
+        },
         // Real opened IQ label/file name only — never invent a path or candidates.
         sourcePath: iqSourcePath,
         sampleRange: {
@@ -278,6 +290,61 @@ export function DetectPage() {
   const canCancel =
     !!task?.runId &&
     (busy || task.status === 'queued' || task.status === 'running');
+
+
+  const engineOptions = useMemo(() => {
+    const models = caps?.models ?? [];
+    return models
+      .map((m) => {
+        const path = m.path ?? '';
+        const isEngine =
+          path.toLowerCase().endsWith('.engine') ||
+          m.id.toLowerCase().includes('.engine');
+        const isPth = /\.(pth|pt)$/i.test(path) || /\.(pth|pt)$/i.test(m.id);
+        const family = /^scn[:/]/i.test(m.id) || /scn/i.test(path) ? 'scn' : 'ffscn';
+        return { ...m, isEngine, isPth, family };
+      })
+      .filter((m) => m.isEngine && m.present && !m.isPth);
+  }, [caps?.models]);
+
+  useEffect(() => {
+    if (!engineOptions.length) {
+      if (selectedEngineId) setSelectedEngineId('');
+      return;
+    }
+    if (!selectedEngineId || !engineOptions.some((m) => m.id === selectedEngineId)) {
+      setSelectedEngineId(engineOptions[0].id);
+    }
+  }, [engineOptions, selectedEngineId]);
+
+  const selectedEngine = engineOptions.find((m) => m.id === selectedEngineId) ?? null;
+
+  const phaseIndex = (() => {
+    if (!task) return -1;
+    if (task.status === 'queued') return 0;
+    if (task.status === 'running') {
+      const p = typeof task.progress === 'number' ? task.progress : 0;
+      if (p < 0.25) return 1;
+      if (p < 0.65) return 2;
+      if (p < 0.95) return 3;
+      return 3;
+    }
+    if (task.status === 'succeeded' || task.status === 'BLOCKED' || task.status === 'failed' || task.status === 'cancelled') {
+      return 4;
+    }
+    return -1;
+  })();
+
+  const phaseNames = ['排队', '谱帧', '推理 / 关联', '精修 / 发布', '完成'] as const;
+
+  const preflightIssue = (() => {
+    if (!online) return '本地计算服务离线';
+    if (!authorized) return '鉴权失败';
+    if (!hasIqSource) return '未打开 IQ（仅 resources\\sigmf_data_demo）';
+    if (!selectedEngine) return '无可选树内 .engine（或缺模型）';
+    if (!caps?.detection.ffscn && !caps?.detection.scn) return '检测族未就绪（诚实 BLOCKED）';
+    return '';
+  })();
 
   const statusLine = (() => {
     if (!task) return 'idle';
@@ -378,47 +445,200 @@ export function DetectPage() {
       )}
 
       <section
-        className="detect-engine-inventory"
-        data-testid="detect-engine-inventory"
-        data-model-count={String(caps?.models?.length ?? 0)}
+        className="detection-card"
+        data-testid="detection-card"
+        data-object-name="detectionCard"
       >
-        <strong>检测模型（树内 .engine）</strong>
-        {!caps?.models?.length ? (
-          <p className="muted" data-testid="detect-engine-empty">
-            capabilities 尚未返回 models，或未发现权重。缺 engine 时保持 BLOCKED（禁假）。
+        <header className="detection-card-header">
+          <strong>DetectionCard</strong>
+          <span className="muted">对照桌面 ui/detection/detection_card @ 17471a6</span>
+        </header>
+
+        <div className="detection-profile-row" data-testid="detection-profile-row">
+          <label className="detect-field" data-testid="detection-model-field">
+            <span>模型 / .engine</span>
+            <select
+              data-testid="detection-engine-select"
+              data-object-name="detectionModel"
+              value={selectedEngineId}
+              disabled={!engineOptions.length || busy}
+              onChange={(e) => setSelectedEngineId(e.target.value)}
+            >
+              {!engineOptions.length ? (
+                <option value="">无可选 .engine（保持 BLOCKED）</option>
+              ) : (
+                engineOptions.map((m) => (
+                  <option key={m.id} value={m.id} data-family={m.family}>
+                    {m.family.toUpperCase()} · {m.id}
+                  </option>
+                ))
+              )}
+            </select>
+          </label>
+          <label className="detect-field" data-testid="detection-spectrum-field">
+            <span>谱样式</span>
+            <select
+              data-testid="detection-spectrum-mode"
+              data-object-name="detectionSpectrumMode"
+              value={spectrumMode}
+              disabled={busy}
+              onChange={(e) => setSpectrumMode(Number(e.target.value))}
+            >
+              <option value={0}>模型默认</option>
+              <option value={1}>瞬时谱（窗末帧）</option>
+              <option value={2}>平均谱</option>
+              <option value={3}>最大谱</option>
+              <option value={4}>最小谱</option>
+            </select>
+          </label>
+        </div>
+
+        <div
+          className="detection-strategy-row"
+          data-testid="detection-time-strategy"
+          data-object-name="detectionTimeStrategy"
+          data-strategy={timeStrategy}
+        >
+          <span className="detection-strategy-label">时间策略</span>
+          {(
+            [
+              ['sample', '采样区间', 'detectionStrategySample'],
+              ['roi', '时频窗口', 'detectionStrategyRoi'],
+              ['coarse', '粗检测', 'detectionStrategyCoarse'],
+            ] as const
+          ).map(([id, label, obj]) => (
+            <button
+              key={id}
+              type="button"
+              className={timeStrategy === id ? 'strategy-active' : ''}
+              data-testid={`detection-strategy-${id}`}
+              data-object-name={obj}
+              data-checked={timeStrategy === id ? 'true' : 'false'}
+              disabled={busy}
+              onClick={() => setTimeStrategy(id)}
+            >
+              {label}
+            </button>
+          ))}
+          <label className="detection-split-bursts" data-testid="detection-split-bursts">
+            <input
+              type="checkbox"
+              data-object-name="detectionSplitBursts"
+              checked={splitBursts}
+              disabled={busy}
+              onChange={(e) => setSplitBursts(e.target.checked)}
+            />
+            拆分突发
+          </label>
+        </div>
+
+        <section
+          className="detect-engine-inventory"
+          data-testid="detect-engine-inventory"
+          data-model-count={String(caps?.models?.length ?? 0)}
+          data-selectable-count={String(engineOptions.length)}
+        >
+          <strong>检测模型清单（树内 .engine 可选）</strong>
+          {!caps?.models?.length ? (
+            <p className="muted" data-testid="detect-engine-empty">
+              capabilities 尚未返回 models，或未发现权重。缺 engine 时保持 BLOCKED（禁假）。
+            </p>
+          ) : (
+            <ul data-testid="detect-engine-list">
+              {caps.models.map((m) => {
+                const path = m.path ?? '';
+                const isEngine =
+                  path.toLowerCase().endsWith('.engine') ||
+                  m.id.toLowerCase().includes('.engine');
+                const isPth = /\.(pth|pt)$/i.test(path) || /\.(pth|pt)$/i.test(m.id);
+                const selectable = isEngine && m.present && !isPth;
+                return (
+                  <li
+                    key={m.id}
+                    data-testid="detect-engine-item"
+                    data-model-id={m.id}
+                    data-present={m.present ? 'true' : 'false'}
+                    data-engine={isEngine ? 'true' : 'false'}
+                    data-pth={isPth ? 'true' : 'false'}
+                    data-blocked-pth={isPth ? 'true' : 'false'}
+                    data-selectable={selectable ? 'true' : 'false'}
+                    data-selected={selectedEngineId === m.id ? 'true' : 'false'}
+                    title={path || m.id}
+                  >
+                    <button
+                      type="button"
+                      className="detect-engine-pick"
+                      disabled={!selectable || busy}
+                      data-testid="detect-engine-pick"
+                      onClick={() => selectable && setSelectedEngineId(m.id)}
+                    >
+                      <code>{m.id}</code>
+                    </button>
+                    {m.present ? ' · present' : ' · absent'}
+                    {isEngine ? ' · .engine' : ''}
+                    {isPth ? ' · .pth 不可选(G26)' : ''}
+                    {selectable ? ' · 可选' : ''}
+                    {selectedEngineId === m.id ? ' · 已选' : ''}
+                    {m.notes ? ` · ${m.notes}` : ''}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          <p className="muted">
+            仅树内 rebuild detection-models 的 .engine 可选；.pth 永不入选。IQ 仅
+            resources\\sigmf_data_demo。窄带识别保持 BLOCKED。
           </p>
-        ) : (
-          <ul data-testid="detect-engine-list">
-            {caps.models.map((m) => {
-              const path = m.path ?? '';
-              const isEngine =
-                path.toLowerCase().endsWith('.engine') ||
-                m.id.toLowerCase().includes('.engine');
-              const isPth = /\.(pth|pt)$/i.test(path) || /\.(pth|pt)$/i.test(m.id);
-              return (
-                <li
-                  key={m.id}
-                  data-testid="detect-engine-item"
-                  data-model-id={m.id}
-                  data-present={m.present ? 'true' : 'false'}
-                  data-engine={isEngine ? 'true' : 'false'}
-                  data-pth={isPth ? 'true' : 'false'}
-                  data-blocked-pth={isPth ? 'true' : 'false'}
-                  title={path || m.id}
-                >
-                  <code>{m.id}</code>
-                  {m.present ? ' · present' : ' · absent'}
-                  {isEngine ? ' · .engine' : ''}
-                  {isPth ? ' · .pth 不可用(G26)' : ''}
-                  {m.notes ? ` · ${m.notes}` : ''}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        <p className="muted">
-          仅展示 capabilities.models；不提供 .pth 选择。IQ 限 resources\\sigmf_data_demo。
+        </section>
+
+        <p
+          className="detection-draft-note"
+          data-testid="detection-draft-note"
+          data-object-name="detectionParameterDraftNote"
+          data-visible={
+            selectedEngineId || spectrumMode !== 0 || timeStrategy !== 'sample' || splitBursts
+              ? 'true'
+              : 'false'
+          }
+        >
+          草稿仅用于下一次任务 · Enter/点击运行提交 · 刷新保留草稿
         </p>
+        <p
+          className="detection-preflight"
+          data-testid="detection-preflight"
+          data-object-name="detectionPreflight"
+          data-preflight-ok={preflightIssue ? 'false' : 'true'}
+        >
+          {preflightIssue
+            ? `预检：${preflightIssue}`
+            : `预检通过 · engine=${selectedEngine?.id ?? 'n/a'} · strategy=${timeStrategy}`}
+        </p>
+        <p
+          className="detection-run-summary"
+          data-testid="detection-run-summary"
+          data-object-name="detectionRunSummary"
+        >
+          {task
+            ? `运行 ${task.runId.slice(0, 8)}… · ${task.status} · ${Math.round((task.progress || 0) * 100)}%`
+            : '无未完成运行 · 当前参数用于下一次'}
+        </p>
+        <div
+          className="detection-phase-bar"
+          data-testid="detection-phase-progress"
+          data-object-name="detectionPhaseProgress"
+          data-completed-stage={String(phaseIndex)}
+          hidden={phaseIndex < 0}
+        >
+          {phaseNames.map((name, index) => (
+            <span
+              key={name}
+              className="detection-phase-step"
+              data-testid="detection-phase-step"
+              data-active={index <= phaseIndex ? 'true' : 'false'}
+              title={name}
+            />
+          ))}
+        </div>
       </section>
 
       <label className="detect-field">

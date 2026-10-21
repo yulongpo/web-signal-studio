@@ -568,6 +568,116 @@ body,
   gap: 10px;
   font-size: 12px;
 }
+
+/* G17 DetectionCard parity (desktop detection_card @ 17471a6) */
+.detection-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #2c3b4f;
+  background: #121820;
+}
+.detection-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+.detection-profile-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.detection-strategy-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.detection-strategy-label {
+  color: #8a97a5;
+  margin-right: 4px;
+}
+.detection-strategy-row button {
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #35506a;
+  background: #1a2430;
+  color: #d7e3ef;
+  cursor: pointer;
+}
+.detection-strategy-row button.strategy-active,
+.detection-strategy-row button[data-checked='true'] {
+  background: #245878;
+  border-color: #3d8ebd;
+}
+.detection-split-bursts {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  color: #b7c4d1;
+  font-size: 11px;
+}
+.detect-engine-inventory {
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: #151c24;
+  border: 1px solid #2c3b4f;
+}
+.detect-engine-list {
+  margin: 6px 0;
+  padding-left: 16px;
+}
+.detect-engine-pick {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+.detect-engine-pick:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.detect-engine-item[data-selected='true'] {
+  color: #8fd3ff;
+}
+.detection-draft-note {
+  margin: 0;
+  color: #86a4ba;
+  font-size: 10px;
+}
+.detection-preflight {
+  margin: 0;
+  padding-left: 8px;
+  border-left: 2px solid #e6ba65;
+  color: #e8d3a4;
+}
+.detection-preflight[data-preflight-ok='true'] {
+  border-left-color: #63d2be;
+  color: #b7ebe0;
+}
+.detection-run-summary {
+  margin: 0;
+  color: #a9b7c6;
+}
+.detection-phase-bar {
+  display: flex;
+  gap: 4px;
+  height: 3px;
+}
+.detection-phase-step {
+  flex: 1;
+  background: #2a3644;
+  border-radius: 1px;
+}
+.detection-phase-step[data-active='true'] {
+  background: #3d9ad6;
+}
+
 .detect-banner {
   padding: 8px;
   border-radius: 6px;
