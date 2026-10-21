@@ -2,9 +2,9 @@
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:33:00+（rebase `fb2e020` + Bot-G screenshots） |
+| 时间（Asia/Shanghai） | 2026-10-21 21:50:00+（rebase `d8297d1` G01+G06） |
 | 复核方 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
-| **Web tip（origin/main）** | **`fb2e02052323127b33d665a03eb3400d8565b492`**（`fb2e020`；实现基线 `17937bb` + Bot-G 截图） |
+| **Web tip（origin/main）** | **`d8297d140b0091a91d56b7c4d7b705a9fc3d4567`**（`d8297d1` = G06 `95e24d0`/`6c17a53` + G01 MenuBar） |
 | **桌面上游 tip** | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`rebuild/a143-native`） |
 | 先验 Bot-A 文档 | `866e699` / G01–G26（对照 Web 当时 `be885f2`、上游 `0f108d0`，本地路径证据 `696ce12`） |
 | 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6`（fetch 后与远端一致） |
@@ -26,22 +26,26 @@
 | `a64117e` | 窄带设置跨 overflow / 换页保留 | **G06** | **加严** | `NarrowbandWorkspace::pageChanged`；STFT N / 频率 / 网格从 MainWindow 根解析；PASS 须验证换页与 overflow 后控件值不丢 |
 | `696ce12` | 显示摘要「参考/动态」 | **G18** | **加严** | `displaySummary_` 文案：`参考 {level} {unit}` + `动态 {range} dB`（禁「电平」混称）；精度 2 位 |
 | `6499a64` | 图头右对齐自适应控件 | G02 | 背景 | 与 f9f05bb 同属 strip 语义；Web 图头须右对齐/自适应折叠 |
-| `2e26651` | 窄带统一 plot settings | G06 | 背景 | 分析页简化；Web 窄带多页不得伪解调 |
+| 2e26651 | 窄带统一 plot settings | G06 | 加严 | 分析页简化；Web 窄带多页无伪解调 |
 | `c1f2cce` | 工程树信号紧凑展示 | G19 | 背景 | 当前信号/源信息澄清 |
 | `db58394`/`17471a6` | chart-header-labels 证据归档 | — | 证据 | 锁定原生截图/JSON；无新控件 API |
 
 **未新增独立 G27**：上述全部折叠进既有 G02/G06/G18/G19 的加严 PASS，避免 ID 漂移。
 
-### B0. Web `main@fb2e020` 相对 `17937bb` / Bot-A `1be860d`（本轮截图 rebase）
+### B0. Web `main@d8297d1`（G01+G06；相对 `fb2e020`）（G06 壳 `6c17a53` + 截图；相对 `fb2e020`）
+
+> 完整增量：`INCREMENTAL_d8297d1.md`。截图包 `qa/web-6c17a53/`（stub=false，**no PASS**）。**G06 = PARTIAL（非 CLOSED）**。
+
+### B0b. Web `main@fb2e020`（历史） 相对 `17937bb` / Bot-A `1be860d`（本轮截图 rebase）
 
 | ID | 状态 | 代码（`17937bb`） | 截图 / COMPARISON_NOTES |
 |----|------|-------------------|-------------------------|
-| G01 | OPEN | 无 menubar | 截图无法闭合 |
+| G01 | OPEN→**PARTIAL @d8297d1** | was no menubar | `MenuBar` 34px File+View+Open IQ；缺编辑/分析/帮助 → PARTIAL |
 | G02 | PARTIAL | Toolbar demoted | COMPARISON_NOTES #3：截图不闭 chrome |
 | G03 | PARTIAL | NavChrome+NavigationChart | `02-tri-chart-hosts`；滚轮仍缺 |
 | G04 | PARTIAL | raw IQ 代码路径 | `05-aux-wave-or-psd`；Bot-G 未 PASS |
 | G05 | **CLOSED** | 82/205+拖+双击 | hosts/splitters 可见；CLOSED 仍以代码为准 |
-| G06 | OPEN | stub | **`06-narrowband` stub 可见（强化）** |
+| G06 | OPEN→**PARTIAL @6c17a53** | was stub @fb2e020 | 历史截图行；以本 tip NarrowbandWorkspace 四页壳为准（真图未 CLOSED） |
 | G17 | OPEN | Detect 精简 | `08-rail-detect` 页级；engine picker 未验 |
 | G25 | DOCS | StatusBar | ~28px+文件名；无 gesture-hint |
 | G26 | PARTIAL | demo IQ | 捕获加载 `0000000`；Detect `.engine` 列表未验 |
@@ -67,8 +71,8 @@
 
 | 状态 | IDs |
 |------|-----|
-| OPEN | G01, G06–G10, G15–G18, G21–G24 |
-| PARTIAL | **G02–G04**, G11–G14, G19–G20, G26 |
+| OPEN | G07–G10, G15–G18, G21–G24 |
+| PARTIAL | **G01**, G02–G04, **G06**, G11–G14, G19–G20, G26 |
 | DOCS-only / 实现仍偏 | G25 |
 | CLOSED | **G05** |
 
@@ -109,12 +113,12 @@
 
 | ID | 类别 | 差距 | 桌面证据 | Web 证据 | 严重度 | 状态 | PASS 摘要 |
 |----|------|------|----------|----------|--------|------|-----------|
-| G01 | 布局 | 无顶部菜单栏 | `buildMenus()` | 无 menubar | **P0** | OPEN | 五组菜单/命令栏；Open IQ 从菜单可达 |
+| G01 | 布局 | 顶栏菜单/命令栏 | `buildMenus()` height 34；文件/编辑/视图/分析/帮助 | `MenuBar.tsx` @`d8297d1`：34px + 文件/视图 + `menu-open-iq`；缺编辑/分析/帮助 | **P0** | **PARTIAL** | 补齐完整菜单树；不依赖 strip 作为唯一 Open IQ |
 | G02 | 布局 | 常驻 Toolbar 取代图头；缺标签分离 | `ChartControlStrip`+`f9f05bb` | `AuxParamStrip`/`SpecParamStrip`；无 aux↔main 常驻条 @`17937bb` | **P0** | **PARTIAL**（**加严**残留） | 无全局常驻条；补 caption+overflow 焦点（`f9f05bb`） |
 | G03 | 布局 | 全局时间导航（已嵌入 NavigationChart） | `navigationPlot` | `NavChrome`+`NavigationChart` @`17937bb` | **P0** | **PARTIAL** | 真实时间窗+拖窗+chrome；补滚轮改窗宽 |
 | G04 | 布局 | 辅助图 Wave/PSD（派生曲线） | `auxPlot` | `auxWaveRawIq`/`sigmf_data_demo` IqRms @`17937bb` | **P0** | **PARTIAL** | Wave/PSD 切换；Wave=raw IQ 代码已落地；待 QA 视觉 |
 | G05 | 布局 | 垂直 splitter（默认已对齐 82/205） | `graphSplitter` 82/205 | `VerticalSplitter` 默认 **82/205** @`17937bb` | **P0** | **CLOSED** | 可拖+双击复位；默认对齐 82/205 |
-| G06 | 布局 | 窄带 stub；设置须跨页保留 | `NarrowbandWorkspace`+`a64117e` | stub；**`06-narrowband.png` 可见** | **P0** | OPEN（**加严**+截图确认） | 非 stub；换页/overflow 后 STFT N·网格·频率保留；无伪解调 |
+| G06 | 布局 | 窄带四页壳（stub 已替换） | `NarrowbandWorkspace`+`a64117e` | `NarrowbandWorkspace.tsx` @`6c17a53`；`qa/web-6c17a53/` stub=false；ChartPanel 无真 DDC | **P0** | **PARTIAL** | 真 Wave/PSD/STFT；调制/识别/解调 chrome；标签「工作台」；截图不 CLOSED |
 | G07 | 布局 | 缺底栏 | `bottomContent_` | 无 | **P0** | OPEN | 三标签；~29/150 |
 | G08 | 布局 | 栏宽不一致 | 278/390 | 220/280 | **P1** | OPEN | 左~278 右~390；收起~38 |
 | G09 | 布局 | 缺主图底条 | UI-28 | MISSING | **P1** | OPEN | 游标/范围/基于标记创建通道 |
@@ -141,7 +145,7 @@
 ## 建议修复分波（更新）
 
 ### Wave P0
-G01+G02（含 strip 标签分离）→ G03–G05 → G17 → G07 → G06（含跨页保留）→ 补齐 G11–G14 PARTIAL 退出 → **G26 清 `.pth` 可选项**。
+G01+G02（含 strip 标签分离）→ G03–G05 → G17 → G07 → G06 PARTIAL 收口（真图+四页 chrome）→ 补齐 G11–G14 PARTIAL 退出 → **G26 清 `.pth` 可选项**。
 
 ### Wave P1
 G10/G15/G09/G19–G20 接线 / **G18 参考·动态** / G08/G16。
@@ -163,4 +167,5 @@ G21–G25。
 
 ## 结论
 
-桌面仍 **`17471a6`**。Web tip **`fb2e020`** = 实现 `17937bb` + Bot-G 截图包。状态相对 `1be860d` **不变**（OPEN 12 / PARTIAL 10 / DOCS 1 / CLOSED 1=G05）。COMPARISON_NOTES 强化：**G06 stub 可见**；G01/G02/检测 UI **不因截图 CLOSED**；**无矩阵 PASS**。详见 `INCREMENTAL_fb2e020.md`。
+桌面仍 **`17471a6`**。Web tip **`d8297d1`** = G06（`6c17a53`+`web-6c17a53`）+ G01 MenuBar。**G01 OPEN→PARTIAL**；**G06 保持 PARTIAL**；截图不单独 CLOSED。OPEN 10 / PARTIAL 12 / DOCS 1 / CLOSED 1=G05。**无矩阵 PASS**。详见 `INCREMENTAL_d8297d1.md`。
+0d68e9/NarrowbandWorkspace.tsx）。相对 INCREMENTAL_fb2e020：**G06 OPEN→PARTIAL**（stub 已替换；真 DDC 图与四页 chrome 未 CLOSED）；OPEN 11 / PARTIAL 11 / DOCS 1 / CLOSED 1=G05。**无矩阵 PASS**。详见 INCREMENTAL_d8297d1.md。
