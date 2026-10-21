@@ -85,3 +85,4 @@
 | 2026-10-21 | WSS-QA-G | P6 wrap-up @ tip `1931398`: Q-01→**PASS** (CI green run 39593427109); Q-03→**PASS** (MIT LICENSE + package SPDX); Q-04→**PASS** (secrets sweep + gitignore); Q-05→**WIP** (delivery manifest skeleton) |
 | 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `8f09dbc` / CI run 39594324401：M-02 / M-08 → **PASS** (file-io 31/31 + m02 golden 12; Bot-B open evidence+PNGs; project-io 13/13 v6 fixtures; e2e non-charts still skipped in CI) |
 | 2026-10-21 | Bot-E | M-09 evidence @ baseline `8c7c4db`：`docs/acceptance/evidence/bot-e/`（**WIP，`matrix_pass_claimed: false`，不自报 PASS**）；无模型/无 GPU BLOCKED；TensorRT `.engine` N/A |
+| 2026-10-21 | CAO | **FINAL_DELIVERED** claimed @ packaging tip `d77e34b` / baseline `631f22a`; known limits accepted (non-charts e2e off-CI; real detect needs weights; evidence-path manifest) |

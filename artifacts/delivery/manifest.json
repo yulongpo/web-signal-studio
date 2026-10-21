@@ -1,14 +1,14 @@
 {
   "schemaVersion": "0.2.0",
-  "status": "PASS",
-  "finalDeliveredClaimed": false,
+  "status": "FINAL_DELIVERED",
+  "finalDeliveredClaimed": true,
   "packagingKind": "evidence_path_manifest",
   "packagingNote": "No release zip/installer invented. Inventories and sha256-hashes in-repo delivery-relevant paths (LICENSE, matrix, FINAL checklist draft, acceptance evidence, license report, checksum list).",
   "generatedBy": "Bot-G / WSS-QA-G",
   "timezone": "Asia/Shanghai",
   "generatedAt": "2026-10-21T20:14:48+08:00",
-  "tipSha": "631f22ab34642a903695c544cbb0390e9f7fa356",
-  "tipShort": "631f22a",
+  "tipSha": "d77e34b0a5e3d0aba6cc3ffde0f434ed73d5fc54",
+  "tipShort": "d77e34b",
   "repository": "https://github.com/yulongpo/web-signal-studio",
   "license": "MIT",
   "licenseFile": "LICENSE",
@@ -541,5 +541,16 @@
     "CI job 'e2e non-charts' remains disabled; charts covered by charts-playwright",
     "Real FFSCN/SCN inference requires GPU + mounted weights (M-09 PASS is degrade/no-model path)",
     "No release tarball/installer produced in this package"
-  ]
+  ],
+  "caoSignOff": {
+    "at": "2026-10-21 20:17 Asia/Shanghai",
+    "by": "CAO web-signal-studio责任人",
+    "packagingTip": "d77e34b0a5e3d0aba6cc3ffde0f434ed73d5fc54",
+    "acceptanceBaselineTip": "631f22ab34642a903695c544cbb0390e9f7fa356",
+    "knownLimitsAccepted": [
+      "CI e2e non-charts still disabled; Playwright evidence committed",
+      "Real FFSCN/SCN needs GPU+weights; M-09 PASS is degrade/no-model path",
+      "evidence_path_manifest only; no release zip/installer"
+    ]
+  }
 }
