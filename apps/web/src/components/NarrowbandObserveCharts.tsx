@@ -2,7 +2,7 @@
  * G06 observe charts: DDC'd IQ from sigmf_data_demo into WaveformChart + SpectrumChart.
  * Does not rewrite Bot-B shell chrome — only fills the honest empty chart slots.
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { WaveformChart } from '@wss/charts/WaveformChart';
 import { SpectrumChart } from '@wss/charts/SpectrumChart';
 import { useUiStore } from '../store/uiStore';
@@ -11,6 +11,10 @@ import {
   computeNarrowbandObserveDdc,
   type NarrowbandObserveDdcResult,
 } from '../dsp/narrowbandObserveDdc';
+import {
+  frameIndexFromPlotX,
+  PLOT_MARGIN,
+} from './chartGesture';
 
 function PanelShell({
   title,
@@ -46,6 +50,79 @@ function PanelShell({
 
 function Waiting({ text }: { text: string }) {
   return <span className="nb-chart-panel-status">{text}</span>;
+}
+
+
+/** G18 charts-owned pinned-dwell scrubber: drag vertical marker in STFT plot. */
+function StftDwellScrubber({
+  frameIndex,
+  frameCount,
+  onScrub,
+}: {
+  frameIndex: number;
+  frameCount: number;
+  onScrub: (idx: number) => void;
+}) {
+  const dragging = useRef(false);
+  if (!(frameCount > 0)) return null;
+  const i = Math.min(frameCount - 1, Math.max(0, Math.floor(frameIndex)));
+  const frac = (i + 0.5) / frameCount;
+  const leftCss =
+    "calc(" +
+    String(PLOT_MARGIN.left) +
+    "px + (100% - " +
+    String(PLOT_MARGIN.left + PLOT_MARGIN.right) +
+    "px) * " +
+    String(frac) +
+    ")";
+
+  const scrubFromClientX = (host: DOMRect, clientX: number) => {
+    const idx = frameIndexFromPlotX(clientX - host.left, host.width, frameCount);
+    if (idx != null) onScrub(idx);
+  };
+
+  return (
+    <div
+      data-testid="nb-stft-dwell-scrubber"
+      data-frame-index={frameIndex}
+      title="拖动以刷写驻留帧谱"
+      style={{
+        position: "absolute",
+        left: leftCss,
+        top: PLOT_MARGIN.top,
+        bottom: PLOT_MARGIN.bottom,
+        width: 2,
+        marginLeft: -1,
+        background: "rgba(255, 220, 80, 0.95)",
+        cursor: "ew-resize",
+        zIndex: 2,
+        pointerEvents: "auto",
+      }}
+      onPointerDown={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        dragging.current = true;
+        const host = event.currentTarget.parentElement?.getBoundingClientRect();
+        if (!host) return;
+        (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+        scrubFromClientX(host, event.clientX);
+      }}
+      onPointerMove={(event) => {
+        if (!dragging.current) return;
+        const host = event.currentTarget.parentElement?.getBoundingClientRect();
+        if (!host) return;
+        scrubFromClientX(host, event.clientX);
+      }}
+      onPointerUp={(event) => {
+        dragging.current = false;
+        try {
+          (event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
+        } catch {
+          /* ignore */
+        }
+      }}
+    />
+  );
 }
 
 export function NarrowbandObserveCharts() {
@@ -237,10 +314,13 @@ export function NarrowbandObserveCharts() {
             data-testid="nb-stft-pin-host"
             data-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
             data-frame-count={result.stft.frameCount}
+            data-g18-margin-map="true"
+            data-g18-dwell-scrubber={pinnedDwellIndex == null ? 'false' : 'true'}
             title="单击钉住驻留帧谱；Alt+单击清除"
             style={{ width: '100%', height: '100%', position: 'relative' }}
             onClick={(event) => {
               // G18: STFT click pin / Alt-click clear → store + frame mode
+              // Map through HeatmapCanvas plot margins (not full host width).
               if (event.altKey) {
                 setPinnedDwellIndex(null);
                 return;
@@ -248,11 +328,8 @@ export function NarrowbandObserveCharts() {
               const host = event.currentTarget.getBoundingClientRect();
               if (!(host.width > 0) || result.stft.frameCount <= 0) return;
               const x = event.clientX - host.left;
-              const t = Math.min(Math.max(x / host.width, 0), 0.999999);
-              const idx = Math.min(
-                result.stft.frameCount - 1,
-                Math.max(0, Math.floor(t * result.stft.frameCount)),
-              );
+              const idx = frameIndexFromPlotX(x, host.width, result.stft.frameCount);
+              if (idx == null) return; // click in axis margin — ignore
               setPinnedDwellIndex(idx);
               setPsdMode('frame');
             }}
@@ -274,6 +351,16 @@ export function NarrowbandObserveCharts() {
               testId="nb-chart-stft"
               interactionEnabled={false}
             />
+            {pinnedDwellIndex != null ? (
+              <StftDwellScrubber
+                frameIndex={pinnedDwellIndex}
+                frameCount={result.stft.frameCount}
+                onScrub={(idx) => {
+                  setPinnedDwellIndex(idx);
+                  setPsdMode('frame');
+                }}
+              />
+            ) : null}
           </div>
         ) : (
           <Waiting text={statusText ?? '等待真实 DDC 时频谱'} />

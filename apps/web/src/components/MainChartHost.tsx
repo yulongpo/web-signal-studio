@@ -500,6 +500,8 @@ export function MainChartHost() {
         sampleRateHz={sampleRateHz}
         xDomain={liveView.xDomain}
         yDomain={liveView.yDomain}
+        fullTime={timeSec}
+        fullFreq={freqHz}
       />
       {roi ? (
         <div
