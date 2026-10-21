@@ -72,11 +72,29 @@ Smoke targets: `apps/web`, `services/local-compute`.
 4. Do **not** modify shared baseline originals or rebuild trees.
 5. **G26 hard fail** if smoke uses non-demo IQ or non-rebuild `.engine`/`.pth` as acceptance primary.
 
+## Detection-path smoke (Bot-G independent)
+
+> Ran @ tip `563458a` (Asia/Shanghai). **Not** UI-parity / desktop screenshot PASS. Desktop baseline PNGs are **stale** (`qa/desktop-stale-note.txt`) until Bot-A re-capture.
+
+| Check | Result | Evidence |
+|-------|--------|----------|
+| PRE-2 IQ locked to `sigmf_data_demo` | PASS | live result `sourcePath` + `qa-detect-live-trt_*.json` g26 |
+| PRE-3 / G26 engines under rebuild `detection-models` `*.engine` | PASS | FFSCN/SCN paths in live JSON; no RadioAI/`.pth` primary |
+| Live TRT capabilities + `ffscn.detect` | PASS | `engine=TENSORRT_CUDA`, `verifiedForward=true`, `canInventResults=false`, status `succeeded` |
+| Degrade `DISABLE_TENSORRT=1` | PASS | `BLOCKED`, `result=null`, no fake green (`qa-detect-degrade_*.json`) |
+| Contract pytest (stub) | PASS | **62 passed** (`qa-detect-pytest-contract_*.txt`) |
+| Tip CI (web build) | FAIL (unrelated) | [run 39606352080](https://github.com/yulongpo/web-signal-studio/actions/runs/39606352080) — do not treat as detection FAIL |
+| UI parity / desktop PNGs | **not judged** | stale desktop baseline; wait B/C tip + A re-audit |
+
+**Verdict (detection subset only):** PASS — see `qa/qa-detect-summary_2026-10-21.json`. `matrix_pass_claimed:false` / `ui_parity_pass_claimed:false`.
+
 ## Status
 
 | Item | Status |
 |------|--------|
 | Baseline seeded in wss-wt-g | DONE |
-| G25/G26 folded into this checklist | DONE @ `7a84739` |
-| `qa/` screenshot pack | WIP — wait B/C/E/F tip + smoke |
-| Parity closeout / matrix flip | WIP — evidence after smoke |
+| G25/G26 folded into this checklist | DONE @ `7a84739` / `f77b933` |
+| Detection-path smoke (local-compute TRT + degrade) | **PASS** @ `563458a` (evidence in `qa/qa-detect-*`) |
+| Desktop baseline PNGs for UI compare | **STALE** — do not use for PASS (`qa/desktop-stale-note.txt`) |
+| `qa/` full UI screenshot pack | WIP — wait B/C tip + A re-audit |
+| UI parity closeout / matrix flip | WIP — no PASS from stale desktop shots |

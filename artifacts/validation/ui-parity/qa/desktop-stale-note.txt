@@ -1,0 +1,6 @@
+﻿# Desktop baseline PNGs — STALE (CAO 2026-10-21 21:17 Asia/Shanghai)
+
+Desktop branch refreshed. Do **not** use `../baseline/desktop-*.png` to judge UI-parity PASS until Bot-A re-audits / re-captures.
+
+- Detection-path smoke (this folder's `qa-detect-*`) is independent of desktop screenshot parity.
+- Full UI smoke waits B/C tip + A baseline re-audit.

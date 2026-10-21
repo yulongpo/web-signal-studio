@@ -1,0 +1,36 @@
+{
+  "id": "qa-detect-summary",
+  "tip": "563458ad6df118be72d87a096fc9888d58b6e2b8",
+  "generatedAt": "2026-10-21T21:20:11+08:00",
+  "timezone": "Asia/Shanghai",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "desktop_baseline_stale": true,
+  "ci_tip": {
+    "run": 39606352080,
+    "url": "https://github.com/yulongpo/web-signal-studio/actions/runs/39606352080",
+    "conclusion": "failure",
+    "note": "Tip CI failed (web/typecheck unrelated to local TRT smoke); detection verdict is local evidence only."
+  },
+  "ran": [
+    "live TRT capabilities + ffscn.detect on locked IQ (Anaconda tensorrt 10.11.0.33 + RTX 5060)",
+    "degrade DISABLE_TENSORRT=1 + DISABLE_TORCH=1 => BLOCKED result=null",
+    "contract pytest LOCAL_COMPUTE_DISABLE_*=1 => 62 passed"
+  ],
+  "verdict_detection_subset": "PASS",
+  "verdict_notes": [
+    "Live: ffscn/scn ready, engine=TENSORRT_CUDA, verifiedForward=true, canInventResults=false, G26 paths",
+    "Degrade: BLOCKED + result null (no fake green)",
+    "UI parity / desktop screenshots: NOT judged (desktop PNGs stale per CAO; full UI waits B/C + A re-audit)",
+    "ACCEPTANCE_MATRIX not flipped for UI; detection smoke evidence under ui-parity/qa only"
+  ],
+  "artifacts": [
+    "qa-detect-live-trt_2026-10-21.json",
+    "qa-detect-live-trt_2026-10-21.log",
+    "qa-detect-degrade_2026-10-21.json",
+    "qa-detect-degrade_2026-10-21.log",
+    "qa-detect-pytest-contract_2026-10-21.txt",
+    "desktop-stale-note.txt",
+    "qa-detect-summary_2026-10-21.json"
+  ]
+}

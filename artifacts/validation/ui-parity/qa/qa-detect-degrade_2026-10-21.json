@@ -1,0 +1,54 @@
+{
+  "id": "qa-detect-degrade-disabled-trt",
+  "tip": "563458ad6df118be72d87a096fc9888d58b6e2b8",
+  "generatedAt": "2026-10-21T21:19:13+08:00",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "desktop_baseline_stale": true,
+  "env": {
+    "LOCAL_COMPUTE_DISABLE_TORCH": "1",
+    "LOCAL_COMPUTE_DISABLE_TENSORRT": "1"
+  },
+  "capabilities": {
+    "ffscn": false,
+    "scn": false,
+    "engine": "STUB_NON_TENSORRT",
+    "canInventResults": false,
+    "uiCodes": [
+      "GPU_UNVERIFIED",
+      "TORCH_MISSING",
+      "TENSORRT_RUNTIME_MISSING",
+      "TENSORRT_NA",
+      "STUB_RUNTIME",
+      "NO_FAKE_INFERENCE"
+    ]
+  },
+  "task": {
+    "status": "BLOCKED",
+    "result": null,
+    "blockReasons": [
+      "BLOCKED: nvidia-smi sees 'NVIDIA GeForce RTX 5060 Laptop GPU, 591.84'",
+      "BLOCKED: LOCAL_COMPUTE_DISABLE_TORCH=1",
+      "BLOCKED: FFSCN TensorRT .engine at D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\ffscn-gui-iq-v1\\ffscn_epoch1200_dynamic_fp32.engine (TENSORRT_RUNTIME_MISSING: TensorRT disabled via LOCAL_COMPUTE_DISABLE_TENSORRT; refusing to invent)",
+      "BLOCKED: SCN TensorRT .engine at D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\scn-max-psd-v1\\scn_model.engine (TENSORRT_RUNTIME_MISSING: TensorRT disabled via LOCAL_COMPUTE_DISABLE_TENSORRT; refusing to invent)",
+      "BLOCKED: inference worker is STUB_NON_TENSORRT — no fabricated FFSCN/SCN forward path",
+      "BLOCKED: gpu.uiCode=GPU_UNVERIFIED"
+    ],
+    "uiMessages": [
+      "GPU_UNVERIFIED",
+      "TORCH_MISSING",
+      "TENSORRT_RUNTIME_MISSING",
+      "TENSORRT_NA",
+      "STUB_RUNTIME",
+      "NO_FAKE_INFERENCE"
+    ]
+  },
+  "assertions": {
+    "ffscn_false": true,
+    "scn_false": true,
+    "canInventResults_false": true,
+    "task_blocked_or_failed": true,
+    "result_null": true,
+    "no_succeeded_fake": true
+  }
+}
