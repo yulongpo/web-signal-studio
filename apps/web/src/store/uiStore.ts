@@ -263,7 +263,17 @@ export const useUiStore = create<UiState>((set, get) => ({
   narrowbandWaveformMode: 'iq',
   bottomPanelExpanded: false,
   bottomPanelTab: 'log',
-  bottomPanelHeightPx: 150,
+  bottomPanelHeightPx: (() => {
+    try {
+      const raw = localStorage.getItem('wss.bottomPanelHeight.v1');
+      if (raw == null) return 150;
+      const n = Number(raw);
+      if (!Number.isFinite(n)) return 150;
+      return Math.max(100, Math.min(500, Math.round(n)));
+    } catch {
+      return 150;
+    }
+  })(),
   shellLogLines: ['Web shell ready · G07 bottom panel (no PASS)'],
   taskProgress: { label: '', percent: null, detail: '' },
   nbModulationType: 'unknown',
@@ -404,8 +414,15 @@ export const useUiStore = create<UiState>((set, get) => ({
   setNarrowbandWaveformMode: (mode) => set({ narrowbandWaveformMode: mode }),
   setBottomPanelExpanded: (open) => set({ bottomPanelExpanded: open }),
   setBottomPanelTab: (tab) => set({ bottomPanelTab: tab }),
-  setBottomPanelHeightPx: (px) =>
-    set({ bottomPanelHeightPx: Math.max(80, Math.min(320, Math.round(px))) }),
+  setBottomPanelHeightPx: (px) => {
+    const next = Math.max(100, Math.min(500, Math.round(px)));
+    try {
+      localStorage.setItem('wss.bottomPanelHeight.v1', String(next));
+    } catch {
+      /* ignore */
+    }
+    set({ bottomPanelHeightPx: next });
+  },
   appendShellLog: (line) =>
     set((s) => {
       const next = [...s.shellLogLines, line];

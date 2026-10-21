@@ -1,6 +1,7 @@
 /**
  * PROVISIONAL — Bot-B right context rail (four pages + collapse).
- * G18: display page keeps a live display-summary (参考 / 动态) vs desktop 696ce12.
+ * G18: display-summary — PSD N/STFT N shell lines + 参考/动态 vs desktop 696ce12.
+ * PSD mode (驻留帧谱/统计谱) owned by Bot-C/D; shell shows FFT size only.
  */
 import { useUiStore } from '../store/uiStore';
 import type { RightPage } from '../types/provisional';
@@ -15,8 +16,15 @@ const PAGE_BODY: Record<Exclude<RightPage, 'detect' | 'marker' | 'display'>, str
 function DisplayPage() {
   const level = useUiStore((s) => s.level);
   const display = useUiStore((s) => s.display);
+  const stftN = useUiStore((s) => s.stftN);
+  const paletteId = useUiStore((s) => s.paletteId);
+  const narrowbandPsdFft = useUiStore((s) => s.narrowbandPsdFft);
   const openLayer = useUiStore((s) => s.openLayer);
+  // G18 ownership: STFT N + palette = Bot-B shell (uiStore). PSD mode 驻留帧谱/统计谱
+  // is Bot-C/D chart+DSP — show FFT size only; mode slot stays "—" (no invented spectrum mode).
   const summary = [
+    `PSD N ${narrowbandPsdFft || '—'} · —`,
+    `STFT N ${stftN} · ${paletteId}`,
     `参考 ${level.refLevelDb.toFixed(2)} dB`,
     `动态 ${level.dynamicRangeDb.toFixed(2)} dB`,
     level.autoAdapt ? '自动适应: 开' : '自动适应: 关',
