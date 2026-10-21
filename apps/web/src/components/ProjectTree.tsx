@@ -55,6 +55,9 @@ function TreeNodeView({
       data-soft-deleted={node.softDeleted ? 'true' : 'false'}
       data-active={node.active ? 'true' : 'false'}
       data-selected={node.selected ? 'true' : 'false'}
+      data-tree-title={node.title || node.label}
+      data-has-tooltip={node.tooltip || node.sourceTooltip ? 'true' : 'false'}
+      data-unread={node.badges?.includes('unread') ? 'true' : 'false'}
     >
       <div
         className={`tree-row${node.softDeleted ? ' tree-row-soft-deleted' : ''}${
@@ -74,17 +77,33 @@ function TreeNodeView({
           onClick={() => {
             if (isMark && node.markId) onSelectMark(node.markId);
           }}
-          title={node.detail || node.label}
+          title={node.tooltip || node.sourceTooltip || node.detail || node.title || node.label}
         >
-          <span className="tree-label">{node.label}</span>
-          {node.count != null ? (
-            <span className="tree-count" data-testid={`tree-count-${node.id}`}>
-              {node.count}
+          <span className="tree-row-main">
+            <span className="tree-label-line">
+              <span className="tree-label">{node.title || node.label}</span>
+              {node.count != null ? (
+                <span className="tree-count" data-testid={`tree-count-${node.id}`}>
+                  {node.count}
+                </span>
+              ) : null}
+              {node.sourceKind ? (
+                <span className="tree-source-kind" data-testid={`tree-source-${node.id}`}>
+                  {node.sourceKind}
+                </span>
+              ) : null}
+              {node.badges?.map((b) => (
+                <span key={b} className={`tree-badge-chip${b === 'unread' ? ' tree-badge-unread' : ''}`} data-badge={b} data-testid={`tree-badge-${node.id}-${b}`}>
+                  {b}
+                </span>
+              ))}
             </span>
-          ) : null}
-          {node.badges?.length ? (
-            <span className="tree-badges">{node.badges.join(' · ')}</span>
-          ) : null}
+            {node.detail ? (
+              <span className="tree-detail" data-testid={`tree-detail-${node.id}`}>
+                {node.detail}
+              </span>
+            ) : null}
+          </span>
         </button>
         {isMark && node.markId ? (
           <button
@@ -328,7 +347,7 @@ export function ProjectTree() {
             <ul
               className="tree-root"
               data-testid={showLoaded ? 'project-tree-loaded' : 'project-tree-sample'}
-              data-engineering="true"
+              data-engineering="true" data-presentation="desktop-compact"
             >
               {hasTree
                 ? tree.map((n) => (

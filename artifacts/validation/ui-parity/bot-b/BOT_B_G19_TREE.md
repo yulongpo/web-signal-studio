@@ -1,17 +1,23 @@
-# Bot-B G19 ProjectTree wiring (WIP / NOT PASS)
+# Bot-B G19 tree presentation residual (WIP / NOT PASS)
 
 | Field | Value |
 |-------|-------|
 | Status | **WIP evidence** — not ACCEPTANCE PASS |
-| Base tip | `cf1b3f8` (F G19 on main) |
-| APIs | `engineeringTreeFromSession` / `listMarkNodes` / `EngineeringTreeNode` |
+| Base | `5d33611` |
 
 ## Landed
 
-- ProjectTree renders `EngineeringTreeNode` tree (three-source groups when annotations present).
-- Mark click → `__wssM06.setSelection`.
-- Soft-delete / restore → `__wssM06.session.setMarkDeleted`.
+- Compact `detail` second line
+- Badge chips + sourceKind cue
+- `data-presentation="desktop-compact"`
 
-## Non-claims
+## Residuals
 
-- No ACCEPTANCE_MATRIX PASS. Full desktop tree parity still PARTIAL.
+- Full relation/color matrix vs desktop may deepen.
+
+## F G19 residual API wire (e134bb6)
+
+- `title` / `tooltip` / `sourceTooltip` on tree row button `title=` and label.
+- `data-unread` / `tree-badge-unread` when badges include `unread`.
+- `detectionRuns` nodes render via existing kind styling.
+- matrix_pass_claimed: **false**

@@ -56,7 +56,7 @@ export default function App() {
   return (
     <div className={shellClass} data-testid="app-shell" data-workspace-mode={workspaceMode}>
       <MenuBar />
-      <div className="app-shell-body" data-testid="app-shell-body">
+      <div className="app-shell-body" data-testid="app-shell-body" data-shell-columns="278-390">
       <ProjectTree />
 
       <main
