@@ -40,22 +40,35 @@ export {
 
 export {
   extractDisplayGrid,
+  extractViewportTile,
+  suggestExtractOutSize,
+  assertDisplayOnlyExtract,
   DisplayExtract,
+  FORBIDDEN_DISPLAY_EXTRACT_KEYS,
+  type DisplayReduce,
   type DisplayExtractRequest,
   type DisplayExtractResult,
+  type ViewportTileRequest,
 } from "./tile/displayExtract.js";
 
 export {
   PreviewRefineController,
+  createPreviewRefineController,
   type PreviewRefineMode,
   type PreviewRefineHooks,
+  type PreviewRefineOptions,
 } from "./interaction/previewRefine.js";
 
 export {
   sizeCanvasForDpr,
   applyCanvasDpr,
+  resolveDevicePixelRatio,
+  needsCanvasResize,
+  attachCanvasResize,
   type CanvasDprSize,
   type CanvasDprInput,
+  type CanvasResizeHandle,
+  type AttachCanvasResizeOptions,
 } from "./dpi/canvasSizing.js";
 
 export {
@@ -71,10 +84,14 @@ export {
 
 export {
   writePerformanceProbe,
+  writeChartsValidationProbe,
   PerformanceProbeSession,
   type ProbeSample,
   type ProbeWriteResult,
   type ProbeWriteOptions,
+  type ProbePayload,
+  type ChartsProbeFields,
+  type ProbeMode,
 } from "./probe/performanceProbe.js";
 
 export { HeatmapCanvas, type HeatmapCanvasProps } from "./react/HeatmapCanvas.js";

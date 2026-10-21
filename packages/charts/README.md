@@ -27,5 +27,5 @@ npm test
 
 - Scalar intensity texture + **independent LUT** (colormap/levels must not rewrite scalar / imply FFT)
 - Axis + cursor are separate 2D overlay layers
-- Display extract must not pollute detection business coordinates
+- Display extract (extractDisplayGrid / extractViewportTile) must not pollute detection / Hz / marker coordinates\n- PreviewRefineController: cheap preview while interacting; refine after idle\n- DPI: sizeCanvasForDpr / ttachCanvasResize\n- Probes: writeChartsValidationProbe -> rtifacts/validation/bot-c/
 - Probes → `artifacts/validation/bot-c/`
