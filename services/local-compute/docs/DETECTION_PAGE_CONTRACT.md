@@ -1,14 +1,22 @@
-# Detection page ↔ local-compute integration contract
+# Detection page — local-compute integration contract
 
 **Owner:** Bot-E (`services/local-compute`)  
 **Protocol:** `docs/architecture/WEB_NATIVE_PROTOCOL.md` v0.1.0  
+**Service:** `0.1.5-ffscn-e2e`  
 **OpenAPI:** `services/local-compute/openapi.yaml` (also live at `GET /openapi.json`)  
-**Audience:** web detection page (Bot-B shell / future detection UI)
+**Audience:** web detection page (Bot-B `DetectPage` / `localCompute/gating.ts`)
 
 ## HTTP client examples (Bot-B)
 
 Copy-paste TypeScript + curl/JSON: [HTTP_CLIENT_EXAMPLES.md](./HTTP_CLIENT_EXAMPLES.md) and `examples/detection-page-client.ts`.
 
+## Bot-B alignment (hard)
+
+1. Prefer `detection.uiMessages[].zh` / `.en` via `bannerTextsFromCapabilities` (see `apps/web/src/localCompute/gating.ts`).
+2. Gate Detect buttons only on `detection.ffscn` / `detection.scn` + online/auth (`canRunDetect`).
+3. Stable `uiMessages[].code` values are listed in `@wss/contracts` `LOCAL_COMPUTE_UI_CODES`.
+4. **`STUB_RUNTIME` EN/ZH must match** `LOCAL_COMPUTE_STUB_RUNTIME_COPY` and Bot-B `gating.test.ts` fixture — do not drift.
+5. Never invent FFSCN/SCN candidates client-side; when `status === 'BLOCKED'` or `result == null`, do not draw boxes.
 
 ## Base URL & auth
 
@@ -24,147 +32,50 @@ Copy-paste TypeScript + curl/JSON: [HTTP_CLIENT_EXAMPLES.md](./HTTP_CLIENT_EXAMP
 
 ### `GET /capabilities`
 
-Probe before enabling Detect buttons.
-
-Response (relevant fields):
-
-```json
-{
-  "protocolVersion": "0.1.0",
-  "serviceVersion": "...",
-  "bindAddressPolicy": "loopback-only",
-  "bindHost": "127.0.0.1",
-  "authRequired": true,
-  "dsp": { "fft": true, "psd": false, "stft": false, "ddc": false, "reasons": ["..."] },
-  "detection": {
-    "ffscn": false,
-    "scn": false,
-    "reasons": ["BLOCKED: ..."],
-    "uiMessages": [
-      {
-        "code": "GPU_MISSING",
-        "severity": "error",
-        "en": "No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.",
-        "zh": "未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。"
-      }
-    ]
-  },
-  "models": [ { "id": "...", "path": "...", "sha256": "...", "present": false, "notes": "..." } ],
-  "notes": ["..."]
-}
-```
-
-**UI rules**
-
-1. If `detection.ffscn !== true`, disable FFSCN detect; if `detection.scn !== true`, disable SCN detect.
-2. Prefer `detection.uiMessages[].zh` / `.en` for banners (pick locale). Fall back to `reasons` only for debug.
-3. Never invent detection candidates client-side when capabilities report blocked.
+Probe before enabling Detect buttons. Gate on `detection.ffscn` / `detection.scn`. Prefer `uiMessages` for banners.
 
 ### `POST /tasks`
 
-Body (sample indices are **decimal strings**, never JSON numbers):
-
-```json
-{
-  "kind": "ffscn.detect",
-  "params": {},
-  "sourcePath": "/path/to/iq",
-  "sampleRange": { "start": "0", "end": "1048576" },
-  "sampleIndices": ["0", "1024"]
-}
-```
-
-Success: `{ "runId": "<uuid>" }`  
-Validation error (non-decimal index): `422` `{ "detail": "..." }`
+Sample indices are **decimal strings**. For real FFSCN/SCN, pass a real `sourcePath` (WAV stereo 16-bit I/Q or supported IQ). Missing `sourcePath` → `BLOCKED` + `SOURCE_MISSING` (no fabricated candidates).
 
 ### `GET /tasks/{runId}`
 
-Poll progress. Relevant fields:
-
-| Field | Meaning |
-|-------|---------|
-| `status` | `queued` \| `running` \| `succeeded` \| `failed` \| `cancelled` \| `BLOCKED` |
-| `progress` | 0..1 |
-| `message` / `messageZh` | Primary English / Chinese status line |
-| `uiMessages` | Same shape as capabilities; present when blocked |
-| `blockReasons` | Machine-oriented BLOCKED strings |
-| `result` | **Must be `null` for detection when blocked**; never contains `candidates` / `detections` / `boxes` invented by stub |
+Terminal statuses: `succeeded` | `failed` | `cancelled` | `BLOCKED`.  
+Detection `result` is non-null only when `verifiedForward=true` from a real engine (`PYTORCH_CUDA` / `PYTORCH_CPU`).
 
 ### `POST /tasks/{runId}/cancel`
 
-Cancel bound to **exact** `runId`. Response includes `status`, `message`, `messageZh`.
+Bound to exact `runId`; cancel is terminal.
 
-## BLOCKED / no-GPU degradation semantics
+## Stable `uiMessages` codes (exact copy)
 
-| Condition | `ffscn`/`scn` | Stable `uiMessages[].code` | Exact EN | Exact ZH |
-|-----------|---------------|----------------------------|----------|----------|
-| No nvidia-smi / no GPU rows | false | `GPU_MISSING` | No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable. | 未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。 |
-| GPU seen, CUDA/TRT unverified | false | `GPU_UNVERIFIED` | GPU visible but CUDA/TensorRT runtime is not verified. Detection stays blocked. | 已看到 GPU，但 CUDA/TensorRT 运行时未核验，检测仍不可用。 |
-| GPU probe exception | false | `GPU_PROBE_ERROR` | GPU probe failed. Detection (FFSCN/SCN) is unavailable. | GPU 探测失败，检测（FFSCN/SCN）不可用。 |
-| No FFSCN model file | false | `MODEL_MISSING_FFSCN` | FFSCN model file is missing. Detection cannot run. | 缺少 FFSCN 模型文件，无法运行检测。 |
-| No SCN model file | false | `MODEL_MISSING_SCN` | SCN model file is missing. Detection cannot run. | 缺少 SCN 模型文件，无法运行检测。 |
-| Configured path missing | false | `MODEL_PATH_MISSING` | Configured detection model path is missing on disk. | 配置的检测模型路径在磁盘上不存在。 |
-| Hash mismatch | false | `MODEL_HASH_MISMATCH` | Detection model hash/version does not match the configured expectation. | 检测模型哈希/版本与配置期望不一致。 |
-| Hash unread | false | `MODEL_HASH_UNAVAILABLE` | Detection model hash could not be read; treating as blocked. | 无法读取检测模型哈希，按不可用处理。 |
-| Stub worker (no verified PyTorch forward) | false | `STUB_RUNTIME` | Local compute is in stub mode (no TensorRT). Detection will not invent results. | 本地计算处于占位模式（无 TensorRT），检测不会伪造结果。 |
-| Policy guard | false | `NO_FAKE_INFERENCE` | Refusing to invent FFSCN/SCN detection candidates. | 拒绝伪造 FFSCN/SCN 检测候选结果。 |
+| code | severity | Exact EN | Exact ZH |
+|------|----------|----------|----------|
+| GPU_MISSING | `error` | No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable. | 未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。 |
+| GPU_UNVERIFIED | `warning` | GPU visible but CUDA/TensorRT runtime is not verified. Detection stays blocked. | 已看到 GPU，但 CUDA/TensorRT 运行时未核验，检测仍不可用。 |
+| GPU_PROBE_ERROR | `error` | GPU probe failed. Detection (FFSCN/SCN) is unavailable. | GPU 探测失败，检测（FFSCN/SCN）不可用。 |
+| TORCH_MISSING | `error` | PyTorch is not available in this Python. Detection cannot run real inference. | 当前 Python 环境没有可用的 PyTorch，无法进行真推理。 |
+| TORCH_CPU_ONLY | `warning` | PyTorch is available on CPU only. Real inference may be slow. | 仅有 CPU 版 PyTorch，真推理可能较慢。 |
+| TORCH_CUDA_OK | `info` | PyTorch CUDA runtime verified for local detection. | 已核验 PyTorch CUDA 运行时，可用于本地检测。 |
+| MODEL_MISSING_FFSCN | `error` | FFSCN model file is missing. Detection cannot run. | 缺少 FFSCN 模型文件，无法运行检测。 |
+| MODEL_MISSING_SCN | `error` | SCN model file is missing. Detection cannot run. | 缺少 SCN 模型文件，无法运行检测。 |
+| MODEL_PATH_MISSING | `error` | Configured detection model path is missing on disk. | 配置的检测模型路径在磁盘上不存在。 |
+| MODEL_HOME_MISSING | `error` | Algorithm source home is missing (set LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME). | 缺少算法源码目录（请设置 LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME）。 |
+| MODEL_HASH_MISMATCH | `error` | Detection model hash/version does not match the configured expectation. | 检测模型哈希/版本与配置期望不一致。 |
+| MODEL_HASH_UNAVAILABLE | `warning` | Detection model hash could not be read; treating as blocked. | 无法读取检测模型哈希，按不可用处理。 |
+| MODEL_LOAD_FAILED | `error` | Detection weights were found but failed to load/forward. Detection stays blocked. | 已找到检测权重但加载/前向失败，检测仍不可用。 |
+| SOURCE_MISSING | `error` | sourcePath is required for real detection; refusing to invent candidates. | 真检测需要 sourcePath，拒绝伪造候选结果。 |
+| INFERENCE_FAILED | `error` | Real detection inference failed. No fabricated candidates were returned. | 真检测推理失败，未返回任何伪造候选。 |
+| STUB_RUNTIME | `error` | Local compute is in stub mode (no TensorRT). Detection will not invent results. | 本地计算处于占位模式（无 TensorRT），检测不会伪造结果。 |
+| REAL_RUNTIME | `info` | Verified PyTorch detection runtime is ready for this family. | 该检测族别的 PyTorch 真推理运行时已就绪。 |
+| NO_FAKE_INFERENCE | `error` | Refusing to invent FFSCN/SCN detection candidates. | 拒绝伪造 FFSCN/SCN 检测候选结果。 |
 
-**Hard rule:** service stays up under degradation; DSP stub (`dsp.fft`) may remain true; detection stays unavailable; **no fake forward results**.
+**Hard rule:** service stays up under degradation; DSP stub (`dsp.fft`) may remain true; detection stays unavailable until verified; **no fake forward results**.
 
-## Error shapes
+## Structured precheck (`gpu` / `runtime`)
 
-| HTTP | Body |
-|------|------|
-| 401 | `{ "detail": "<string>" }` |
-| 404 | `{ "detail": "Unknown runId: ..." }` |
-| 422 | `{ "detail": "<string or validation array>" }` |
-
-## Decimal sample indices
-
-Align with `@wss/contracts` `SampleIndex`: canonical unsigned decimal strings in JSON. Never use `Number` for indices that may exceed `2^53-1`.
-
-## Suggested detection-page flow
-
-1. Start local-compute on loopback; read token.
-2. `GET /capabilities` → render `uiMessages` banner; gate buttons on `ffscn`/`scn`.
-3. On Detect: `POST /tasks` with decimal `sampleRange`.
-4. Poll `GET /tasks/{runId}` until terminal; if `BLOCKED`, show `messageZh`/`uiMessages`, do not draw fake boxes.
-5. Optional: `POST .../cancel` with the same `runId`.
-
-
-## Structured precheck (`gpu` / `runtime`) — v0.1.3
-
-`GET /capabilities` also returns:
-
-```json
-{
-  "gpu": {
-    "toolchainVisible": false,
-    "runtimeVerified": false,
-    "name": null,
-    "driverVersion": null,
-    "reason": "nvidia-smi not found (no GPU toolchain visible)",
-    "uiCode": "GPU_MISSING"
-  },
-  "runtime": {
-    "engine": "STUB_NON_TENSORRT",
-    "tensorrtVerified": false,
-    "cudaVerified": false,
-    "canInventResults": false,
-    "modelSearchRoots": [".../models"],
-    "ffscnPresent": false,
-    "scnPresent": false,
-    "ffscnReady": false,
-    "scnReady": false
-  }
-}
-```
-
-**UI rules (additive)**
-
-1. Prefer `detection.uiMessages` for banners; use `gpu.uiCode` / `runtime.engine` for debug chips.
-2. `runtime.canInventResults` is always `false`; never draw fake boxes when false.
-3. `runtime.ffscnReady` / `scnReady` mirror `detection.ffscn` / `scn` (false until real TRT).
+Prefer `detection.uiMessages` for banners; use `gpu.uiCode` / `runtime.engine` for debug chips.  
+`runtime.canInventResults` is always `false`.
 
 ## Task status machine
 
@@ -172,18 +83,14 @@ Align with `@wss/contracts` `SampleIndex`: canonical unsigned decimal strings in
 queued -> running -> {succeeded | failed | cancelled | BLOCKED}
 ```
 
-- `POST .../cancel` is bound to the **exact** `runId` and is **terminal**: late worker writes (including `BLOCKED`) cannot overwrite `cancelled`.
-- `GET /tasks/{runId}` may include `statusHistory` (e.g. `["queued","running","cancelled"]`) for clarity.
-- Detection stub paths always label evidence with `STUB_NON_TENSORRT` and never invent candidates.
+- Cancel cannot be overwritten by late worker writes.
+- `statusHistory` may list transitions for debug.
 
-## Real PyTorch runtime (Bot-E)
+## FFSCN full-file E2E
 
-When weights + CUDA torch + algorithm HOMEs pass smoke load:
-
-- `detection.ffscn` / `detection.scn` may become `true`
-- `runtime.engine` becomes `PYTORCH_CUDA` (or `PYTORCH_CPU` if explicitly allowed)
-- `POST /tasks` with a real `sourcePath` may return `result.verifiedForward=true` and real `candidates`
-- Missing `sourcePath` still yields `BLOCKED` + `SOURCE_MISSING` (never invents)
+- Pytest: `tests/test_ffscn_e2e.py`
+- Fixture: `tests/fixtures/synthetic_iq_stereo.wav` (uncompressed 16-bit stereo I/Q)
+- Live path: skip-if-missing when CUDA / weights / `LOCAL_COMPUTE_FFSCN_HOME` absent
+- Contract path (default `.venv` with `LOCAL_COMPUTE_DISABLE_TORCH=1`): must stay BLOCKED / no fake candidates
 
 Details: [REAL_MODEL_INTEGRATION.md](./REAL_MODEL_INTEGRATION.md), inventory: [MODEL_INVENTORY.md](./MODEL_INVENTORY.md).
-

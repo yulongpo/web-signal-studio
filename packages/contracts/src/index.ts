@@ -105,4 +105,9 @@ export type {
   LocalComputeTaskCancelResponse,
   LocalComputeUiCode,
 } from './local-compute.js';
-export { LOCAL_COMPUTE_UI_CODES, LOCAL_COMPUTE_STUB_ENGINE } from './local-compute.js';
+export {
+  LOCAL_COMPUTE_UI_CODES,
+  LOCAL_COMPUTE_STUB_ENGINE,
+  LOCAL_COMPUTE_STUB_RUNTIME_COPY,
+  LOCAL_COMPUTE_REAL_ENGINES,
+} from './local-compute.js';

@@ -73,3 +73,5 @@
 | 2026-10-21 | WSS-QA-G | P0-G 初稿 |
 | 2026-10-21 | WSS-QA-G | Q-01 remote CI fail 诊断 + oxlint linux binding CI 修复；Q-03 license 证据 |
 | 2026-10-21 | Bot-C | evidence package: M-03/M-04→WIP + C-01..C-04；`docs/acceptance/evidence/bot-c/`（**不宣称 PASS**；commits `7b21dff`/`694dc10`，tip `610a79c`） |
+
+| 2026-10-21 | Bot-C | QA-G evidence gaps M-03/M-04 + C-01..C-04 under `docs/acceptance/evidence/bot-c/` (**仍 WIP，不自报 PASS**); golden+Playwright+GPU/LUT/displayOnly/resize/restore probes |
