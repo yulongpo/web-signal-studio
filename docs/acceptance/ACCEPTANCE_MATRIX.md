@@ -23,14 +23,26 @@
 |----|------------------------|----------|----------|------|------|
 | M-01 | 工程打开 / 最近文件 | `packages/project-io` + `apps/web` | 单元 + E2E | TODO | |
 | M-02 | RAW / SigMF / WAV 分块读 | `packages/file-io` | 单测 + fixtures | TODO | |
-| M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | TODO | |
-| M-04 | 物理轴 / DPR / 交互预览 | `packages/charts` + `apps/web` | Playwright | TODO | |
+| M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | WIP | `docs/acceptance/evidence/bot-c/`（WebGL2 热图/LUT 探针；`@wss/charts` 38 单测；commits `7b21dff`/`694dc10`；**非 PASS，待 QA**） |
+| M-04 | 物理轴 / DPR / 交互预览 | `packages/charts` + `apps/web` | Playwright | WIP | `docs/acceptance/evidence/bot-c/BOT_C_PROBE_INDEX.md` + interaction P95；DPR/preview-refine；**非 PASS，待 QA** |
 | M-05 | 宽窄带工作区布局 | `apps/web` | E2E + 对照截图 | TODO | |
 | M-06 | 标记 / 通道快照 / 撤销重做 | `packages/domain` + `project-io` | 单测 + E2E | TODO | |
 | M-07 | DDC / FIR / 有理重采样 | `packages/dsp-wasm` / local-compute | 数值对照 | TODO | |
 | M-08 | 工程 v6 互操作 | `packages/project-io` | fixtures 往返 | TODO | |
 | M-09 | FFSCN/SCN 检测 + 降级 | `services/local-compute` | 冒烟 + 无模型路径 | TODO | |
 | M-10 | BigInt 索引协议 | contracts / domain | 契约测试 | TODO | |
+
+
+## Bot-C 图谱引擎（实现证据 · 非 PASS）
+
+> 状态一律 `WIP`。PASS 仅由 WSS-QA-G 在核验证据后改写。
+
+| ID | 能力 | 落点 | 验收方式 | 状态 | 证据 |
+|----|------|------|----------|------|------|
+| C-01 | WebGL2 标量纹理 + 独立 LUT 热图 | `packages/charts` HeatmapRenderer / SpectrumChart | 单测 + 嵌入 demo | WIP | `docs/acceptance/evidence/bot-c/BOT_C_PROBE_INDEX.md`；commits `69b65c2`→`694dc10` |
+| C-02 | 显示态瓦片抽取（display-only） | `tile/displayExtract` | 单测 + probe | WIP | `CONDENSED_tile_dpi_preview.json`；`7b21dff` |
+| C-03 | DPR / canvas resize | `dpi/canvasSizing` | 单测 + probe dpr 字段 | WIP | tile/DPI probe `dpr=2` buffer；`7b21dff` |
+| C-04 | 拖拽/滚轮预览-细化 + WebGL context restore | `interaction/*` + `webgl/contextRestore` + SpectrumChart | 单测 + P50/P95 probe | WIP | `CONDENSED_interaction_p95.json`；`694dc10` |
 
 ## CI / DevOps / 安全
 
@@ -60,3 +72,4 @@
 |------|------|------|
 | 2026-10-21 | WSS-QA-G | P0-G 初稿 |
 | 2026-10-21 | WSS-QA-G | Q-01 remote CI fail 诊断 + oxlint linux binding CI 修复；Q-03 license 证据 |
+| 2026-10-21 | Bot-C | evidence package: M-03/M-04→WIP + C-01..C-04；`docs/acceptance/evidence/bot-c/`（**不宣称 PASS**；commits `7b21dff`/`694dc10`，tip `610a79c`） |

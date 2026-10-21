@@ -1,0 +1,61 @@
+{
+  "bot": "bot-c",
+  "kind": "interaction-p95-condensed",
+  "sourceCommits": {
+    "feature": "694dc10",
+    "branchTipThen": "2ee8435",
+    "mergedTip": "610a79c"
+  },
+  "summary": {
+    "sampleCount": 32,
+    "totalDurationMs": 64.1945999999998,
+    "modes": [
+      "preview",
+      "refine"
+    ],
+    "dpr": 2,
+    "frameMs": {
+      "count": 32,
+      "min": 1.3582000000000334,
+      "max": 6.86139999999998,
+      "mean": 2.0060812499999936,
+      "p50": 1.4730499999999915,
+      "p95": 5.646054999999996
+    },
+    "extractMs": {
+      "count": 32,
+      "min": 1.0523000000000593,
+      "max": 6.5113999999999805,
+      "mean": 1.7526437499999936,
+      "p50": 1.2447500000000105,
+      "p95": 5.219554999999996
+    }
+  },
+  "sampleCount": 32,
+  "modes": [
+    "preview",
+    "refine"
+  ],
+  "dpr": 2,
+  "frameMs": {
+    "count": 32,
+    "min": 1.3582000000000334,
+    "max": 6.86139999999998,
+    "mean": 2.0060812499999936,
+    "p50": 1.4730499999999915,
+    "p95": 5.646054999999996
+  },
+  "extractMs": {
+    "count": 32,
+    "min": 1.0523000000000593,
+    "max": 6.5113999999999805,
+    "mean": 1.7526437499999936,
+    "p50": 1.2447500000000105,
+    "p95": 5.219554999999996
+  },
+  "notes": [
+    "Synthetic pan/zoom preview frames then idle refine (Node CPU, no GPU).",
+    "summary.frameMs / summary.extractMs carry count/min/max/mean/p50/p95.",
+    "Not a PASS claim — WIP evidence for WSS-QA-G verification."
+  ]
+}

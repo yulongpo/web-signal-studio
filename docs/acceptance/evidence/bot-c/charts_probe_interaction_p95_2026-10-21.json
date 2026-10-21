@@ -1,0 +1,544 @@
+{
+  "bot": "bot-c",
+  "writtenAt": "2026-10-21T10:33:13.979Z",
+  "package": "@wss/charts",
+  "samples": [
+    {
+      "name": "preview-frame-0",
+      "durationMs": 3.179399999999896,
+      "meta": {
+        "frameMs": 3.179399999999896,
+        "extractMs": 3.029399999999896,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.923Z"
+    },
+    {
+      "name": "preview-frame-1",
+      "durationMs": 1.45449999999998,
+      "meta": {
+        "frameMs": 1.45449999999998,
+        "extractMs": 1.28449999999998,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.926Z"
+    },
+    {
+      "name": "preview-frame-2",
+      "durationMs": 1.418399999999965,
+      "meta": {
+        "frameMs": 1.418399999999965,
+        "extractMs": 1.228399999999965,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.927Z"
+    },
+    {
+      "name": "preview-frame-3",
+      "durationMs": 2.191200000000058,
+      "meta": {
+        "frameMs": 2.191200000000058,
+        "extractMs": 1.981200000000058,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.929Z"
+    },
+    {
+      "name": "preview-frame-4",
+      "durationMs": 1.471200000000049,
+      "meta": {
+        "frameMs": 1.471200000000049,
+        "extractMs": 1.241200000000049,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.930Z"
+    },
+    {
+      "name": "preview-frame-5",
+      "durationMs": 1.4634999999999536,
+      "meta": {
+        "frameMs": 1.4634999999999536,
+        "extractMs": 1.2134999999999536,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.932Z"
+    },
+    {
+      "name": "preview-frame-6",
+      "durationMs": 1.4741000000000395,
+      "meta": {
+        "frameMs": 1.4741000000000395,
+        "extractMs": 1.2041000000000395,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.933Z"
+    },
+    {
+      "name": "preview-frame-7",
+      "durationMs": 1.3582000000000334,
+      "meta": {
+        "frameMs": 1.3582000000000334,
+        "extractMs": 1.2082000000000335,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.934Z"
+    },
+    {
+      "name": "preview-frame-8",
+      "durationMs": 1.3836000000000421,
+      "meta": {
+        "frameMs": 1.3836000000000421,
+        "extractMs": 1.2136000000000422,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.935Z"
+    },
+    {
+      "name": "preview-frame-9",
+      "durationMs": 1.4059000000000332,
+      "meta": {
+        "frameMs": 1.4059000000000332,
+        "extractMs": 1.2159000000000333,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.937Z"
+    },
+    {
+      "name": "preview-frame-10",
+      "durationMs": 1.4719999999999436,
+      "meta": {
+        "frameMs": 1.4719999999999436,
+        "extractMs": 1.2619999999999436,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.938Z"
+    },
+    {
+      "name": "preview-frame-11",
+      "durationMs": 1.7320000000000664,
+      "meta": {
+        "frameMs": 1.7320000000000664,
+        "extractMs": 1.5020000000000664,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.939Z"
+    },
+    {
+      "name": "preview-frame-12",
+      "durationMs": 1.5423999999999296,
+      "meta": {
+        "frameMs": 1.5423999999999296,
+        "extractMs": 1.2923999999999296,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.941Z"
+    },
+    {
+      "name": "preview-frame-13",
+      "durationMs": 1.6025000000000955,
+      "meta": {
+        "frameMs": 1.6025000000000955,
+        "extractMs": 1.3325000000000955,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.942Z"
+    },
+    {
+      "name": "preview-frame-14",
+      "durationMs": 1.3809999999999945,
+      "meta": {
+        "frameMs": 1.3809999999999945,
+        "extractMs": 1.2309999999999945,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.943Z"
+    },
+    {
+      "name": "preview-frame-15",
+      "durationMs": 1.4566000000000212,
+      "meta": {
+        "frameMs": 1.4566000000000212,
+        "extractMs": 1.2866000000000213,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.945Z"
+    },
+    {
+      "name": "preview-frame-16",
+      "durationMs": 1.4240000000000372,
+      "meta": {
+        "frameMs": 1.4240000000000372,
+        "extractMs": 1.2340000000000373,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.946Z"
+    },
+    {
+      "name": "preview-frame-17",
+      "durationMs": 1.4468999999999914,
+      "meta": {
+        "frameMs": 1.4468999999999914,
+        "extractMs": 1.2368999999999915,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.947Z"
+    },
+    {
+      "name": "preview-frame-18",
+      "durationMs": 1.478299999999972,
+      "meta": {
+        "frameMs": 1.478299999999972,
+        "extractMs": 1.248299999999972,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.948Z"
+    },
+    {
+      "name": "preview-frame-19",
+      "durationMs": 1.511199999999917,
+      "meta": {
+        "frameMs": 1.511199999999917,
+        "extractMs": 1.261199999999917,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.950Z"
+    },
+    {
+      "name": "preview-frame-20",
+      "durationMs": 1.4859000000000333,
+      "meta": {
+        "frameMs": 1.4859000000000333,
+        "extractMs": 1.2159000000000333,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.951Z"
+    },
+    {
+      "name": "preview-frame-21",
+      "durationMs": 1.4976999999999179,
+      "meta": {
+        "frameMs": 1.4976999999999179,
+        "extractMs": 1.347699999999918,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.952Z"
+    },
+    {
+      "name": "preview-frame-22",
+      "durationMs": 1.4277999999999746,
+      "meta": {
+        "frameMs": 1.4277999999999746,
+        "extractMs": 1.2577999999999747,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.954Z"
+    },
+    {
+      "name": "preview-frame-23",
+      "durationMs": 1.4205000000000063,
+      "meta": {
+        "frameMs": 1.4205000000000063,
+        "extractMs": 1.2305000000000064,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 400,
+        "outH": 200,
+        "note": "synthetic-interaction-preview"
+      },
+      "ts": "2026-10-21T10:33:13.955Z"
+    },
+    {
+      "name": "refine-frame-0",
+      "durationMs": 6.86139999999998,
+      "meta": {
+        "frameMs": 6.86139999999998,
+        "extractMs": 6.5113999999999805,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.962Z"
+    },
+    {
+      "name": "refine-frame-1",
+      "durationMs": 2.3456999999999697,
+      "meta": {
+        "frameMs": 2.3456999999999697,
+        "extractMs": 1.9656999999999698,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.964Z"
+    },
+    {
+      "name": "refine-frame-2",
+      "durationMs": 5.8473000000000495,
+      "meta": {
+        "frameMs": 5.8473000000000495,
+        "extractMs": 5.43730000000005,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.969Z"
+    },
+    {
+      "name": "refine-frame-3",
+      "durationMs": 5.481399999999953,
+      "meta": {
+        "frameMs": 5.481399999999953,
+        "extractMs": 5.041399999999953,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.974Z"
+    },
+    {
+      "name": "refine-frame-4",
+      "durationMs": 1.6194999999999893,
+      "meta": {
+        "frameMs": 1.6194999999999893,
+        "extractMs": 1.149499999999989,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.975Z"
+    },
+    {
+      "name": "refine-frame-5",
+      "durationMs": 1.4321999999999435,
+      "meta": {
+        "frameMs": 1.4321999999999435,
+        "extractMs": 1.0821999999999434,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.976Z"
+    },
+    {
+      "name": "refine-frame-6",
+      "durationMs": 1.4323000000000594,
+      "meta": {
+        "frameMs": 1.4323000000000594,
+        "extractMs": 1.0523000000000593,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.977Z"
+    },
+    {
+      "name": "refine-frame-7",
+      "durationMs": 1.4959999999998992,
+      "meta": {
+        "frameMs": 1.4959999999998992,
+        "extractMs": 1.085999999999899,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1600,
+        "bufferHeight": 800,
+        "outW": 512,
+        "outH": 256,
+        "note": "synthetic-interaction-refine"
+      },
+      "ts": "2026-10-21T10:33:13.978Z"
+    }
+  ],
+  "summary": {
+    "sampleCount": 32,
+    "totalDurationMs": 64.1945999999998,
+    "modes": [
+      "preview",
+      "refine"
+    ],
+    "dpr": 2,
+    "frameMs": {
+      "count": 32,
+      "min": 1.3582000000000334,
+      "max": 6.86139999999998,
+      "mean": 2.0060812499999936,
+      "p50": 1.4730499999999915,
+      "p95": 5.646054999999996
+    },
+    "extractMs": {
+      "count": 32,
+      "min": 1.0523000000000593,
+      "max": 6.5113999999999805,
+      "mean": 1.7526437499999936,
+      "p50": 1.2447500000000105,
+      "p95": 5.219554999999996
+    }
+  }
+}

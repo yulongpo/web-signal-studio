@@ -80,3 +80,7 @@ npx playwright test
 - Run: https://github.com/yulongpo/web-signal-studio/actions/runs/39584103562 — npm ci/lint/typecheck **pass**; **unit fail** (rolldown linux binding)
 - Fix: ensure `@rolldown/binding-linux-x64-gnu` alongside oxlint in CI
 - Evidence: `docs/acceptance/evidence/ci-fail-682721a_REPORT.md`
+
+## Bot-C charts probes (WIP evidence)
+
+- Bot-C tile/DPI/preview + interaction P50/P95 probes indexed at [`docs/acceptance/evidence/bot-c/BOT_C_PROBE_INDEX.md`](./evidence/bot-c/BOT_C_PROBE_INDEX.md) (feature commits `7b21dff` / `694dc10`, synced tip `610a79c`). **Status remains WIP — QA owns PASS.** Re-run: `cd packages/charts && npm test` (optional `$env:WSS_PROBE_REPO` for writing worktree artifacts).
