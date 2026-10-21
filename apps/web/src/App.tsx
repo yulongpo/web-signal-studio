@@ -74,7 +74,7 @@ export default function App() {
 
         <VerticalSplitter
           sizePx={navPaneHeightPx}
-          minPx={48}
+minPx={48}
           maxPx={160}
           defaultPx={DESKTOP_NAV_DEFAULT}
           onChange={setNavPaneHeightPx}
@@ -90,7 +90,7 @@ export default function App() {
           sizePx={auxPaneHeightPx}
           minPx={80}
           maxPx={360}
-          defaultPx={auxDefaultPx}
+defaultPx={auxDefaultPx}
           onChange={setAuxPaneHeightPx}
           testId="splitter-aux-main"
         />

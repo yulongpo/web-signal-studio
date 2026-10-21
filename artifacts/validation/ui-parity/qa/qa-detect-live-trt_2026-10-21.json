@@ -1,0 +1,717 @@
+{
+  "id": "qa-detect-live-trt",
+  "gate": "detection-path-smoke",
+  "tip": "563458ad6df118be72d87a096fc9888d58b6e2b8",
+  "generatedAt": "2026-10-21T21:18:44+08:00",
+  "timezone": "Asia/Shanghai",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "desktop_baseline_stale": true,
+  "paths": {
+    "iq": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-data",
+    "ffscn_engine": "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\ffscn-gui-iq-v1\\ffscn_epoch1200_dynamic_fp32.engine",
+    "scn_engine": "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\scn-max-psd-v1\\scn_model.engine",
+    "model_dir": "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models"
+  },
+  "g26": {
+    "iq_under_sigmf_data_demo": true,
+    "engines_under_detection_models": true,
+    "no_radioai_primary": true,
+    "engine_suffix_only": true
+  },
+  "capabilities_http": 200,
+  "capabilities": {
+    "ffscn": true,
+    "scn": true,
+    "uiCodes": [
+      "REAL_RUNTIME"
+    ],
+    "runtime": {
+      "engine": "TENSORRT_CUDA",
+      "tensorrtVerified": true,
+      "cudaVerified": true,
+      "canInventResults": false,
+      "modelSearchRoots": [
+        "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models",
+        "D:\\project\\wss-wt-g\\services\\local-compute\\models",
+        "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\ffscn-gui-iq-v1",
+        "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\scn-max-psd-v1"
+      ],
+      "ffscnPresent": true,
+      "scnPresent": true,
+      "ffscnReady": true,
+      "scnReady": true
+    },
+    "gpu": {
+      "toolchainVisible": true,
+      "runtimeVerified": true,
+      "name": "NVIDIA GeForce RTX 5060 Laptop GPU",
+      "driverVersion": "591.84",
+      "reason": "torch 2.12.0+cu132 + CUDA (NVIDIA GeForce RTX 5060 Laptop GPU)",
+      "uiCode": "TORCH_CUDA_OK"
+    }
+  },
+  "task_create_http": 200,
+  "task_create": {
+    "runId": "c86cf9cc-75c5-48de-a735-c712e986d7f6"
+  },
+  "task_final": {
+    "runId": "c86cf9cc-75c5-48de-a735-c712e986d7f6",
+    "kind": "ffscn.detect",
+    "status": "succeeded",
+    "progress": 1.0,
+    "request": {
+      "kind": "ffscn.detect",
+      "params": {},
+      "sourcePath": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-data",
+      "sampleIndices": [],
+      "sampleRange": {
+        "start": "0",
+        "end": "1048576"
+      }
+    },
+    "result": {
+      "verifiedForward": true,
+      "engine": "TENSORRT_CUDA",
+      "family": "FFSCN",
+      "weightsPath": "D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\ffscn-gui-iq-v1\\ffscn_epoch1200_dynamic_fp32.engine",
+      "sourcePath": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-data",
+      "device": "cuda:0",
+      "fs": 20000000.0,
+      "centerHz": 2500000000.0,
+      "inputShape": [
+        1,
+        1,
+        10,
+        2048
+      ],
+      "candidateCount": 64,
+      "candidates": [
+        {
+          "index": 0,
+          "peak_bin": 480,
+          "fmin_bin": 1921.321632385254,
+          "fmax_bin": 1922.321632385254,
+          "center_bin": 1921.821632385254,
+          "bw_bins": 1.0,
+          "score": 0.5001471638679504
+        },
+        {
+          "index": 1,
+          "peak_bin": 479,
+          "fmin_bin": 1917.4111800193787,
+          "fmax_bin": 1918.4111800193787,
+          "center_bin": 1917.9111800193787,
+          "bw_bins": 1.0,
+          "score": 0.5001097917556763
+        },
+        {
+          "index": 2,
+          "peak_bin": 474,
+          "fmin_bin": 1895.3804595470428,
+          "fmax_bin": 1900.559463262558,
+          "center_bin": 1897.9699614048004,
+          "bw_bins": 5.179003715515137,
+          "score": 0.5000842213630676
+        },
+        {
+          "index": 3,
+          "peak_bin": 475,
+          "fmin_bin": 1901.7787272930145,
+          "fmax_bin": 1902.7787272930145,
+          "center_bin": 1902.2787272930145,
+          "bw_bins": 1.0,
+          "score": 0.500081479549408
+        },
+        {
+          "index": 4,
+          "peak_bin": 478,
+          "fmin_bin": 1913.6424322128296,
+          "fmax_bin": 1914.6424322128296,
+          "center_bin": 1914.1424322128296,
+          "bw_bins": 1.0,
+          "score": 0.5000749230384827
+        },
+        {
+          "index": 5,
+          "peak_bin": 481,
+          "fmin_bin": 1925.0955319404602,
+          "fmax_bin": 1926.0955319404602,
+          "center_bin": 1925.5955319404602,
+          "bw_bins": 1.0,
+          "score": 0.5000715851783752
+        },
+        {
+          "index": 6,
+          "peak_bin": 476,
+          "fmin_bin": 1905.8062472343445,
+          "fmax_bin": 1906.8062472343445,
+          "center_bin": 1906.3062472343445,
+          "bw_bins": 1.0,
+          "score": 0.5000628232955933
+        },
+        {
+          "index": 7,
+          "peak_bin": 477,
+          "fmin_bin": 1909.8200163841248,
+          "fmax_bin": 1910.8200163841248,
+          "center_bin": 1910.3200163841248,
+          "bw_bins": 1.0,
+          "score": 0.5000595450401306
+        },
+        {
+          "index": 8,
+          "peak_bin": 473,
+          "fmin_bin": 1882.4382243156433,
+          "fmax_bin": 1905.5626101493835,
+          "center_bin": 1894.0004172325134,
+          "bw_bins": 23.124385833740234,
+          "score": 0.5000506639480591
+        },
+        {
+          "index": 9,
+          "peak_bin": 341,
+          "fmin_bin": 1277.5225880146027,
+          "fmax_bin": 1454.4793903827667,
+          "center_bin": 1366.0009891986847,
+          "bw_bins": 176.95680236816406,
+          "score": 0.500045657157898
+        },
+        {
+          "index": 10,
+          "peak_bin": 342,
+          "fmin_bin": 1287.0751402378082,
+          "fmax_bin": 1452.9270231723785,
+          "center_bin": 1370.0010817050934,
+          "bw_bins": 165.8518829345703,
+          "score": 0.5000394582748413
+        },
+        {
+          "index": 11,
+          "peak_bin": 472,
+          "fmin_bin": 1869.0296385288239,
+          "fmax_bin": 1910.9707205295563,
+          "center_bin": 1890.00017952919,
+          "bw_bins": 41.94108200073242,
+          "score": 0.5000370144844055
+        },
+        {
+          "index": 12,
+          "peak_bin": 340,
+          "fmin_bin": 1265.2503397464752,
+          "fmax_bin": 1458.8214914798737,
+          "center_bin": 1362.0359156131744,
+          "bw_bins": 193.57115173339844,
+          "score": 0.5000349879264832
+        },
+        {
+          "index": 13,
+          "peak_bin": 343,
+          "fmin_bin": 1293.4077076911926,
+          "fmax_bin": 1454.594551563263,
+          "center_bin": 1374.0011296272278,
+          "bw_bins": 161.1868438720703,
+          "score": 0.5000333786010742
+        },
+        {
+          "index": 14,
+          "peak_bin": 344,
+          "fmin_bin": 1297.681128025055,
+          "fmax_bin": 1458.3210968971252,
+          "center_bin": 1378.00111246109,
+          "bw_bins": 160.6399688720703,
+          "score": 0.5000311136245728
+        },
+        {
+          "index": 15,
+          "peak_bin": 471,
+          "fmin_bin": 1853.6297082901,
+          "fmax_bin": 1918.3703699111938,
+          "center_bin": 1886.000039100647,
+          "bw_bins": 64.74066162109375,
+          "score": 0.500027060508728
+        },
+        {
+          "index": 16,
+          "peak_bin": 482,
+          "fmin_bin": 1928.6346234083176,
+          "fmax_bin": 1929.6346234083176,
+          "center_bin": 1929.1346234083176,
+          "bw_bins": 1.0,
+          "score": 0.5000264644622803
+        },
+        {
+          "index": 17,
+          "peak_bin": 360,
+          "fmin_bin": 1340.9899106025696,
+          "fmax_bin": 1543.0111355781555,
+          "center_bin": 1442.0005230903625,
+          "bw_bins": 202.02122497558594,
+          "score": 0.5000255107879639
+        },
+        {
+          "index": 18,
+          "peak_bin": 240,
+          "fmin_bin": 913.2761220932007,
+          "fmax_bin": 1010.7258138656616,
+          "center_bin": 962.0009679794312,
+          "bw_bins": 97.44969177246094,
+          "score": 0.5000251531600952
+        },
+        {
+          "index": 19,
+          "peak_bin": 345,
+          "fmin_bin": 1301.3976242542267,
+          "fmax_bin": 1462.6045486927032,
+          "center_bin": 1382.001086473465,
+          "bw_bins": 161.20692443847656,
+          "score": 0.5000244379043579
+        },
+        {
+          "index": 20,
+          "peak_bin": 470,
+          "fmin_bin": 1838.1247453689575,
+          "fmax_bin": 1925.8750200271606,
+          "center_bin": 1881.999882698059,
+          "bw_bins": 87.75027465820312,
+          "score": 0.500024139881134
+        },
+        {
+          "index": 21,
+          "peak_bin": 241,
+          "fmin_bin": 921.8550474643707,
+          "fmax_bin": 1010.1468641757965,
+          "center_bin": 966.0009558200836,
+          "bw_bins": 88.29181671142578,
+          "score": 0.5000235438346863
+        },
+        {
+          "index": 22,
+          "peak_bin": 339,
+          "fmin_bin": 1252.1916799545288,
+          "fmax_bin": 1464.2938985824585,
+          "center_bin": 1358.2427892684937,
+          "bw_bins": 212.1022186279297,
+          "score": 0.5000234842300415
+        },
+        {
+          "index": 23,
+          "peak_bin": 361,
+          "fmin_bin": 1347.8643941879272,
+          "fmax_bin": 1544.1367177963257,
+          "center_bin": 1446.0005559921265,
+          "bw_bins": 196.27232360839844,
+          "score": 0.5000227689743042
+        },
+        {
+          "index": 24,
+          "peak_bin": 469,
+          "fmin_bin": 1823.0913000106812,
+          "fmax_bin": 1932.9081258773804,
+          "center_bin": 1877.9997129440308,
+          "bw_bins": 109.81682586669922,
+          "score": 0.5000225901603699
+        },
+        {
+          "index": 25,
+          "peak_bin": 468,
+          "fmin_bin": 1808.525092124939,
+          "fmax_bin": 1939.4741125106812,
+          "center_bin": 1873.99960231781,
+          "bw_bins": 130.9490203857422,
+          "score": 0.5000213980674744
+        },
+        {
+          "index": 26,
+          "peak_bin": 359,
+          "fmin_bin": 1333.4654026031494,
+          "fmax_bin": 1542.5357608795166,
+          "center_bin": 1438.000581741333,
+          "bw_bins": 209.0703582763672,
+          "score": 0.5000213384628296
+        },
+        {
+          "index": 27,
+          "peak_bin": 239,
+          "fmin_bin": 904.4688189029694,
+          "fmax_bin": 1011.5331881046295,
+          "center_bin": 958.0010035037994,
+          "bw_bins": 107.06436920166016,
+          "score": 0.5000197887420654
+        },
+        {
+          "index": 28,
+          "peak_bin": 238,
+          "fmin_bin": 895.561413526535,
+          "fmax_bin": 1012.4405028820038,
+          "center_bin": 954.0009582042694,
+          "bw_bins": 116.87908935546875,
+          "score": 0.5000178217887878
+        },
+        {
+          "index": 29,
+          "peak_bin": 362,
+          "fmin_bin": 1352.6786255836487,
+          "fmax_bin": 1547.3225922584534,
+          "center_bin": 1450.000608921051,
+          "bw_bins": 194.6439666748047,
+          "score": 0.5000177621841431
+        },
+        {
+          "index": 30,
+          "peak_bin": 358,
+          "fmin_bin": 1326.0594971179962,
+          "fmax_bin": 1541.9417145252228,
+          "center_bin": 1434.0006058216095,
+          "bw_bins": 215.88221740722656,
+          "score": 0.5000174641609192
+        },
+        {
+          "index": 31,
+          "peak_bin": 467,
+          "fmin_bin": 1795.041536808014,
+          "fmax_bin": 1944.9576439857483,
+          "center_bin": 1869.999590396881,
+          "bw_bins": 149.91610717773438,
+          "score": 0.5000174045562744
+        },
+        {
+          "index": 32,
+          "peak_bin": 350,
+          "fmin_bin": 1315.651166677475,
+          "fmax_bin": 1488.3504464626312,
+          "center_bin": 1402.000806570053,
+          "bw_bins": 172.69927978515625,
+          "score": 0.5000168085098267
+        },
+        {
+          "index": 33,
+          "peak_bin": 346,
+          "fmin_bin": 1305.2497749328613,
+          "fmax_bin": 1466.7523078918457,
+          "center_bin": 1386.0010414123535,
+          "bw_bins": 161.50253295898438,
+          "score": 0.500016450881958
+        },
+        {
+          "index": 34,
+          "peak_bin": 338,
+          "fmin_bin": 1238.7600519657135,
+          "fmax_bin": 1469.3295557498932,
+          "center_bin": 1354.0448038578033,
+          "bw_bins": 230.5695037841797,
+          "score": 0.5000158548355103
+        },
+        {
+          "index": 35,
+          "peak_bin": 237,
+          "fmin_bin": 886.611177444458,
+          "fmax_bin": 1013.3905582427979,
+          "center_bin": 950.0008678436279,
+          "bw_bins": 126.77938079833984,
+          "score": 0.5000156760215759
+        },
+        {
+          "index": 36,
+          "peak_bin": 349,
+          "fmin_bin": 1313.6884980201721,
+          "fmax_bin": 1482.31320810318,
+          "center_bin": 1398.000853061676,
+          "bw_bins": 168.6247100830078,
+          "score": 0.5000151991844177
+        },
+        {
+          "index": 37,
+          "peak_bin": 466,
+          "fmin_bin": 1782.4506621360779,
+          "fmax_bin": 1949.5485472679138,
+          "center_bin": 1865.9996047019958,
+          "bw_bins": 167.09788513183594,
+          "score": 0.500014066696167
+        },
+        {
+          "index": 38,
+          "peak_bin": 319,
+          "fmin_bin": 1156.6593043804169,
+          "fmax_bin": 1399.3426387310028,
+          "center_bin": 1278.0009715557098,
+          "bw_bins": 242.68333435058594,
+          "score": 0.5000140070915222
+        },
+        {
+          "index": 39,
+          "peak_bin": 318,
+          "fmin_bin": 1154.9101405143738,
+          "fmax_bin": 1393.0914912223816,
+          "center_bin": 1274.0008158683777,
+          "bw_bins": 238.1813507080078,
+          "score": 0.5000138282775879
+        },
+        {
+          "index": 40,
+          "peak_bin": 357,
+          "fmin_bin": 1321.2345163822174,
+          "fmax_bin": 1538.7667734622955,
+          "center_bin": 1430.0006449222565,
+          "bw_bins": 217.53225708007812,
+          "score": 0.5000137686729431
+        },
+        {
+          "index": 41,
+          "peak_bin": 351,
+          "fmin_bin": 1317.3299984931946,
+          "fmax_bin": 1494.6715207099915,
+          "center_bin": 1406.000759601593,
+          "bw_bins": 177.34152221679688,
+          "score": 0.5000137090682983
+        },
+        {
+          "index": 42,
+          "peak_bin": 464,
+          "fmin_bin": 1761.879203915596,
+          "fmax_bin": 1954.107948422432,
+          "center_bin": 1857.993576169014,
+          "bw_bins": 192.22874450683594,
+          "score": 0.5000135898590088
+        },
+        {
+          "index": 43,
+          "peak_bin": 320,
+          "fmin_bin": 1158.4347522258759,
+          "fmax_bin": 1405.5672748088837,
+          "center_bin": 1282.0010135173798,
+          "bw_bins": 247.1325225830078,
+          "score": 0.5000133514404297
+        },
+        {
+          "index": 44,
+          "peak_bin": 347,
+          "fmin_bin": 1308.485143661499,
+          "fmax_bin": 1471.5166835784912,
+          "center_bin": 1390.0009136199951,
+          "bw_bins": 163.0315399169922,
+          "score": 0.5000133514404297
+        },
+        {
+          "index": 45,
+          "peak_bin": 348,
+          "fmin_bin": 1311.3515520095825,
+          "fmax_bin": 1476.6502122879028,
+          "center_bin": 1394.0008821487427,
+          "bw_bins": 165.2986602783203,
+          "score": 0.5000130534172058
+        },
+        {
+          "index": 46,
+          "peak_bin": 465,
+          "fmin_bin": 1771.4131474494934,
+          "fmax_bin": 1952.5861058235168,
+          "center_bin": 1861.9996266365051,
+          "bw_bins": 181.17295837402344,
+          "score": 0.5000130534172058
+        },
+        {
+          "index": 47,
+          "peak_bin": 242,
+          "fmin_bin": 928.3826987743378,
+          "fmax_bin": 1011.6192481517792,
+          "center_bin": 970.0009734630585,
+          "bw_bins": 83.2365493774414,
+          "score": 0.5000126957893372
+        },
+        {
+          "index": 48,
+          "peak_bin": 352,
+          "fmin_bin": 1318.0118217468262,
+          "fmax_bin": 1502.0065879821777,
+          "center_bin": 1410.009204864502,
+          "bw_bins": 183.99476623535156,
+          "score": 0.5000121593475342
+        },
+        {
+          "index": 49,
+          "peak_bin": 236,
+          "fmin_bin": 876.4898715019226,
+          "fmax_bin": 1015.5117526054382,
+          "center_bin": 946.0008120536804,
+          "bw_bins": 139.02188110351562,
+          "score": 0.5000118613243103
+        },
+        {
+          "index": 50,
+          "peak_bin": 463,
+          "fmin_bin": 1754.3940793275833,
+          "fmax_bin": 1953.5779629945755,
+          "center_bin": 1853.9860211610794,
+          "bw_bins": 199.1838836669922,
+          "score": 0.5000117421150208
+        },
+        {
+          "index": 51,
+          "peak_bin": 337,
+          "fmin_bin": 1228.2254028320312,
+          "fmax_bin": 1471.7761688232422,
+          "center_bin": 1350.0007858276367,
+          "bw_bins": 243.55076599121094,
+          "score": 0.5000114440917969
+        },
+        {
+          "index": 52,
+          "peak_bin": 317,
+          "fmin_bin": 1152.8494358062744,
+          "fmax_bin": 1387.1519260406494,
+          "center_bin": 1270.000680923462,
+          "bw_bins": 234.302490234375,
+          "score": 0.5000114440917969
+        },
+        {
+          "index": 53,
+          "peak_bin": 356,
+          "fmin_bin": 1318.810979127884,
+          "fmax_bin": 1533.190404176712,
+          "center_bin": 1426.000691652298,
+          "bw_bins": 214.37942504882812,
+          "score": 0.5000113248825073
+        },
+        {
+          "index": 54,
+          "peak_bin": 355,
+          "fmin_bin": 1317.816431760788,
+          "fmax_bin": 1526.184870481491,
+          "center_bin": 1422.0006511211395,
+          "bw_bins": 208.36843872070312,
+          "score": 0.5000113248825073
+        },
+        {
+          "index": 55,
+          "peak_bin": 354,
+          "fmin_bin": 1317.871181488037,
+          "fmax_bin": 1518.1301231384277,
+          "center_bin": 1418.0006523132324,
+          "bw_bins": 200.25894165039062,
+          "score": 0.5000112652778625
+        },
+        {
+          "index": 56,
+          "peak_bin": 331,
+          "fmin_bin": 1204.4673533439636,
+          "fmax_bin": 1447.534095287323,
+          "center_bin": 1326.0007243156433,
+          "bw_bins": 243.06674194335938,
+          "score": 0.500011146068573
+        },
+        {
+          "index": 57,
+          "peak_bin": 332,
+          "fmin_bin": 1204.5216925144196,
+          "fmax_bin": 1455.4798529148102,
+          "center_bin": 1330.0007727146149,
+          "bw_bins": 250.95816040039062,
+          "score": 0.500011146068573
+        },
+        {
+          "index": 58,
+          "peak_bin": 462,
+          "fmin_bin": 1752.5065217018127,
+          "fmax_bin": 1947.4715638160706,
+          "center_bin": 1849.9890427589417,
+          "bw_bins": 194.9650421142578,
+          "score": 0.5000109672546387
+        },
+        {
+          "index": 59,
+          "peak_bin": 353,
+          "fmin_bin": 1318.1500549316406,
+          "fmax_bin": 1509.8512878417969,
+          "center_bin": 1414.0006713867188,
+          "bw_bins": 191.70123291015625,
+          "score": 0.5000107884407043
+        },
+        {
+          "index": 60,
+          "peak_bin": 321,
+          "fmin_bin": 1160.858963727951,
+          "fmax_bin": 1411.1429450511932,
+          "center_bin": 1286.0009543895721,
+          "bw_bins": 250.2839813232422,
+          "score": 0.5000105500221252
+        },
+        {
+          "index": 61,
+          "peak_bin": 461,
+          "fmin_bin": 1751.2252665758133,
+          "fmax_bin": 1940.7631541490555,
+          "center_bin": 1845.9942103624344,
+          "bw_bins": 189.5378875732422,
+          "score": 0.5000104308128357
+        },
+        {
+          "index": 62,
+          "peak_bin": 363,
+          "fmin_bin": 1356.2148659229279,
+          "fmax_bin": 1551.791785478592,
+          "center_bin": 1454.00332570076,
+          "bw_bins": 195.57691955566406,
+          "score": 0.5000103116035461
+        },
+        {
+          "index": 63,
+          "peak_bin": 32,
+          "fmin_bin": 74.70280992984772,
+          "fmax_bin": 185.296262383461,
+          "center_bin": 129.99953615665436,
+          "bw_bins": 110.59345245361328,
+          "score": 0.5000102519989014
+        }
+      ],
+      "notes": "Real TensorRT FFSCN forward on STFT spectrum; candidates from hm/bw/off peak decode (not fabricated)."
+    },
+    "evidence": [
+      {
+        "kind": "worker",
+        "path": null,
+        "sha256": null,
+        "notes": "engine=pending-real; status=queued->running"
+      },
+      {
+        "kind": "worker",
+        "path": null,
+        "sha256": null,
+        "notes": "engine=TENSORRT_CUDA; verifiedForward=true; candidates=64; status->succeeded"
+      }
+    ],
+    "blockReasons": [
+      "INFO: FFSCN runtime ready — provide sourcePath for real inference"
+    ],
+    "message": "TENSORRT_CUDA: FFSCN real TRT forward (64 candidates)",
+    "messageZh": "TENSORRT_CUDA: FFSCN 真 TensorRT 推理完成（64 个候选）",
+    "uiMessages": [
+      {
+        "code": "REAL_RUNTIME",
+        "severity": "info",
+        "en": "Verified PyTorch detection runtime is ready for this family.",
+        "zh": "该检测族别的 PyTorch 真推理运行时已就绪。"
+      }
+    ],
+    "statusHistory": [
+      "queued",
+      "running",
+      "succeeded"
+    ],
+    "createdAt": "2026-10-21T13:18:47.994852+00:00",
+    "updatedAt": "2026-10-21T13:18:48.632169+00:00"
+  },
+  "assertions": {
+    "status": "succeeded",
+    "result_is_null": false,
+    "canInventResults_false": true,
+    "source_is_locked_iq": false,
+    "no_fake_when_blocked": true,
+    "succeeded_with_result": true,
+    "runtime_engine": "TENSORRT_CUDA",
+    "result_source_is_locked_iq": true,
+    "result_weights_under_detection_models": true,
+    "verifiedForward": true,
+    "engine_TENSORRT_CUDA": true
+  }
+}
