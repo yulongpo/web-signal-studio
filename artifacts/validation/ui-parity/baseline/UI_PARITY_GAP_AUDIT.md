@@ -1,3 +1,13 @@
+> Bot-A `2026-10-22 01:12` Asia/Shanghai: Web tip **`2bcef55`** vs desktop `17471a6` — G18 PARTIAL deepened (C linkedCursor Main/Aux store+pin+clear; G `cf0bca5` prior-tip only). G19 residual confirmed still PARTIAL. G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2bcef55.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`85596ed`) | Now (`2bcef55`) | Note |
+|----|-------------------|-----------------|------|
+| **G18** | PARTIAL（multi-chart linked-cursor 残） | **PARTIAL 加深** | `2bcef55` Main/Aux store+pin+clear MET；NB multi-view / Esc-clear / rail twin → **未 CLOSED** |
+| **G19** | PARTIAL | **unchanged PARTIAL** | MeasuredEvidenceTrace / true native QFileDialog 残仍在 |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未发明路径 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_2bcef55.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:03` Asia/Shanghai: Web tip **`85596ed`** vs desktop `17471a6` — G19 PARTIAL deepened (B `d178f8e` Auxiliary 3-col + extra facts + OS dialog chrome; G `014ec83` prior-tip only). G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_85596ed.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`b88443e`) | Now (`85596ed`) | Note |

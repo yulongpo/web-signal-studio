@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 01:12` Asia/Shanghai: Web **`2bcef55`** vs desktop `17471a6` — G18 PARTIAL deepened (C Main/Aux linked-cursor). G19 residual still PARTIAL. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2bcef55.md`. **No PASS.**
+
+| ID | Prior (`85596ed`) | Now (`2bcef55`) | Note |
+|----|-------------------|-----------------|------|
+| **G18** | PARTIAL（multi-chart 残） | **PARTIAL 加深** | Main/Aux store+pin MET；NB/Esc/rail → **未 CLOSED** |
+| **G19** | PARTIAL | **unchanged PARTIAL** | MeasuredEvidenceTrace / native QFileDialog 残 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_2bcef55.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:03` Asia/Shanghai: Web **`85596ed`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave15 Auxiliary 3-col + OS dialog chrome). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_85596ed.md`. **No PASS.**
 
 | ID | Prior (`b88443e`) | Now (`85596ed`) | Note |
