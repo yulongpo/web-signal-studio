@@ -4,6 +4,7 @@ import {
   resolvePointerDragMode,
   resolveInteractionCursor,
   resolveNavigationOverviewCursor,
+  resolveMarkEdgeCursor,
 } from "./chartHitZone.js";
 
 const M = { left: 52, right: 12, top: 10, bottom: 36 };
@@ -132,6 +133,29 @@ describe("resolveNavigationOverviewCursor OpenHand (17471a6 Kind::Navigation)", 
     expect(
       resolveNavigationOverviewCursor({ insideWindow: false, draggingWindow: false }),
     ).toBe("pointer");
+  });
+});
+
+describe("resolveMarkEdgeCursor (17471a6 edgeCursor)", () => {
+  it("corners map SizeFDiag / SizeBDiag", () => {
+    expect(resolveMarkEdgeCursor({ edge: "nw" })).toBe("nwse-resize");
+    expect(resolveMarkEdgeCursor({ edge: "se" })).toBe("nwse-resize");
+    expect(resolveMarkEdgeCursor({ edge: "ne" })).toBe("nesw-resize");
+    expect(resolveMarkEdgeCursor({ edge: "sw" })).toBe("nesw-resize");
+  });
+
+  it("edge midpoints map SizeHor / SizeVer", () => {
+    expect(resolveMarkEdgeCursor({ edge: "e" })).toBe("ew-resize");
+    expect(resolveMarkEdgeCursor({ edge: "w" })).toBe("ew-resize");
+    expect(resolveMarkEdgeCursor({ edge: "n" })).toBe("ns-resize");
+    expect(resolveMarkEdgeCursor({ edge: "s" })).toBe("ns-resize");
+  });
+
+  it("move / draggingMove map SizeAll / ClosedHand", () => {
+    expect(resolveMarkEdgeCursor({ edge: "move" })).toBe("move");
+    expect(resolveMarkEdgeCursor({ edge: "move", draggingMove: true })).toBe(
+      "grabbing",
+    );
   });
 });
 

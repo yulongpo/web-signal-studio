@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
-import type { NarrowbandPageId, NarrowbandWaveformMode } from '../types/provisional';
+import type { NarrowbandPageId, NarrowbandWaveformMode, NarrowbandPsdMode } from '../types/provisional';
 import { NarrowbandObserveCharts } from './NarrowbandObserveCharts';
 import { NarrowbandModulationCharts } from './NarrowbandModulationCharts';
 import { NarrowbandDemodCharts } from './NarrowbandDemodCharts';
@@ -48,6 +48,8 @@ export function NarrowbandWorkspace() {
   const setPage = useUiStore((s) => s.setNarrowbandPage);
   const psdFft = useUiStore((s) => s.narrowbandPsdFft);
   const setPsdFft = useUiStore((s) => s.setNarrowbandPsdFft);
+  const psdMode = useUiStore((s) => s.narrowbandPsdMode);
+  const setPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
   const stftFft = useUiStore((s) => s.narrowbandStftFft);
   const setStftFft = useUiStore((s) => s.setNarrowbandStftFft);
   const freqMode = useUiStore((s) => s.narrowbandFreqMode);
@@ -96,6 +98,7 @@ export function NarrowbandWorkspace() {
       data-testid="workspace-narrowband"
       data-nb-page={page}
       data-nb-psd-fft={psdFft}
+      data-nb-psd-mode={psdMode}
       data-nb-stft-fft={stftFft}
       data-nb-freq-mode={freqMode}
       data-nb-grid={grid ? 'true' : 'false'}
@@ -154,6 +157,17 @@ export function NarrowbandWorkspace() {
                 {n}
               </option>
             ))}
+          </select>
+        </label>
+        <label className="nb-field">
+          <span>PSD模式</span>
+          <select
+            data-testid="nb-select-psd-mode"
+            value={psdMode}
+            onChange={(e) => setPsdMode(e.target.value as NarrowbandPsdMode)}
+          >
+            <option value="frame">驻留帧谱</option>
+            <option value="statistical">统计谱</option>
           </select>
         </label>
         <label className="nb-field">

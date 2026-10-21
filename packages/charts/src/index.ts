@@ -102,9 +102,12 @@ export {
   resolvePointerDragMode,
   resolveInteractionCursor,
   resolveNavigationOverviewCursor,
+  resolveMarkEdgeCursor,
   type ChartHitZone,
   type InteractionCursor,
   type NavigationOverviewCursor,
+  type MarkEdge,
+  type MarkEdgeCursor,
   type ChartDragMode,
   type PlotMargin,
 } from "./interaction/chartHitZone.js";

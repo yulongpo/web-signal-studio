@@ -1,10 +1,10 @@
 {
   "bot": "bot-c",
-  "scope": "G11 overview OpenHand",
-  "baseSha": "9248453b0f58375bd50e93719a6371574c3d0a84",
-  "baseShort": "9248453",
+  "scope": "G11 mark-edge + G18 PSD mode UI slot",
+  "baseSha": "98d858d10a1e70995039b20307538d14c70df6df",
+  "baseShort": "98d858d",
   "desktop": "17471a6",
   "selfPass": false,
-  "notes": "NavigationChart overview window OpenHand/ClosedHand/PointingHand via resolveNavigationOverviewCursor. No PASS.",
-  "base": "9248453"
+  "notes": "8 mark handles + resolveMarkEdgeCursor; G18 narrowbandPsdMode UI slot; DSP series handoff Bot-D. No PASS.",
+  "base": "98d858d"
 }

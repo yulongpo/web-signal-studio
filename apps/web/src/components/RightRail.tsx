@@ -1,7 +1,7 @@
 /**
  * PROVISIONAL — Bot-B right context rail (four pages + collapse).
  * G18: display-summary — PSD N/STFT N shell lines + 参考/动态 vs desktop 696ce12.
- * PSD mode (驻留帧谱/统计谱) owned by Bot-C/D; shell shows FFT size only.
+ * PSD mode (驻留帧谱/统计谱): charts UI slot (Bot-C) + DSP series (Bot-D).
  */
 import { useUiStore } from '../store/uiStore';
 import type { RightPage } from '../types/provisional';
@@ -19,11 +19,15 @@ function DisplayPage() {
   const stftN = useUiStore((s) => s.stftN);
   const paletteId = useUiStore((s) => s.paletteId);
   const narrowbandPsdFft = useUiStore((s) => s.narrowbandPsdFft);
+  const narrowbandPsdMode = useUiStore((s) => s.narrowbandPsdMode);
   const openLayer = useUiStore((s) => s.openLayer);
-  // G18 ownership: STFT N + palette = Bot-B shell (uiStore). PSD mode 驻留帧谱/统计谱
-  // is Bot-C/D chart+DSP — show FFT size only; mode slot stays "—" (no invented spectrum mode).
+  // G18: Bot-B owns STFT N/palette/level; Bot-C owns PSD mode label slot;
+// Bot-D owns frame vs statistical PSD series computation.
+  const psdModeLabel =
+    narrowbandPsdMode === 'frame' ? '驻留帧谱' : '统计谱';
+  // G18: Bot-C owns mode label slot; Bot-D owns frame vs statistical series.
   const summary = [
-    `PSD N ${narrowbandPsdFft || '—'} · —`,
+    `PSD N ${narrowbandPsdFft || '—'} · ${psdModeLabel}`,
     `STFT N ${stftN} · ${paletteId}`,
     `参考 ${level.refLevelDb.toFixed(2)} dB`,
     `动态 ${level.dynamicRangeDb.toFixed(2)} dB`,
@@ -36,6 +40,8 @@ function DisplayPage() {
       <pre
         className="display-summary"
         data-testid="display-summary"
+        data-psd-mode={narrowbandPsdMode}
+        data-psd-mode-label={psdModeLabel}
         aria-live="polite"
       >
         {summary}

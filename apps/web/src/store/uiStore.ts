@@ -24,6 +24,7 @@ import type {
   DspSourceKind,
   NarrowbandPageId,
   NarrowbandWaveformMode,
+  NarrowbandPsdMode,
   NarrowbandFreqMode,
   BottomPanelTab,
   NarrowbandModulationType,
@@ -135,6 +136,8 @@ export interface UiState {
   /** G06 narrowband page + display settings (persist across page/overflow). */
   narrowbandPage: NarrowbandPageId;
   narrowbandPsdFft: number;
+  /** G18: 驻留帧谱/统计谱 UI slot; series computation owned by Bot-D. */
+  narrowbandPsdMode: NarrowbandPsdMode;
   narrowbandStftFft: number;
   narrowbandFreqMode: NarrowbandFreqMode;
   narrowbandGrid: boolean;
@@ -143,6 +146,7 @@ export interface UiState {
   setActiveTool: (tool: ActiveTool) => void;
   setNarrowbandPage: (page: NarrowbandPageId) => void;
   setNarrowbandPsdFft: (n: number) => void;
+  setNarrowbandPsdMode: (mode: NarrowbandPsdMode) => void;
   setNarrowbandStftFft: (n: number) => void;
   setNarrowbandFreqMode: (mode: NarrowbandFreqMode) => void;
   setNarrowbandGrid: (on: boolean) => void;
@@ -257,6 +261,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   workspaceMode: 'wideband',
   narrowbandPage: 'observe',
   narrowbandPsdFft: 4096,
+  narrowbandPsdMode: 'statistical',
   narrowbandStftFft: 1024,
   narrowbandFreqMode: 'baseband',
   narrowbandGrid: true,
@@ -408,6 +413,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   setWorkspaceMode: (mode) => set({ workspaceMode: mode }),
   setNarrowbandPage: (page) => set({ narrowbandPage: page }),
   setNarrowbandPsdFft: (n) => set({ narrowbandPsdFft: n }),
+  setNarrowbandPsdMode: (mode) => set({ narrowbandPsdMode: mode }),
   setNarrowbandStftFft: (n) => set({ narrowbandStftFft: n }),
   setNarrowbandFreqMode: (mode) => set({ narrowbandFreqMode: mode }),
   setNarrowbandGrid: (on) => set({ narrowbandGrid: on }),

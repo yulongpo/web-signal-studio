@@ -61,6 +61,8 @@ export type DspSourceKind =
 export type NarrowbandPageId = 'observe' | 'modulation' | 'deepLearning' | 'demodulation';
 export type NarrowbandWaveformMode = 'iq' | 'rms' | 'phase' | 'envelope';
 export type NarrowbandFreqMode = 'baseband' | 'rf';
+/** G18 PSD mode slot (desktop narrowband 驻留帧谱 / 统计谱). DSP series switch = Bot-D. */
+export type NarrowbandPsdMode = 'frame' | 'statistical';
 
 
 /** G07 bottom panel tab ids (rebuild bottomTabs). */

@@ -514,6 +514,7 @@ body,
 
 .chart-mark-rect[data-selected='true'] {
   border-color: #e3bf70;
+  cursor: move;
 }
 
 .chart-mark-handle {
@@ -525,7 +526,24 @@ body,
   border: 0;
   background: #e3bf70;
   pointer-events: auto;
+  /* Inline style from resolveMarkEdgeCursor wins; CSS fallbacks match 17471a6. */
   cursor: nwse-resize;
+}
+.chart-mark-handle-nw,
+.chart-mark-handle-se {
+  cursor: nwse-resize;
+}
+.chart-mark-handle-ne,
+.chart-mark-handle-sw {
+  cursor: nesw-resize;
+}
+.chart-mark-handle-e,
+.chart-mark-handle-w {
+  cursor: ew-resize;
+}
+.chart-mark-handle-n,
+.chart-mark-handle-s {
+  cursor: ns-resize;
 }
 
 .detect-range-card {

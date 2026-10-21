@@ -131,3 +131,59 @@ export function resolveNavigationOverviewCursor(opts: {
   return "pointer";
 }
 
+/** Mark resize edge matching PlotWidget::handles / edgeCursor @ 17471a6. */
+export type MarkEdge =
+  | "nw"
+  | "n"
+  | "ne"
+  | "e"
+  | "se"
+  | "s"
+  | "sw"
+  | "w"
+  | "move";
+
+/** CSS cursor for mark edge / corner / move @ 17471a6 edgeCursor. */
+export type MarkEdgeCursor =
+  | "nwse-resize"
+  | "nesw-resize"
+  | "ew-resize"
+  | "ns-resize"
+  | "move"
+  | "grabbing";
+
+/**
+ * Match PlotWidget::edgeCursor(edges) @ 17471a6:
+ * - Move -> SizeAllCursor -> move (drag body uses ClosedHand -> grabbing when dragging)
+ * - Left|Top or Right|Bottom -> SizeFDiagCursor -> nwse-resize
+ * - Right|Top or Left|Bottom -> SizeBDiagCursor -> nesw-resize
+ * - Left|Right -> SizeHorCursor -> ew-resize
+ * - Top|Bottom -> SizeVerCursor -> ns-resize
+ */
+export function resolveMarkEdgeCursor(opts: {
+  edge: MarkEdge;
+  /** True while dragging the mark body (Move), not an edge handle. */
+  draggingMove?: boolean;
+}): MarkEdgeCursor {
+  const { edge, draggingMove = false } = opts;
+  if (draggingMove || edge === "move") {
+    return draggingMove ? "grabbing" : "move";
+  }
+  switch (edge) {
+    case "nw":
+    case "se":
+      return "nwse-resize";
+    case "ne":
+    case "sw":
+      return "nesw-resize";
+    case "e":
+    case "w":
+      return "ew-resize";
+    case "n":
+    case "s":
+      return "ns-resize";
+    default:
+      return "move";
+  }
+}
+

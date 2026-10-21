@@ -1,10 +1,13 @@
 /**
  * Draws M-06 marks on the main chart using the live physical view.
- * G13: Ctrl/Shift multi-select + four corner handles with live resize.
- * Continuous create stays with the marker tool on MainChartHost (data-continuous-create).
+ * G13: Ctrl/Shift multi-select + eight handles (4 corners + 4 edge midpoints).
+ * G11 mark-edge: cursors match PlotWidget::edgeCursor @ 17471a6
+ * (SizeFDiag/SizeBDiag/SizeHor/SizeVer). Continuous create stays with the
+ * marker tool on MainChartHost (data-continuous-create).
  */
 import { useEffect, useState } from 'react';
 import type { AnnotationJson } from '@wss/contracts';
+import { resolveMarkEdgeCursor, type MarkEdge } from '@wss/charts';
 import {
   cssToValue,
   halfOpenEnd,
@@ -25,7 +28,7 @@ type Props = {
 };
 
 type MarkRow = AnnotationJson & { id: string };
-type Corner = 'nw' | 'ne' | 'sw' | 'se';
+type HandleId = Exclude<MarkEdge, 'move'>;
 
 function readMarks(): { marks: MarkRow[]; selected: string[]; active: string | null } {
   const hook = window.__wssM06;
@@ -41,11 +44,20 @@ function readMarks(): { marks: MarkRow[]; selected: string[]; active: string | n
   };
 }
 
-const CORNERS: { id: Corner; left: (w: number) => number; top: (h: number) => number }[] = [
+/** Desktop PlotWidget::handles order: corners + edge midpoints. */
+const HANDLES: {
+  id: HandleId;
+  left: (w: number) => number;
+  top: (h: number) => number;
+}[] = [
   { id: 'nw', left: () => 0, top: () => 0 },
+  { id: 'n', left: (w) => w / 2, top: () => 0 },
   { id: 'ne', left: (w) => w, top: () => 0 },
-  { id: 'sw', left: () => 0, top: (h) => h },
+  { id: 'e', left: (w) => w, top: (h) => h / 2 },
   { id: 'se', left: (w) => w, top: (h) => h },
+  { id: 's', left: (w) => w / 2, top: (h) => h },
+  { id: 'sw', left: () => 0, top: (h) => h },
+  { id: 'w', left: () => 0, top: (h) => h / 2 },
 ];
 
 export function ChartMarkOverlay({
@@ -114,10 +126,10 @@ export function ChartMarkOverlay({
     setTick((n) => n + 1);
   };
 
-  const applyCorner = (
+  const applyHandle = (
     mark: MarkRow,
     box: NonNullable<ReturnType<typeof rectFor>>,
-    corner: Corner,
+    handle: HandleId,
     clientX: number,
     clientY: number,
     layer: Element,
@@ -129,12 +141,12 @@ export function ChartMarkOverlay({
     let nextT1 = box.t1;
     let nextF0 = box.f0;
     let nextF1 = box.f1;
-    if (corner === 'nw' || corner === 'sw') nextT0 = time;
-    if (corner === 'ne' || corner === 'se') nextT1 = time;
-    if (corner === 'nw' || corner === 'ne') nextF1 = freq;
-    if (corner === 'sw' || corner === 'se') nextF0 = freq;
-    // STFT: higher freq is visually "up" (invert); nw/ne are top = higher freq when invert.
-    // Use pointer physical mapping directly via freqAt; swap if needed.
+    // time edges (left/right)
+    if (handle === 'nw' || handle === 'sw' || handle === 'w') nextT0 = time;
+    if (handle === 'ne' || handle === 'se' || handle === 'e') nextT1 = time;
+    // freq edges (top/bottom); freqAt already maps physical Hz
+    if (handle === 'nw' || handle === 'ne' || handle === 'n') nextF1 = freq;
+    if (handle === 'sw' || handle === 'se' || handle === 's') nextF0 = freq;
     const start = secondsToSampleIndex(Math.min(nextT0, nextT1), sampleRateHz);
     const endRaw = secondsToSampleIndex(Math.max(nextT0, nextT1), sampleRateHz);
     const end = start && endRaw ? halfOpenEnd(start, endRaw) : null;
@@ -158,8 +170,9 @@ export function ChartMarkOverlay({
       data-testid="chart-mark-layer"
       data-mark-count={marks.length}
       data-selected-count={selected.length}
-      data-handle-count="4"
+      data-handle-count="8"
       data-g13-handles="true"
+      data-g11-mark-edge="true"
     >
       {marks.map((mark) => {
         const box = rectFor(mark);
@@ -176,7 +189,15 @@ export function ChartMarkOverlay({
             data-selected={isSelected ? 'true' : 'false'}
             data-current={isCurrent ? 'true' : 'false'}
             data-annotation-paint="desktop-multi"
-            style={{ left: box.left, top: box.top, width: box.width, height: box.height }}
+            style={{
+              left: box.left,
+              top: box.top,
+              width: box.width,
+              height: box.height,
+              cursor: isSelected
+                ? resolveMarkEdgeCursor({ edge: 'move' })
+                : undefined,
+            }}
             onPointerDown={(event) => {
               event.stopPropagation();
               event.preventDefault();
@@ -190,35 +211,46 @@ export function ChartMarkOverlay({
             }}
           >
             {isCurrent
-              ? CORNERS.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    className="chart-mark-handle"
-                    data-testid={c.id === 'se' ? 'chart-mark-handle' : `chart-mark-handle-${c.id}`}
-                    data-corner={c.id}
-                    aria-label={`resize mark ${c.id}`}
-                    style={{ left: c.left(box.width), top: c.top(box.height) }}
-                    onPointerDown={(event) => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                      const handle = event.currentTarget;
-                      const layer = handle.closest('[data-testid="chart-mark-layer"]');
-                      if (!layer) return;
-                      handle.setPointerCapture(event.pointerId);
-                      const onMove = (ev: PointerEvent) => {
-                        applyCorner(mark, box, c.id, ev.clientX, ev.clientY, layer);
-                      };
-                      const onUp = (ev: PointerEvent) => {
-                        applyCorner(mark, box, c.id, ev.clientX, ev.clientY, layer);
-                        window.removeEventListener('pointermove', onMove);
-                        window.removeEventListener('pointerup', onUp);
-                      };
-                      window.addEventListener('pointermove', onMove);
-                      window.addEventListener('pointerup', onUp);
-                    }}
-                  />
-                ))
+              ? HANDLES.map((c) => {
+                  const cursor = resolveMarkEdgeCursor({ edge: c.id });
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      className={`chart-mark-handle chart-mark-handle-${c.id}`}
+                      data-testid={
+                        c.id === 'se' ? 'chart-mark-handle' : `chart-mark-handle-${c.id}`
+                      }
+                      data-corner={c.id}
+                      data-edge={c.id}
+                      data-mark-edge-cursor={cursor}
+                      aria-label={`resize mark ${c.id}`}
+                      style={{
+                        left: c.left(box.width),
+                        top: c.top(box.height),
+                        cursor,
+                      }}
+                      onPointerDown={(event) => {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        const handle = event.currentTarget;
+                        const layer = handle.closest('[data-testid="chart-mark-layer"]');
+                        if (!layer) return;
+                        handle.setPointerCapture(event.pointerId);
+                        const onMove = (ev: PointerEvent) => {
+                          applyHandle(mark, box, c.id, ev.clientX, ev.clientY, layer);
+                        };
+                        const onUp = (ev: PointerEvent) => {
+                          applyHandle(mark, box, c.id, ev.clientX, ev.clientY, layer);
+                          window.removeEventListener('pointermove', onMove);
+                          window.removeEventListener('pointerup', onUp);
+                        };
+                        window.addEventListener('pointermove', onMove);
+                        window.addEventListener('pointerup', onUp);
+                      }}
+                    />
+                  );
+                })
               : null}
           </div>
         );
