@@ -1,0 +1,2 @@
+﻿Interim G01 pack (commit d9263ac on work/bot-g-qa @ d8297d1) folded into qa/web-905cdad/ at tip 905cdad.
+Prefer web-905cdad for G01+NB-DDC evidence. ui_parity_pass_claimed: false.

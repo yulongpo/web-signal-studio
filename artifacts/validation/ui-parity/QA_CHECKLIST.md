@@ -103,3 +103,9 @@ Smoke targets: `apps/web`, `services/local-compute`.
 
 Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. **No PASS claimed.**
 
+## G01 + NB observe DDC refresh (Bot-G, Asia/Shanghai 2026-10-21)
+
+- Tip: `905cdad` (>= `ef2713a` DDC). Evidence: `qa/web-905cdad/`.
+- G01: `01-menubar-*.png`. NB filled: `06-narrowband-observe-ddc.png` + panel crops; `nb_charts_non_empty: true`.
+- Supersedes interim G01 `d9263ac`/`web-d8297d1` and empty-DDC `web-6c17a53` observe.
+- **ui_parity_pass_claimed: false**

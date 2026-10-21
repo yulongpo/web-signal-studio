@@ -1,0 +1,42 @@
+{
+  "id": "qa-web-905cdad-g01-nb-observe-ddc",
+  "tip_web": "905cdadda26b0ef453256be8352a30824851addf",
+  "tip_ddc_feature": "ef2713a735cc96407ff2dcf7156f08fffb74a6a3",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "supersedes": {
+    "g01_interim": "qa/web-d8297d1 commit d9263ac on work/bot-g-qa",
+    "narrowband_observe_empty": "qa/web-6c17a53 empty DDC hosts"
+  },
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-menubar-default.png",
+    "01b-menubar-file-menu.png",
+    "01c-menubar-bar-crop.png",
+    "06-narrowband-observe-ddc.png",
+    "06b-nb-panel-waveform.png",
+    "06c-nb-panel-psd.png",
+    "06d-nb-panel-stft.png",
+    "01d-menubar-view-narrowband-filled.png"
+  ],
+  "observations": {
+    "menubar_height_px": 34,
+    "menubar_height_near_34": true,
+    "menu_open_iq_visible": true,
+    "narrowband_stub_visible": false,
+    "nb_wave_ready": true,
+    "nb_psd_ready": true,
+    "nb_stft_ready": true,
+    "nb_charts_non_empty": true,
+    "nb_pipeline_source": "sigmf_data_demo",
+    "nb_pipeline_kind": "ddc",
+    "nb_pipeline_label": "sigmf_data_demo → DDC (LO 2151808 Hz, R=1/16) · not demod",
+    "nb_lo_hz": "2151808",
+    "nb_decimation": "16",
+    "nb_chart_waveform_mounted": true,
+    "nb_chart_psd_mounted": true,
+    "nb_chart_stft_mounted": true,
+    "before": "web-6c17a53 empty DDC hosts; interim G01 d9263ac @ d8297d1 only",
+    "after": "web-905cdad G01 menubar + observe DDC filled (data-nb-chart-ready=true)"
+  }
+}

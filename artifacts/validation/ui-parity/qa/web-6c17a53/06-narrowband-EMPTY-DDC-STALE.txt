@@ -1,0 +1,3 @@
+﻿STALE empty-DDC observe @ tip 6c17a53 / evidence 2509c69 (honest empty chart hosts).
+Superseded by qa/web-905cdad/06-narrowband-observe-ddc.png at tip 905cdad (>= ef2713a Bot-D DDC).
+ui_parity_pass_claimed: false.
