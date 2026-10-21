@@ -1,7 +1,7 @@
 /**
  * Bot-B G01 MenuBar / command-bar — ~34px top chrome vs rebuild MainWindow::buildMenus().
- * File + View groups; Open/Add IQ reachable here (not only SpectrumToolbar).
- * Does not replace NavChrome / chart param strips / NarrowbandWorkspace.
+ * File / Edit / View / Analysis / Tools / Help. Open IQ from File (not only SpectrumToolbar).
+ * Wire real hooks where present; disabled/honest for unavailable. No fake demod.
  */
 import { useEffect, useRef, useState } from 'react';
 import { asProjectSessionHook, useUiStore } from '../store/uiStore';
@@ -12,7 +12,18 @@ import {
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
 
-type MenuId = 'file' | 'view' | null;
+type MenuId = 'file' | 'edit' | 'view' | 'analysis' | 'tools' | 'help' | null;
+
+const HELP_MOUSE = [
+  '时频图：X 轴为时间，Y 轴为频率；瀑布图：X 轴为频率，Y 轴为时间（向下递增）。',
+  '图内及底部滚轮缩放 X 轴，左侧滚轮缩放 Y 轴；拖动坐标轴平移。',
+  '右键菜单开启持续选择信号后，拖动创建标记；Esc 可取消交互。',
+  '辅助图可拖动区间放大；波形时间、PSD 频率与主图联动。',
+  '全局导航支持单击跳转、拖动时间窗和滚轮缩放。',
+].join('\n\n');
+
+const ABOUT_TEXT =
+  'Web Signal Studio — Bot-B shell chrome.\n对齐桌面 Signal Studio A1.4.3 菜单意图（buildMenus）。\n本页不为验收 PASS 声明。';
 
 function downloadText(filename: string, text: string) {
   const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
@@ -28,9 +39,15 @@ function sessionHook() {
   return asProjectSessionHook(useUiStore.getState());
 }
 
+function m06Ready(): boolean {
+  return Boolean(typeof window !== 'undefined' && window.__wssM06);
+}
+
 export function MenuBar() {
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
   const [iqError, setIqError] = useState<string | null>(null);
+  const [dialog, setDialog] = useState<{ title: string; body: string } | null>(null);
+  const [m06Tick, setM06Tick] = useState(0);
   const rootRef = useRef<HTMLElement>(null);
   const iqInputRef = useRef<HTMLInputElement>(null);
   const projectInputRef = useRef<HTMLInputElement>(null);
@@ -41,9 +58,12 @@ export function MenuBar() {
   const setChartMode = useUiStore((s) => s.setChartMode);
   const rightPanelCollapsed = useUiStore((s) => s.rightPanelCollapsed);
   const toggleRightPanel = useUiStore((s) => s.toggleRightPanel);
+  const setRightPanelCollapsed = useUiStore((s) => s.setRightPanelCollapsed);
   const loadSampleProject = useUiStore((s) => s.loadSampleProject);
   const projectSummary = useUiStore((s) => s.projectSummary);
   const projectSource = useUiStore((s) => s.projectSource);
+  const setRightPage = useUiStore((s) => s.setRightPage);
+  const setActiveTool = useUiStore((s) => s.setActiveTool);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -53,7 +73,10 @@ export function MenuBar() {
       }
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpenMenu(null);
+      if (e.key === 'Escape') {
+        setOpenMenu(null);
+        setDialog(null);
+      }
     };
     window.addEventListener('mousedown', onDown);
     window.addEventListener('keydown', onKey);
@@ -62,6 +85,21 @@ export function MenuBar() {
       window.removeEventListener('keydown', onKey);
     };
   }, [openMenu]);
+
+  // Refresh undo/redo enablement while Edit menu is open.
+  useEffect(() => {
+    if (openMenu !== 'edit') return;
+    const id = window.setInterval(() => setM06Tick((t) => t + 1), 250);
+    return () => window.clearInterval(id);
+  }, [openMenu]);
+
+  void m06Tick;
+  const hook = typeof window !== 'undefined' ? window.__wssM06 : undefined;
+  const snap = hook?.getState?.() ?? null;
+  const canUndo = Boolean(snap?.canUndo);
+  const canRedo = Boolean(snap?.canRedo);
+  const activeMarkId = snap?.activeMarkId;
+  const canDeleteMark = Boolean(hook && activeMarkId);
 
   const close = () => setOpenMenu(null);
 
@@ -108,6 +146,43 @@ export function MenuBar() {
     downloadText(`${name}.json`, text);
   };
 
+  const onUndo = () => {
+    if (!hook) return;
+    hook.undo();
+    setM06Tick((t) => t + 1);
+    close();
+  };
+  const onRedo = () => {
+    if (!hook) return;
+    hook.redo();
+    setM06Tick((t) => t + 1);
+    close();
+  };
+  const onDeleteMark = () => {
+    if (!hook || !activeMarkId) return;
+    hook.removeMark(activeMarkId);
+    setM06Tick((t) => t + 1);
+    close();
+  };
+
+  const openDetect = () => {
+    setRightPanelCollapsed(false);
+    setRightPage('detect');
+    close();
+  };
+  const beginRoi = () => {
+    setRightPanelCollapsed(false);
+    setRightPage('detect');
+    setActiveTool('select');
+    close();
+  };
+  const openMarkers = () => {
+    setRightPanelCollapsed(false);
+    setRightPage('marker');
+    setActiveTool('marker');
+    close();
+  };
+
   return (
     <header
       ref={rootRef}
@@ -124,6 +199,7 @@ export function MenuBar() {
       </div>
 
       <div className="menubar-menus">
+        {/* File */}
         <div className="menubar-item">
           <button
             type="button"
@@ -138,12 +214,7 @@ export function MenuBar() {
           </button>
           {openMenu === 'file' ? (
             <div className="menubar-dropdown" data-testid="menubar-file-menu" role="menu">
-              <button
-                type="button"
-                role="menuitem"
-                data-testid="menu-open-iq"
-                onClick={() => void onOpenIq()}
-              >
+              <button type="button" role="menuitem" data-testid="menu-open-iq" onClick={() => void onOpenIq()}>
                 添加 / 打开信号…
               </button>
               <button
@@ -204,6 +275,79 @@ export function MenuBar() {
           ) : null}
         </div>
 
+        {/* Edit */}
+        <div className="menubar-item">
+          <button
+            type="button"
+            className="menubar-trigger"
+            data-testid="menubar-edit"
+            data-open={openMenu === 'edit'}
+            aria-haspopup="true"
+            aria-expanded={openMenu === 'edit'}
+            onClick={() => setOpenMenu((m) => (m === 'edit' ? null : 'edit'))}
+          >
+            编辑(E)
+          </button>
+          {openMenu === 'edit' ? (
+            <div className="menubar-dropdown" data-testid="menubar-edit-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-edit-undo"
+                disabled={!canUndo}
+                title={m06Ready() ? undefined : '标记撤销需 M-06 hook（未安装则不可用）'}
+                onClick={onUndo}
+              >
+                撤销标记命令
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-edit-redo"
+                disabled={!canRedo}
+                title={m06Ready() ? undefined : '标记重做需 M-06 hook（未安装则不可用）'}
+                onClick={onRedo}
+              >
+                重做标记命令
+              </button>
+              <div className="menubar-sep" role="separator" />
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-edit-delete-marks"
+                disabled={!canDeleteMark}
+                title={
+                  canDeleteMark
+                    ? `删除当前标记 ${activeMarkId}`
+                    : '无活动标记；需 M-06 hook 与选中标记'
+                }
+                onClick={onDeleteMark}
+              >
+                删除所选标记
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-edit-rename-mark"
+                disabled
+                title="重命名标记 UI 尚未接入；不伪造操作"
+              >
+                重命名当前标记（未接入）
+              </button>
+              <div className="menubar-sep" role="separator" />
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-edit-open-markers"
+                onClick={openMarkers}
+              >
+                打开标记页…
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* View */}
         <div className="menubar-item">
           <button
             type="button"
@@ -271,6 +415,25 @@ export function MenuBar() {
               <button
                 type="button"
                 role="menuitem"
+                data-testid="menu-view-back"
+                disabled
+                title="视图历史（G15）尚未接入；不伪造后退"
+              >
+                视图后退（未接入）
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-view-forward"
+                disabled
+                title="视图历史（G15）尚未接入；不伪造前进"
+              >
+                视图前进（未接入）
+              </button>
+              <div className="menubar-sep" role="separator" />
+              <button
+                type="button"
+                role="menuitem"
                 data-testid="menu-toggle-rail"
                 onClick={() => {
                   toggleRightPanel();
@@ -278,6 +441,101 @@ export function MenuBar() {
                 }}
               >
                 {rightPanelCollapsed ? '展开右侧栏' : '收起右侧栏'}
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Analysis */}
+        <div className="menubar-item">
+          <button
+            type="button"
+            className="menubar-trigger"
+            data-testid="menubar-analysis"
+            data-open={openMenu === 'analysis'}
+            aria-haspopup="true"
+            aria-expanded={openMenu === 'analysis'}
+            onClick={() => setOpenMenu((m) => (m === 'analysis' ? null : 'analysis'))}
+          >
+            分析(A)
+          </button>
+          {openMenu === 'analysis' ? (
+            <div className="menubar-dropdown" data-testid="menubar-analysis-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-analysis-detect"
+                onClick={openDetect}
+              >
+                宽带信号检测…
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-analysis-roi"
+                onClick={beginRoi}
+              >
+                选择检测 ROI…
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Tools */}
+        <div className="menubar-item">
+          <button
+            type="button"
+            className="menubar-trigger"
+            data-testid="menubar-tools"
+            data-open={openMenu === 'tools'}
+            aria-haspopup="true"
+            aria-expanded={openMenu === 'tools'}
+            onClick={() => setOpenMenu((m) => (m === 'tools' ? null : 'tools'))}
+          >
+            工具(T)
+          </button>
+          {openMenu === 'tools' ? (
+            <div className="menubar-dropdown" data-testid="menubar-tools-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-tools-about"
+                onClick={() => {
+                  close();
+                  setDialog({ title: '关于 Signal Studio', body: ABOUT_TEXT });
+                }}
+              >
+                关于 Signal Studio
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Help */}
+        <div className="menubar-item">
+          <button
+            type="button"
+            className="menubar-trigger"
+            data-testid="menubar-help"
+            data-open={openMenu === 'help'}
+            aria-haspopup="true"
+            aria-expanded={openMenu === 'help'}
+            onClick={() => setOpenMenu((m) => (m === 'help' ? null : 'help'))}
+          >
+            帮助(H)
+          </button>
+          {openMenu === 'help' ? (
+            <div className="menubar-dropdown" data-testid="menubar-help-menu" role="menu">
+              <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-help-mouse"
+                onClick={() => {
+                  close();
+                  setDialog({ title: '鼠标交互帮助', body: HELP_MOUSE });
+                }}
+              >
+                鼠标交互帮助
               </button>
             </div>
           ) : null}
@@ -317,6 +575,26 @@ export function MenuBar() {
           e.target.value = '';
         }}
       />
+
+      {dialog ? (
+        <div className="menubar-dialog-backdrop" data-testid="menubar-dialog" role="dialog" aria-modal="true">
+          <div className="menubar-dialog">
+            <header className="menubar-dialog-header">
+              <h2 data-testid="menubar-dialog-title">{dialog.title}</h2>
+              <button
+                type="button"
+                data-testid="menubar-dialog-close"
+                onClick={() => setDialog(null)}
+              >
+                ×
+              </button>
+            </header>
+            <pre className="menubar-dialog-body" data-testid="menubar-dialog-body">
+              {dialog.body}
+            </pre>
+          </div>
+        </div>
+      ) : null}
     </header>
   );
 }

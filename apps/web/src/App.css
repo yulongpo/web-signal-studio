@@ -1113,3 +1113,51 @@ body,
   border-color: #2a6bed55;
 }
 
+/* G01 dialog for Help / About */
+.menubar-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.menubar-dialog {
+  width: min(520px, 92vw);
+  max-height: 80vh;
+  overflow: auto;
+  background: #101d2f;
+  border: 1px solid #3a4d66;
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  color: #e7ecf1;
+}
+.menubar-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid #2c3b4f;
+}
+.menubar-dialog-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.menubar-dialog-header button {
+  background: transparent;
+  border: 0;
+  color: #b4c8dc;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+.menubar-dialog-body {
+  margin: 0;
+  padding: 12px 14px 16px;
+  white-space: pre-wrap;
+  font: 12px/1.5 system-ui, sans-serif;
+  color: #c9d6e4;
+}
+
