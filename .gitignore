@@ -19,6 +19,7 @@ artifacts/validation/license/*
 !artifacts/delivery/
 artifacts/delivery/*
 !artifacts/delivery/manifest.json
+!artifacts/delivery/sha256sums.txt
 node_modules/
 dist/
 build/
