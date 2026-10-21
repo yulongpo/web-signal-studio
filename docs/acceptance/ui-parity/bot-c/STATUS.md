@@ -1,37 +1,44 @@
-# Bot-C short tip — G18 multi-chart linked-cursor (no PASS)
+# Bot-C short tip — G18 Esc clear pin + NB multi-view wave sync (no PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-22 01:08 |
-| Base tip | 69c4efe |
+| Asia/Shanghai | 2026-10-22 01:18 |
+| Base tip | 0515ed8 |
 | Branch | work/bot-c-charts |
-| Desktop ref | 17471a6 LinkedCursorState / pinAt / updateLinkedCursors |
-| Self-check | ChartMarkOverlay backticks preserved; HeatmapCanvas backticks not reduced |
+| Desktop ref | 17471a6 MainWindow Esc → clearActiveLinkedCursor / Session::clearCursor |
+| Self-check | ChartMarkOverlay untouched; HeatmapCanvas backticks unchanged (30) |
 
 ## Landed
 
 | ID | Landed | Note |
 |----|--------|------|
-| G18 linkedCursor store | pin/clear + dim-merge | desktop Session contract |
-| G18 Main↔Aux sync | HeatmapCanvas pin + WaveformChart linkedX | data-g18-linked-cursor |
-| G18 clear menu | chart-menu-clear-linked-cursor | Main context menu |
+| G18 Esc clear pin | clearActivePinnedCursor + useEscClearPinnedCursor | WB clears linkedCursor; NB clears dwell + restores statistical PSD |
+| G18 NB multi-view | wave linkedX from pinned dwell time | data-g18-nb-multi-view; desktop updateLinkedCursors subset |
+| G18 clear menu | uses clearActivePinnedCursor | Main + NB chrome clears |
+
+## Deferred / gaps
+
+| Item | Status |
+|------|--------|
+| NB PSD linked freq overlay | deferred (no pin-frequency store yet; STFT click is frame-X only) |
+| G11 PlotWidget leftover paint nuances | deferred (capacity; sourceKind/hover already MET) |
+| rail-dwell-scrubber twin | Bot-B — untouched |
 
 ## Owner split
 
 | Item | Owner |
 |------|-------|
-| Charts linked-cursor / domain pin | **Bot-C** (this tip) |
-| Right-rail rail-dwell-scrubber twin | **Bot-B** (untouched) |
-| nb-stft-dwell-scrubber embed | Bot-C prior tips |
+| Esc clear / charts linked sync | **Bot-C** (this tip) |
+| Right-rail rail-dwell-scrubber | **Bot-B** (untouched) |
 
 ## Evidence
 
-- apps/web/src/store/uiStore.ts (+ linkedCursor.test.ts)
-- packages/charts/src/react/HeatmapCanvas.tsx
-- packages/charts/src/react/WaveformChart.tsx
-- packages/charts/src/overlay/cursorOverlay.ts
+- apps/web/src/store/uiStore.ts (+ escClearPin.test.ts)
+- apps/web/src/hooks/useEscClearPinnedCursor.ts
+- apps/web/src/App.tsx (data-g18-esc-clear)
 - apps/web/src/components/MainChartHost.tsx
-- apps/web/src/components/AuxChartHost.tsx
-- artifacts/validation/ui-parity/bot-c/G18-LINKED-CURSOR-HANDOFF.md
+- apps/web/src/components/NarrowbandObserveCharts.tsx
+- apps/web/src/components/NarrowbandWorkspace.tsx
+- artifacts/validation/ui-parity/bot-c/G18-ESC-CLEAR-HANDOFF.md
 
 **matrix_pass_claimed: false. No PASS.**

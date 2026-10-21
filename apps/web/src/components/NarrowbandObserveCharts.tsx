@@ -2,7 +2,7 @@
  * G06 observe charts: DDC'd IQ from sigmf_data_demo into WaveformChart + SpectrumChart.
  * Does not rewrite Bot-B shell chrome — only fills the honest empty chart slots.
  */
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { WaveformChart } from '@wss/charts/WaveformChart';
 import { SpectrumChart } from '@wss/charts/SpectrumChart';
 import { useUiStore } from '../store/uiStore';
@@ -134,6 +134,7 @@ export function NarrowbandObserveCharts() {
   const psdMode = useUiStore((s) => s.narrowbandPsdMode);
   const pinnedDwellIndex = useUiStore((s) => s.narrowbandPinnedDwellIndex);
   const setPinnedDwellIndex = useUiStore((s) => s.setNarrowbandPinnedDwellIndex);
+  const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
   const setPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
 
   const [result, setResult] = useState<NarrowbandObserveDdcResult | null>(null);
@@ -224,7 +225,17 @@ export function NarrowbandObserveCharts() {
       }
     : null;
 
-  void rfOffset;
+
+  // G18 NB multi-view: map pinned dwell → wave linkedX (desktop updateLinkedCursors).
+  const dwellTimeSec = useMemo(() => {
+    if (pinnedDwellIndex == null || !result) return null;
+    const { timeSec, frameCount } = result.stft;
+    if (!(frameCount > 0)) return null;
+    const i = Math.min(frameCount - 1, Math.max(0, Math.floor(pinnedDwellIndex)));
+    const span = timeSec.max - timeSec.min;
+    if (!(span > 0) || !Number.isFinite(span)) return timeSec.min;
+    return timeSec.min + ((i + 0.5) / frameCount) * span;
+  }, [pinnedDwellIndex, result]);
 
   return (
     <>
@@ -250,6 +261,8 @@ export function NarrowbandObserveCharts() {
           extraAttrs={{
             'data-nb-wave-source': 'sigmf_data_demo-ddc',
             'data-nb-wave-mode': waveformMode,
+            'data-g18-nb-multi-view': dwellTimeSec == null ? 'false' : 'true',
+            'data-g18-linked-cursor': dwellTimeSec == null ? 'false' : 'true',
           }}
         >
           {result ? (
@@ -260,6 +273,7 @@ export function NarrowbandObserveCharts() {
               height="100%"
               testId="nb-chart-waveform"
               windowX={null}
+              linkedX={dwellTimeSec}
             />
           ) : (
             <Waiting text={statusText ?? '等待真实 DDC 波形'} />
@@ -322,7 +336,7 @@ export function NarrowbandObserveCharts() {
               // G18: STFT click pin / Alt-click clear → store + frame mode
               // Map through HeatmapCanvas plot margins (not full host width).
               if (event.altKey) {
-                setPinnedDwellIndex(null);
+                clearActivePinnedCursor();
                 return;
               }
               const host = event.currentTarget.getBoundingClientRect();

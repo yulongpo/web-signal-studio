@@ -113,7 +113,7 @@ export function MainChartHost() {
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
   const linkedCursor = useUiStore((s) => s.linkedCursor);
   const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
-  const clearLinkedCursor = useUiStore((s) => s.clearLinkedCursor);
+  const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
   const setDspSourceStore = useUiStore((s) => s.setDspSource);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
@@ -698,7 +698,7 @@ export function MainChartHost() {
             data-testid="chart-menu-clear-linked-cursor"
             disabled={!linkedCursor.pinned}
             onClick={() => {
-              clearLinkedCursor();
+              clearActivePinnedCursor();
               setMenu(null);
             }}
           >

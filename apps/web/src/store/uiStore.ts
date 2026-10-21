@@ -245,6 +245,8 @@ export interface UiState {
     centerFrequencyHz?: number;
   }) => void;
   clearLinkedCursor: () => void;
+  /** Esc / clear-menu: active workspace pin (WB linkedCursor or NB dwell+restore statistical). */
+  clearActivePinnedCursor: () => boolean;
   loadSampleProject: () => void;
   clearProject: () => void;
   openProjectFromText: (text: string) => { ok: true } | { ok: false; error: string };
@@ -602,6 +604,30 @@ export const useUiStore = create<UiState>((set, get) => ({
         selectedFrame: null,
       },
     }),
+  clearActivePinnedCursor: () => {
+    const st = get();
+    if (st.workspaceMode === 'narrowband') {
+      const hadPin = st.narrowbandPinnedDwellIndex != null;
+      const wasFrame = st.narrowbandPsdMode === 'frame';
+      if (!hadPin && !wasFrame) return false;
+      set({
+        narrowbandPinnedDwellIndex: null,
+        // Desktop Session::clearCursor drops framePsd -> averaged PSD.
+        narrowbandPsdMode: 'statistical',
+      });
+      return true;
+    }
+    if (!st.linkedCursor.pinned) return false;
+    set({
+      linkedCursor: {
+        pinned: false,
+        timeSec: 0,
+        frequencyHz: 0,
+        selectedFrame: null,
+      },
+    });
+    return true;
+  },
 
   loadSampleProject: () =>
     set({

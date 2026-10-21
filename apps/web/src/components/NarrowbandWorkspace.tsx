@@ -52,6 +52,7 @@ export function NarrowbandWorkspace() {
   const setPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
   const pinnedDwellIndex = useUiStore((s) => s.narrowbandPinnedDwellIndex);
   const setPinnedDwellIndex = useUiStore((s) => s.setNarrowbandPinnedDwellIndex);
+  const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
   const stftFft = useUiStore((s) => s.narrowbandStftFft);
   const setStftFft = useUiStore((s) => s.setNarrowbandStftFft);
   const freqMode = useUiStore((s) => s.narrowbandFreqMode);
@@ -197,7 +198,7 @@ export function NarrowbandWorkspace() {
             type="button"
             data-testid="nb-btn-clear-pinned-dwell"
             disabled={pinnedDwellIndex == null}
-            onClick={() => setPinnedDwellIndex(null)}
+            onClick={() => clearActivePinnedCursor()}
           >
             清除钉住
           </button>
@@ -221,7 +222,7 @@ export function NarrowbandWorkspace() {
             onChange={(e) => {
               const raw = e.target.value;
               if (raw === '') {
-                setPinnedDwellIndex(null);
+                clearActivePinnedCursor();
                 return;
               }
               const n = Number(raw);
@@ -247,7 +248,7 @@ export function NarrowbandWorkspace() {
             data-testid="nb-dwell-clear-btn"
             disabled={pinnedDwellIndex == null}
             title="清除钉住"
-            onClick={() => setPinnedDwellIndex(null)}
+            onClick={() => clearActivePinnedCursor()}
           >
             清除
           </button>

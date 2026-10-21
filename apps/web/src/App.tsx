@@ -12,6 +12,7 @@ import { BottomPanel } from './components/BottomPanel';
 import { TempLayers } from './components/TempLayers';
 import { RightRail } from './components/RightRail';
 import { MainChartHost } from './components/MainChartHost';
+import { useEscClearPinnedCursor } from './hooks/useEscClearPinnedCursor';
 import { NavChartHost } from './components/NavChartHost';
 import { AuxChartHost } from './components/AuxChartHost';
 import { NavChrome } from './components/NavChrome';
@@ -107,6 +108,9 @@ export default function App() {
   const setAuxPaneHeightPx = useUiStore((s) => s.setAuxPaneHeightPx);
   const shellClass = collapsed ? 'app-shell app-shell-rail-collapsed' : 'app-shell';
 
+  // G18 Esc clear pin (desktop Key_Escape → clearActiveLinkedCursor)
+  useEscClearPinnedCursor();
+
   // Short-window aux default 176 (rebuild note); otherwise 205.
   useEffect(() => {
     const short = window.innerHeight < SHORT_WINDOW_H;
@@ -126,7 +130,7 @@ export default function App() {
       : DESKTOP_AUX_DEFAULT;
 
   return (
-    <div className={shellClass} data-testid="app-shell" data-workspace-mode={workspaceMode}>
+    <div className={shellClass} data-testid="app-shell" data-workspace-mode={workspaceMode} data-g18-esc-clear="true">
       <MenuBar />
       <div
         className="app-shell-body"
