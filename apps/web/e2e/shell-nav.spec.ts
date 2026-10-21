@@ -127,13 +127,19 @@ test.describe('shell navigation', () => {
       .poll(async () => {
         const s = await host.getAttribute('data-dsp-source');
         if (!s || s === 'loading') return null;
+        if (!['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker', 'fsa-wav-stft'].includes(s)) {
+          return null;
+        }
         return s;
       }, { timeout: 20000 })
-      .not.toBeNull();
+      .toMatch(/^(file-stft-worker|demo-fallback|synthetic-stft-worker|fsa-wav-stft)$/);
+    await expect(host).toHaveAttribute(
+      'data-dsp-source',
+      /^(file-stft-worker|demo-fallback|synthetic-stft-worker|fsa-wav-stft)$/,
+      { timeout: 10000 },
+    );
     const source = await host.getAttribute('data-dsp-source');
-    expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker']).toContain(source);
     if (source === 'file-stft-worker') {
-      await expect(host).toHaveAttribute('data-dsp-source', 'file-stft-worker');
       const label = await host.getAttribute('data-dsp-label');
       expect(label?.toLowerCase()).not.toContain('synthetic');
       await expect(page.getByTestId('status-file')).toContainText('tiny-iq.wav');

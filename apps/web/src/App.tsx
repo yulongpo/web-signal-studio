@@ -16,6 +16,7 @@ import { AuxChartHost } from './components/AuxChartHost';
 import { NavChrome } from './components/NavChrome';
 import { AuxParamStrip, SpecParamStrip } from './components/ChartParamStrip';
 import { NarrowbandWorkspace } from './components/NarrowbandWorkspace';
+import { MenuBar } from './components/MenuBar';
 import { VerticalSplitter } from '@wss/charts/VerticalSplitter';
 import { useUiStore } from './store/uiStore';
 
@@ -53,6 +54,8 @@ export default function App() {
 
   return (
     <div className={shellClass} data-testid="app-shell" data-workspace-mode={workspaceMode}>
+      <MenuBar />
+      <div className="app-shell-body" data-testid="app-shell-body">
       <ProjectTree />
 
       <main
@@ -110,6 +113,7 @@ defaultPx={auxDefaultPx}
 
       <RightRail />
       <TempLayers />
+      </div>
     </div>
   );
 }
