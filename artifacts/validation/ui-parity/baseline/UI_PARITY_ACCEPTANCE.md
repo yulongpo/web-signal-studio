@@ -1,4 +1,13 @@
-> Bot-A `2026-10-22 00:57` Asia/Shanghai: Web **`6ada5b0`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave13 AdaptiveValueEdit-in-cell + Evidence + browserSave). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6ada5b0.md`. **No PASS.**
+> Bot-A `2026-10-22 01:00` Asia/Shanghai: Web **`b88443e`** vs desktop `17471a6` — G11/G02/G07/G08 PARTIAL deepened (C sourceKind+hover; B wave14 strip/Worker/shell). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_b88443e.md`. **No PASS.**
+
+| ID | Prior (`6ada5b0`) | Now (`b88443e`) | Note |
+|----|-------------------|-----------------|------|
+| **G11** | PARTIAL（sourceKind/hover 残） | **PARTIAL 加深** | sourceKind + hover sync MET；PlotWidget 余量 → **未 CLOSED** |
+| **G02** | PARTIAL | **PARTIAL 加深** | wave14 strip MET；live DSP → **未 CLOSED** |
+| **G07** | PARTIAL | **PARTIAL 加深** | Worker real-caps + BLOCKED gaps MET；全 Qt Worker → **未 CLOSED** |
+| **G08** | PARTIAL | **PARTIAL 加深** | 278/390 + aria/bottom MET；full re-shot → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_b88443e.md`。**无矩阵 PASS**。> Bot-A `2026-10-22 00:57` Asia/Shanghai: Web **`6ada5b0`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave13 AdaptiveValueEdit-in-cell + Evidence + browserSave). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6ada5b0.md`. **No PASS.**
 
 | ID | Prior (`6df15bc`) | Now (`6ada5b0`) | Note |
 |----|---------------------|-------------------|------|

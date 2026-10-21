@@ -1,3 +1,15 @@
+> Bot-A `2026-10-22 01:00` Asia/Shanghai: Web tip **`b88443e`** vs desktop `17471a6` — G11/G02/G07/G08 PARTIAL deepened (C `b71010b` sourceKind + hover sync; B `b057d2d` wave14 strip/Worker/shell; G `2bc48d3` prior-tip only). G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_b88443e.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`6ada5b0`) | Now (`b88443e`) | Note |
+|----|-------------------|-----------------|------|
+| **G11** | PARTIAL（sourceKind/hover 残） | **PARTIAL 加深** | `b71010b` sourceKind colors + setHoveredMark MET；PlotWidget 余量 → **未 CLOSED** |
+| **G02** | PARTIAL | **PARTIAL 加深** | `b057d2d` wave14 频率/窗/重叠 QLabel MET；live DSP → **未 CLOSED** |
+| **G07** | PARTIAL | **PARTIAL 加深** | `b057d2d` real-caps Worker + honest BLOCKED gaps MET；全 Qt Worker → **未 CLOSED** |
+| **G08** | PARTIAL | **PARTIAL 加深** | `b057d2d` 278/390 + aria + bottom min/range MET；full shell re-shot → **未 CLOSED** |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未发明路径 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_b88443e.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:57` Asia/Shanghai: Web tip **`6ada5b0`** vs desktop `17471a6` — G19 PARTIAL deepened (B `ad4b617` AdaptiveValueEdit-in-cell cols 4–7 + AnnotationEvidencePanel + browserSaveFile; G `03381ce` prior-tip only). G06 eye/bitstream + G17 recognition still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6ada5b0.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`6df15bc`) | Now (`6ada5b0`) | Note |
