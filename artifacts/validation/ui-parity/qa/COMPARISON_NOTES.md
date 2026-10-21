@@ -101,3 +101,13 @@ Shots: Detect caps/REAL_RUNTIME; G19 tree three-source/presentation; G07 bottom;
 | **ui_parity_pass_claimed** | **false** |
 
 Coverage: G08, G02 chart-header + physical caption, G07 dock, G18 display-summary, G19 fields + ProjectTree tooltip, G11 box-zoom.
+## Pack @ 8733cc1 (Bot-G, NOT PASS)
+
+| Field | Value |
+|-------|--------|
+| Sync tip | `8733cc10d77e8a17077d398c0d9ef9a4c07139ee` |
+| Pack | `qa/web-8733cc1/` |
+| Desktop | `17471a6` |
+| **ui_parity_pass_claimed** | **false** |
+
+Priority: CN tree chrome (`data-cn-chrome` / `desktop-cn-chrome`), DetectionCard, G11 axis-only pan. Adjacent: physical caption after pan.

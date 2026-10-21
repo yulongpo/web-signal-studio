@@ -1,0 +1,64 @@
+{
+  "id": "qa-web-8733cc1-cn-tree-detectioncard-axis-pan",
+  "tip_web": "8733cc10d77e8a17077d398c0d9ef9a4c07139ee",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g26_iq": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.sigmf-meta",
+  "captures": [
+    "01-cn-tree-chrome.png",
+    "01b-cn-tree-chrome-context.png",
+    "02-detection-card.png",
+    "02b-detection-card-crop.png",
+    "02c-detection-card-engine-row.png",
+    "02d-detection-engine-inventory.png",
+    "03-axis-only-pan-y-drag.png",
+    "03b-axis-only-pan-y-applied.png",
+    "03c-axis-only-pan-x-drag.png",
+    "03d-axis-only-pan-x-applied.png",
+    "04-physical-caption-after-axis-pan.png"
+  ],
+  "observations": {
+    "cn_tree": {
+      "cn_chrome": "true",
+      "presentation": "desktop-cn-chrome",
+      "text_snippet": "工程树\n清除\n◈\n演示工程\n2\n▾\nIQ 文件\n▣\ndemo_wideband.iq\nFc 1.2 GHz · Fs 100 M S/s\n▣\ndemo_narrow.sigmf\nFc 915 MHz · Fs 2 M S/s\n未读\n▾\n通道\n1\n◇\nNB-1\nFc 915 M · BW 200 k\n差异",
+      "has_cn_iq_files": true,
+      "kinds": [
+        "project",
+        "folder",
+        "file",
+        "channels",
+        "channel"
+      ]
+    },
+    "detection_card": {
+      "visible": true,
+      "object_name": "detectionCard",
+      "engine_select": true,
+      "spectrum_mode": "0",
+      "inventory_items": 156,
+      "card_text": "DetectionCard\n对照桌面 ui/detection/detection_card @ 17471a6\n模型 / .engine\nSCN · FFSCN:ffscn_epoch1200_dynamic_fp32.engine\nSCN · FFSCN:ffscn_epoch1200_fp32.engine\nSCN · SCN:scn_model.engine\n谱样式\n模型默认\n瞬时谱（窗末帧）\n平均谱\n最大谱\n最小谱\n时间策略\n采样区间\n时频窗口\n粗检测\n拆分突发\n检测模型清单（树内 .engine 可选）\nFFSCN:ffscn_epoch1200_dynamic_fp32.engine · present · .engine · 可选 · 已选 · File present (."
+    },
+    "axis_only_pan": {
+      "attr": "true",
+      "before": {
+        "xMin0": "0",
+        "xMax0": "0.0004192",
+        "yMin0": "-10000000",
+        "yMax0": "10000000"
+      },
+      "after_y": {
+        "yMin": "-6330406.737143882",
+        "yMax": "13669593.262856118",
+        "x_unchanged": true
+      },
+      "after_x": {
+        "xMin": "-0.000048957664233576635",
+        "xMax": "0.00037024233576642336",
+        "y_unchanged": true
+      }
+    },
+    "gaps": "No PASS. Desktop 17471a6 ref only. Pack prioritizes CN tree chrome, DetectionCard, axis-only pan @ 8733cc1."
+  }
+}

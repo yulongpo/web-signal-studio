@@ -131,3 +131,8 @@ Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. *
 
 - Tip `425cb40`. Evidence `qa/web-425cb40/` (G18/tooltip/G07/G02/G08/G19 + box-zoom + physical caption).
 - **ui_parity_pass_claimed: false**
+
+## Pack 8733cc1 (Bot-G, Asia/Shanghai 2026-10-21)
+
+- Tip `8733cc1`. Evidence `qa/web-8733cc1/` (CN tree chrome, DetectionCard, axis-only pan).
+- **ui_parity_pass_claimed: false**
