@@ -1,10 +1,11 @@
-﻿{
-  "name": "web",
+{
+  "name": "@wss/web",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc -b --pretty false",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",

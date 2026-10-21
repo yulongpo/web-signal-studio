@@ -30,14 +30,14 @@ def _freeze_request(body: TaskCreateRequest) -> dict[str, Any]:
     for idx in body.sampleIndices:
         if not isinstance(idx, str) or not idx.lstrip("-").isdigit():
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=422,
                 detail=f"sampleIndices must be decimal strings, got {idx!r}",
             )
     if body.sampleRange is not None:
         for label, val in (("start", body.sampleRange.start), ("end", body.sampleRange.end)):
             if not isinstance(val, str) or not val.lstrip("-").isdigit():
                 raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    status_code=422,
                     detail=f"sampleRange.{label} must be a decimal string, got {val!r}",
                 )
     frozen: dict[str, Any] = {
