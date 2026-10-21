@@ -98,6 +98,14 @@ export {
 } from "./interaction/viewTransform.js";
 
 export {
+  hitChartZone,
+  resolvePointerDragMode,
+  type ChartHitZone,
+  type ChartDragMode,
+  type PlotMargin,
+} from "./interaction/chartHitZone.js";
+
+export {
   sizeCanvasForDpr,
   applyCanvasDpr,
   resolveDevicePixelRatio,

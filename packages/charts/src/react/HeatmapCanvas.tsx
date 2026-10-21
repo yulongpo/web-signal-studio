@@ -32,6 +32,11 @@ import {
   type ViewDomain,
   type ViewState,
 } from "../interaction/viewTransform.js";
+import {
+  hitChartZone,
+  resolvePointerDragMode,
+  type ChartDragMode,
+} from "../interaction/chartHitZone.js";
 import { formatPhysicalCaptionPair } from "../axis/physicalCaption.js";
 import { HEATMAP_PLOT_MARGIN } from "./plotMargin.js";
 import {
@@ -61,15 +66,19 @@ export interface HeatmapCanvasProps {
   wheelZoomFactor?: number;
   /**
    * `uniform` zooms X and Y together.
-   * `desktop-axis` matches Qt Signal Studio: wheel on the plot or bottom axis
-   * zooms X only; wheel on the left axis zooms Y only. Drag on an axis pans
-   * that axis; drag on the plot pans both (or draws a box when gesture is box).
+   * `desktop-axis` matches Qt Signal Studio @ 17471a6: wheel on the plot or
+   * bottom axis zooms X only; wheel on the left axis zooms Y only. Drag on an
+   * axis pans that axis only (axis-only pan). Plot-body drag never pans under
+   * this model — it follows {@link gesture} (zoom-box / box).
    */
   wheelModel?: "uniform" | "desktop-axis";
   /**
-   * Plot-body drag: pan, draw a selection box, or zoom the view into a box
-   * whose width AND height are at least {@link BOX_ZOOM_MIN_EDGE_PX} CSS pixels (desktop PlotWidget parity).
-   * Axis drags still pan that axis.
+   * Plot-body drag when the pointer is inside the plot rect:
+   * - `zoom-box`: zoom the view into a box (both edges >= {@link BOX_ZOOM_MIN_EDGE_PX})
+   * - `box`: selection / ROI box
+   * - `pan`: with `desktop-axis`, plot-body pan is disabled (axis-only); with
+   *   `uniform`, legacy pan-both remains for demos.
+   * Axis-region drags always pan that axis.
    */
   gesture?: "pan" | "box" | "zoom-box";
   /**
@@ -153,7 +162,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     lastY: number;
     originX: number;
     originY: number;
-    mode: "pan-both" | "pan-x" | "pan-y" | "box" | "zoom-box";
+    mode: Exclude<ChartDragMode, "none">;
     before: ViewState;
   } | null>(null);
   const [boxCss, setBoxCss] = useState<{
@@ -544,12 +553,6 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     onCursorRef.current?.({ xValue, yValue, xCss, yCss });
   };
 
-  const zoneOf = (xCss: number, yCss: number, cssH: number) => {
-    if (xCss < MARGIN.left) return "left" as const;
-    if (yCss > cssH - MARGIN.bottom) return "bottom" as const;
-    return "plot" as const;
-  };
-
   const onPointerDown = (ev: ReactPointerEvent<HTMLDivElement>) => {
     if (!interactionEnabled || ev.button !== 0) return;
     const wrap = wrapRef.current;
@@ -557,15 +560,22 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     const rect = wrap.getBoundingClientRect();
     const xCss = ev.clientX - rect.left;
     const yCss = ev.clientY - rect.top;
-    const zone =
-      wheelModelRef.current === "desktop-axis"
-        ? zoneOf(xCss, yCss, rect.height)
-        : "plot";
-    let mode: "pan-both" | "pan-x" | "pan-y" | "box" | "zoom-box" = "pan-both";
-    if (zone === "left") mode = "pan-y";
-    else if (zone === "bottom") mode = "pan-x";
-    else if (gestureRef.current === "box") mode = "box";
-    else if (gestureRef.current === "zoom-box") mode = "zoom-box";
+    const cssW = rect.width;
+    const cssH = rect.height;
+    const desktop = wheelModelRef.current === "desktop-axis";
+    const zone = desktop
+      ? hitChartZone(xCss, yCss, cssW, cssH, MARGIN)
+      : "plot";
+    const mode = resolvePointerDragMode({
+      zone,
+      gesture: gestureRef.current,
+      axisOnlyPan: desktop,
+    });
+    if (mode === "none") {
+      // Axis-only pan: ignore plot-body pan and non-hit corners under desktop-axis.
+      emitCursor(xCss, yCss, cssW, cssH);
+      return;
+    }
     wrap.setPointerCapture(ev.pointerId);
     dragRef.current = {
       pointerId: ev.pointerId,
@@ -603,7 +613,11 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       preview.current?.noteInteraction();
       if (drag.mode === "box" || drag.mode === "zoom-box") {
         setBoxCss({ x0: drag.originX, y0: drag.originY, x1: xCss, y1: yCss });
-      } else {
+      } else if (
+        drag.mode === "pan-x" ||
+        drag.mode === "pan-y" ||
+        drag.mode === "pan-both"
+      ) {
         const { xAxis, yAxis } = readAxes(cssW, cssH);
         const next = panView(
           viewRef.current,
@@ -690,7 +704,10 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     const { xAxis, yAxis } = readAxes(rect.width, rect.height);
     const factor = wheelDeltaToZoomFactor(ev.deltaY, wheelZoomFactor);
     const desktop = wheelModelRef.current === "desktop-axis";
-    const onLeftAxis = xCss < MARGIN.left;
+    const wheelZone = desktop
+      ? hitChartZone(xCss, yCss, rect.width, rect.height, MARGIN)
+      : "plot";
+    const onLeftAxis = wheelZone === "y-axis";
     const before = {
       xDomain: { ...viewRef.current.xDomain },
       yDomain: { ...viewRef.current.yDomain },
@@ -717,6 +734,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       data-testid={testId}
       data-gesture={gesture}
       data-wheel-model={wheelModel}
+      data-axis-only-pan={wheelModel === "desktop-axis" ? "true" : "false"}
       data-box-zoom-min-px={BOX_ZOOM_MIN_EDGE_PX}
       data-box-zoom-min-edge-px={BOX_ZOOM_MIN_EDGE_PX}
       data-view-x-min={view.xDomain.min}
@@ -741,7 +759,12 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
         overflow: "hidden",
         background: "#0f1218",
         touchAction: interactionEnabled ? "none" : undefined,
-        cursor: gesture === "zoom-box" || gesture === "box" ? "crosshair" : undefined,
+        cursor:
+          gesture === "zoom-box" || gesture === "box"
+            ? "crosshair"
+            : wheelModel === "desktop-axis"
+              ? "default"
+              : undefined,
         ...style,
       }}
     >

@@ -144,6 +144,43 @@ test.describe('chart gestures and detection range', () => {
   });
 
 
+
+  test('axis drag pans only that axis (G11 axis-only pan)', async ({ page }) => {
+    await page.goto('/');
+    const { host, chart } = await waitChart(page);
+    await expect(host).toHaveAttribute('data-active-tool', 'navigate');
+    await expect(chart).toHaveAttribute('data-gesture', 'zoom-box');
+    await expect(chart).toHaveAttribute('data-axis-only-pan', 'true');
+    const box = await chart.boundingBox();
+    expect(box).toBeTruthy();
+    const xMin0 = await chart.getAttribute('data-view-x-min');
+    const xMax0 = await chart.getAttribute('data-view-x-max');
+    const yMin0 = await chart.getAttribute('data-view-y-min');
+    const yMax0 = await chart.getAttribute('data-view-y-max');
+
+    // Left / Y-axis drag: pan Y only (desktop Zone::YAxis).
+    await page.mouse.move(box!.x + 12, box!.y + box!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box!.x + 12, box!.y + box!.height / 2 + 48, { steps: 6 });
+    await page.mouse.up();
+    await expect.poll(async () => chart.getAttribute('data-view-y-min')).not.toBe(yMin0);
+    expect(await chart.getAttribute('data-view-x-min')).toBe(xMin0);
+    expect(await chart.getAttribute('data-view-x-max')).toBe(xMax0);
+
+    const yMin1 = await chart.getAttribute('data-view-y-min');
+    const yMax1 = await chart.getAttribute('data-view-y-max');
+
+    // Bottom / X-axis drag: pan X only (desktop Zone::XAxis).
+    await page.mouse.move(box!.x + box!.width / 2, box!.y + box!.height - 12);
+    await page.mouse.down();
+    await page.mouse.move(box!.x + box!.width / 2 + 64, box!.y + box!.height - 12, { steps: 6 });
+    await page.mouse.up();
+    await expect.poll(async () => chart.getAttribute('data-view-x-min')).not.toBe(xMin0);
+    expect(await chart.getAttribute('data-view-y-min')).toBe(yMin1);
+    expect(await chart.getAttribute('data-view-y-max')).toBe(yMax1);
+    expect(await chart.getAttribute('data-view-x-max')).not.toBe(xMax0);
+  });
+
   test('navigate box-drag zooms the view (G11)', async ({ page }) => {
     await page.goto('/');
     const { host, chart } = await waitChart(page);
