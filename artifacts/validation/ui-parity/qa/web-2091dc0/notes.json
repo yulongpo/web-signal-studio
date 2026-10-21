@@ -1,0 +1,74 @@
+{
+  "id": "qa-web-2091dc0-g08-menubar",
+  "tip_web_evidence": "2091dc0a879aa30a4bff3bd9cbd8280935a1d99a",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "tip_impl_b_g08": "498b2ac",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "captures": [
+    "01-g08-menubar-file-accels.png",
+    "01b-g08-file-menu-crop.png",
+    "02-g08-menubar-edit-accels.png",
+    "03-g08-menubar-view-accels.png",
+    "04-g08-menubar-strip.png",
+    "05-fold-g18-observe-multi-view.png",
+    "06-fold-g18-mod-stft.png",
+    "fold-web-42265bf/* (14 files)",
+    "fold-web-bd6a5dc/* (13 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE23_G08_MENU_SHORTCUTS.md",
+    "G18-NB-MOD-STFT-LINKED-HANDOFF.md",
+    "BOT_B_WAVE22_G02_STFT_N_SPECTRAL_SETTINGS.md",
+    "useMenuBarShortcuts.ts"
+  ],
+  "observations": {
+    "g08_menubar": {
+      "data_g08_shortcuts": "wave23",
+      "data_menubar_shortcuts": "wave23",
+      "fileAccels": {
+        "new": "Ctrl+N",
+        "open": "Ctrl+O",
+        "save": "Ctrl+S"
+      },
+      "editAccels": {
+        "undo": "Ctrl+Z",
+        "redo": "Ctrl+Y",
+        "del": "Del"
+      },
+      "viewAccels": {
+        "back": "Alt+Left",
+        "forward": "Alt+Right"
+      },
+      "shortcutLive": {
+        "g08": "wave23",
+        "wave": "wave23"
+      },
+      "keyboard_ctrl_n": "skipped-avoid-dialog-hang"
+    },
+    "spectral_soft": {
+      "strip_wave": "wave11 wave14 wave19 wave21 wave22",
+      "stft_n_drives": "wave22",
+      "has_wave22": true
+    },
+    "g18_observe": {
+      "wave_multi": "true",
+      "stft_linked": "true",
+      "psd_vline": "true",
+      "psd_source": "linked"
+    },
+    "g18_mod_stft": {
+      "mod_linked": "true",
+      "linked": "true",
+      "ready": "true"
+    },
+    "esc": {
+      "mod_linked": "false",
+      "linkedPinned": false
+    },
+    "supersedes": "web-663b522 / web-d7e6973 (CAO retarget A@2091dc0)"
+  },
+  "gaps": [],
+  "supersedes": "web-663b522 / web-d7e6973 (CAO retarget A@2091dc0)"
+}
