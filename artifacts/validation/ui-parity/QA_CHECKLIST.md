@@ -45,7 +45,7 @@ Capture into `artifacts/validation/ui-parity/qa/` (after PRE-2 IQ load):
 
 1. `qa-web-shell-default.png` — default shell (`app-shell`)
 2. `qa-web-wideband-with-iq.png` — wideband after `sigmf_data_demo`
-3. `qa-web-narrowband.png` — narrowband workspace (not stub-only if tip lands)
+3. `qa/web-6c17a53/06-narrowband.png` (+06b/06c/06d) — G06 four-tab workspace at tip `6c17a53`; stub cleared (prior `web-17937bb/06-narrowband.png` STALE stub). **ui_parity_pass_claimed: false**
 4. `qa-web-right-rail-display.png` / `detect.png` / `marker.png` / `channel.png`
 5. `qa-web-rail-collapsed.png`
 6. `qa-web-status-bar.png` — **G25** evidence (ready + t/f + file)
@@ -102,3 +102,4 @@ Smoke targets: `apps/web`, `services/local-compute`.
 ### UI screenshot pack @ 17937bb
 
 Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. **No PASS claimed.**
+

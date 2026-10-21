@@ -1,0 +1,3 @@
+﻿STALE stub capture @ tip 17937bb (narrowband_stub_visible: true).
+Superseded by artifacts/validation/ui-parity/qa/web-6c17a53/ at tip 6c17a53 (G06).
+Do not use this PNG for G06 stub-cleared evidence. ui_parity_pass_claimed: false.
