@@ -60,7 +60,7 @@ export function BottomPanel() {
   const [markLayer, setMarkLayer] = useState<MarkLayer>('all');
   const [qualityFilter, setQualityFilter] = useState<QualityFilter>('all');
   const [page, setPage] = useState(0);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  /** Hover comes from __wssM06.setHoveredMark (chart <-> table sync). */
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editNote, setEditNote] = useState('');
@@ -85,6 +85,7 @@ export function BottomPanel() {
   const snap = hook?.getState?.();
   const selectedIds = snap?.selectedMarkIds ?? [];
   const activeMarkId = snap?.activeMarkId ?? null;
+  const hoveredId = snap?.hoveredMarkId ?? null;
 
   const sampleRateHz = getIqFileSession()?.sampleRateHz ?? null;
 
@@ -1072,11 +1073,19 @@ export function BottomPanel() {
                           data-current={isCurrent ? 'true' : 'false'}
                           data-active={isCurrent ? 'true' : 'false'}
                           data-hovered={isHovered ? 'true' : 'false'}
+                          data-source-kind={m.sourceKind ?? ''}
+                          data-g11-hover-sync="true"
                           data-review={m.reviewStatus}
-                          onMouseEnter={() => setHoveredId(m.id)}
-                          onMouseLeave={() =>
-                            setHoveredId((id) => (id === m.id ? null : id))
-                          }
+                          onMouseEnter={() => {
+                            hook?.setHoveredMark?.(m.id);
+                            setM06Tick((t) => t + 1);
+                          }}
+                          onMouseLeave={() => {
+                            if (hook?.getState?.()?.hoveredMarkId === m.id) {
+                              hook?.setHoveredMark?.(null);
+                              setM06Tick((t) => t + 1);
+                            }
+                          }}
                           onClick={(e: MouseEvent<HTMLLIElement>) => {
                             const additive = e.metaKey || e.ctrlKey || e.shiftKey;
                             const prev = selectedIds;

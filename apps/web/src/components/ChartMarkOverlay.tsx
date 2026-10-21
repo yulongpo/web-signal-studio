@@ -10,6 +10,8 @@
  * Unselected polish @ 17471a6: dashed stroke + low fill; hover tip name · click-to-select.
  * Body/edge Move clamps to file fullRange (navFullTime x spectrogram freq),
  * not only the current zoomed view (desktop MarkEdit fullRange).
+ * sourceKind stroke/fill: ImportedLabel #65d2bd / Manual #edc56d / Algorithm #51c4e9
+ * (PlotWidget @ 17471a6). Hover via setHoveredMark syncs bottom annotation table.
  */
 import { useEffect, useState } from 'react';
 import type { AnnotationJson } from '@wss/contracts';
@@ -52,9 +54,25 @@ type BodyDrag = {
   f1: number;
 };
 
-function readMarks(): { marks: MarkRow[]; selected: string[]; active: string | null } {
+/** Desktop PlotWidget sourceColor @ 17471a6. */
+const SOURCE_KIND_STROKE: Record<string, string> = {
+  ImportedLabel: '#65d2bd',
+  Manual: '#edc56d',
+  Algorithm: '#51c4e9',
+};
+
+function sourceStroke(kind: string | undefined): string {
+  return (kind && SOURCE_KIND_STROKE[kind]) || SOURCE_KIND_STROKE.Algorithm;
+}
+
+function readMarks(): {
+  marks: MarkRow[];
+  selected: string[];
+  active: string | null;
+  hovered: string | null;
+} {
   const hook = window.__wssM06;
-  if (!hook) return { marks: [], selected: [], active: null };
+  if (!hook) return { marks: [], selected: [], active: null, hovered: null };
   const state = hook.getState();
   const marks = (hook.session.annotations.annotations ?? []).filter(
     (mark) => !mark.deleted,
@@ -63,7 +81,14 @@ function readMarks(): { marks: MarkRow[]; selected: string[]; active: string | n
     marks,
     selected: state.selectedMarkIds ?? [],
     active: state.activeMarkId ?? null,
+    hovered: state.hoveredMarkId ?? null,
   };
+}
+
+function setHoveredMark(id: string | null) {
+  const hook = window.__wssM06;
+  if (!hook?.setHoveredMark) return;
+  hook.setHoveredMark(id);
 }
 
 /** Desktop PlotWidget::handles order: corners + edge midpoints. */
@@ -94,8 +119,6 @@ export function ChartMarkOverlay({
 }: Props) {
   const [tick, setTick] = useState(0);
   const [bodyDrag, setBodyDrag] = useState<BodyDrag | null>(null);
-  /** Desktop setHoveredMark — drives unselected hover tip polish. */
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   useEffect(() => {
     const id = window.setInterval(() => setTick((n) => n + 1), 200);
     return () => window.clearInterval(id);
@@ -103,7 +126,7 @@ export function ChartMarkOverlay({
   void tick;
 
   if (!(cssW > 0) || !(cssH > 0) || !(sampleRateHz > 0)) return null;
-  const { marks, selected, active } = readMarks();
+  const { marks, selected, active, hovered: hoveredId } = readMarks();
   const axes = plotAxes(cssW, cssH, mode, xDomain, yDomain);
   // G11: clamp to file fullRange (desktop MarkEdit), not the zoomed view domain.
   const fileTime = fullTime ?? { min: axes.time.min, max: axes.time.max };
@@ -282,7 +305,7 @@ export function ChartMarkOverlay({
       data-g11-bounds-clamp="true"
       data-g11-file-fullrange-clamp="true"
       data-g11-unselected-pointer="true"
-      data-g11-unselected-polish="true"
+      data-g11-unselected-polish="true" data-g11-source-kind="true" data-g11-hover-sync="true"
       data-body-dragging={bodyDrag ? 'true' : 'false'}
       data-body-drag-mark={bodyDrag?.id ?? ''}
     >
@@ -292,6 +315,8 @@ export function ChartMarkOverlay({
         const isSelected = selected.includes(mark.id);
         const isCurrent = active === mark.id;
         const draggingThis = bodyDrag?.id === mark.id;
+        const kind = mark.sourceKind ?? "Algorithm";
+        const stroke = sourceStroke(kind);
         // Desktop updateHover @ 17471a6: selected -> SizeAll/edge; else hit -> PointingHand.
         const bodyCursor = resolveMarkBodyHoverCursor({
           selected: isSelected,
@@ -310,6 +335,8 @@ export function ChartMarkOverlay({
             data-hovered={hoveredId === mark.id ? 'true' : 'false'}
             data-body-dragging={draggingThis ? 'true' : 'false'}
             data-body-drag-cursor={bodyCursor ?? ''}
+            data-source-kind={kind}
+            data-g11-source-stroke="true"
             data-annotation-paint="desktop-multi"
             title={
               !isSelected
@@ -322,6 +349,9 @@ export function ChartMarkOverlay({
               width: box.width,
               height: box.height,
               cursor: bodyCursor,
+              // Desktop PlotWidget sourceColor stroke/fill (alpha via CSS).
+              ["--mark-source" as string]: stroke,
+              borderColor: stroke,
             }}
             onPointerDown={(event) => {
               event.stopPropagation();
@@ -365,10 +395,15 @@ export function ChartMarkOverlay({
               window.addEventListener('pointerup', onUp);
             }}
             onPointerEnter={() => {
-              setHoveredId(mark.id);
+              setHoveredMark(mark.id);
+              setTick((n) => n + 1);
             }}
             onPointerLeave={() => {
-              setHoveredId((id) => (id === mark.id ? null : id));
+              const hook = window.__wssM06;
+              if (hook?.getState()?.hoveredMarkId === mark.id) {
+                setHoveredMark(null);
+                setTick((n) => n + 1);
+              }
             }}
           >
             {!isSelected && hoveredId === mark.id ? (

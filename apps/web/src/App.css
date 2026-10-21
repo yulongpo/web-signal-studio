@@ -2168,12 +2168,47 @@ body,
   font-size: 12px;
 }
 /* G19 AnnotationPanel multi-select paint — desktop 17471a6 */
+/* G11 sourceKind stroke/fill @ 17471a6 PlotWidget sourceColor */
+.chart-mark-rect[data-source-kind="ImportedLabel"] {
+  border-color: #65d2bd;
+  background: rgba(101, 210, 189, 0.09);
+}
+.chart-mark-rect[data-source-kind="Manual"] {
+  border-color: #edc56d;
+  background: rgba(237, 197, 109, 0.09);
+}
+.chart-mark-rect[data-source-kind="Algorithm"] {
+  border-color: #51c4e9;
+  background: rgba(81, 196, 233, 0.09);
+}
+.chart-mark-rect[data-selected="true"][data-source-kind="ImportedLabel"] {
+  background: rgba(101, 210, 189, 0.18);
+}
+.chart-mark-rect[data-selected="true"][data-source-kind="Manual"] {
+  background: rgba(237, 197, 109, 0.18);
+}
+.chart-mark-rect[data-selected="true"][data-source-kind="Algorithm"] {
+  background: rgba(81, 196, 233, 0.18);
+}
+.chart-mark-rect[data-current="true"][data-source-kind="ImportedLabel"] {
+  background: rgba(101, 210, 189, 0.24);
+}
+.chart-mark-rect[data-current="true"][data-source-kind="Manual"] {
+  background: rgba(237, 197, 109, 0.24);
+}
+.chart-mark-rect[data-current="true"][data-source-kind="Algorithm"] {
+  background: rgba(81, 196, 233, 0.24);
+}
+/* Annotation table ForegroundRole sourceKind @ 17471a6 */
+.annotation-mark-row[data-source-kind="ImportedLabel"] { color: #65d2bd; }
+.annotation-mark-row[data-source-kind="Manual"] { color: #edc56d; }
+.annotation-mark-row[data-source-kind="Algorithm"] { color: #51c4e9; }
+
 /* G11 unselected polish @ 17471a6: dashed 1px + low fill (alpha~23); selected 2px; current 3px feel */
 .chart-mark-rect[data-unselected='true'] {
   border-style: dashed;
   border-width: 1px;
-  border-color: #51c4e9;
-  background: rgba(81, 196, 233, 0.09);
+  /* border-color/background from data-source-kind (desktop sourcePen) */
   box-shadow: none;
 }
 .chart-mark-rect[data-selected='true'],
