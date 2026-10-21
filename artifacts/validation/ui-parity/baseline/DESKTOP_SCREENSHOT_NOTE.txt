@@ -1,0 +1,8 @@
+﻿DESKTOP: LAUNCHED briefly from a143-native W6 runtime
+  D:\project\signal_studio_rebuild\out\tasks\wideband-ux-optimization\a143-native\W6\local-builds\dependency-refusal-published\missing-models\runtime\SignalStudio.exe
+Primary-screen capture: desktop-main-window-primary.png (may include desktop chrome; window may not have finished full paint in 5s).
+Also copied archival reference shots:
+  desktop-ref-wideband-release.png
+  desktop-ref-narrowband-release.png
+from docs/acceptance/chart-rendering-final/
+Stopped process after capture. Asia/Shanghai 2026-10-21 20:51:13
