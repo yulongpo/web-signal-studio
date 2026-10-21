@@ -1,5 +1,7 @@
 # UI 鐎靛湱鐡戝顔跨獩鐎孤ゎ吀閿涘湐ot-A 婢х偤鍣烘径宥嗙壋 @ 17471a6閿?
 
+> Bot-A `2026-10-21 22:37` Asia/Shanghai: Web **`0e31e6d`** vs desktop `17471a6` — G06 golden tighten + recognition BLOCKED assess; **G06 stays PARTIAL** (no flip). Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_0e31e6d.md`. Next main tip `e134bb6` (G19) noted only — not this audit subject. **No PASS.**
+
 > Bot-A `2026-10-21 22:30` Asia/Shanghai: Web **`ba868e4`** vs desktop `17471a6` — **G14 CLOSED**; G17 OPEN→**PARTIAL**; G07 OPEN→**PARTIAL**; G06/G02/G11/G13/G19 PARTIAL deepened. Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_ba868e4.md`. Unpushed cf1b3f8 draft abandoned. **No PASS.**
 
 > Bot-A `2026-10-21 22:20` Asia/Shanghai: Web **`23c38d0`** vs desktop `17471a6` -- short G01 delta (`06911b3`): BrandV2/window-controls + View fit/restore + File depth **MET**; **G01 stays PARTIAL** (not CLOSED). Full reopen NOT needed. Counts unchanged OPEN 9 / PARTIAL 13 / CLOSED 1. See `INCREMENTAL_23c38d0.md`. **No PASS.**
@@ -22,6 +24,16 @@
 
 
 
+## INCREMENTAL @ `0e31e6d`（相对 `ba868e4`；G06 golden）
+
+| ID | 先前 | @0e31e6d | 证据 |
+|----|------|----------|------|
+| **G06** | PARTIAL 加深 | **PARTIAL（golden+BLOCKED 评估）** | `9e65f0f` 星座/AM·FM·RMS/STFT 数值黄金；眼图 `EYE_TIMING_SYNC_MISSING`；比特流 `BITSTREAM_DEMOD_MISSING`；识别 `RECOGNITION_ENGINE_MISSING` + Bot-E FFSCN/SCN≠分类；无非测试实现 diff；**不 CLOSED** |
+| 其余 | 同 `ba868e4` | **不变** | tip 无实现代码 |
+
+计数：**OPEN 9 · PARTIAL 14 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_0e31e6d.md`。**无矩阵 PASS**。下一 tip `e134bb6`（G19）仅备注，非本审计对象。
+
+---
 ## INCREMENTAL @ `ba868e4`（相对 `c63f1de` / `23c38d0`；含 cf1b3f8）
 
 | ID | 先前 | @ba868e4 | 证据 |
