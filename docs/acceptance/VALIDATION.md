@@ -61,3 +61,10 @@ npx playwright test
 - Bot-G 仅在 `D:\project\wss-wt-g`（分支 `work/bot-g-qa`）操作；**禁止**在共享 `D:\project\web_signal_studio` 上 checkout 切走 `main`。
 - 包名统一 `@wss/*`（`@wss/web`、`@wss/contracts`、`@wss/dsp-wasm`、`@wss/charts`、`@wss/domain`、`@wss/file-io`）。
 - worktree 复跑证据：`artifacts/validation/p1g-wt/summary.txt`（lint/tsc/unit/build/e2e 均为 0）。
+
+## Remote CI — main f6a40c2 (2026-10-21)
+
+- Run: https://github.com/yulongpo/web-signal-studio/actions/runs/39583037963 — **failure** at lint
+- Cause: missing `@oxlint/binding-linux-x64-gnu` after `npm ci` (optional native binding)
+- Fix: `ensure oxlint linux binding` step in `.github/workflows/ci.yml` on `work/bot-g-qa`
+- Evidence: `docs/acceptance/evidence/ci-fail-f6a40c2_REPORT.md`

@@ -1,0 +1,10 @@
+﻿timestampAsiaShanghai=2026-10-21 18:15:29
+worktree=D:\project\wss-wt-g
+head=8c13686
+license_checker_prod_summary_exit=0
+license_checker_prod_json_exit=0
+license_checker_all_summary_exit=0
+flagged_license_tokens=
+repo_root_LICENSE=False
+github_repo_license_field=null
+note=Inventory only; CAO/legal decides LICENSE file. Flagged tokens need human review of exact SPDX.
