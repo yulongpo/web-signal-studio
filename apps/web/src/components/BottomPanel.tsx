@@ -70,6 +70,9 @@ export function BottomPanel() {
   const [editUpperMhz, setEditUpperMhz] = useState('');
   /** G19 Qt-like editCell: col 1 name, 4 startMs, 5 endMs, 6 centerMHz, 7 bwKHz */
   const [cellEdit, setCellEdit] = useState<null | { id: string; col: 1 | 4 | 5 | 6 | 7; draft: string }>(null);
+  /** Wave15 OS-dialog chrome stub (not native QFileDialog). */
+  const [exportSaveStatus, setExportSaveStatus] = useState('就绪');
+  const [exportFilter, setExportFilter] = useState<'json' | 'csv'>('json');
   const resizeStart = useRef<{ y: number; h: number } | null>(null);
 
   useEffect(() => {
@@ -593,8 +596,15 @@ export function BottomPanel() {
       mimeType: 'application/json',
       contents: annotationsText,
     }).then((r) => {
-      if (r.ok) appendShellLog(`G19 export JSON via ${r.method}`);
-      else if (r.reason !== 'cancelled') appendShellLog(`G19 export JSON failed: ${r.reason}`);
+      if (r.ok) {
+        setExportSaveStatus(`已保存 annotations.json · ${r.method}`);
+        appendShellLog(`G19 export JSON via ${r.method}`);
+      } else if (r.reason === 'cancelled') {
+        setExportSaveStatus('已取消');
+      } else {
+        setExportSaveStatus(`失败：${r.reason}`);
+        appendShellLog(`G19 export JSON failed: ${r.reason}`);
+      }
     });
   };
 
@@ -642,8 +652,15 @@ export function BottomPanel() {
       mimeType: 'text/csv',
       contents: lines.join('\n'),
     }).then((r) => {
-      if (r.ok) appendShellLog(`G19 export CSV via ${r.method} rows=${lines.length - 1}`);
-      else if (r.reason !== 'cancelled') appendShellLog(`G19 export CSV failed: ${r.reason}`);
+      if (r.ok) {
+        setExportSaveStatus(`已保存 annotations.csv · ${r.method} · ${lines.length - 1} 行`);
+        appendShellLog(`G19 export CSV via ${r.method} rows=${lines.length - 1}`);
+      } else if (r.reason === 'cancelled') {
+        setExportSaveStatus('已取消');
+      } else {
+        setExportSaveStatus(`失败：${r.reason}`);
+        appendShellLog(`G19 export CSV failed: ${r.reason}`);
+      }
     });
   };
 
@@ -864,24 +881,67 @@ export function BottomPanel() {
                     >
                       下一段
                     </button>
-                    <button
-                      type="button"
-                      data-testid="bottom-btn-export-json" data-browser-save="wave13"
-                      disabled={!hook}
-                      title="导出标记 JSON（exportJson）"
-                      onClick={exportAnnotationsJson}
+                    <div
+                      className="bottom-export-dialog-chrome"
+                      data-testid="bottom-export-dialog-chrome"
+                      data-os-dialog-chrome="wave15"
+                      data-native-qfiledialog="false"
                     >
-                      JSON
-                    </button>
-                    <button
-                      type="button"
-                      data-testid="bottom-btn-export-csv" data-browser-save="wave13"
-                      disabled={liveFiltered.length === 0}
-                      title="导出 CSV（活动表行；非伪造）"
-                      onClick={exportAnnotationsCsv}
-                    >
-                      CSV
-                    </button>
+                      <label className="bottom-export-filter" data-testid="bottom-export-filter-label">
+                        <span>过滤器</span>
+                        <select
+                          data-testid="bottom-export-filter-select"
+                          value={exportFilter}
+                          onChange={(e) => setExportFilter(e.target.value as 'json' | 'csv')}
+                          disabled={!hook}
+                        >
+                          <option value="json">JSON (*.json) — 工程交换</option>
+                          <option value="csv">CSV (*.csv) — 每活动段一行</option>
+                        </select>
+                      </label>
+                      <span
+                        className="bottom-export-suggested-path"
+                        data-testid="bottom-export-suggested-path"
+                        title="建议文件名（浏览器保存；非原生 QFileDialog 路径）"
+                      >
+                        {exportFilter === 'json' ? 'annotations.json' : 'annotations.csv'}
+                      </span>
+                      <button
+                        type="button"
+                        data-testid="bottom-btn-export-json"
+                        data-browser-save="wave13"
+                        data-os-dialog-chrome="wave15"
+                        disabled={!hook}
+                        title="导出标记 JSON（browserSaveFile · exportJson）"
+                        onClick={() => {
+                          setExportFilter('json');
+                          exportAnnotationsJson();
+                        }}
+                      >
+                        保存 JSON
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="bottom-btn-export-csv"
+                        data-browser-save="wave13"
+                        data-os-dialog-chrome="wave15"
+                        disabled={liveFiltered.length === 0}
+                        title="导出 CSV（browserSaveFile · 活动表行）"
+                        onClick={() => {
+                          setExportFilter('csv');
+                          exportAnnotationsCsv();
+                        }}
+                      >
+                        保存 CSV
+                      </button>
+                      <span
+                        className="bottom-export-status muted"
+                        data-testid="bottom-export-status"
+                        aria-live="polite"
+                      >
+                        {exportSaveStatus}
+                      </span>
+                    </div>
                   </div>
                   {selectedIds.length === 0 ? (
                     <span className="bottom-hint muted" data-testid="bottom-edit-empty-hint">
@@ -1021,7 +1081,7 @@ export function BottomPanel() {
                   </button>
                 </div>
               ) : null}
-              <AnnotationEvidencePanel annotation={evidenceAnnotation} />
+              <AnnotationEvidencePanel annotation={evidenceAnnotation} mode="auxiliary" />
 <div className="annotation-table-chrome" data-testid="bottom-annotation-table">
                                 <div
                   className="annotation-table-header annotation-table-header-full"
