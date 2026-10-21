@@ -213,6 +213,7 @@ def create_task(body: TaskCreateRequest) -> TaskCreateResponse:
             kind=body.kind,
             source_path=body.sourcePath,
             apply_update=_apply_update,
+            params=dict(body.params or {}),
         )
     else:
         start_stub_worker(

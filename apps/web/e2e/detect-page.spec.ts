@@ -501,4 +501,78 @@ test.describe('detection page', () => {
     await expect(page.getByTestId('detect-engine-inventory')).toBeVisible();
   });
 
+
+  test('DetectionCard selectable .engine picker + strategy/phase chrome', async ({ page }) => {
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify({
+          ...BLOCKED_CAPS,
+          models: [
+            {
+              id: 'ffscn:ffscn_epoch1200_dynamic_fp32.engine',
+              path: 'D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\ffscn-gui-iq-v1\\ffscn_epoch1200_dynamic_fp32.engine',
+              present: true,
+              notes: 'engine',
+            },
+            {
+              id: 'scn:scn_model.engine',
+              path: 'D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\scn-max-psd-v1\\scn_model.engine',
+              present: true,
+              notes: 'engine',
+            },
+            {
+              id: 'ffscn:legacy.pth',
+              path: 'D:\\project\\signal_studio_rebuild\\out\\ignored\\legacy.pth',
+              present: true,
+              notes: 'pth-not-allowed',
+            },
+          ],
+          runtime: {
+            ...BLOCKED_CAPS.runtime,
+            modelSearchRoots: [
+              'D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models',
+            ],
+            ffscnPresent: true,
+            scnPresent: true,
+            ffscnReady: false,
+            scnReady: false,
+          },
+        }),
+      });
+    });
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detection-card')).toBeVisible();
+    await expect(page.getByTestId('detection-engine-select')).toBeVisible();
+    await expect(page.getByTestId('detection-engine-select')).toHaveValue(
+      'ffscn:ffscn_epoch1200_dynamic_fp32.engine',
+    );
+    await page.getByTestId('detection-engine-select').selectOption('scn:scn_model.engine');
+    await expect(page.getByTestId('detection-engine-select')).toHaveValue('scn:scn_model.engine');
+    await expect(
+      page.locator('[data-testid="detect-engine-item"][data-model-id="scn:scn_model.engine"]'),
+    ).toHaveAttribute('data-selected', 'true');
+    await expect(
+      page.locator('[data-testid="detect-engine-item"][data-pth="true"]').first(),
+    ).toHaveAttribute('data-selectable', 'false');
+    await page.getByTestId('detection-strategy-roi').click();
+    await expect(page.getByTestId('detection-time-strategy')).toHaveAttribute(
+      'data-strategy',
+      'roi',
+    );
+    await expect(page.getByTestId('detection-spectrum-mode')).toBeVisible();
+    await expect(page.getByTestId('detection-preflight')).toBeVisible();
+    await expect(page.getByTestId('detect-engine-inventory')).toHaveAttribute(
+      'data-selectable-count',
+      '2',
+    );
+  });
+
 });

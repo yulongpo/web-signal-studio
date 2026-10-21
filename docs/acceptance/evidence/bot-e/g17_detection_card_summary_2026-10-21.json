@@ -1,0 +1,32 @@
+{
+  "matrix_pass_claimed": false,
+  "task": "G17 DetectionCard + selectable .engine inventory/wiring vs desktop 17471a6",
+  "baseline": "23412f2886eee00781ac070ef38c24425fa9cfa2",
+  "baseline_short": "23412f2",
+  "branch": "work/bot-e-g17-detection-card",
+  "desktop_ref": "17471a6 (signal_studio_rebuild; ui/detection/detection_card.*)",
+  "cao_incremental": "artifacts/validation/ui-parity/INCREMENTAL_425cb40.md (G17 PARTIAL)",
+  "closed_this_tip": [
+    "DetectionCard chrome: profile row (model/.engine + spectrum mode)",
+    "Selectable .engine picker (select + inventory pick); .pth data-selectable=false (G26)",
+    "Time strategy sample/roi/coarse + splitBursts draft",
+    "Draft note / preflight / run summary / 5-step phase bar",
+    "createTask params.modelId/enginePath/spectrumMode/timeStrategy/splitBursts",
+    "local-compute honors selected .engine under model roots only (family match)"
+  ],
+  "remaining_partial_or_blocked": [
+    "Full Qt DetectionCard parameter grid (hop/noise/edge/smooth/minOn/Off etc.) still PARTIAL",
+    "Range/segment/ROI paired fields beyond sampleRange already present — deeper parity residual",
+    "Narrowband recognition stays BLOCKED (no recognition package)",
+    "G17 not CLOSED; matrix PASS not claimed"
+  ],
+  "verification": {
+    "pytest_degrade": "67 passed (LOCAL_COMPUTE_DISABLE_TORCH=1, DISABLE_TENSORRT=1) incl. test_selected_engine",
+    "e2e_added": [
+      "DetectionCard selectable .engine picker + strategy/phase chrome"
+    ],
+    "matrix_pass_claimed": false
+  },
+  "tip": "2b1d6a2a73ac4c98a14a54130003e70a37fa87b8",
+  "tip_short": "2b1d6a2"
+}
