@@ -42,6 +42,12 @@ export interface MainSpectrogramResult {
   sampleRateHz: number;
   /** Actual STFT analysis params used (source of truth for SpecParamStrip). */
   fftSize: number;
+  /**
+   * Desktop-equivalent analysis window length (pre-PoT when auto N/B).
+   * Explicit fft path: equals fftSize (web is PoT-only). Auto N/B: resolveAnalysisSamples
+   * count before webFftSizeFromAnalysisSamples adaptation; fftSize is the post-PoT engine size.
+   */
+  analysisSamples: number;
   hopSize: number;
   window: SpectralWindowName;
   overlap: number;
@@ -148,6 +154,8 @@ export async function computeMainSpectrogram(
   const toneHz = options.toneHz ?? ([150_000, -220_000] as [number, number]);
 
   let autoNb = false;
+  /** Pre-PoT desktop-equivalent length; equals fftSize on explicit PoT path. */
+  let analysisSamples = fftSize;
   let segmentMilliseconds: number;
   if (options.segmentMilliseconds === 0) {
     if (
@@ -165,6 +173,7 @@ export async function computeMainSpectrogram(
       points: options.analysisPoints,
       segmentMilliseconds: 0,
     });
+    analysisSamples = plan.analysisSamples;
     const resolved = webFftSizeFromAnalysisSamples(plan.analysisSamples);
     const overlap = hopSize > 0 && fftSize > 0 ? 1 - hopSize / fftSize : 0.75;
     fftSize = resolved;
@@ -224,6 +233,7 @@ export async function computeMainSpectrogram(
       sourceLabel: SYNTHETIC_SOURCE_LABEL,
       sampleRateHz,
       fftSize,
+      analysisSamples,
       hopSize,
       window,
       overlap: overlapFromHop(fftSize, hopSize),

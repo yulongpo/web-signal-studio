@@ -47,6 +47,7 @@ describe('computeMainSpectrogram', () => {
     expect(result.timeSec.max).toBeGreaterThan(0);
     expect(result.window).toBe('hann');
     expect(result.fftSize).toBe(256);
+    expect(result.analysisSamples).toBe(256);
     expect(result.hopSize).toBe(64);
     expect(result.overlap).toBeCloseTo(0.75, 10);
     expect(result.method).toBe('welch');
