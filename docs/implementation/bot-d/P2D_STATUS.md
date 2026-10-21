@@ -1,44 +1,32 @@
 # Bot-D P2-D status
 
 - updated_at: 2026-10-21 (Asia/Shanghai)
-- stage: Package E — narrowband DDC E2E numerical acceptance hardening
+- stage: Package M-02 — RAW / SigMF / WAV chunked-read fixtures + evidence
 - worktree: D:\\project\\wss-wt-d
 - branch: work/bot-d-dsp
-- base: f9f4616 (origin/main tip at package start; includes Bot-G re-review + prior M-07)
-- package_scope: @wss/*
+- base: 1931398 (origin/main tip at package start; M-07 already PASS by QA)
+- package_scope: @wss/file-io (+ docs evidence)
 - shared_tree (D:\\project\\web_signal_studio): **no writes**
 - rebuild: **read-only reference**
 - MainChartHost: **untouched** (Bot-B)
-- narrowband UI stub: **untouched** (no fake demod)
-- ACCEPTANCE_MATRIX M-07: **not** marked PASS (`matrix_pass_claimed: false`; QA/Bot-G)
+- ACCEPTANCE_MATRIX M-02: **not** marked PASS (`matrix_pass_claimed: false`; QA/Bot-G)
 
-## Delivered (Package E)
+## Delivered (M-02)
 
-### E2E helper (web)
-- `apps/web/src/dsp/ddcFromChunkedReader.ts`
-  - ChunkedReader → `DspWorkerClient.processDdc` → optional baseband STFT/PSD
-  - AbortSignal cancel; required `sourceLabel` (no silent fake IQ)
-  - Params: `loOffsetHz`, interp/decim, optional `firTaps`
-
-### Goldens / tests
-- `apps/web/src/dsp/ddcFromChunkedReader.test.ts`
-- `packages/dsp-wasm/src/m07-narrowband-ddc-e2e.golden.test.ts`
-  - Fixture WAV → multi-chunk read → Worker DDC → DC peak
-  - Two-tone image rejection
-  - Abort mid-DDC
-  - JS `ReferenceDdcEngine` vs `WasmReferenceDdcEngine` (eps ≤ 2e-5)
+### Tests
+- `packages/file-io/src/m02-chunked-formats.golden.test.ts`
+  - RAW: describe/open header/trailer, ranged IQ, empty/one/past-EOF, available-prefix, maxBytes budget, AbortSignal, oversized header reject
+  - SigMF: datatype/meta parse, openSigmf boundaries + cancel, labeled e2e `tiny.sigmf-*` (128 frames)
+  - WAV: describeWav + empty/one/past-EOF; BlobChunkedReader ranged + available-prefix + abort; ArrayBuffer cancel
+- Prior suites kept green: `chunked-reader.test.ts`, `raw-sigmf.test.ts`, `wav-iq.test.ts`
 
 ### Evidence (reviewable; no PASS claim)
-- `docs/acceptance/evidence/bot-d/m07_narrowband_ddc_e2e_2026-10-21.md`
-- `docs/acceptance/evidence/bot-d/m07_narrowband_ddc_e2e_2026-10-21.json`
-
-### Bot-B assist (small)
-- `createBrowserDspWorkerClientPreferWasmFft()` on dsp-client
-- Wiring doc updated with DDC helper copy-paste
-- Does **not** replace narrowband stub UI
+- `docs/acceptance/evidence/bot-d/m02_raw_sigmf_wav_chunked_2026-10-21.md`
+- `docs/acceptance/evidence/bot-d/m02_raw_sigmf_wav_chunked_2026-10-21.json`
+- Dual-write mirror: `artifacts/validation/bot-d/` (gitignore whitelisted)
 
 ## Prior packages
-- M-07: WASM FIR / rational resample / LO mix + DDC golden
+- M-07: narrowband DDC e2e + FIR/resample (PASS by QA @ tip including 1931398)
 - C: WASM STFT + optional Worker `wasm-fft`
 - B: Emscripten FFT/PSD
 - A: IQ WAV + FSA → STFT Worker helpers
@@ -46,8 +34,8 @@
 ## Verify
 
 ```
-npm run typecheck -w @wss/web
-npx vitest run packages/dsp-wasm
-npx vitest run apps/web/src/dsp/ddcFromChunkedReader.test.ts
 npx vitest run packages/file-io
+npm run typecheck -w @wss/web
 ```
+
+Expected: file-io **31 passed**; web typecheck **PASS**.

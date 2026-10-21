@@ -1,0 +1,71 @@
+{
+  "id": "m02_raw_sigmf_wav_chunked_2026-10-21",
+  "date": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "owner": "bot-d",
+  "worktree": "D:\\\\project\\\\wss-wt-d",
+  "branch": "work/bot-d-dsp",
+  "baseline_tip": "1931398",
+  "commit": "PENDING_STAMP",
+  "matrix_id": "M-02",
+  "matrix_pass_claimed": false,
+  "status": "WIP_awaiting_QA",
+  "acceptance_matrix_action": "none_do_not_flip_PASS",
+  "fixtures": {
+    "kind": "synthetic_labeled",
+    "live_capture_claimed": false,
+    "raw": "CI16 LE IQ ramp via makeSyntheticCi16Buffer (header/trailer 0xaa/0xbb)",
+    "sigmf": "makeSyntheticSigmfMeta + openSigmfArrayBuffer; also apps/web/e2e/fixtures/tiny.sigmf-{meta,data} (512 B / 128 frames, labeled synthetic)",
+    "wav": "PCM16 LE stereo IQ via buildPcm16LeStereoIqWav + openIqWavFromArrayBuffer / openIqWavFromBlob"
+  },
+  "key_assertions": {
+    "formats_covered": ["RAW", "SigMF", "WAV"],
+    "boundaries": [
+      "empty_range",
+      "one_frame",
+      "past_EOF_truncatedToAvailable",
+      "available_prefix_partial",
+      "maxBytes_chunk_budget",
+      "AbortSignal_cancel",
+      "header_trailer_skip",
+      "oversized_header_reject"
+    ],
+    "tiny_sigmf_total_samples": 128,
+    "tiny_sigmf_sample_rate_hz": 1000000,
+    "tiny_sigmf_center_hz": 915000000
+  },
+  "commands": [
+    "npx vitest run packages/file-io",
+    "npm run typecheck -w @wss/web"
+  ],
+  "test_files": [
+    "packages/file-io/src/m02-chunked-formats.golden.test.ts",
+    "packages/file-io/src/chunked-reader.test.ts",
+    "packages/file-io/src/raw-sigmf.test.ts",
+    "packages/file-io/src/wav-iq.test.ts"
+  ],
+  "helper_files": [
+    "packages/file-io/src/raw-reader.ts",
+    "packages/file-io/src/sigmf-reader.ts",
+    "packages/file-io/src/sigmf-meta.ts",
+    "packages/file-io/src/wav-reader.ts",
+    "packages/file-io/src/blob-chunked-reader.ts",
+    "packages/file-io/src/chunked-reader.ts"
+  ],
+  "dual_write": {
+    "docs": "docs/acceptance/evidence/bot-d/",
+    "artifacts": "artifacts/validation/bot-d/",
+    "gitignore_note": "artifacts/validation/bot-d/*.json|*.md whitelisted like bot-c"
+  },
+  "verify": {
+    "typecheck_web": "PASS",
+    "vitest_file_io": "PASS 4 files, 31 passed"
+  },
+  "pass_counts": {
+    "file_io_tests": 31,
+    "m02_golden_tests": 12,
+    "prior_file_io_tests": 19
+  },
+  "commit_resolve": "git log -1 --format=%H --grep=M-02 RAW/SigMF/WAV",
+  "reported_separately_to_cao": true
+}

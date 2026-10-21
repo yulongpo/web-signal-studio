@@ -24,3 +24,8 @@ playwright-report/
 test-results/
 *.user
 CMakeUserPresets.json
+
+!artifacts/validation/bot-d/
+artifacts/validation/bot-d/*
+!artifacts/validation/bot-d/*.json
+!artifacts/validation/bot-d/*.md
