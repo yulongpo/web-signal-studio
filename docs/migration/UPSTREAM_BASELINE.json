@@ -39,5 +39,13 @@
     "Screenshots alone do not CLOSE (Bot-B/Bot-G no PASS; Bot-A agrees)"
   ],
   "iqConstraint": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo",
-  "modelConstraint": "TensorRT *.engine under rebuild tree only (e.g. out\\vs2026-qt611-release_bin\\detection-models\\...)"
+  "modelConstraint": "TensorRT *.engine under rebuild tree only (e.g. out\\vs2026-qt611-release_bin\\detection-models\\...)",
+  "web_tip": "ef2713a735cc96407ff2dcf7156f08fffb74a6a3",
+  "web_tip_short": "ef2713a",
+  "desktop_tip": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "desktop_branch": "rebuild/a143-native",
+  "audit_branch": "work/bot-a-audit",
+  "audit_base_main": "905cdadda26b0ef453256be8352a30824851addf",
+  "last_incremental": "INCREMENTAL_ef2713a.md",
+  "asia_shanghai": "2026-10-21 21:55:00"
 }

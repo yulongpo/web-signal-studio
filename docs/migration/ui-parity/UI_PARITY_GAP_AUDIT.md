@@ -2,9 +2,9 @@
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:50:00+（rebase `d8297d1` G01+G06） |
+P26-10-21 21:55:00+（rebase `ef2713a` G06 DDC） |
 | 复核方 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
-| **Web tip（origin/main）** | **`d8297d140b0091a91d56b7c4d7b705a9fc3d4567`**（`d8297d1` = G06 `95e24d0`/`6c17a53` + G01 MenuBar） |
+| **Web tip（origin/main）** | **`ef2713a735cc96407ff2dcf7156f08fffb74a6a3`**（`d8297d1` = G06 `95e24d0`/`6c17a53` + G01 MenuBar） |
 | **桌面上游 tip** | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`rebuild/a143-native`） |
 | 先验 Bot-A 文档 | `866e699` / G01–G26（对照 Web 当时 `be885f2`、上游 `0f108d0`，本地路径证据 `696ce12`） |
 | 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6`（fetch 后与远端一致） |
@@ -32,9 +32,9 @@
 
 **未新增独立 G27**：上述全部折叠进既有 G02/G06/G18/G19 的加严 PASS，避免 ID 漂移。
 
-### B0. Web `main@d8297d1`（G01+G06；相对 `fb2e020`）（G06 壳 `6c17a53` + 截图；相对 `fb2e020`）
+### B0. Web `main@ef2713a`（G01+G06；相对 `fb2e020`）（G06 壳 `6c17a53` + 截图；相对 `fb2e020`）
 
-> 完整增量：`INCREMENTAL_d8297d1.md`。截图包 `qa/web-6c17a53/`（stub=false，**no PASS**）。**G06 = PARTIAL（非 CLOSED）**。
+> 完整增量：`INCREMENTAL_ef2713a.md（相对 d8297d1；观察页 DDC MET） / 历史 `INCREMENTAL_d8297d1.md``。截图包 `qa/web-6c17a53/`（stub=false，**no PASS**）。**G06 = PARTIAL（非 CLOSED）**。
 
 ### B0b. Web `main@fb2e020`（历史） 相对 `17937bb` / Bot-A `1be860d`（本轮截图 rebase）
 
@@ -45,7 +45,7 @@
 | G03 | PARTIAL | NavChrome+NavigationChart | `02-tri-chart-hosts`；滚轮仍缺 |
 | G04 | PARTIAL | raw IQ 代码路径 | `05-aux-wave-or-psd`；Bot-G 未 PASS |
 | G05 | **CLOSED** | 82/205+拖+双击 | hosts/splitters 可见；CLOSED 仍以代码为准 |
-| G06 | OPEN→**PARTIAL @6c17a53** | was stub @fb2e020 | 历史截图行；以本 tip NarrowbandWorkspace 四页壳为准（真图未 CLOSED） |
+| G06 | OPEN->**PARTIAL @6c17a53**; **DDC sub MET @ef2713a** | was stub @fb2e020 | observe-page real Worker DDC; mod/DL/demod still shell; not CLOSED |
 | G17 | OPEN | Detect 精简 | `08-rail-detect` 页级；engine picker 未验 |
 | G25 | DOCS | StatusBar | ~28px+文件名；无 gesture-hint |
 | G26 | PARTIAL | demo IQ | 捕获加载 `0000000`；Detect `.engine` 列表未验 |
@@ -118,7 +118,7 @@
 | G03 | 布局 | 全局时间导航（已嵌入 NavigationChart） | `navigationPlot` | `NavChrome`+`NavigationChart` @`17937bb` | **P0** | **PARTIAL** | 真实时间窗+拖窗+chrome；补滚轮改窗宽 |
 | G04 | 布局 | 辅助图 Wave/PSD（派生曲线） | `auxPlot` | `auxWaveRawIq`/`sigmf_data_demo` IqRms @`17937bb` | **P0** | **PARTIAL** | Wave/PSD 切换；Wave=raw IQ 代码已落地；待 QA 视觉 |
 | G05 | 布局 | 垂直 splitter（默认已对齐 82/205） | `graphSplitter` 82/205 | `VerticalSplitter` 默认 **82/205** @`17937bb` | **P0** | **CLOSED** | 可拖+双击复位；默认对齐 82/205 |
-| G06 | 布局 | 窄带四页壳（stub 已替换） | `NarrowbandWorkspace`+`a64117e` | `NarrowbandWorkspace.tsx` @`6c17a53`；`qa/web-6c17a53/` stub=false；ChartPanel 无真 DDC | **P0** | **PARTIAL** | 真 Wave/PSD/STFT；调制/识别/解调 chrome；标签「工作台」；截图不 CLOSED |
+| G06 | layout | narrowband multi-page (stub replaced) | NarrowbandWorkspace+a64117e | NarrowbandObserveCharts+narrowbandObserveDdc @ef2713a (observe DDC MET); shell @6c17a53; mod/DL/demod still shell | **P0** | **PARTIAL** | mod/DL/demod chrome; title workbench; channel-linked/interactive STFT; item not CLOSED |
 | G07 | 布局 | 缺底栏 | `bottomContent_` | 无 | **P0** | OPEN | 三标签；~29/150 |
 | G08 | 布局 | 栏宽不一致 | 278/390 | 220/280 | **P1** | OPEN | 左~278 右~390；收起~38 |
 | G09 | 布局 | 缺主图底条 | UI-28 | MISSING | **P1** | OPEN | 游标/范围/基于标记创建通道 |
@@ -167,5 +167,7 @@ G21–G25。
 
 ## 结论
 
-桌面仍 **`17471a6`**。Web tip **`d8297d1`** = G06（`6c17a53`+`web-6c17a53`）+ G01 MenuBar。**G01 OPEN→PARTIAL**；**G06 保持 PARTIAL**；截图不单独 CLOSED。OPEN 10 / PARTIAL 12 / DOCS 1 / CLOSED 1=G05。**无矩阵 PASS**。详见 `INCREMENTAL_d8297d1.md`。
+桌面仍 **`17471a6`**。Web tip **`ef2713a`** = G06 观察页 DDC（`a145d21`）+ 既有壳/G01；**G01 PARTIAL**；**G06 保持 PARTIAL（DDC 子项 MET）**；OPEN 10 / PARTIAL 12 / DOCS 1 / CLOSED 1=G05；**无矩阵 PASS**。详见 `INCREMENTAL_ef2713a.md`。
 0d68e9/NarrowbandWorkspace.tsx）。相对 INCREMENTAL_fb2e020：**G06 OPEN→PARTIAL**（stub 已替换；真 DDC 图与四页 chrome 未 CLOSED）；OPEN 11 / PARTIAL 11 / DOCS 1 / CLOSED 1=G05。**无矩阵 PASS**。详见 INCREMENTAL_d8297d1.md。
+
+> Bot-A 2026-10-21 21:55 Asia/Shanghai Web tip **ef2713a**: observe-page DDC criterion MET; **G06 stays PARTIAL**; G01 unchanged PARTIAL; OPEN 10 / PARTIAL 12 / DOCS 1 / CLOSED 1; see INCREMENTAL_ef2713a.md.
