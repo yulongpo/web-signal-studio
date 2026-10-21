@@ -3018,3 +3018,19 @@ span[data-editable-col]:hover {
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
 }
+
+
+/* G02 wave25 — blocked STFT methods honesty list */
+.overflow-blocked-methods {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  font-size: 11px;
+  opacity: 0.7;
+}
+.overflow-blocked-methods li[data-blocked="true"] {
+  color: var(--muted, #888);
+}
+.overflow-item input[type="number"]:disabled {
+  opacity: 0.45;
+}

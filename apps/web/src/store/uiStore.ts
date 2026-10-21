@@ -12,6 +12,7 @@ import type {
   StftSupportedMethod,
   SpectrumStatisticName,
 } from '@wss/contracts';
+import { DEFAULT_KAISER_BETA } from '@wss/contracts';
 import {
   openProjectFromJsonText,
   saveProjectToJsonText,
@@ -84,6 +85,8 @@ export interface UiState {
   stftWindowPref: SpectralWindowName;
   /** G02 chrome pref: desired overlap ratio [0,1). */
   stftOverlapPref: number;
+  /** G02 chrome pref: Kaiser beta when window=kaiser (drives next compute; != dspKaiserBeta publish). */
+  stftKaiserBetaPref: number;
   paletteId: string;
   auxChartKind: AuxChartKind;
   /** G03 full capture time extent (seconds). */
@@ -245,6 +248,7 @@ export interface UiState {
   setStftN: (n: number) => void;
   setStftWindowPref: (w: SpectralWindowName) => void;
   setStftOverlapPref: (overlap: number) => void;
+  setStftKaiserBetaPref: (beta: number) => void;
   setPaletteId: (id: string) => void;
   setAuxChartKind: (kind: AuxChartKind) => void;
   setNavWindowTime: (
@@ -335,6 +339,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   stftN: 1024,
   stftWindowPref: 'hann',
   stftOverlapPref: 0.75,
+  stftKaiserBetaPref: DEFAULT_KAISER_BETA,
   paletteId: 'viridis',
   auxChartKind: 'wave',
   navFullTime: { min: 0, max: 1 },
@@ -468,6 +473,12 @@ export const useUiStore = create<UiState>((set, get) => ({
       stftOverlapPref: Number.isFinite(overlap)
         ? Math.min(Math.max(overlap, 0), 0.999999)
         : 0.75,
+    }),
+  setStftKaiserBetaPref: (beta) =>
+    set({
+      stftKaiserBetaPref: Number.isFinite(beta)
+        ? Math.min(Math.max(beta, 0), 30)
+        : DEFAULT_KAISER_BETA,
     }),
   setPaletteId: (id) => set({ paletteId: id }),
   setAuxChartKind: (kind) => set({ auxChartKind: kind }),

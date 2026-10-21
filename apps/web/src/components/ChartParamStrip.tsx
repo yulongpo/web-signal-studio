@@ -4,6 +4,12 @@
  * f9f05bb overflow focus (Esc / autofocus). Open IQ lives in overflow.
  */
 import { useEffect, useRef, useState } from 'react';
+import {
+  DEFAULT_KAISER_BETA,
+  STFT_BLOCKED_METHODS,
+  STFT_SPECTRUM_STATISTIC_STATUS,
+  STFT_SUPPORTED_METHODS,
+} from '@wss/contracts';
 import { useUiStore } from '../store/uiStore';
 import {
   clearOpenedIq,
@@ -106,6 +112,12 @@ export function SpecParamStrip() {
   const dspFftOverlap = useUiStore((s) => s.dspFftOverlap);
   const dspFftHopSize = useUiStore((s) => s.dspFftHopSize);
   const dspFftSizeActive = useUiStore((s) => s.dspFftSizeActive);
+  const dspSpectralMethod = useUiStore((s) => s.dspSpectralMethod);
+  const dspSegmentMs = useUiStore((s) => s.dspSegmentMs);
+  const dspSpectrumStatistic = useUiStore((s) => s.dspSpectrumStatistic);
+  const dspKaiserBeta = useUiStore((s) => s.dspKaiserBeta);
+  const stftKaiserBetaPref = useUiStore((s) => s.stftKaiserBetaPref);
+  const setStftKaiserBetaPref = useUiStore((s) => s.setStftKaiserBetaPref);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -196,6 +208,20 @@ export function SpecParamStrip() {
     dspFftSizeActive == null || !Number.isFinite(dspFftSizeActive)
       ? '—'
       : String(dspFftSizeActive);
+  const methodLabel = dspSpectralMethod ?? '—';
+  const segmentMsLabel =
+    dspSegmentMs == null || !Number.isFinite(dspSegmentMs)
+      ? '—'
+      : `${dspSegmentMs.toFixed(3)} ms`;
+  // Desktop STFT has no SpectrumStatistic — always NA (D: NA_PSD_ONLY).
+  const statisticLabel =
+    dspSpectrumStatistic == null
+      ? `NA (${STFT_SPECTRUM_STATISTIC_STATUS})`
+      : dspSpectrumStatistic;
+  const kaiserBetaLabel =
+    dspKaiserBeta == null || !Number.isFinite(dspKaiserBeta)
+      ? '—'
+      : String(dspKaiserBeta);
   const hasWindow = dspFftWindow != null;
   const hasOverlap = dspFftOverlap != null && Number.isFinite(dspFftOverlap);
 
@@ -203,7 +229,7 @@ return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22" data-strip-dsp="wave19 wave21" data-stft-n-drives-compute="wave22"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25" data-strip-dsp="wave19 wave21 wave25" data-stft-n-drives-compute="wave22"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -414,6 +440,76 @@ return (
         >
           {fftActiveLabel}
         </span>
+
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-method"
+          data-strip-wave="wave25"
+          title="Spectral method (D publish; only welch driveable)"
+        >
+          Method
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-value-method"
+          data-dsp-spectral-method={dspSpectralMethod ?? ''}
+          data-strip-empty={dspSpectralMethod == null ? 'true' : 'false'}
+          data-strip-wave="wave25"
+        >
+          {methodLabel}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-segment-ms"
+          data-strip-wave="wave25"
+          title="Segment ms derived from fftSize/fs (D dspSegmentMs)"
+        >
+          SegMs
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-value-segment-ms"
+          data-dsp-segment-ms={dspSegmentMs == null ? '' : String(dspSegmentMs)}
+          data-strip-empty={dspSegmentMs == null ? 'true' : 'false'}
+          data-strip-wave="wave25"
+        >
+          {segmentMsLabel}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-statistic"
+          data-strip-wave="wave25"
+          data-statistic-status={STFT_SPECTRUM_STATISTIC_STATUS}
+          title="SpectrumStatistic is PSD-only on desktop STFT (NA)"
+        >
+          Stat
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-value-statistic"
+          data-dsp-spectrum-statistic={dspSpectrumStatistic ?? ''}
+          data-strip-empty="true"
+          data-strip-wave="wave25"
+        >
+          {statisticLabel}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-kaiser-beta"
+          data-strip-wave="wave25"
+          title="Kaiser beta (D publish when window=kaiser)"
+        >
+          β
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-value-kaiser-beta"
+          data-dsp-kaiser-beta={dspKaiserBeta == null ? '' : String(dspKaiserBeta)}
+          data-strip-empty={dspKaiserBeta == null ? 'true' : 'false'}
+          data-strip-wave="wave25"
+        >
+          {kaiserBetaLabel}
+        </span>
 <span
           className="chart-strip-qlabel"
           data-testid="chart-strip-qlabel-dsp-source"
@@ -535,6 +631,81 @@ return (
                   ))}
                 </select>
               </label>
+              <div
+                className="overflow-item overflow-qlabel-only"
+                data-testid="overflow-spectral-method"
+                data-strip-wave="wave25"
+              >
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-method">谱估计方法</span>
+                <select
+                  data-testid="select-stft-method"
+                  value="welch"
+                  disabled
+                  title="Only welch is driveable (D StftRequest)"
+                >
+                  {STFT_SUPPORTED_METHODS.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+                <ul
+                  className="overflow-blocked-methods"
+                  data-testid="overflow-stft-blocked-methods"
+                  data-blocked="stft-methods"
+                >
+                  {STFT_BLOCKED_METHODS.map((m) => (
+                    <li key={m} data-testid={`overflow-stft-blocked-${m}`} data-blocked="true">
+                      {m}: BLOCKED
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div
+                className="overflow-item overflow-qlabel-only"
+                data-testid="overflow-spectral-statistic"
+                data-strip-wave="wave25"
+                data-statistic-status={STFT_SPECTRUM_STATISTIC_STATUS}
+              >
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-statistic">统计类型</span>
+                <span className="muted" data-testid="overflow-stft-statistic-na">
+                  NA ({STFT_SPECTRUM_STATISTIC_STATUS})
+                </span>
+              </div>
+              <div
+                className="overflow-item overflow-qlabel-only"
+                data-testid="overflow-spectral-segment-ms"
+                data-strip-wave="wave25"
+              >
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-segment-ms">分段时长</span>
+                <span className="muted" data-testid="overflow-stft-segment-ms">
+                  {segmentMsLabel}
+                </span>
+              </div>
+              <label
+                className="overflow-item"
+                data-testid="overflow-spectral-kaiser-beta"
+                data-strip-wave="wave25"
+                data-enabled={stftWindowPref === 'kaiser' ? 'true' : 'false'}
+              >
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-kaiser-beta">Kaiser β</span>
+                <input
+                  type="number"
+                  data-testid="input-stft-kaiser-beta"
+                  min={0}
+                  max={30}
+                  step={0.1}
+                  disabled={stftWindowPref !== 'kaiser'}
+                  value={stftKaiserBetaPref}
+                  onChange={(e) => setStftKaiserBetaPref(Number(e.target.value))}
+                  title={
+                    stftWindowPref === 'kaiser'
+                      ? 'Kaiser beta drives next STFT (published as dspKaiserBeta)'
+                      : `Enable when window=kaiser (default ${DEFAULT_KAISER_BETA})`
+                  }
+                />
+              </label>
+
 
               <label className="overflow-item">
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-palette">色板</span>

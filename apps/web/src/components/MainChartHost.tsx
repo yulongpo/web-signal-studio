@@ -119,6 +119,7 @@ export function MainChartHost() {
   const stftN = useUiStore((s) => s.stftN);
   const stftWindowPref = useUiStore((s) => s.stftWindowPref);
   const stftOverlapPref = useUiStore((s) => s.stftOverlapPref);
+  const stftKaiserBetaPref = useUiStore((s) => s.stftKaiserBetaPref);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
   const navWindowTime = useUiStore((s) => s.navWindowTime);
@@ -176,6 +177,8 @@ export function MainChartHost() {
       : 0.75;
     const hopSize = Math.max(1, Math.floor(fftSize * (1 - overlap)));
     const window = stftWindowPref;
+    const method = 'welch' as const;
+    const kaiserBeta = stftKaiserBetaPref;
 
     const run = async () => {
       if (session) {
@@ -188,6 +191,8 @@ export function MainChartHost() {
           fftSize,
           hopSize,
           window,
+          method,
+          kaiserBeta,
         });
         if (ac.signal.aborted) return;
         const kind = kindForVia(session.via);
@@ -224,6 +229,8 @@ export function MainChartHost() {
         fftSize,
         hopSize,
         window,
+        method,
+        kaiserBeta,
       });
       if (ac.signal.aborted) return;
       setSpec(result);
@@ -257,7 +264,7 @@ export function MainChartHost() {
     });
 
     return () => ac.abort();
-  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
+  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, stftKaiserBetaPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;
