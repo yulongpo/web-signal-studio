@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 02:34` Asia/Shanghai: Web tip **`ab48064`** vs desktop `17471a6` — G02 PARTIAL DSP deepen (D `fac1e48`: `resolveAnalysisSamples` + `StftRequest.removeMean` + `dspRemoveMean`/`dspAutoNb`). SpecParamStrip still `data-auto-n=na` / unwired → **not CLOSED**. Multitaper/Burg still **BLOCKED**. Soft G08 from ab32f6e holds. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ab48064/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`ab32f6e` / ca28052) | Now (`ab48064`) | Note |
+|----|------------------------------|-------------------|------|
+| **G02** | PARTIAL（auto-N 诚实 NA） | **PARTIAL DSP 加深** | compute MET；strip 未接线；Multitaper/Burg **BLOCKED** → **未 CLOSED** |
+| **G08** | PARTIAL | **unchanged PARTIAL** | soft retain full-shell |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未发明 / 未抬升 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_ab48064/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:32` Asia/Shanghai: Web tip **`ab32f6e`** vs desktop `17471a6` — **evidence-only** G `4bc03b8` (`qa/web-62fc184`). G08 PARTIAL deepened (independent six-menu full-shell + File·Edit·View `data-accel` / `data-g08-shortcuts=wave23`). Desktop Qt pixel / full `buildMenus` residual → **not CLOSED**. Soft G02/G18 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ab32f6e/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`1f2bcee`) | Now (`ab32f6e`) | Note |
