@@ -74,6 +74,8 @@ export interface UiState {
   auxPaneHeightPx: number;
   /** G05 nav pane height (CSS px). */
   navPaneHeightPx: number;
+  /** Bot-B nav chrome pause (does not invent live capture). */
+  navPaused: boolean;
   /** Main spectrogram snapshot for nav/aux derive (display only). */
   spectrogramDisplay: {
     power: Float32Array;
@@ -134,6 +136,7 @@ export interface UiState {
   setNavFullTime: (full: { min: number; max: number }) => void;
   setAuxPaneHeightPx: (px: number) => void;
   setNavPaneHeightPx: (px: number) => void;
+  setNavPaused: (paused: boolean) => void;
   setSpectrogramDisplay: (
     snap: {
       power: Float32Array;
@@ -181,9 +184,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   auxChartKind: 'wave',
   navFullTime: { min: 0, max: 1 },
   navWindowTime: { min: 0, max: 1 },
-  auxPaneHeightPx: 160,
-  navPaneHeightPx: 36,
+  auxPaneHeightPx: 205,
+  navPaneHeightPx: 82,
   spectrogramDisplay: null,
+  navPaused: false,
   workspaceMode: 'wideband',
   level: { ...DEFAULT_LEVEL },
   display: { ...DEFAULT_DISPLAY },
@@ -254,6 +258,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   setNavFullTime: (full) => set({ navFullTime: { ...full } }),
   setAuxPaneHeightPx: (px) => set({ auxPaneHeightPx: px }),
   setNavPaneHeightPx: (px) => set({ navPaneHeightPx: px }),
+  setNavPaused: (paused) => set({ navPaused: paused }),
   setSpectrogramDisplay: (snap) => set({ spectrogramDisplay: snap }),
   setWorkspaceMode: (mode) => set({ workspaceMode: mode }),
 

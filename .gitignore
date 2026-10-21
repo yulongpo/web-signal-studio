@@ -86,3 +86,11 @@ artifacts/validation/ui-parity/bot-c/*
 !artifacts/validation/ui-parity/bot-c/*.json
 !artifacts/validation/ui-parity/bot-c/*.md
 !artifacts/validation/ui-parity/bot-c/*.png
+
+# Bot-B ui-parity evidence (wiring only — not PASS)
+!artifacts/validation/ui-parity/bot-b/
+artifacts/validation/ui-parity/bot-b/*
+!artifacts/validation/ui-parity/bot-b/*.json
+!artifacts/validation/ui-parity/bot-b/*.md
+!artifacts/validation/ui-parity/bot-b/*.png
+!artifacts/validation/ui-parity/INCREMENTAL_196db21.md

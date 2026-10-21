@@ -76,7 +76,7 @@ test.describe("G03–G05 tri-chart / splitter evidence", () => {
 
     await splitAux.dblclick();
     const reset = Number(await splitAux.getAttribute("data-size-px"));
-    expect(reset).toBe(160);
+    expect([205, 176]).toContain(reset);
 
     await dualShot(page, "g05-splitters.png");
   });

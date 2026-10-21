@@ -127,12 +127,12 @@ body,
 
 /* G05: nav / aux heights driven by VerticalSplitter (CSS vars). */
 .workspace.workspace-split {
+  /* nav | split | aux | split | main | status — no always-on SpectrumToolbar row */
   grid-template-rows:
-    var(--nav-pane-h, 36px)
+    var(--nav-pane-h, 82px)
     6px
-    var(--aux-pane-h, 160px)
+    var(--aux-pane-h, 205px)
     6px
-    36px
     1fr
     28px;
 }
@@ -666,4 +666,95 @@ body,
   border-bottom: 1px dashed #3d5270;
   color: #b8c6d6;
   font-size: 11px;
+}
+
+/* Bot-B nav chrome + chart param strips (settings not in nav; G02 demotion) */
+.workspace.workspace-split .global-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  min-height: 0;
+}
+.nav-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding: 2px 8px;
+  background: #121820;
+  border-bottom: 1px solid #243041;
+}
+.nav-segments,
+.nav-transport {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.nav-chrome button {
+  background: #1c2633;
+  color: inherit;
+  border: 1px solid #2c3b4f;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font: 12px/1.2 system-ui, sans-serif;
+}
+.nav-chrome button[data-active='true'] {
+  background: #2a6bed;
+  border-color: #2a6bed;
+}
+.nav-chart-slot {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.chart-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-height: 28px;
+  padding: 2px 8px;
+  background: #121820;
+  border-bottom: 1px solid #243041;
+}
+.chart-strip-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-right: 4px;
+}
+.chart-strip-aux button,
+.chart-strip-main .spectrum-toolbar button,
+.chart-strip-main > .spectrum-toolbar button {
+  background: #1c2633;
+  color: inherit;
+  border: 1px solid #2c3b4f;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font: 12px/1.2 system-ui, sans-serif;
+}
+.chart-strip-aux button[data-active='true'] {
+  background: #2a6bed;
+  border-color: #2a6bed;
+}
+.chart-strip-main {
+  padding: 0;
+}
+.chart-strip-main .spectrum-toolbar {
+  flex: 1;
+  border-bottom: none;
+  background: transparent;
+  min-height: 28px;
+  padding: 2px 8px;
+}
+.aux-chart,
+.main-chart {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
