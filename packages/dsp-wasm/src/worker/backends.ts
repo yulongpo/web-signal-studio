@@ -7,7 +7,9 @@
 import type { DspWorkerRequest, DspWorkerResponse } from './protocol.js';
 import {
   createCancelRegistry,
+  createHandlerState,
   handleDspWorkerRequest,
+  type DspWorkerHandlerState,
 } from './dsp-worker-handler.js';
 
 export interface WorkerBackend {
@@ -21,9 +23,11 @@ export interface WorkerBackend {
  * In-process async queue that still leaves the calling stack
  * (await Promise.resolve / queueMicrotask) and checks cancel between jobs.
  * Cancel posts are applied immediately to the shared CancelRegistry.
+ * Configure posts share the same handler state (Package C engine selection).
  */
 export class InProcessAsyncBackend implements WorkerBackend {
   private readonly registry = createCancelRegistry();
+  private readonly state: DspWorkerHandlerState = createHandlerState();
   private messageHandler: ((response: DspWorkerResponse) => void) | null = null;
   private errorHandler: ((err: Error) => void) | null = null;
   private readonly queue: DspWorkerRequest[] = [];
@@ -63,7 +67,7 @@ export class InProcessAsyncBackend implements WorkerBackend {
         await new Promise<void>((r) => (typeof setImmediate === 'function' ? setImmediate(r) : queueMicrotask(r)));
         if (this.terminated) break;
         try {
-          const response = await handleDspWorkerRequest(msg, this.registry);
+          const response = await handleDspWorkerRequest(msg, this.registry, this.state);
           // Yield again before delivering — cancel mid-job surfaces here.
           await new Promise<void>((r) => (typeof setImmediate === 'function' ? setImmediate(r) : queueMicrotask(r)));
           if (response && this.messageHandler && !this.terminated) {

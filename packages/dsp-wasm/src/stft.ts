@@ -2,7 +2,10 @@ import type { StftRequest, StftResult, SampleIndex } from '@wss/contracts';
 import { sampleIndexToDecimal } from '@wss/contracts';
 import { fftRadix2, isPowerOfTwo, binFrequencyHz } from './fft.js';
 import type { StftEngine } from './interfaces.js';
+import type { FftRadix2Fn } from './psd.js';
 import { makeWindow, windowPowerSum } from './windows.js';
+
+export type { FftRadix2Fn } from './psd.js';
 
 function throwIfAborted(signal?: AbortSignal): void {
   if (signal?.aborted) {
@@ -22,6 +25,7 @@ function yieldForAbort(): Promise<void> {
 
 /**
  * Reference STFT engine: hop frames → linear-power spectrogram for complex IQ.
+ * Uses JS fftRadix2 by default (same as Package A/B callers).
  */
 export class ReferenceStftEngine implements StftEngine {
   async analyze(request: StftRequest, iqInterleaved: Float32Array): Promise<StftResult> {
@@ -29,7 +33,11 @@ export class ReferenceStftEngine implements StftEngine {
   }
 }
 
-export async function computeStft(request: StftRequest, iqInterleaved: Float32Array): Promise<StftResult> {
+export async function computeStft(
+  request: StftRequest,
+  iqInterleaved: Float32Array,
+  fft: FftRadix2Fn = fftRadix2,
+): Promise<StftResult> {
   const { fftSize, hopSize, window, sampleRateHz } = request;
   throwIfAborted(request.signal);
   if (!isPowerOfTwo(fftSize)) {
@@ -84,7 +92,7 @@ export async function computeStft(request: StftRequest, iqInterleaved: Float32Ar
       frame[n * 2] = iqInterleaved[src]! * w;
       frame[n * 2 + 1] = iqInterleaved[src + 1]! * w;
     }
-    fftRadix2(frame, false);
+    fft(frame, false);
     const row = f * binCount;
     for (let k = 0; k < binCount; k++) {
       const re = frame[k * 2]!;

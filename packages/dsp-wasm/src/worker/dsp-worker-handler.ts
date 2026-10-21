@@ -1,11 +1,14 @@
 /**
  * Pure DSP worker handler — shared by browser Worker entry, Node worker_threads,
  * and the in-process JobRunner. Cancel is tracked by jobId via AbortController.
+ *
+ * Package C: optional FFT engine ('js' | 'wasm-fft') for PSD/STFT via configure.
+ * Default remains JS fftRadix2. WASM load failure falls back to JS (no hang).
  */
 
 import type { DdcRequest, PsdRequest, StftRequest, SampleIndex } from '@wss/contracts';
 import { sampleIndexFromDecimal, sampleIndexToDecimal } from '@wss/contracts';
-import { computePsd } from '../psd.js';
+import { computePsd, type FftRadix2Fn } from '../psd.js';
 import { computeStft } from '../stft.js';
 import { computeDdc } from '../ddc.js';
 import type {
@@ -17,6 +20,7 @@ import type {
   PsdResultWire,
   StftResultWire,
   DdcResultWire,
+  DspFftEngineKind,
 } from './protocol.js';
 
 export interface CancelRegistry {
@@ -57,6 +61,17 @@ export function createCancelRegistry(): CancelRegistry {
       return map.get(jobId)?.signal;
     },
   };
+}
+
+/** Per-handler FFT engine state (one registry+engine per Worker / InProcess backend). */
+export interface DspWorkerHandlerState {
+  /** Active FFT for PSD/STFT; undefined ⇒ JS default inside compute*. */
+  fft?: FftRadix2Fn;
+  engine: DspFftEngineKind;
+}
+
+export function createHandlerState(): DspWorkerHandlerState {
+  return { engine: 'js', fft: undefined };
 }
 
 function abortError(message = 'Aborted'): Error {
@@ -128,19 +143,66 @@ function toDdcRequest(params: DdcParamsWire, signal: AbortSignal): DdcRequest {
   };
 }
 
+async function applyEngineConfigure(
+  state: DspWorkerHandlerState,
+  requested: DspFftEngineKind,
+): Promise<{ engine: DspFftEngineKind; fellBackToJs?: boolean; message?: string }> {
+  if (requested === 'js') {
+    state.engine = 'js';
+    state.fft = undefined;
+    return { engine: 'js' };
+  }
+
+  // wasm-fft
+  try {
+    const { loadWasmFftModule } = await import('../wasm/loadDspFft.js');
+    const { wasmFftRadix2WithModule } = await import('../wasm/WasmFftEngine.js');
+    const mod = await loadWasmFftModule();
+    state.fft = (buf, inverse = false) => {
+      wasmFftRadix2WithModule(mod, buf, inverse);
+    };
+    state.engine = 'wasm-fft';
+    return { engine: 'wasm-fft' };
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    state.engine = 'js';
+    state.fft = undefined;
+    return {
+      engine: 'js',
+      fellBackToJs: true,
+      message: `wasm-fft load failed, falling back to js: ${msg}`,
+    };
+  }
+}
+
 /**
  * Handle one worker message. For `cancel`, returns null (no response required
  * beyond the in-flight job eventually resolving as cancelled).
  * Callers that want an immediate cancel ack can still post cancelled when the
  * job rejects.
+ *
+ * @param state Optional shared engine state (Package C). When omitted, a
+ *   throwaway JS-default state is used (backward compatible).
  */
 export async function handleDspWorkerRequest(
   message: DspWorkerRequest,
   registry: CancelRegistry,
+  state: DspWorkerHandlerState = createHandlerState(),
 ): Promise<DspWorkerResponse | null> {
   if (message.kind === 'cancel') {
     registry.cancel(message.jobId);
     return null;
+  }
+
+  if (message.kind === 'configure') {
+    const result = await applyEngineConfigure(state, message.engine);
+    return {
+      kind: 'configured',
+      jobId: message.jobId,
+      engine: result.engine,
+      fellBackToJs: result.fellBackToJs,
+      message: result.message,
+    };
   }
 
   const { jobId, kind } = message;
@@ -151,9 +213,10 @@ export async function handleDspWorkerRequest(
     if (controller.signal.aborted) throw abortError();
 
     const iq = new Float32Array(message.iqBuffer);
+    const fft = state.fft; // undefined ⇒ JS default inside compute*
 
     if (kind === 'psd') {
-      const result = await computePsd(toPsdRequest(message.params, controller.signal), iq);
+      const result = await computePsd(toPsdRequest(message.params, controller.signal), iq, fft);
       if (controller.signal.aborted) throw abortError();
       const payload: PsdResultWire = {
         frequenciesHz: result.frequenciesHz.buffer.slice(
@@ -171,7 +234,7 @@ export async function handleDspWorkerRequest(
     }
 
     if (kind === 'stft') {
-      const result = await computeStft(toStftRequest(message.params, controller.signal), iq);
+      const result = await computeStft(toStftRequest(message.params, controller.signal), iq, fft);
       if (controller.signal.aborted) throw abortError();
       const payload: StftResultWire = {
         frequenciesHz: result.frequenciesHz.buffer.slice(
