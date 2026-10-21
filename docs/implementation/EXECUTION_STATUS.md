@@ -1,27 +1,12 @@
 ﻿# EXECUTION_STATUS
 
-- **mode**: ONE-SHOT FULL DELIVERY (GROK_MASTER_PROMPT v1.2)
-- **cao**: web-signal-studio责任人
-- **local_root**: D:\project\web_signal_studio
-- **readonly_ref**: D:\project\signal_studio_rebuild
-- **source_repo**: https://github.com/yulongpo/signal_studio
-- **source_branch**: rebuild/a143-native
-- **source_head**: 0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af
-- **target_repo**: https://github.com/yulongpo/web-signal-studio (pending create: gh not authenticated on HH-laptop)
-- **checked_at**: 2026-10-21 17:48:09 +08:00 (Asia/Shanghai)
-- **phase**: P0 IN_PROGRESS → auto-continue P1–P6
-- **bots**:
-  - WSS-审计A
-  - WSS-前端B
-  - WSS-图谱C
-  - WSS-DSP-D
-  - WSS-检测E
-  - WSS-工程F
-  - WSS-QA-G
-  - HH-laptop (machine teammate)
-- **blockers**:
-  - GitHub CLI on HH-laptop not logged in; cannot create/push target repo until PAT/login provided
-- **next**:
-  - Finish scaffold + upstream clone
-  - Auth GitHub + create private web-signal-studio
-  - Continue architecture + IQ path without waiting
+- mode: ONE-SHOT FULL DELIVERY (v1.2)
+- local_root: D:\project\web_signal_studio
+- source_head: 0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af
+- target_repo: PENDING create (need GITHUB_TOKEN)
+- updated_at: 2026-10-21 17:50:17 Asia/Shanghai
+- phase: P0 DONE (local) / P1 IN_PROGRESS / P2 started in parallel
+- commits: 7bffc73, 1444cad, (pending shell)
+- apps/web: npm run build PASS (shell layout)
+- blockers: GitHub PAT for yulongpo/web-signal-studio
+- bots: A audit / B shell / C charts / D dsp / E detect / F project / G qa
