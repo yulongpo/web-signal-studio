@@ -1,0 +1,212 @@
+{
+  "matrix_id": "M-09",
+  "matrix_pass_claimed": false,
+  "status": "WIP_awaiting_QA",
+  "acceptance_matrix_action": "none_do_not_flip_PASS",
+  "owner": "bot-e",
+  "baseline_sha": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at_head": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at": "2026-10-21T11:51:55.718252+00:00",
+  "fake_inference": false,
+  "disable_torch": "1",
+  "id": "m09_tensorrt_na_2026-10-21",
+  "note": "Bytes are a placeholder file, not a TensorRT engine. No forward was run.",
+  "capabilities": {
+    "protocolVersion": "0.1.0",
+    "serviceVersion": "0.1.6-m09-degrade",
+    "detection": {
+      "ffscn": false,
+      "scn": false,
+      "reasons": [
+        "BLOCKED: no SCN model file under LOCAL_COMPUTE_MODEL_DIR / search roots (or SCN env path)",
+        "BLOCKED: nvidia-smi not found (no GPU toolchain visible)",
+        "BLOCKED: LOCAL_COMPUTE_DISABLE_TORCH=1",
+        "BLOCKED: FFSCN TensorRT .engine is N/A at /tmp/m09-hash-s65f6kg7/ffscn.engine (no TensorRT runtime wired; PyTorch .pth/.pt only; refusing to invent)",
+        "BLOCKED: inference worker is STUB_NON_TENSORRT — no fabricated FFSCN/SCN forward path"
+      ],
+      "uiMessages": [
+        {
+          "code": "MODEL_MISSING_SCN",
+          "severity": "error",
+          "en": "SCN model file is missing. Detection cannot run.",
+          "zh": "缺少 SCN 模型文件，无法运行检测。"
+        },
+        {
+          "code": "GPU_MISSING",
+          "severity": "error",
+          "en": "No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.",
+          "zh": "未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。"
+        },
+        {
+          "code": "TORCH_MISSING",
+          "severity": "error",
+          "en": "PyTorch is not available in this Python. Detection cannot run real inference.",
+          "zh": "当前 Python 环境没有可用的 PyTorch，无法进行真推理。"
+        },
+        {
+          "code": "TENSORRT_NA",
+          "severity": "error",
+          "en": "TensorRT .engine weights are N/A (no TensorRT runtime). Detection stays blocked.",
+          "zh": "TensorRT .engine 权重不可用（未接入 TensorRT 运行时），检测保持阻断。"
+        },
+        {
+          "code": "STUB_RUNTIME",
+          "severity": "error",
+          "en": "Local compute is in stub mode (no TensorRT). Detection will not invent results.",
+          "zh": "本地计算处于占位模式（无 TensorRT），检测不会伪造结果。"
+        },
+        {
+          "code": "NO_FAKE_INFERENCE",
+          "severity": "error",
+          "en": "Refusing to invent FFSCN/SCN detection candidates.",
+          "zh": "拒绝伪造 FFSCN/SCN 检测候选结果。"
+        }
+      ]
+    },
+    "gpu": {
+      "toolchainVisible": false,
+      "runtimeVerified": false,
+      "name": null,
+      "driverVersion": null,
+      "reason": "nvidia-smi not found (no GPU toolchain visible)",
+      "uiCode": "GPU_MISSING"
+    },
+    "runtime": {
+      "engine": "STUB_NON_TENSORRT",
+      "tensorrtVerified": false,
+      "cudaVerified": false,
+      "canInventResults": false,
+      "modelSearchRoots": [
+        "/tmp/m09-hash-s65f6kg7",
+        "/workspace/services/local-compute/models"
+      ],
+      "ffscnPresent": true,
+      "scnPresent": false,
+      "ffscnReady": false,
+      "scnReady": false
+    },
+    "dsp": {
+      "fft": true,
+      "psd": false,
+      "stft": false,
+      "ddc": false,
+      "reasons": [
+        "DSP stub probe available (non-native); full FFT/PSD/STFT/DDC workers not wired"
+      ]
+    },
+    "modelsPresent": [
+      {
+        "id": "FFSCN:ffscn.engine",
+        "path": "/tmp/m09-hash-s65f6kg7/ffscn.engine",
+        "sha256": "10598455a8fcc3584497296661bb313c4431d50645976b96bba9549e2f67b724",
+        "present": true,
+        "notes": "File present (.engine); no expected-hash configured (optional)"
+      }
+    ],
+    "modelsAbsentCount": 155,
+    "notes": [
+      "Loopback-only (127.0.0.1).",
+      "Auth: Authorization: Bearer <session-token>.",
+      "CORS: configured Origin only (dev http://localhost:5173).",
+      "Sample indices / half-open ranges are decimal strings.",
+      "detection.ffscn/scn become true only after verified PyTorch load+forward.",
+      "Degradation: service remains up when detection is BLOCKED; DSP stub may stay available.",
+      "Model identity (path/sha256) may be reported when files exist; never invents inference.",
+      "detection.uiMessages carries bilingual (en/zh) copy for the UI.",
+      "gpu + runtime fields expose structured precheck.",
+      "Set LOCAL_COMPUTE_MODEL_DIR (or *_PATH) + algorithm HOMEs for real inference.",
+      "TensorRT .engine and ONNX are N/A (TENSORRT_NA / ONNX_NA); PyTorch .pth/.pt only.",
+      "Task status machine: queued->running->{succeeded|failed|cancelled|BLOCKED}; cancel always wins over late worker updates.",
+      "One or more model files are present — identity metadata reported; forward path still BLOCKED (STUB_NON_TENSORRT)."
+    ]
+  },
+  "task": {
+    "runId": "e22b97f1-99ba-4396-ad21-0f9922264579",
+    "kind": "ffscn.detect",
+    "status": "BLOCKED",
+    "progress": 1.0,
+    "request": {
+      "kind": "ffscn.detect",
+      "params": {},
+      "sourcePath": "/tmp/m09-hash-s65f6kg7/empty.wav",
+      "sampleIndices": []
+    },
+    "result": null,
+    "evidence": [
+      {
+        "kind": "worker",
+        "path": null,
+        "sha256": null,
+        "notes": "engine=STUB_NON_TENSORRT; status=queued->running"
+      },
+      {
+        "kind": "worker",
+        "path": null,
+        "sha256": null,
+        "notes": "engine=STUB_NON_TENSORRT; result omitted by policy (never invent candidates); status->BLOCKED"
+      }
+    ],
+    "blockReasons": [
+      "BLOCKED: no SCN model file under LOCAL_COMPUTE_MODEL_DIR / search roots (or SCN env path)",
+      "BLOCKED: nvidia-smi not found (no GPU toolchain visible)",
+      "BLOCKED: LOCAL_COMPUTE_DISABLE_TORCH=1",
+      "BLOCKED: FFSCN TensorRT .engine is N/A at /tmp/m09-hash-s65f6kg7/ffscn.engine (no TensorRT runtime wired; PyTorch .pth/.pt only; refusing to invent)",
+      "BLOCKED: inference worker is STUB_NON_TENSORRT — no fabricated FFSCN/SCN forward path",
+      "BLOCKED: gpu.uiCode=GPU_MISSING"
+    ],
+    "message": "SCN model file is missing. Detection cannot run.",
+    "messageZh": "缺少 SCN 模型文件，无法运行检测。",
+    "uiMessages": [
+      {
+        "code": "MODEL_MISSING_SCN",
+        "severity": "error",
+        "en": "SCN model file is missing. Detection cannot run.",
+        "zh": "缺少 SCN 模型文件，无法运行检测。"
+      },
+      {
+        "code": "GPU_MISSING",
+        "severity": "error",
+        "en": "No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.",
+        "zh": "未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。"
+      },
+      {
+        "code": "TORCH_MISSING",
+        "severity": "error",
+        "en": "PyTorch is not available in this Python. Detection cannot run real inference.",
+        "zh": "当前 Python 环境没有可用的 PyTorch，无法进行真推理。"
+      },
+      {
+        "code": "TENSORRT_NA",
+        "severity": "error",
+        "en": "TensorRT .engine weights are N/A (no TensorRT runtime). Detection stays blocked.",
+        "zh": "TensorRT .engine 权重不可用（未接入 TensorRT 运行时），检测保持阻断。"
+      },
+      {
+        "code": "STUB_RUNTIME",
+        "severity": "error",
+        "en": "Local compute is in stub mode (no TensorRT). Detection will not invent results.",
+        "zh": "本地计算处于占位模式（无 TensorRT），检测不会伪造结果。"
+      },
+      {
+        "code": "NO_FAKE_INFERENCE",
+        "severity": "error",
+        "en": "Refusing to invent FFSCN/SCN detection candidates.",
+        "zh": "拒绝伪造 FFSCN/SCN 检测候选结果。"
+      }
+    ],
+    "statusHistory": [
+      "queued",
+      "running",
+      "BLOCKED"
+    ],
+    "createdAt": "2026-10-21T11:51:55.446680+00:00",
+    "updatedAt": "2026-10-21T11:51:55.689937+00:00"
+  },
+  "assertions": {
+    "ffscn": false,
+    "tensorrtVerified": false,
+    "ui_code": "TENSORRT_NA",
+    "task_status": "BLOCKED",
+    "result": null
+  }
+}

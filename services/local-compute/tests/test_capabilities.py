@@ -27,6 +27,8 @@ REQUIRED_UI_CODES = {
     "STUB_RUNTIME",
     "REAL_RUNTIME",
     "NO_FAKE_INFERENCE",
+    "TENSORRT_NA",
+    "ONNX_NA",
 }
 
 

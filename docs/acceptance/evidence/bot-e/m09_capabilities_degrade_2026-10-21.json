@@ -1,0 +1,124 @@
+{
+  "matrix_id": "M-09",
+  "matrix_pass_claimed": false,
+  "status": "WIP_awaiting_QA",
+  "acceptance_matrix_action": "none_do_not_flip_PASS",
+  "owner": "bot-e",
+  "baseline_sha": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at_head": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at": "2026-10-21T11:51:54.930180+00:00",
+  "fake_inference": false,
+  "disable_torch": "1",
+  "id": "m09_capabilities_degrade_2026-10-21",
+  "http": {
+    "method": "GET",
+    "path": "/capabilities",
+    "status": 200
+  },
+  "body": {
+    "protocolVersion": "0.1.0",
+    "serviceVersion": "0.1.6-m09-degrade",
+    "detection": {
+      "ffscn": false,
+      "scn": false,
+      "reasons": [
+        "BLOCKED: no FFSCN model file under LOCAL_COMPUTE_MODEL_DIR / search roots (or FFSCN env path)",
+        "BLOCKED: no SCN model file under LOCAL_COMPUTE_MODEL_DIR / search roots (or SCN env path)",
+        "BLOCKED: nvidia-smi not found (no GPU toolchain visible)",
+        "BLOCKED: LOCAL_COMPUTE_DISABLE_TORCH=1",
+        "BLOCKED: inference worker is STUB_NON_TENSORRT — no fabricated FFSCN/SCN forward path"
+      ],
+      "uiMessages": [
+        {
+          "code": "MODEL_MISSING_FFSCN",
+          "severity": "error",
+          "en": "FFSCN model file is missing. Detection cannot run.",
+          "zh": "缺少 FFSCN 模型文件，无法运行检测。"
+        },
+        {
+          "code": "MODEL_MISSING_SCN",
+          "severity": "error",
+          "en": "SCN model file is missing. Detection cannot run.",
+          "zh": "缺少 SCN 模型文件，无法运行检测。"
+        },
+        {
+          "code": "GPU_MISSING",
+          "severity": "error",
+          "en": "No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.",
+          "zh": "未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。"
+        },
+        {
+          "code": "TORCH_MISSING",
+          "severity": "error",
+          "en": "PyTorch is not available in this Python. Detection cannot run real inference.",
+          "zh": "当前 Python 环境没有可用的 PyTorch，无法进行真推理。"
+        },
+        {
+          "code": "STUB_RUNTIME",
+          "severity": "error",
+          "en": "Local compute is in stub mode (no TensorRT). Detection will not invent results.",
+          "zh": "本地计算处于占位模式（无 TensorRT），检测不会伪造结果。"
+        },
+        {
+          "code": "NO_FAKE_INFERENCE",
+          "severity": "error",
+          "en": "Refusing to invent FFSCN/SCN detection candidates.",
+          "zh": "拒绝伪造 FFSCN/SCN 检测候选结果。"
+        }
+      ]
+    },
+    "gpu": {
+      "toolchainVisible": false,
+      "runtimeVerified": false,
+      "name": null,
+      "driverVersion": null,
+      "reason": "nvidia-smi not found (no GPU toolchain visible)",
+      "uiCode": "GPU_MISSING"
+    },
+    "runtime": {
+      "engine": "STUB_NON_TENSORRT",
+      "tensorrtVerified": false,
+      "cudaVerified": false,
+      "canInventResults": false,
+      "modelSearchRoots": [
+        "/workspace/services/local-compute/models"
+      ],
+      "ffscnPresent": false,
+      "scnPresent": false,
+      "ffscnReady": false,
+      "scnReady": false
+    },
+    "dsp": {
+      "fft": true,
+      "psd": false,
+      "stft": false,
+      "ddc": false,
+      "reasons": [
+        "DSP stub probe available (non-native); full FFT/PSD/STFT/DDC workers not wired"
+      ]
+    },
+    "modelsPresent": [],
+    "modelsAbsentCount": 78,
+    "notes": [
+      "Loopback-only (127.0.0.1).",
+      "Auth: Authorization: Bearer <session-token>.",
+      "CORS: configured Origin only (dev http://localhost:5173).",
+      "Sample indices / half-open ranges are decimal strings.",
+      "detection.ffscn/scn become true only after verified PyTorch load+forward.",
+      "Degradation: service remains up when detection is BLOCKED; DSP stub may stay available.",
+      "Model identity (path/sha256) may be reported when files exist; never invents inference.",
+      "detection.uiMessages carries bilingual (en/zh) copy for the UI.",
+      "gpu + runtime fields expose structured precheck.",
+      "Set LOCAL_COMPUTE_MODEL_DIR (or *_PATH) + algorithm HOMEs for real inference.",
+      "TensorRT .engine and ONNX are N/A (TENSORRT_NA / ONNX_NA); PyTorch .pth/.pt only.",
+      "Task status machine: queued->running->{succeeded|failed|cancelled|BLOCKED}; cancel always wins over late worker updates."
+    ]
+  },
+  "assertions": {
+    "ffscn": false,
+    "scn": false,
+    "blocked_reason": true,
+    "canInventResults": false,
+    "tensorrtVerified": false
+  }
+}

@@ -57,6 +57,8 @@ Priority: `LOCAL_COMPUTE_*_SHA256` → `LOCAL_COMPUTE_*_WEIGHT_SHA256` → manif
 
 **N/A for current reference trees** (`train_SCN`, `FFSCN_train2`). Do **not** invent or stub a fake `.engine` path. Real readiness today is **PyTorch `.pth` + verified load/forward**. A future TensorRT export would be a separate package.
 
+If the selected weight file is `.engine` or `.onnx`, `GET /capabilities` keeps `detection.ffscn` / `detection.scn` **false**, adds `uiMessages` code `TENSORRT_NA` or `ONNX_NA`, and **does not** smoke-load or return candidates. The task worker stays on the stub path and finishes `BLOCKED`.
+
 ## License summary
 
 No SPDX LICENSE files were found under `train_SCN` or `FFSCN_train2`. Treat weights and algorithm sources as **internal project IP**. Do not publish weights to the public web app bundle; keep them on the operator machine and configure paths locally.

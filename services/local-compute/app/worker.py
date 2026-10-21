@@ -1,8 +1,9 @@
-"""In-memory stub worker (NON-TensorRT) with per-runId cancel.
+"""Detection workers with per-runId cancel.
 
-Until real FFSCN/SCN engines exist, detection runs step a labeled stub,
-respect cancel bound to the exact runId, and finish as BLOCKED with
-no fabricated candidates. Never invents inference outputs.
+Real path: `start_detection_worker` runs PyTorch FFSCN/SCN only when
+capabilities marked the family ready (verified load + smoke forward).
+TensorRT `.engine` is N/A — those tasks stay on the stub path and finish
+BLOCKED. The stub never invents inference outputs.
 
 Cancel reliability: RunHandle.cancel_event is checked between steps;
 cancel_task also joins briefly so GET sees a stable terminal state.

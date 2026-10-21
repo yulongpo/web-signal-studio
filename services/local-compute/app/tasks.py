@@ -1,7 +1,9 @@
-"""In-memory run store + stub worker: create/get/cancel.
+"""In-memory run store: create/get/cancel.
 
-Cancel is bound to the exact runId. Detection runs use STUB_NON_TENSORRT
-and finish as BLOCKED (or CANCELLED) — never fabricate FFSCN/SCN results.
+Cancel is bound to the exact runId. Detection uses the real PyTorch worker
+only when `family_ready` is true; otherwise STUB_NON_TENSORRT finishes
+BLOCKED (or CANCELLED). Never fabricate FFSCN/SCN results.
+TensorRT `.engine` / ONNX stay not-ready (N/A).
 
 Status machine (see models.ALLOWED_TRANSITIONS):
   queued -> running -> {succeeded|failed|cancelled|BLOCKED}

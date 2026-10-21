@@ -100,6 +100,12 @@ def run_ffscn(
     """Run FFSCN detect_file on wav/iq/psd path. Returns verifiedForward payload."""
     import sys
 
+    if weights.suffix.lower() not in {".pth", ".pt"}:
+        raise ValueError(
+            f"FFSCN weight {weights.name} is not a PyTorch checkpoint "
+            f"(TensorRT .engine / ONNX are N/A); refusing to invent"
+        )
+
     if cancel_cb is not None and cancel_cb():
         raise RuntimeError("cancelled before FFSCN load")
 

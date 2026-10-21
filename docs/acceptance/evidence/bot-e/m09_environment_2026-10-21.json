@@ -1,0 +1,21 @@
+{
+  "matrix_id": "M-09",
+  "matrix_pass_claimed": false,
+  "status": "WIP_awaiting_QA",
+  "acceptance_matrix_action": "none_do_not_flip_PASS",
+  "owner": "bot-e",
+  "baseline_sha": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at_head": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at": "2026-10-21T11:51:54.914367+00:00",
+  "fake_inference": false,
+  "disable_torch": "1",
+  "id": "m09_environment_2026-10-21",
+  "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+  "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
+  "nvidia_smi": null,
+  "torch": "import failed: ModuleNotFoundError: No module named 'torch'",
+  "tensorrt_engine": "N/A — no TensorRT runtime wired; .engine files are not executed",
+  "onnx_runtime": "N/A — .onnx files are not executed",
+  "model_assets": "none in this environment (Windows reference trees not mounted)",
+  "gpu": "not visible (nvidia-smi missing)"
+}

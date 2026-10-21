@@ -25,6 +25,12 @@ def run_scn(
     import sys
     import torch
 
+    if weights.suffix.lower() not in {".pth", ".pt"}:
+        raise ValueError(
+            f"SCN weight {weights.name} is not a PyTorch checkpoint "
+            f"(TensorRT .engine / ONNX are N/A); refusing to invent"
+        )
+
     if cancel_cb is not None and cancel_cb():
         raise RuntimeError("cancelled before SCN load")
 

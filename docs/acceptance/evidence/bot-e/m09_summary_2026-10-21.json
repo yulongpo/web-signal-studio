@@ -1,0 +1,30 @@
+{
+  "matrix_id": "M-09",
+  "matrix_pass_claimed": false,
+  "status": "WIP_awaiting_QA",
+  "acceptance_matrix_action": "none_do_not_flip_PASS",
+  "owner": "bot-e",
+  "baseline_sha": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at_head": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at": "2026-10-21T11:51:55.721029+00:00",
+  "fake_inference": false,
+  "disable_torch": "1",
+  "id": "m09_summary_2026-10-21",
+  "artifacts": [
+    "m09_environment_2026-10-21.json",
+    "m09_capabilities_degrade_2026-10-21.json",
+    "m09_blocked_no_model_2026-10-21.json",
+    "m09_cancel_2026-10-21.json",
+    "m09_weight_hash_mismatch_2026-10-21.json",
+    "m09_tensorrt_na_2026-10-21.json",
+    "m09_pytest_2026-10-21.txt"
+  ],
+  "pytest": "59 passed, 4 skipped (live CUDA/weight tests skipped; LOCAL_COMPUTE_DISABLE_TORCH=1)",
+  "remains_blocked": [
+    "No NVIDIA GPU (nvidia-smi missing) — live CUDA forward not run",
+    "No FFSCN/SCN .pth weights or algorithm HOME mounted — live smoke skipped",
+    "TensorRT .engine runtime not wired (N/A)",
+    "ONNX runtime not wired (N/A)",
+    "matrix_pass_claimed is false; QA must not treat this pack as PASS"
+  ]
+}

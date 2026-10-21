@@ -151,7 +151,48 @@ UI_COPY: dict[str, tuple[str, str, str]] = {
         "Refusing to invent FFSCN/SCN detection candidates.",
         "拒绝伪造 FFSCN/SCN 检测候选结果。",
     ),
+    "TENSORRT_NA": (
+        "error",
+        "TensorRT .engine weights are N/A (no TensorRT runtime). Detection stays blocked.",
+        "TensorRT .engine 权重不可用（未接入 TensorRT 运行时），检测保持阻断。",
+    ),
+    "ONNX_NA": (
+        "error",
+        "ONNX weights are N/A (no ONNX runtime). Detection stays blocked.",
+        "ONNX 权重不可用（未接入 ONNX 运行时），检测保持阻断。",
+    ),
 }
+
+
+def non_torch_artifact_code(path: Path | None) -> str | None:
+    """`.engine` / `.onnx` are discovered but not executable here.
+
+    Reference trees ship PyTorch `.pth` only. Never treat a deployment
+    artifact as a successful forward.
+    """
+    if path is None:
+        return None
+    suf = path.suffix.lower()
+    if suf == ".engine":
+        return "TENSORRT_NA"
+    if suf == ".onnx":
+        return "ONNX_NA"
+    return None
+
+
+def non_torch_block_reason(family: str, path: Path) -> str:
+    code = non_torch_artifact_code(path)
+    if code == "TENSORRT_NA":
+        return (
+            f"BLOCKED: {family} TensorRT .engine is N/A at {path} "
+            "(no TensorRT runtime wired; PyTorch .pth/.pt only; refusing to invent)"
+        )
+    if code == "ONNX_NA":
+        return (
+            f"BLOCKED: {family} ONNX is N/A at {path} "
+            "(no ONNX runtime wired; PyTorch .pth/.pt only; refusing to invent)"
+        )
+    return f"BLOCKED: {family} weight suffix {path.suffix} is not a PyTorch checkpoint"
 
 
 def ui_message(code: str) -> UiMessage:
@@ -418,8 +459,23 @@ def probe_detection_readiness() -> DetectionReadiness:
         torch_probe.cuda_available or allow_cpu
     )
 
+    # TensorRT .engine / ONNX are N/A: report BLOCKED and never smoke-load them.
+    ffscn_na = non_torch_artifact_code(ffscn_path) if ffscn_present else None
+    scn_na = non_torch_artifact_code(scn_path) if scn_present else None
+    if ffscn_na and ffscn_path is not None:
+        reasons.append(non_torch_block_reason("FFSCN", ffscn_path))
+        ui_codes.append(ffscn_na)
+    if scn_na and scn_path is not None:
+        reasons.append(non_torch_block_reason("SCN", scn_path))
+        ui_codes.append(scn_na)
+
     if torch_ok_for_ready:
-        if ffscn_present and ffscn_path is not None and ffscn_hash_ok:
+        if (
+            ffscn_present
+            and ffscn_path is not None
+            and ffscn_hash_ok
+            and not ffscn_na
+        ):
             home = source_home("FFSCN")
             if home is None:
                 reasons.append("BLOCKED: FFSCN algorithm home missing")
@@ -435,7 +491,12 @@ def probe_detection_readiness() -> DetectionReadiness:
         elif ffscn_present and not ffscn_hash_ok:
             # Expected-hash configured and failed — never load/forward.
             ffscn_ready = False
-        if scn_present and scn_path is not None and scn_hash_ok:
+        if (
+            scn_present
+            and scn_path is not None
+            and scn_hash_ok
+            and not scn_na
+        ):
             home = source_home("SCN")
             if home is None:
                 reasons.append("BLOCKED: SCN algorithm home missing")
@@ -619,6 +680,7 @@ def build_capabilities() -> CapabilitiesResponse:
         "detection.uiMessages carries bilingual (en/zh) copy for the UI.",
         "gpu + runtime fields expose structured precheck.",
         "Set LOCAL_COMPUTE_MODEL_DIR (or *_PATH) + algorithm HOMEs for real inference.",
+        "TensorRT .engine and ONNX are N/A (TENSORRT_NA / ONNX_NA); PyTorch .pth/.pt only.",
         "Task status machine: queued->running->{succeeded|failed|cancelled|BLOCKED}; "
         "cancel always wins over late worker updates.",
     ]
@@ -655,6 +717,8 @@ __all__ = [
     "UI_COPY",
     "STUB_ENGINE_LABEL",
     "DetectionReadiness",
+    "non_torch_artifact_code",
+    "non_torch_block_reason",
     "ui_message",
     "probe_detection_readiness",
     "detection_block_reasons_for_kind",

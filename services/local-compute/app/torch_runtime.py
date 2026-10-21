@@ -120,8 +120,25 @@ def clear_torch_cache() -> None:
         _cache.clear()
 
 
+def _refuse_non_torch_weight(family: str, weights: Path) -> LoadSmoke | None:
+    """TensorRT .engine and ONNX are N/A. Never torch.load them as a fake forward."""
+    suf = weights.suffix.lower()
+    if suf in {".pth", ".pt"}:
+        return None
+    if suf == ".engine":
+        detail = "TensorRT .engine is N/A; refusing torch load (no fabricated forward)"
+    elif suf == ".onnx":
+        detail = "ONNX weight is N/A; refusing torch load (no fabricated forward)"
+    else:
+        detail = f"unsupported weight suffix {suf or '(none)'}; refusing load"
+    return LoadSmoke(ok=False, family=family, path=str(weights), detail=detail)
+
+
 def smoke_load_ffscn(weights: Path, home: Path | None, device: str) -> LoadSmoke:
     """Build FFSCN net from HOME and load weights; run one zero forward."""
+    refused = _refuse_non_torch_weight("FFSCN", weights)
+    if refused is not None:
+        return refused
     if home is None or not home.is_dir():
         return LoadSmoke(
             ok=False,
@@ -166,6 +183,9 @@ def smoke_load_ffscn(weights: Path, home: Path | None, device: str) -> LoadSmoke
 
 def smoke_load_scn(weights: Path, home: Path | None, device: str) -> LoadSmoke:
     """Build SCN net from HOME and load weights; run one zero forward."""
+    refused = _refuse_non_torch_weight("SCN", weights)
+    if refused is not None:
+        return refused
     if home is None or not home.is_dir():
         return LoadSmoke(
             ok=False,

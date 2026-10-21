@@ -66,6 +66,20 @@ def run_detection_inference(
 
     weights = first_present(family)
     home = source_home(family)
+    if weights is not None and weights.suffix.lower() in {".engine", ".onnx"}:
+        kind_label = "TensorRT .engine" if weights.suffix.lower() == ".engine" else "ONNX"
+        code = "TENSORRT_NA" if weights.suffix.lower() == ".engine" else "ONNX_NA"
+        return InferenceOutcome(
+            ok=False,
+            blocked=True,
+            reasons=[
+                f"BLOCKED: {family} {kind_label} is N/A at {weights} "
+                "(PyTorch .pth/.pt only; refusing to invent)"
+            ],
+            ui_codes=[code, "NO_FAKE_INFERENCE"],
+            message=f"{family} {kind_label} runtime is not wired",
+            message_zh=f"{family} 的 {kind_label} 运行时未接入，拒绝伪造结果",
+        )
     if weights is None:
         code = "MODEL_MISSING_FFSCN" if family == "FFSCN" else "MODEL_MISSING_SCN"
         return InferenceOutcome(

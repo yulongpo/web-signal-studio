@@ -1,0 +1,141 @@
+{
+  "matrix_id": "M-09",
+  "matrix_pass_claimed": false,
+  "status": "WIP_awaiting_QA",
+  "acceptance_matrix_action": "none_do_not_flip_PASS",
+  "owner": "bot-e",
+  "baseline_sha": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at_head": "8c7c4db21b15bbd0244494f3930239db9c00292b",
+  "generated_at": "2026-10-21T11:51:55.435571+00:00",
+  "fake_inference": false,
+  "disable_torch": "1",
+  "id": "m09_weight_hash_mismatch_2026-10-21",
+  "configured": {
+    "LOCAL_COMPUTE_MODEL_DIR": "/tmp/m09-hash-s65f6kg7",
+    "LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256": "abababababababababababababababababababababababababababababababab",
+    "actual_sha256": "deb5b195d4f0f67a5d1a35d29befb776db44dbc592964d4d2ec2bc5378ce539a",
+    "weight_name": "model_epoch_0210.pth",
+    "weight_bytes": 30
+  },
+  "body": {
+    "protocolVersion": "0.1.0",
+    "serviceVersion": "0.1.6-m09-degrade",
+    "detection": {
+      "ffscn": false,
+      "scn": false,
+      "reasons": [
+        "BLOCKED: WEIGHT_HASH_MISMATCH for FFSCN at /tmp/m09-hash-s65f6kg7/model_epoch_0210.pth (got deb5b195d4f0..., expected abababababab...; hash/version mismatch)",
+        "BLOCKED: no SCN model file under LOCAL_COMPUTE_MODEL_DIR / search roots (or SCN env path)",
+        "BLOCKED: nvidia-smi not found (no GPU toolchain visible)",
+        "BLOCKED: LOCAL_COMPUTE_DISABLE_TORCH=1",
+        "BLOCKED: inference worker is STUB_NON_TENSORRT — no fabricated FFSCN/SCN forward path"
+      ],
+      "uiMessages": [
+        {
+          "code": "MODEL_HASH_MISMATCH",
+          "severity": "error",
+          "en": "Detection model hash/version does not match the configured expectation.",
+          "zh": "检测模型哈希/版本与配置期望不一致。"
+        },
+        {
+          "code": "WEIGHT_HASH_MISMATCH",
+          "severity": "error",
+          "en": "Detection model hash/version does not match the configured expectation.",
+          "zh": "检测模型哈希/版本与配置期望不一致。"
+        },
+        {
+          "code": "MODEL_MISSING_SCN",
+          "severity": "error",
+          "en": "SCN model file is missing. Detection cannot run.",
+          "zh": "缺少 SCN 模型文件，无法运行检测。"
+        },
+        {
+          "code": "GPU_MISSING",
+          "severity": "error",
+          "en": "No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.",
+          "zh": "未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。"
+        },
+        {
+          "code": "TORCH_MISSING",
+          "severity": "error",
+          "en": "PyTorch is not available in this Python. Detection cannot run real inference.",
+          "zh": "当前 Python 环境没有可用的 PyTorch，无法进行真推理。"
+        },
+        {
+          "code": "STUB_RUNTIME",
+          "severity": "error",
+          "en": "Local compute is in stub mode (no TensorRT). Detection will not invent results.",
+          "zh": "本地计算处于占位模式（无 TensorRT），检测不会伪造结果。"
+        },
+        {
+          "code": "NO_FAKE_INFERENCE",
+          "severity": "error",
+          "en": "Refusing to invent FFSCN/SCN detection candidates.",
+          "zh": "拒绝伪造 FFSCN/SCN 检测候选结果。"
+        }
+      ]
+    },
+    "gpu": {
+      "toolchainVisible": false,
+      "runtimeVerified": false,
+      "name": null,
+      "driverVersion": null,
+      "reason": "nvidia-smi not found (no GPU toolchain visible)",
+      "uiCode": "GPU_MISSING"
+    },
+    "runtime": {
+      "engine": "STUB_NON_TENSORRT",
+      "tensorrtVerified": false,
+      "cudaVerified": false,
+      "canInventResults": false,
+      "modelSearchRoots": [
+        "/tmp/m09-hash-s65f6kg7",
+        "/workspace/services/local-compute/models"
+      ],
+      "ffscnPresent": true,
+      "scnPresent": false,
+      "ffscnReady": false,
+      "scnReady": false
+    },
+    "dsp": {
+      "fft": true,
+      "psd": false,
+      "stft": false,
+      "ddc": false,
+      "reasons": [
+        "DSP stub probe available (non-native); full FFT/PSD/STFT/DDC workers not wired"
+      ]
+    },
+    "modelsPresent": [
+      {
+        "id": "FFSCN:model_epoch_0210.pth",
+        "path": "/tmp/m09-hash-s65f6kg7/model_epoch_0210.pth",
+        "sha256": "deb5b195d4f0f67a5d1a35d29befb776db44dbc592964d4d2ec2bc5378ce539a",
+        "present": true,
+        "notes": "sha256 mismatch vs LOCAL_COMPUTE_*_SHA256 / LOCAL_COMPUTE_*_WEIGHT_SHA256 / weights.sha256.json"
+      }
+    ],
+    "modelsAbsentCount": 155,
+    "notes": [
+      "Loopback-only (127.0.0.1).",
+      "Auth: Authorization: Bearer <session-token>.",
+      "CORS: configured Origin only (dev http://localhost:5173).",
+      "Sample indices / half-open ranges are decimal strings.",
+      "detection.ffscn/scn become true only after verified PyTorch load+forward.",
+      "Degradation: service remains up when detection is BLOCKED; DSP stub may stay available.",
+      "Model identity (path/sha256) may be reported when files exist; never invents inference.",
+      "detection.uiMessages carries bilingual (en/zh) copy for the UI.",
+      "gpu + runtime fields expose structured precheck.",
+      "Set LOCAL_COMPUTE_MODEL_DIR (or *_PATH) + algorithm HOMEs for real inference.",
+      "TensorRT .engine and ONNX are N/A (TENSORRT_NA / ONNX_NA); PyTorch .pth/.pt only.",
+      "Task status machine: queued->running->{succeeded|failed|cancelled|BLOCKED}; cancel always wins over late worker updates.",
+      "One or more model files are present — identity metadata reported; forward path still BLOCKED (STUB_NON_TENSORRT)."
+    ]
+  },
+  "assertions": {
+    "ffscn": false,
+    "WEIGHT_HASH_MISMATCH": true,
+    "MODEL_HASH_MISMATCH": true,
+    "canInventResults": false
+  }
+}

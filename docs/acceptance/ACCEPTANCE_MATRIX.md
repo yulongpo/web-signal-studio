@@ -29,7 +29,7 @@
 | M-06 | 标记 / 通道快照 / 撤销重做 | `packages/domain` + `project-io` | 单测 + E2E | TODO | |
 | M-07 | DDC / FIR / 有理重采样 | `packages/dsp-wasm` / local-compute | 数值对照 | PASS | Bot-G @ tip `01d121e` / ancestor `03a8e58` CI [run 39592883096](https://github.com/yulongpo/web-signal-studio/actions/runs/39592883096)：`m07_narrowband_ddc_e2e_2026-10-21.{json,md}` — chunked→Worker processDdc→optional baseband STFT/PSD; JS vs WASM ≤2e-5 (`DDC_SAMPLE_ABS_EPS`); goldens + web helper tests; D `matrix_pass_claimed:false` but evidence meets gate |
 | M-08 | 工程 v6 互操作 | `packages/project-io` | fixtures 往返 | PASS | Bot-G @ tip `8f09dbc` / ancestor `01ea6b9`/`2277ec5` / CI [run 39594324401](https://github.com/yulongpo/web-signal-studio/actions/runs/39594324401)：project-io **13/13** (9 + m08 fixture 4; independent re-run); fixtures `v6-realistic-project.json` (uint64-max sampleCount + past-2^53 indexes) + `v6-annotations-three-sources.json`; evidence `docs/acceptance/evidence/bot-f/m08_*` + `M-08-v6-roundtrip.md`; F `matrix_pass_claimed:false` |
-| M-09 | FFSCN/SCN 检测 + 降级 | `services/local-compute` | 冒烟 + 无模型路径 | TODO | |
+| M-09 | FFSCN/SCN 检测 + 降级 | `services/local-compute` | 冒烟 + 无模型路径 | WIP | Bot-E @ baseline `8c7c4db`：`docs/acceptance/evidence/bot-e/`（capabilities 降级原因、无模型 BLOCKED、cancel、WEIGHT_HASH_MISMATCH、TensorRT `.engine` N/A）。**`matrix_pass_claimed: false`，不宣称 PASS**；本环境无 GPU/无权重，未跑真推理 |
 | M-10 | BigInt 索引协议 | contracts / domain | 契约测试 | TODO | |
 
 
@@ -84,3 +84,4 @@
 | 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `01d121e` (C-P3/M-07/B-P4)：C-02 / M-07 / M-01 / M-05 → **PASS**；p95/idle FYI only (C-04/M-04 already PASS)；CI run 39593100315 success (e2e non-charts still skipped) |
 | 2026-10-21 | WSS-QA-G | P6 wrap-up @ tip `1931398`: Q-01→**PASS** (CI green run 39593427109); Q-03→**PASS** (MIT LICENSE + package SPDX); Q-04→**PASS** (secrets sweep + gitignore); Q-05→**WIP** (delivery manifest skeleton) |
 | 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `8f09dbc` / CI run 39594324401：M-02 / M-08 → **PASS** (file-io 31/31 + m02 golden 12; Bot-B open evidence+PNGs; project-io 13/13 v6 fixtures; e2e non-charts still skipped in CI) |
+| 2026-10-21 | Bot-E | M-09 evidence @ baseline `8c7c4db`：`docs/acceptance/evidence/bot-e/`（**WIP，`matrix_pass_claimed: false`，不自报 PASS**）；无模型/无 GPU BLOCKED；TensorRT `.engine` N/A |

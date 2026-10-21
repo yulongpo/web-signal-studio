@@ -70,6 +70,8 @@ Bound to exact `runId`; cancel is terminal.
 | STUB_RUNTIME | `error` | Local compute is in stub mode (no TensorRT). Detection will not invent results. | 本地计算处于占位模式（无 TensorRT），检测不会伪造结果。 |
 | REAL_RUNTIME | `info` | Verified PyTorch detection runtime is ready for this family. | 该检测族别的 PyTorch 真推理运行时已就绪。 |
 | NO_FAKE_INFERENCE | `error` | Refusing to invent FFSCN/SCN detection candidates. | 拒绝伪造 FFSCN/SCN 检测候选结果。 |
+| TENSORRT_NA | `error` | TensorRT .engine weights are N/A (no TensorRT runtime). Detection stays blocked. | TensorRT .engine 权重不可用（未接入 TensorRT 运行时），检测保持阻断。 |
+| ONNX_NA | `error` | ONNX weights are N/A (no ONNX runtime). Detection stays blocked. | ONNX 权重不可用（未接入 ONNX 运行时），检测保持阻断。 |
 
 **Hard rule:** service stays up under degradation; DSP stub (`dsp.fft`) may remain true; detection stays unavailable until verified; **no fake forward results**.
 
