@@ -1,42 +1,50 @@
 # Bot-D P2-D status
 
 - updated_at: 2026-10-21 (Asia/Shanghai)
-- stage: Package B — Emscripten WASM FFT/PSD skeleton (golden vs JS)
+- stage: Package C — WASM STFT + optional Worker wasm-fft engine
 - worktree: D:\\project\\wss-wt-d
 - branch: work/bot-d-dsp
-- base: e9c53e4 (origin/main tip at Package B start; includes Package A)
+- base: a148aee (origin/main tip at Package C start; includes Package B + Bot-B FSA/chunked STFT)
 - package_scope: @wss/*
 - shared_tree (D:\\project\\web_signal_studio): **no writes**
 - rebuild: **read-only reference**
+- MainChartHost: **untouched** (Bot-B owns FSA/chunked wiring)
 
-## Delivered (Package B)
+## Delivered (Package C)
 
-### packages/dsp-wasm native + wasm artifact
-- `native/fft_radix2.cpp` — faithful float64 port of `src/fft.ts` (bit-reversal + Cooley–Tukey + inverse 1/n)
-- `native/README.md` — rebuild instructions
-- `scripts/build-wasm.mjs` — invokes emcc (MODULARIZE + EXPORT_ES6)
-- `wasm/dsp_fft.js` + `wasm/dsp_fft.wasm` — **committed** artifacts (vitest/CI need no emcc)
-- Built with emsdk **6.0.13** (`eb132757325583b787fe9414b09afea9442b72ad`)
+### Injectable STFT FFT
+- `computeStft(request, iq, fft?)` — same `FftRadix2Fn` as PSD; JS `fftRadix2` remains default
+- `ReferenceStftEngine` unchanged for existing callers
 
-### TS boundary (`src/wasm/`)
-- `loadDspFft.ts` — lazy `loadWasmFftModule()` / `isWasmFftAvailable()`
-- `WasmFftEngine.ts` — `wasmFftRadix2` / in-place HEAPF64 path
-- `WasmPsdEngine.ts` — `WasmReferencePsdEngine` (Welch/window path identical to JS; FFT via WASM)
-- `computePsd(..., fft?)` — injectable FFT; JS `fftRadix2` remains default
-- Exports from `src/index.ts` (JS reference path unchanged / still default)
+### WASM STFT
+- `src/wasm/WasmStftEngine.ts` — `WasmReferenceStftEngine` / `computeStftWithFft`
+- Reuses Package B `loadWasmFftModule` / `wasmFftRadix2WithModule`
+- Exports from `src/index.ts` + `src/wasm/index.ts`
+
+### Optional Worker engine
+- Protocol: `configure` request + `configured` response; `engine: 'js' | 'wasm-fft'`
+- Handler state shared per Worker / InProcess backend
+- `DspWorkerClientOptions.engine` (default `'js'`) posts one-time configure
+- `configureEngine()` / `ready()` APIs
+- WASM load failure → fall back to JS (`fellBackToJs: true`); no hang
 
 ### Golden tests
-- `src/wasm-fft.golden.test.ts` — JS vs WASM FFT max-abs + peak bins; PSD peaks + bin powers within eps
-- No fake numeric DSP results — WASM runs real FFT math
+- `src/wasm-stft.golden.test.ts` — JS vs WASM STFT frame/peaks/powers; in-process Worker wasm-fft path
 
-### Out of scope (later package per CAO)
-- MainChartHost rewiring to real chunked read (separate package)
+### Out of scope
+- MainChartHost / synthetic fixture rewiring (Bot-B)
+
+## Prior: Package B (Emscripten WASM FFT/PSD)
+
+### packages/dsp-wasm native + wasm artifact
+- `native/fft_radix2.cpp`, `scripts/build-wasm.mjs`, committed `wasm/dsp_fft.{js,wasm}`
+- `WasmFftEngine` / `WasmReferencePsdEngine` / injectable `computePsd(..., fft?)`
 
 ## Prior: Package A (IQ WAV + FSA → STFT Worker)
 
 ### packages/file-io
 - wav-meta / wav-reader / blob-chunked-reader / fsa / buildPcm16LeStereoIqWav
-- STFT loop helper `apps/web/src/dsp/stftFromChunkedReader.ts` (does not replace MainChartHost fixture)
+- STFT loop helper `apps/web/src/dsp/stftFromChunkedReader.ts`
 
 ## Verify commands
 

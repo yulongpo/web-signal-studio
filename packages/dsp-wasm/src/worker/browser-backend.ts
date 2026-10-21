@@ -2,6 +2,9 @@
  * Browser Worker backend for DspWorkerClient.
  * Uses Vite-friendly `new Worker(new URL('./dsp-worker.ts', import.meta.url), { type: 'module' })`.
  * Throws a clear error when `Worker` is unavailable (Node/jsdom without polyfill).
+ *
+ * Package C: pass `engine: 'wasm-fft'` to createBrowserDspWorkerClient (not this class);
+ * the client posts a one-time configure message. Default remains JS.
  */
 
 import type { WorkerBackend } from './backends.js';
