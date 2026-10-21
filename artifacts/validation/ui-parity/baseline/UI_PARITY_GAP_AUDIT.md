@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 02:13` Asia/Shanghai: Web tip **`ba3bb76`** vs desktop `17471a6` — G02 PARTIAL deepened (D `3aaac7d` StftRequest welch + kaiserBeta + store publish). BLOCKED methods (periodogram/bartlett/multitaper/burg) stay **BLOCKED** (throw; no MET). SpectrumStatistic **NA_PSD_ONLY**. G08/G18 carry forward. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ba3bb76/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`bb9b1ef`) | Now (`ba3bb76`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL | **PARTIAL 加深** | welch/kaiser/store **MET**；blocked methods **BLOCKED** → **未 CLOSED** |
+| **G08** / **G18** / **G19** | PARTIAL | **unchanged PARTIAL** | carry forward |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未抬升 / 未发明 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_ba3bb76/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:10` Asia/Shanghai: Web tip **`bb9b1ef`** vs desktop `17471a6` — **evidence-only** G `2df3892` (web-2091dc0). G08 PARTIAL corroborated (`data-g08-shortcuts=wave23` + File/Edit/View accel captures); full shell re-shot residual → **not CLOSED**. No apps/packages delta. G18/G02 fold soft. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_bb9b1ef/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`663b522`) | Now (`bb9b1ef`) | Note |
