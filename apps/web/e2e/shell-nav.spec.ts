@@ -127,11 +127,14 @@ test.describe('shell navigation', () => {
       .poll(async () => {
         const s = await host.getAttribute('data-dsp-source');
         if (!s || s === 'loading') return null;
+        if (!['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker', 'fsa-wav-stft'].includes(s)) {
+          return null;
+        }
         return s;
       }, { timeout: 20000 })
-      .not.toBeNull();
+      .toMatch(/^(file-stft-worker|demo-fallback|synthetic-stft-worker|fsa-wav-stft)$/);
     const source = await host.getAttribute('data-dsp-source');
-    expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker']).toContain(source);
+    expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker', 'fsa-wav-stft']).toContain(source);
     if (source === 'file-stft-worker') {
       await expect(host).toHaveAttribute('data-dsp-source', 'file-stft-worker');
       const label = await host.getAttribute('data-dsp-label');
