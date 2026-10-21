@@ -2,8 +2,9 @@
   "name": "web-signal-studio",
   "private": true,
   "version": "0.0.0",
-  "description": "Web Signal Studio monorepo (Bot-D DSP / file-io scaffold)",
+  "description": "Web Signal Studio monorepo",
   "workspaces": [
+    "apps/*",
     "packages/*"
   ],
   "scripts": {
