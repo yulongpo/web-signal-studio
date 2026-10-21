@@ -349,7 +349,7 @@ test.describe('detection page', () => {
               {
                 code: 'REAL_RUNTIME',
                 severity: 'info',
-                en: 'Verified PyTorch detection runtime is ready for this family.',
+                en: 'Verified real detection runtime is ready for this family (TensorRT or PyTorch).',
                 zh: '该检测族别的 PyTorch 真推理运行时已就绪。',
               },
             ],
@@ -411,4 +411,94 @@ test.describe('detection page', () => {
     await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
     await expect(page.getByTestId('detect-gate-reason-ffscn')).toBeVisible();
   });
+
+  test('engine inventory lists capabilities.models; .pth marked blocked (G26)', async ({ page }) => {
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify({
+          ...BLOCKED_CAPS,
+          models: [
+            {
+              id: 'ffscn:ffscn_epoch1200_dynamic_fp32.engine',
+              path: 'D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\ffscn-gui-iq-v1\\ffscn_epoch1200_dynamic_fp32.engine',
+              present: true,
+              notes: 'engine',
+            },
+            {
+              id: 'scn:scn_model.engine',
+              path: 'D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models\\scn-max-psd-v1\\scn_model.engine',
+              present: true,
+              notes: 'engine',
+            },
+            {
+              id: 'ffscn:legacy.pth',
+              path: 'D:\\project\\signal_studio_rebuild\\out\\ignored\\legacy.pth',
+              present: true,
+              notes: 'pth-not-allowed',
+            },
+          ],
+          runtime: {
+            ...BLOCKED_CAPS.runtime,
+            modelSearchRoots: [
+              'D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models',
+            ],
+            ffscnPresent: true,
+            scnPresent: true,
+            ffscnReady: false,
+            scnReady: false,
+          },
+          detection: {
+            ...BLOCKED_CAPS.detection,
+            uiMessages: [
+              {
+                code: 'ENGINE_MISSING',
+                severity: 'error',
+                en: 'Canonical TensorRT .engine not found under signal_studio_rebuild detection-models.',
+                zh: '未在 signal_studio_rebuild detection-models 下找到规范 TensorRT .engine。',
+              },
+              ...BLOCKED_CAPS.detection.uiMessages,
+            ],
+          },
+        }),
+      });
+    });
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detect-engine-inventory')).toHaveAttribute('data-model-count', '3');
+    await expect(page.getByTestId('detect-engine-list')).toBeVisible();
+    await expect(page.getByTestId('detect-engine-item').first()).toHaveAttribute('data-engine', 'true');
+    await expect(page.locator('[data-testid="detect-engine-item"][data-pth="true"]').first()).toHaveAttribute('data-blocked-pth', 'true');
+    await expect(page.getByTestId('detect-ffscn-present')).toHaveAttribute('data-present', 'true');
+    await expect(page.getByTestId('detect-model-roots')).toHaveAttribute('data-count', '1');
+    await expect(page.locator('[data-testid="detect-ui-code"][data-code="ENGINE_MISSING"]').first()).toBeVisible();
+    await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+  });
+
+  test('cancel button stays disabled without active run; inventory visible', async ({ page }) => {
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify(BLOCKED_CAPS),
+      });
+    });
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detect-btn-cancel')).toBeDisabled();
+    await expect(page.getByTestId('detect-engine-inventory')).toBeVisible();
+  });
+
 });

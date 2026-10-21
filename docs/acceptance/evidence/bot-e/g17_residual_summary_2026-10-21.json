@@ -1,0 +1,36 @@
+{
+  "matrix_pass_claimed": false,
+  "task": "G17 residual Detect UI / cancel / precheck vs desktop 17471a6",
+  "baseline": "5d33611e178473977b2076c4ec817cde1175719e",
+  "branch": "work/bot-e-g17-residual",
+  "desktop_ref": "17471a6 (signal_studio_rebuild tip; DetectionCard cancel/frozen + model combo)",
+  "already_ok": [
+    "REAL_RUNTIME engine-agnostic + TENSORRT_OK (a61046d)",
+    "debug chips engine/tensorrtVerified/canInventResults",
+    "server cancel/precheck/WEIGHT_HASH/ENGINE_MISSING contracts (M-09+TRT)",
+    "draw only verifiedForward + real engine"
+  ],
+  "closed_this_tip": [
+    "Read-only capabilities.models .engine inventory on DetectPage",
+    ".pth items marked data-blocked-pth (G26; no picker)",
+    "Cancel enable = queued|running|busy",
+    "Cancel re-fetches GET task; cancelled forces result=null + frozen copy",
+    "Precheck chips: ffscn/scn present/ready + modelSearchRoots count",
+    "ENGINE_MISSING banner path covered in e2e"
+  ],
+  "remaining_blocked": [
+    "Narrowband recognition stays BLOCKED",
+    "Full DetectionCard field parity still beyond residual",
+    "matrix PASS not claimed by Bot-E"
+  ],
+  "verification": {
+    "pytest_degrade": "64 passed (LOCAL_COMPUTE_DISABLE_TORCH=1, DISABLE_TENSORRT=1)",
+    "e2e_added": [
+      "engine inventory + ENGINE_MISSING",
+      "cancel disabled without active run"
+    ],
+    "matrix_pass_claimed": false
+  },
+  "tip": "59f982031845acf5a3a9f70255084e8c7b25a9ec",
+  "tip_short": "59f9820"
+}

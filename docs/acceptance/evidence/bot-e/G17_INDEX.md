@@ -23,3 +23,7 @@ Filled for G17: **REAL_RUNTIME** copy was PyTorch-only while live engine is `TEN
 - cancel / precheck tests: pass
 
 See `g17_capabilities_2026-10-21.json`, `g17_summary_2026-10-21.json`.
+
+## Residual follow-up
+
+See `G17_RESIDUAL_INDEX.md` (Detect UI engine inventory / cancel freeze / precheck chips). **matrix_pass_claimed: false**.

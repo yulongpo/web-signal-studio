@@ -259,23 +259,25 @@ export function DetectPage() {
     if (!runId) return;
     const client = makeClient();
     try {
-      const res = await client.cancelTask(runId);
-      setTask((prev) =>
-        prev
-          ? {
-              ...prev,
-              status: res.status,
-              message: res.message ?? prev.message,
-              messageZh: res.messageZh ?? prev.messageZh,
-            }
-          : prev,
-      );
-      setBusy(false);
+      // Exact runId cancel is terminal (desktop: cancel wins; frozen display).
+      await client.cancelTask(runId);
       stopPoll();
+      setBusy(false);
+      // Re-fetch full record so statusHistory / result=null stay honest.
+      const rec = await client.getTask(runId);
+      setTask({
+        ...rec,
+        // Hard rule: cancelled never keeps draw-able candidates.
+        result: rec.status === 'cancelled' ? null : rec.result,
+      });
     } catch (err) {
       setErrorLine(err instanceof Error ? err.message : String(err));
     }
   };
+
+  const canCancel =
+    !!task?.runId &&
+    (busy || task.status === 'queued' || task.status === 'running');
 
   const statusLine = (() => {
     if (!task) return 'idle';
@@ -308,6 +310,11 @@ export function DetectPage() {
         {task?.status === 'BLOCKED' && task.messageZh ? (
           <p data-testid="detect-blocked-message">{task.messageZh}</p>
         ) : null}
+        {task?.status === 'cancelled' ? (
+          <p data-testid="detect-cancelled-message" data-frozen="true">
+            {task.messageZh || task.message || '已取消 · 冻结显示，不绘制候选'}
+          </p>
+        ) : null}
       </div>
 
       {(caps?.gpu?.uiCode || caps?.runtime) && (
@@ -338,8 +345,81 @@ export function DetectPage() {
               invent:{String(caps.runtime.canInventResults)}
             </span>
           ) : null}
+          {caps?.runtime && 'ffscnPresent' in caps.runtime ? (
+            <span
+              data-testid="detect-ffscn-present"
+              data-present={String(caps.runtime.ffscnPresent)}
+              data-ready={String(caps.runtime.ffscnReady)}
+            >
+              ffscn:{caps.runtime.ffscnPresent ? 'present' : 'absent'}
+              {caps.runtime.ffscnReady ? '/ready' : '/not-ready'}
+            </span>
+          ) : null}
+          {caps?.runtime && 'scnPresent' in caps.runtime ? (
+            <span
+              data-testid="detect-scn-present"
+              data-present={String(caps.runtime.scnPresent)}
+              data-ready={String(caps.runtime.scnReady)}
+            >
+              scn:{caps.runtime.scnPresent ? 'present' : 'absent'}
+              {caps.runtime.scnReady ? '/ready' : '/not-ready'}
+            </span>
+          ) : null}
+          {caps?.runtime?.modelSearchRoots?.length ? (
+            <span
+              data-testid="detect-model-roots"
+              data-count={String(caps.runtime.modelSearchRoots.length)}
+              title={caps.runtime.modelSearchRoots.join('\n')}
+            >
+              roots:{caps.runtime.modelSearchRoots.length}
+            </span>
+          ) : null}
         </div>
       )}
+
+      <section
+        className="detect-engine-inventory"
+        data-testid="detect-engine-inventory"
+        data-model-count={String(caps?.models?.length ?? 0)}
+      >
+        <strong>检测模型（树内 .engine）</strong>
+        {!caps?.models?.length ? (
+          <p className="muted" data-testid="detect-engine-empty">
+            capabilities 尚未返回 models，或未发现权重。缺 engine 时保持 BLOCKED（禁假）。
+          </p>
+        ) : (
+          <ul data-testid="detect-engine-list">
+            {caps.models.map((m) => {
+              const path = m.path ?? '';
+              const isEngine =
+                path.toLowerCase().endsWith('.engine') ||
+                m.id.toLowerCase().includes('.engine');
+              const isPth = /\.(pth|pt)$/i.test(path) || /\.(pth|pt)$/i.test(m.id);
+              return (
+                <li
+                  key={m.id}
+                  data-testid="detect-engine-item"
+                  data-model-id={m.id}
+                  data-present={m.present ? 'true' : 'false'}
+                  data-engine={isEngine ? 'true' : 'false'}
+                  data-pth={isPth ? 'true' : 'false'}
+                  data-blocked-pth={isPth ? 'true' : 'false'}
+                  title={path || m.id}
+                >
+                  <code>{m.id}</code>
+                  {m.present ? ' · present' : ' · absent'}
+                  {isEngine ? ' · .engine' : ''}
+                  {isPth ? ' · .pth 不可用(G26)' : ''}
+                  {m.notes ? ` · ${m.notes}` : ''}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <p className="muted">
+          仅展示 capabilities.models；不提供 .pth 选择。IQ 限 resources\\sigmf_data_demo。
+        </p>
+      </section>
 
       <label className="detect-field">
         <span>Bearer token</span>
@@ -385,7 +465,12 @@ export function DetectPage() {
         <button
           type="button"
           data-testid="detect-btn-cancel"
-          disabled={!task?.runId || !busy}
+          disabled={!canCancel}
+          title={
+            canCancel
+              ? `取消运行 ${task?.runId ?? ''}`
+              : '无可取消的运行中任务'
+          }
           onClick={() => void cancelRun()}
         >
           取消
@@ -479,10 +564,16 @@ export function DetectPage() {
           className="detect-no-candidates"
           data-testid="detect-no-candidates"
           data-blocked={task.status === 'BLOCKED' ? 'true' : 'false'}
+          data-cancelled={task.status === 'cancelled' ? 'true' : 'false'}
+          data-frozen={
+            task.status === 'cancelled' || task.status === 'BLOCKED' ? 'true' : 'false'
+          }
         >
           {task.status === 'BLOCKED'
             ? '任务 BLOCKED：不绘制候选框（无伪造结果）。'
-            : '无已核验前向结果，不绘制候选。'}
+            : task.status === 'cancelled'
+              ? '任务已取消：冻结显示，不绘制候选（result=null）。'
+              : '无已核验前向结果，不绘制候选。'}
         </div>
       )}
     </div>
