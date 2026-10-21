@@ -1,0 +1,69 @@
+{
+  "id": "qa-web-647978c-g19-g07-g02-g08-g11",
+  "tip_web_evidence": "647978c514780a0991d0f5de02f94a0cf9f2e4f1",
+  "tip_impl_b": "d7d44c119d2490edc5b3f6735da39f276efc59b7",
+  "tip_impl_c": "2ac1f9bda46f48cdf837d9a4485b7f32308b7ffc",
+  "tip_impl_baseline_9248453": "9248453b0f58375bd50e93719a6371574c3d0a84",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-g08-bottom-height-before.png",
+    "01b-g08-bottom-height-after.png",
+    "01c-g08-bottom-resize-handle.png",
+    "02-g19-bottom-table-paging.png",
+    "02b-g19-bottom-table-crop.png",
+    "02c-g19-rail-table-paging.png",
+    "02d-g19-rail-panel-crop.png",
+    "03-g07-annotation-panel.png",
+    "03b-g07-detection-panel-fuller.png",
+    "03c-g07-detection-shell-crop.png",
+    "04-g02-overflow-qlabel.png",
+    "04b-g02-overflow-menu-crop.png",
+    "05-g11-overview-openhand.png",
+    "05b-g11-overview-nav-crop.png",
+    "05c-g11-overview-closedhand-drag.png"
+  ],
+  "docs": [
+    "BOT_B_G19_TABLE_PAGING.md",
+    "BOT_B_G07_BOTTOM.md",
+    "BOT_B_G02_STRIP.md",
+    "BOT_B_G08_COLUMNS.md",
+    "BOT_C_STATUS.md"
+  ],
+  "observations": {
+    "g08": {
+      "before": 150,
+      "after": 233,
+      "clamped_100_500": true
+    },
+    "g19": {
+      "bottom_page_size": "每页 200",
+      "rail_page_size": "每页 200",
+      "quality_menu": true,
+      "table_header": true
+    },
+    "g07": {
+      "marks_shell": "annotation-panel",
+      "tasks_shell": "detection-panel",
+      "detect_table": true,
+      "detect_inspector": true
+    },
+    "g02": {
+      "stft": "STFT点数",
+      "palette": "色板"
+    },
+    "g11_overview": {
+      "hover_cursor": "grab",
+      "drag_cursor_during": "grab",
+      "window": {
+        "winMin": 0,
+        "winMax": 0.008384,
+        "fullMin": 0,
+        "fullMax": 0.008384
+      },
+      "note": "data-nav-overview-cursor grab = OpenHand on overview window @ 17471a6"
+    },
+    "gaps": "No PASS. Evidence tip 647978c; impl B d7d44c1 + C 2ac1f9b (9248453 wave). Desktop 17471a6 ref only. Typecheck expected green after B M06MarksPanel fix."
+  }
+}
