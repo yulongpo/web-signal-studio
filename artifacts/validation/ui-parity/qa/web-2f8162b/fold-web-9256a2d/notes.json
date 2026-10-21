@@ -1,0 +1,60 @@
+{
+  "id": "qa-web-9256a2d-wave21-g02-g18",
+  "tip_web_evidence": "9256a2d47dc4602be4994566f5d29da6c19b17a5",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "replaces_pack": "web-e8f0881",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "captures": [
+    "01-g02-wave21-strip-window-overlap-hop-fftn.png",
+    "01b-g02-wave21-strip-crop.png",
+    "02-g18-nb-psd-freq-vline-linked.png",
+    "03-g18-nb-psd-freq-dwell-only.png",
+    "03b-g18-nb-psd-dwell-crop.png",
+    "04-g18-esc-clears-vline-dwell.png",
+    "fold-web-5c569c2/* (14 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE21_G02_WINDOW_OVERLAP.md",
+    "BOT_B_WAVE19_G02_DSP_FEED_STAMPS.md",
+    "G18-NB-DWELL-ONLY-FREQ-HANDOFF.md",
+    "G18-NB-PSD-FREQ-VLINE-HANDOFF.md",
+    "nbPsdFreqFromDwell.test.ts"
+  ],
+  "observations": {
+    "g02_wave21": {
+      "strip_dsp": "wave19 wave21",
+      "strip_wave": "wave11 wave14 wave19 wave21",
+      "window": "hann",
+      "window_empty": "false",
+      "overlap": "0.75",
+      "hop_on_overlap": "256",
+      "hop": "256",
+      "fftn": "1024",
+      "hop_empty": "false",
+      "fftn_empty": "false"
+    },
+    "ddc_ready": true,
+    "linked_vline": {
+      "vline": "true",
+      "source": "linked"
+    },
+    "dwell_only": {
+      "source": "dwell-peak",
+      "vline": "true",
+      "ddc_ready": true
+    },
+    "dwell_center_probe": {
+      "source": "dwell-peak",
+      "vline": "true"
+    },
+    "esc_nb": {
+      "linkedPinned": false,
+      "dwell": null,
+      "psdMode": "statistical",
+      "source": "none"
+    }
+  },
+  "gaps": []
+}
