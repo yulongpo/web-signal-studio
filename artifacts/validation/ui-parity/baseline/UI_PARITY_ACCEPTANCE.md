@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 01:45` Asia/Shanghai: Web **`9256a2d`** vs desktop `17471a6` — G02 PARTIAL deepened (B wave21 window/overlap from D store). G18 still PARTIAL. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_9256a2d.md`. **No PASS.**
+
+| ID | Prior (`e8f0881`) | Now (`9256a2d`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL（window/overlap 残） | **PARTIAL 加深** | store-backed strip MET；editable/stftN → **未 CLOSED** |
+| **G18** | PARTIAL | **unchanged PARTIAL** | multi-view polish 残 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_9256a2d.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:39` Asia/Shanghai: Web **`e8f0881`** vs desktop `17471a6` — G18 PARTIAL deepened (C dwell-only historic freq). Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_e8f0881.md`. **No PASS.**
 
 | ID | Prior (`4937422`) | Now (`e8f0881`) | Note |
