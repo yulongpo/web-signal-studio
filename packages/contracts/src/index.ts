@@ -86,3 +86,21 @@ export interface ProjectV6Meta {
   format: 'signal-studio-native-project';
   version: 6;
 }
+
+// Bot-E: local-compute / detection page wire types (scoped; see services/local-compute/docs/DETECTION_PAGE_CONTRACT.md)
+export type {
+  DecimalSampleIndex,
+  LocalComputeUiMessage,
+  LocalComputeDetectionCapabilities,
+  LocalComputeDspCapabilities,
+  LocalComputeModelInfo,
+  LocalComputeCapabilities,
+  LocalComputeSampleRange,
+  LocalComputeTaskCreateRequest,
+  LocalComputeTaskCreateResponse,
+  LocalComputeTaskStatus,
+  LocalComputeTaskRecord,
+  LocalComputeTaskCancelResponse,
+  LocalComputeUiCode,
+} from './local-compute.js';
+export { LOCAL_COMPUTE_UI_CODES } from './local-compute.js';

@@ -1,4 +1,4 @@
-# local-compute (Web Signal Studio)
+﻿# local-compute (Web Signal Studio)
 
 Optional **loopback-only** FastAPI service implementing [WEB_NATIVE_PROTOCOL](../../docs/architecture/WEB_NATIVE_PROTOCOL.md) v0.1.0.
 
@@ -53,3 +53,15 @@ Or: `python -m app.main`
 .\.venv\Scripts\Activate.ps1
 pytest -q
 ```
+
+## Frontend detection-page contract
+
+- Markdown: [docs/DETECTION_PAGE_CONTRACT.md](docs/DETECTION_PAGE_CONTRACT.md)
+- OpenAPI (committed): [openapi.yaml](openapi.yaml) — also live at `GET /openapi.json`
+- TS types: `@wss/contracts` `local-compute` exports (`LocalComputeCapabilities`, `uiMessages`, etc.)
+
+### No-GPU / no-model degradation copy
+
+`detection.uiMessages[]` carries stable `code` + bilingual `en`/`zh` strings (see contract table).
+`ffscn`/`scn` stay `false`; never invent detection candidates. Task records expose `message` / `messageZh` / `uiMessages` when blocked.
+
