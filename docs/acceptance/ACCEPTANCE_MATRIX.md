@@ -48,11 +48,11 @@
 
 | ID | 项 | 状态 | 证据 |
 |----|----|------|------|
-| Q-01 | `.github/workflows/ci.yml` lint/typecheck/unit/build | FAIL→fix | `a904334` run [39583728389](https://github.com/yulongpo/web-signal-studio/actions/runs/39583728389) npm ci Missing `@wss/web`; root lock+CI workspace install on `work/bot-g-qa` + `docs/acceptance/evidence/ci-fail-a904334_REPORT.md` |
+| Q-01 | `.github/workflows/ci.yml` lint/typecheck/unit/build | PASS | Bot-G @ tip `1931398` / CI [run 39593427109](https://github.com/yulongpo/web-signal-studio/actions/runs/39593427109) (main success: web lint/typecheck/unit/build + charts unit + charts-playwright); branch run [39593321257](https://github.com/yulongpo/web-signal-studio/actions/runs/39593321257); obsolete FAIL `a904334` superseded — `docs/acceptance/evidence/bot-g/q01_ci_refresh_2026-10-21.{md,json}` |
 | Q-02 | Playwright E2E（真实本机/CI 服务） | PASS（本地） | `tests/e2e/shell-nav.spec.ts` + `artifacts/validation/p1g/e2e.log` |
-| Q-03 | 许可证 / 依赖扫描 | PASS* | `artifacts/validation/license/`（prod MIT×8 + UNLICENSED=`@wss/web`；根 LICENSE 缺失 → 发布仍 WIP） |
-| Q-04 | 无密钥 / 大样本入 Git | WIP | `.gitignore` 抽查 |
-| Q-05 | `artifacts/delivery/manifest.json` | TODO | |
+| Q-03 | 许可证 / 依赖扫描 | PASS | Bot-G P6: root `LICENSE` (MIT) + `"license": "MIT"` on root and all `@wss/*` packages (closes prior UNLICENSED=`@wss/web` + missing LICENSE); evidence `docs/acceptance/evidence/bot-g/q03_license_close_2026-10-21.{md,json}` + `artifacts/validation/license/REPORT.md` |
+| Q-04 | 无密钥 / 大样本入 Git | PASS | Bot-G P6 secrets sweep: no pattern hits; only `.env.example`; tiny fixtures only; `.gitignore` tightened (env/credentials/keys/weights/IQ) + delivery allowlist — `docs/acceptance/evidence/bot-g/q04_secrets_gitignore_2026-10-21.{md,json}` |
+| Q-05 | `artifacts/delivery/manifest.json` | WIP | Bot-G P6 skeleton committed (`artifacts/delivery/manifest.json`); tip/CI/license/packages/evidence paths filled; `delivery.artifacts` empty pending packaging — `docs/acceptance/evidence/bot-g/q05_delivery_manifest_skeleton_2026-10-21.md` |
 | Q-06 | 只读边界：`signal_studio_rebuild` 无本任务写入 | PASS* | 见下方「只读边界核验」 |
 
 \*PASS 指 **WSS 任务包未对该目录执行写入**；该目录自身可有与桌面 UX 相关的既有脏工作树，须与本 Web 重构任务区分。
@@ -82,3 +82,4 @@
 | 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `0898ec7`→`b82e324` / CI run 39591371842 (charts-playwright success)：M-04 → **PASS**；C-02 / M-01 / M-05 / M-07 **keep WIP** (C-02 schema-only; M-01 no dedicated evidence; M-05 screenshots-only; M-07 golden present but D no PASS claim) |
 | 2026-10-21 | Bot-C | C-P3 @ tip after f9f4616: C-02 **live** display-only tile extract dual-write (c02_display_only_extract_live_*.json) + interaction p95/idle-settle evidence (**C-02 still WIP, no self-PASS**; M-04 already PASS by G) |
 | 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `01d121e` (C-P3/M-07/B-P4)：C-02 / M-07 / M-01 / M-05 → **PASS**；p95/idle FYI only (C-04/M-04 already PASS)；CI run 39593100315 success (e2e non-charts still skipped) |
+| 2026-10-21 | WSS-QA-G | P6 wrap-up @ tip `1931398`: Q-01→**PASS** (CI green run 39593427109); Q-03→**PASS** (MIT LICENSE + package SPDX); Q-04→**PASS** (secrets sweep + gitignore); Q-05→**WIP** (delivery manifest skeleton) |

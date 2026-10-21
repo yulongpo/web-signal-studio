@@ -1,0 +1,21 @@
+{
+    "tipBase":  "1931398",
+    "gate":  "Q-03",
+    "reviewer":  "Bot-G / WSS-QA-G",
+    "rootLicense":  "MIT",
+    "timezone":  "Asia/Shanghai",
+    "priorGap":  "UNLICENSED=@wss/web + missing root LICENSE",
+    "matrix_pass_claimed":  true,
+    "status":  "PASS",
+    "packagesLicensed":  [
+                             "web-signal-studio",
+                             "@wss/web",
+                             "@wss/charts",
+                             "@wss/contracts",
+                             "@wss/domain",
+                             "@wss/dsp-wasm",
+                             "@wss/file-io",
+                             "@wss/project-io"
+                         ],
+    "timestamp":  "2026-10-21T19:41:00+08:00"
+}
