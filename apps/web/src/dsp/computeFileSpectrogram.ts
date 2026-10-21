@@ -1,6 +1,7 @@
 /**
  * Opened IQ ChunkedReader → STFT → main-chart spectrogram (parallel to synthetic fixture).
  */
+import type { SpectralWindowName } from '@wss/contracts';
 import type { DspWorkerClient } from '@wss/dsp-wasm';
 import type { ChunkedReader } from '@wss/file-io';
 import { stftFromChunkedReader } from './stftFromChunkedReader';
@@ -23,7 +24,7 @@ export interface FileSpectrogramResult {
   /** Actual STFT analysis params used (source of truth for SpecParamStrip). */
   fftSize: number;
   hopSize: number;
-  window: typeof MAIN_STFT_DEFAULTS.window;
+  window: SpectralWindowName;
   overlap: number;
 }
 
@@ -35,6 +36,7 @@ export interface ComputeFileSpectrogramOptions {
   signal?: AbortSignal;
   fftSize?: number;
   hopSize?: number;
+  window?: SpectralWindowName;
   /** Cap samples for first paint (default: enough for ~128 frames). */
   maxSamples?: bigint;
 }
@@ -44,7 +46,7 @@ export async function computeFileSpectrogram(
 ): Promise<FileSpectrogramResult> {
   const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
   const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
-  const window = MAIN_STFT_DEFAULTS.window;
+  const window: SpectralWindowName = options.window ?? MAIN_STFT_DEFAULTS.window;
   const frameTarget = 128;
   const defaultMax = BigInt(fftSize + (frameTarget - 1) * hopSize);
   const maxSamples = options.maxSamples ?? defaultMax;

@@ -116,6 +116,9 @@ export function MainChartHost() {
   const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
   const setDspSourceStore = useUiStore((s) => s.setDspSource);
   const setDspFftAnalysisParams = useUiStore((s) => s.setDspFftAnalysisParams);
+  const stftN = useUiStore((s) => s.stftN);
+  const stftWindowPref = useUiStore((s) => s.stftWindowPref);
+  const stftOverlapPref = useUiStore((s) => s.stftOverlapPref);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
   const navWindowTime = useUiStore((s) => s.navWindowTime);
@@ -167,6 +170,12 @@ export function MainChartHost() {
     setIqFormat(null);
 
     const session = getIqFileSession();
+    const fftSize = Math.max(2, Math.floor(stftN));
+    const overlap = Number.isFinite(stftOverlapPref)
+      ? Math.min(Math.max(stftOverlapPref, 0), 0.999999)
+      : 0.75;
+    const hopSize = Math.max(1, Math.floor(fftSize * (1 - overlap)));
+    const window = stftWindowPref;
 
     const run = async () => {
       if (session) {
@@ -176,6 +185,9 @@ export function MainChartHost() {
           sampleRateHz: session.sampleRateHz,
           sourceLabel: session.sourceLabel,
           signal: ac.signal,
+          fftSize,
+          hopSize,
+          window,
         });
         if (ac.signal.aborted) return;
         const kind = kindForVia(session.via);
@@ -205,6 +217,9 @@ export function MainChartHost() {
       const result: MainSpectrogramResult = await computeMainSpectrogram({
         client,
         signal: ac.signal,
+        fftSize,
+        hopSize,
+        window,
       });
       if (ac.signal.aborted) return;
       setSpec(result);
@@ -234,7 +249,7 @@ export function MainChartHost() {
     });
 
     return () => ac.abort();
-  }, [client, iqEpoch, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
+  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;
