@@ -1,3 +1,13 @@
+> Bot-A `2026-10-22 01:52` Asia/Shanghai: Web tip **`2f8162b`** vs desktop `17471a6` — G18 PARTIAL deepened (C `99e1eba` NB STFT SpectrumChart linkedCursor + wave prefer timeSec/onPinX). Not CLOSED (modulation/recognition panes). B SpectralSettings absent — no invented G02 MET. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2f8162b.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`9256a2d`) | Now (`2f8162b`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（multi-view polish 残） | **PARTIAL 加深** | STFT/wave linked **MET**；mod/recog panes → **未 CLOSED** |
+| **G02** | PARTIAL | **unchanged PARTIAL** | B SpectralSettings **不在 tip** — 不发明 MET |
+| **G06** / **G17** | PARTIAL | **unchanged — BLOCKED** | 未发明路径 |
+| **G19** | PARTIAL | **unchanged** | `data-native-qfiledialog=false` |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_2f8162b.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:45` Asia/Shanghai: Web tip **`9256a2d`** vs desktop `17471a6` — G02 PARTIAL deepened (D `4cf4f64` FFT window/overlap publish + B wave21 SpecParamStrip). G18 still PARTIAL (multi-view polish). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_9256a2d.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`e8f0881`) | Now (`9256a2d`) | Note |
