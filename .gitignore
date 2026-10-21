@@ -71,7 +71,7 @@ CMakeUserPresets.json
 **/*.pt
 **/weights/*.bin
 
-# UI parity (Bot-G) — baseline copy + qa captures
+# UI parity (Bot-G) 鈥?baseline copy + qa captures
 !artifacts/validation/ui-parity/
 artifacts/validation/ui-parity/*
 !artifacts/validation/ui-parity/QA_CHECKLIST.md
@@ -87,7 +87,7 @@ artifacts/validation/ui-parity/bot-c/*
 !artifacts/validation/ui-parity/bot-c/*.md
 !artifacts/validation/ui-parity/bot-c/*.png
 
-# Bot-B ui-parity evidence (wiring only — not PASS)
+# Bot-B ui-parity evidence (wiring only 鈥?not PASS)
 !artifacts/validation/ui-parity/bot-b/
 artifacts/validation/ui-parity/bot-b/*
 !artifacts/validation/ui-parity/bot-b/*.json
@@ -100,3 +100,4 @@ artifacts/validation/ui-parity/bot-b/*
 !artifacts/validation/ui-parity/INCREMENTAL_62d3b70.md
 
 !artifacts/validation/ui-parity/INCREMENTAL_360aba7.md
+!artifacts/validation/ui-parity/INCREMENTAL_3d7ab59.md

@@ -158,3 +158,19 @@ ebuild/a143-native @ 17471a6488383b456281d12cb1a6d3d80290205d
 | 计数 | OPEN 9 · PARTIAL 13 · CLOSED 1（G05）· DOCS 1（G25） |
 | PASS | **无** |
 
+
+## 2026-10-21 22:10+08 Bot-A INCREMENTAL_3d7ab59（PR#3 gestures/ROI/Level；证据包 2d12522）
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6`**（unchanged） |
+| **审计主体 Web tip** | **`3d7ab59`**（`2e65e82` cherry：zoom-box / ROI 确认条 / Level / REAL_RUNTIME） |
+| Evidence merge tip | **`2d12522`**（Bot-G `qa/web-3d7ab59`；截图不 CLOSED） |
+| 主交付 | `artifacts/validation/ui-parity/INCREMENTAL_3d7ab59.md` |
+| G01 | **PARTIAL 无回归**（rename + viewHistory 仍 MET） |
+| G02 | **PARTIAL 加深**（参考/动态 Level；Toolbar/caption 残留） |
+| G11–G15 | **PARTIAL 加深**（G14 近退出不 CLOSED） |
+| 计数 | OPEN 9 · PARTIAL 13 · CLOSED 1（G05）· DOCS 1（G25） |
+| PASS | **否**（Bot-A 不自报矩阵 PASS；截图永不单独 CLOSED） |
+| 约束 | 不 checkout 共享树；未改实现；rebuild 只读 |
+
