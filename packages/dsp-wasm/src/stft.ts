@@ -1,0 +1,91 @@
+import type { StftRequest, StftResult, SampleIndex } from '@wss/contracts';
+import { sampleIndexToDecimal } from '@wss/contracts';
+import { fftRadix2, isPowerOfTwo, binFrequencyHz } from './fft.js';
+import type { StftEngine } from './interfaces.js';
+import { makeWindow, windowPowerSum } from './windows.js';
+
+/**
+ * Reference STFT engine: hop frames → linear-power spectrogram for complex IQ.
+ */
+export class ReferenceStftEngine implements StftEngine {
+  async analyze(request: StftRequest, iqInterleaved: Float32Array): Promise<StftResult> {
+    return computeStft(request, iqInterleaved);
+  }
+}
+
+export function computeStft(request: StftRequest, iqInterleaved: Float32Array): StftResult {
+  const { fftSize, hopSize, window, sampleRateHz } = request;
+  if (!isPowerOfTwo(fftSize)) {
+    throw new RangeError(`STFT fftSize must be power of two, got ${fftSize}`);
+  }
+  if (!Number.isInteger(hopSize) || hopSize <= 0) {
+    throw new RangeError(`STFT hopSize must be positive integer, got ${hopSize}`);
+  }
+
+  const begin = request.begin;
+  const end = request.end;
+  if (end < begin) throw new RangeError('STFT end < begin');
+
+  const totalSamplesInBuffer = BigInt(iqInterleaved.length / 2);
+  const span = end - begin;
+  if (span > totalSamplesInBuffer) {
+    throw new RangeError(
+      `STFT range ${sampleIndexToDecimal(begin)}..${sampleIndexToDecimal(end)} exceeds buffer samples ${sampleIndexToDecimal(totalSamplesInBuffer)}`,
+    );
+  }
+  const nSamples = Number(span);
+  if (!Number.isSafeInteger(nSamples)) {
+    throw new RangeError('STFT span exceeds Number.MAX_SAFE_INTEGER');
+  }
+
+  const win = makeWindow(window, fftSize);
+  const wPow = windowPowerSum(win);
+  const scale = 1 / (wPow * sampleRateHz);
+
+  const frameStarts: number[] = [];
+  for (let start = 0; start + fftSize <= nSamples; start += hopSize) {
+    frameStarts.push(start);
+  }
+  if (frameStarts.length === 0 && nSamples > 0) {
+    frameStarts.push(0);
+  }
+
+  const frameCount = frameStarts.length;
+  const binCount = fftSize;
+  const linearPower = new Float32Array(frameCount * binCount);
+  const frameCenters: string[] = [];
+
+  for (let f = 0; f < frameCount; f++) {
+    const start = frameStarts[f]!;
+    const frame = new Float64Array(fftSize * 2);
+    const use = Math.min(fftSize, nSamples - start);
+    for (let n = 0; n < use; n++) {
+      const src = (start + n) * 2;
+      const w = win[n]!;
+      frame[n * 2] = iqInterleaved[src]! * w;
+      frame[n * 2 + 1] = iqInterleaved[src + 1]! * w;
+    }
+    fftRadix2(frame, false);
+    const row = f * binCount;
+    for (let k = 0; k < binCount; k++) {
+      const re = frame[k * 2]!;
+      const im = frame[k * 2 + 1]!;
+      linearPower[row + k] = (re * re + im * im) * scale;
+    }
+    const center = begin + BigInt(start) + BigInt(Math.floor(fftSize / 2));
+    frameCenters.push(sampleIndexToDecimal(center as SampleIndex));
+  }
+
+  const frequenciesHz = new Float64Array(binCount);
+  for (let k = 0; k < binCount; k++) {
+    frequenciesHz[k] = binFrequencyHz(k, fftSize, sampleRateHz);
+  }
+
+  return {
+    frequenciesHz,
+    frameCenters,
+    linearPower,
+    frameCount,
+    binCount,
+  };
+}
