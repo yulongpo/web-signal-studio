@@ -2787,3 +2787,26 @@ span[data-editable-col]:hover {
 .annotation-cell-edit[data-adaptive-kind] {
   min-width: 72px;
 }
+
+
+/* wave14 G07 worker status + G02/G08 polish */
+.bottom-detect-worker-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 11px;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+.bottom-detect-blocked-gaps {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  font-size: 11px;
+}
+.bottom-detect-blocked-gaps li[data-blocked='true'] {
+  color: #8a9bb0;
+  list-style: disc;
+}
+.chart-strip-qlabel-value[data-strip-empty='true'] {
+  opacity: 0.55;
+}
