@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 01:56` Asia/Shanghai: Web **`d69fc93`** vs desktop `17471a6` — G02 PARTIAL deepened (B wave22 prefs→STFT). G18/G19 still PARTIAL. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d69fc93.md`. **No PASS.**
+
+| ID | Prior (`2f8162b`) | Now (`d69fc93`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL（SpectralSettings 残） | **PARTIAL 加深** | prefs→STFT MET；full Qt widget → **未 CLOSED** |
+| **G18** | PARTIAL | **unchanged PARTIAL** | mod/recog panes 残 |
+| **G19** | PARTIAL | **unchanged** | native QFileDialog=false |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_d69fc93.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:52` Asia/Shanghai: Web **`2f8162b`** vs desktop `17471a6` — G18 PARTIAL deepened (C NB STFT/wave linkedCursor). Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2f8162b.md`. **No PASS.**
 
 | ID | Prior (`9256a2d`) | Now (`2f8162b`) | Note |
