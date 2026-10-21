@@ -1,0 +1,33 @@
+{
+  "id": "qa-web-56233d2-wave10-rail-scrubber",
+  "tip_web_evidence": "56233d25d85d95bb510155058a392512be68105f",
+  "tip_impl_b_wave10": "fa60055",
+  "tip_impl_base_a48481d": "a48481d46262ac8cc8b830dc172928cc36c18cf5",
+  "tip_impl_base_787623d_wave9": "787623dafd2019846f478d922d7b2070f0db2416",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-wave10-rail-dwell-scrubber.png",
+    "01-wave9-g19-review-bar.png",
+    "01b-wave10-rail-dwell-scrubber-crop.png",
+    "01b-wave9-g19-review-bar-crop.png",
+    "02-wave9-g02-g08-attrs.png",
+    "BOT_B_WAVE10_RAIL_SCRUBBER.md",
+    "BOT_B_WAVE9_G19_G02_G08.md",
+    "fold-web-4c51054/* (12 files)"
+  ],
+  "docs": [
+    "BOT_B_WAVE10_RAIL_SCRUBBER.md",
+    "BOT_B_WAVE9_G19_G02_G08.md"
+  ],
+  "observations": {
+    "wave10_rail_scrubber_png": true,
+    "wave9_folded": true,
+    "dwell_pin_live": false
+  },
+  "gaps": [
+    "rail-dwell-pin-btn click intercepted by workspace canvas (pointer-events); scrubber chrome still captured",
+    "Overlay / G18 STFT chart scrubber / PSD series curve not re-shot at 56233d2 (tip churn)"
+  ]
+}
