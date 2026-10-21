@@ -57,3 +57,18 @@ export async function createNodeWorkerBackend(): Promise<
   const m = await import('./worker/node-backend.js');
   return m.createNodeWorkerBackend();
 }
+
+// Package B — Emscripten WASM FFT/PSD (coexists with JS fftRadix2 / ReferencePsdEngine)
+export {
+  isWasmFftAvailable,
+  isWasmFftLoaded,
+  loadWasmFftModule,
+  WasmFftEngine,
+  ensureWasmFft,
+  wasmFftRadix2,
+  wasmFftRadix2WithModule,
+  WasmReferencePsdEngine,
+  computePsdWithFft,
+} from './wasm/index.js';
+export type { DspFftModule } from './wasm/index.js';
+export type { FftRadix2Fn } from './psd.js';
