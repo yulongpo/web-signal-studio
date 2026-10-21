@@ -126,3 +126,8 @@ Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. *
 - Sync tip `e134bb6`; impl baseline `ba868e4`. Evidence: `qa/web-e134bb6/`.
 - Includes Detect chips, G19 tree, G07, G06, G11, G14, G13.
 - **ui_parity_pass_claimed: false**
+
+## Pack 425cb40 (Bot-G, Asia/Shanghai 2026-10-21)
+
+- Tip `425cb40`. Evidence `qa/web-425cb40/` (G18/tooltip/G07/G02/G08/G19 + box-zoom + physical caption).
+- **ui_parity_pass_claimed: false**

@@ -91,3 +91,13 @@ Gaps: web window controls are chrome stubs; no PASS.
 | **ui_parity_pass_claimed** | **false** |
 
 Shots: Detect caps/REAL_RUNTIME; G19 tree three-source/presentation; G07 bottom; G06 observe/mod/demod/BLOCKED; G11 zoom-box; G14 ROI header; G13 handles.
+## Pack @ 425cb40 (Bot-G, NOT PASS)
+
+| Field | Value |
+|-------|--------|
+| Sync tip | `425cb400f8ccf10e2ca82b8d86330a851fd79965` (includes B `e9153b8`) |
+| Pack | `qa/web-425cb40/` |
+| Desktop | `17471a6` |
+| **ui_parity_pass_claimed** | **false** |
+
+Coverage: G08, G02 chart-header + physical caption, G07 dock, G18 display-summary, G19 fields + ProjectTree tooltip, G11 box-zoom.
