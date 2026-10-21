@@ -62,3 +62,10 @@ export type NarrowbandPageId = 'observe' | 'modulation' | 'deepLearning' | 'demo
 export type NarrowbandWaveformMode = 'iq' | 'rms' | 'phase' | 'envelope';
 export type NarrowbandFreqMode = 'baseband' | 'rf';
 
+
+/** G07 bottom panel tab ids (rebuild bottomTabs). */
+export type BottomPanelTab = 'marks' | 'tasks' | 'log';
+
+/** G06 modulation / DL / demod chrome prefs (persist across page switch; no DSP). */
+export type NarrowbandModulationType = 'unknown' | 'psk' | 'qam' | 'fsk' | 'ask';
+export type NarrowbandDemodMode = 'none' | 'am' | 'fm' | 'psk' | 'qam';

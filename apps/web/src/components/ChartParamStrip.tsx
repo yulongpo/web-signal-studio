@@ -22,7 +22,12 @@ export function AuxParamStrip() {
 
   return (
     <header className="chart-strip chart-strip-aux" data-testid="chart-strip-aux">
-      <span className="chart-strip-title">Aux</span>
+      <span className="chart-strip-caption" data-testid="chart-strip-caption-aux">
+        辅助分析
+      </span>
+      <span className="chart-strip-title" aria-hidden>
+        Aux
+      </span>
       <button
         type="button"
         data-testid="btn-aux-wave"
@@ -116,6 +121,9 @@ export function SpecParamStrip() {
       data-testid="chart-strip-main"
       data-variant="chart-header"
     >
+      <span className="chart-strip-caption" data-testid="chart-strip-caption-main">
+        宽带时频谱
+      </span>
       <div
         className="spectrum-toolbar spectrum-toolbar-chart-header"
         data-testid="spectrum-toolbar"
@@ -130,7 +138,7 @@ export function SpecParamStrip() {
             aria-pressed={workspaceMode === 'wideband' || workspaceMode === 'linked'}
             onClick={() => setWorkspaceMode('wideband')}
           >
-            Wideband
+            宽带
           </button>
           <button
             type="button"
@@ -139,7 +147,7 @@ export function SpecParamStrip() {
             aria-pressed={workspaceMode === 'narrowband'}
             onClick={() => setWorkspaceMode('narrowband')}
           >
-            Narrowband
+            窄带
           </button>
           <span className="toolbar-sep" aria-hidden />
           <button

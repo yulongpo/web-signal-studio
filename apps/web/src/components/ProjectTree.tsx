@@ -1,15 +1,126 @@
 /**
- * PROVISIONAL — Bot-B left project tree panel.
- * Open/save via Bot-F ProjectSessionHookApi (asProjectSessionHook → @wss/project-io).
- * Sample tree remains fallback.
+ * Bot-B left project tree — G19 EngineeringTreeNode from @wss/project-io.
+ * Three-source marks via engineeringTreeFromSession + listMarkNodes.
+ * Mark select / soft-delete through window.__wssM06 (Bot-F M06 session).
  */
-import { useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  engineeringTreeFromSession,
+  engineeringTreeFromSummary,
+  listMarkNodes,
+  ANNOTATION_SOURCE_TREE_COLORS,
+  type EngineeringTreeNode,
+} from '@wss/project-io';
 import { asProjectSessionHook, useUiStore } from '../store/uiStore';
-import type { ProjectTreeNode } from '../types/provisional';
 
-const SAMPLE_TREE: ProjectTreeNode[] = [
+function downloadText(filename: string, text: string) {
+  const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function sessionHook() {
+  return asProjectSessionHook(useUiStore.getState());
+}
+
+function m06() {
+  return typeof window !== 'undefined' ? window.__wssM06 : undefined;
+}
+
+function TreeNodeView({
+  node,
+  depth,
+  onSelectMark,
+  onSoftDeleteMark,
+}: {
+  node: EngineeringTreeNode;
+  depth: number;
+  onSelectMark: (markId: string) => void;
+  onSoftDeleteMark: (markId: string, deleted: boolean) => void;
+}) {
+  const isMark = node.kind === 'mark' && Boolean(node.markId);
+  const color =
+    node.color ??
+    (node.sourceKind ? ANNOTATION_SOURCE_TREE_COLORS[node.sourceKind] : undefined);
+
+  return (
+    <li
+      data-testid={`tree-node-${node.id}`}
+      data-tree-kind={node.kind}
+      data-mark-id={node.markId}
+      data-soft-deleted={node.softDeleted ? 'true' : 'false'}
+      data-active={node.active ? 'true' : 'false'}
+      data-selected={node.selected ? 'true' : 'false'}
+    >
+      <div
+        className={`tree-row${node.softDeleted ? ' tree-row-soft-deleted' : ''}${
+          node.selected || node.active ? ' tree-row-selected' : ''
+        }`}
+        style={{ paddingLeft: 8 + depth * 12 }}
+      >
+        <span
+          className={`tree-kind tree-kind-${node.kind}`}
+          style={color ? { background: color } : undefined}
+          aria-hidden
+        />
+        <button
+          type="button"
+          className="tree-label-btn"
+          data-testid={isMark ? `tree-mark-${node.markId}` : `tree-label-${node.id}`}
+          onClick={() => {
+            if (isMark && node.markId) onSelectMark(node.markId);
+          }}
+          title={node.detail || node.label}
+        >
+          <span className="tree-label">{node.label}</span>
+          {node.count != null ? (
+            <span className="tree-count" data-testid={`tree-count-${node.id}`}>
+              {node.count}
+            </span>
+          ) : null}
+          {node.badges?.length ? (
+            <span className="tree-badges">{node.badges.join(' · ')}</span>
+          ) : null}
+        </button>
+        {isMark && node.markId ? (
+          <button
+            type="button"
+            className="tree-mark-action"
+            data-testid={`tree-mark-soft-delete-${node.markId}`}
+            title={node.softDeleted ? '恢复标记（软删除撤销）' : '软删除标记'}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSoftDeleteMark(node.markId!, !node.softDeleted);
+            }}
+          >
+            {node.softDeleted ? '恢复' : '删除'}
+          </button>
+        ) : null}
+      </div>
+      {node.children && node.children.length > 0 ? (
+        <ul className="tree-children">
+          {node.children.map((child) => (
+            <TreeNodeView
+              key={child.id}
+              node={child}
+              depth={depth + 1}
+              onSelectMark={onSelectMark}
+              onSoftDeleteMark={onSoftDeleteMark}
+            />
+          ))}
+        </ul>
+      ) : null}
+    </li>
+  );
+}
+
+const SAMPLE_FALLBACK: EngineeringTreeNode[] = [
   {
-    id: 'proj-1',
+    id: 'proj-sample',
     label: 'Demo Project',
     kind: 'project',
     children: [
@@ -22,85 +133,74 @@ const SAMPLE_TREE: ProjectTreeNode[] = [
           { id: 'file-2', label: 'demo_narrow.sigmf', kind: 'file' },
         ],
       },
-      {
-        id: 'folder-ch',
-        label: 'Channels',
-        kind: 'folder',
-        children: [
-          { id: 'ch-0', label: 'CH0 · wideband', kind: 'channel' },
-          { id: 'ch-1', label: 'CH1 · DDC stub', kind: 'channel' },
-        ],
-      },
     ],
   },
 ];
-
-function TreeNodeView({ node, depth }: { node: ProjectTreeNode; depth: number }) {
-  return (
-    <li data-testid={`tree-node-${node.id}`}>
-      <div className="tree-row" style={{ paddingLeft: 8 + depth * 12 }}>
-        <span className={`tree-kind tree-kind-${node.kind}`} aria-hidden />
-        <span className="tree-label">{node.label}</span>
-      </div>
-      {node.children && node.children.length > 0 ? (
-        <ul className="tree-children">
-          {node.children.map((child) => (
-            <TreeNodeView key={child.id} node={child} depth={depth + 1} />
-          ))}
-        </ul>
-      ) : null}
-    </li>
-  );
-}
-
-function summaryToTree(
-  name: string,
-  files: Array<{ id: string; name: string; channelCount: number; sampleCount: string }>,
-): ProjectTreeNode[] {
-  return [
-    {
-      id: 'proj-loaded',
-      label: name,
-      kind: 'project',
-      children: [
-        {
-          id: 'folder-files',
-          label: 'IQ Files',
-          kind: 'folder',
-          children: files.map((f) => ({
-            id: f.id,
-            label: `${f.name} (${f.sampleCount} samples, ${f.channelCount} ch)`,
-            kind: 'file' as const,
-          })),
-        },
-      ],
-    },
-  ];
-}
-
-function downloadText(filename: string, text: string) {
-  const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-/** Bot-F session surface — always read latest store state at action time. */
-function sessionHook() {
-  return asProjectSessionHook(useUiStore.getState());
-}
 
 export function ProjectTree() {
   const hasSample = useUiStore((s) => s.projectHasSample);
   const projectSource = useUiStore((s) => s.projectSource);
   const projectSummary = useUiStore((s) => s.projectSummary);
+  const projectDocument = useUiStore((s) => s.projectDocument);
   const projectError = useUiStore((s) => s.projectError);
   const loadSampleProject = useUiStore((s) => s.loadSampleProject);
+  const appendShellLog = useUiStore((s) => s.appendShellLog);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pasteRef = useRef<HTMLTextAreaElement>(null);
+  const [m06Tick, setM06Tick] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (m06()) setM06Tick((t) => t + 1);
+    }, 400);
+    return () => window.clearInterval(id);
+  }, []);
+
+  void m06Tick;
+
+  const tree: EngineeringTreeNode[] = useMemo(() => {
+    const hook = m06();
+    const snap = hook?.getState?.();
+    const annotations = hook?.session?.annotations;
+    if (projectDocument) {
+      return engineeringTreeFromSession(projectDocument, {
+        annotations,
+        activeFileId: snap?.activeFileId,
+        activeMarkId: snap?.activeMarkId,
+        selectedMarkIds: snap?.selectedMarkIds,
+        includeEmptySourceGroups: true,
+      });
+    }
+    if (projectSource === 'sample' && projectSummary) {
+      return engineeringTreeFromSummary(projectSummary);
+    }
+    if (projectSource === 'sample' && hasSample) return SAMPLE_FALLBACK;
+    return [];
+  }, [projectDocument, projectSummary, projectSource, hasSample, m06Tick]);
+
+  const markNodes = useMemo(() => listMarkNodes(tree), [tree]);
+
+  const onSelectMark = (markId: string) => {
+    const hook = m06();
+    if (!hook) {
+      appendShellLog('标记选择需要 M-06 hook（未安装）');
+      return;
+    }
+    hook.setSelection({ activeMarkId: markId, selectedMarkIds: [markId] });
+    appendShellLog(`选中标记 ${markId}`);
+    setM06Tick((t) => t + 1);
+  };
+
+  const onSoftDeleteMark = (markId: string, deleted: boolean) => {
+    const hook = m06();
+    if (!hook) {
+      appendShellLog('软删除需要 M-06 hook（未安装）');
+      return;
+    }
+    hook.session.setMarkDeleted(markId, deleted);
+    appendShellLog(deleted ? `软删除标记 ${markId}` : `恢复标记 ${markId}`);
+    setM06Tick((t) => t + 1);
+  };
 
   const onFilePicked = (file: File | undefined) => {
     if (!file) return;
@@ -110,7 +210,7 @@ export function ProjectTree() {
       sessionHook().openProjectFromText(text);
     };
     reader.onerror = () => {
-      sessionHook().openProjectFromText('{'); // force parse error path without crashing shell
+      sessionHook().openProjectFromText('{');
     };
     reader.readAsText(file);
   };
@@ -129,9 +229,7 @@ export function ProjectTree() {
 
   const showSample = projectSource === 'sample' && hasSample;
   const showLoaded = projectSource === 'json' && projectSummary != null;
-  const tree = showLoaded
-    ? summaryToTree(projectSummary!.name, projectSummary!.files)
-    : SAMPLE_TREE;
+  const hasTree = tree.length > 0;
 
   return (
     <aside className="panel project-tree" data-testid="project-tree">
@@ -218,19 +316,31 @@ export function ProjectTree() {
             {showLoaded && projectSummary ? (
               <div className="project-summary" data-testid="project-summary">
                 <p>
-                  <strong>{projectSummary.name}</strong> | v{projectSummary.version} |{' '}
-                  {projectSummary.fileCount} file(s) |{' '}
+                  <strong>{projectSummary.name}</strong> · v{projectSummary.version} ·{' '}
+                  {projectSummary.fileCount} file(s) ·{' '}
                   {projectSummary.files.reduce((n, f) => n + f.channelCount, 0)} ch
+                </p>
+                <p className="muted" data-testid="project-tree-mark-count">
+                  marks in tree: {markNodes.length}
                 </p>
               </div>
             ) : null}
             <ul
               className="tree-root"
               data-testid={showLoaded ? 'project-tree-loaded' : 'project-tree-sample'}
+              data-engineering="true"
             >
-              {tree.map((n) => (
-                <TreeNodeView key={n.id} node={n} depth={0} />
-              ))}
+              {hasTree
+                ? tree.map((n) => (
+                    <TreeNodeView
+                      key={n.id}
+                      node={n}
+                      depth={0}
+                      onSelectMark={onSelectMark}
+                      onSoftDeleteMark={onSoftDeleteMark}
+                    />
+                  ))
+                : null}
             </ul>
           </>
         )}

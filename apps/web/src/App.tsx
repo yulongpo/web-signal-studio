@@ -8,6 +8,7 @@ import { useEffect, type CSSProperties } from 'react';
 import './App.css';
 import { ProjectTree } from './components/ProjectTree';
 import { StatusBar } from './components/StatusBar';
+import { BottomPanel } from './components/BottomPanel';
 import { TempLayers } from './components/TempLayers';
 import { RightRail } from './components/RightRail';
 import { MainChartHost } from './components/MainChartHost';
@@ -108,6 +109,7 @@ defaultPx={auxDefaultPx}
           )}
         </section>
 
+        <BottomPanel />
         <StatusBar />
       </main>
 

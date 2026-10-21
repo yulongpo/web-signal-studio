@@ -25,6 +25,9 @@ import type {
   NarrowbandPageId,
   NarrowbandWaveformMode,
   NarrowbandFreqMode,
+  BottomPanelTab,
+  NarrowbandModulationType,
+  NarrowbandDemodMode,
 } from '../types/provisional';
 import {
   DEFAULT_DETECT_SAMPLE_RANGE,
@@ -144,6 +147,33 @@ export interface UiState {
   setNarrowbandFreqMode: (mode: NarrowbandFreqMode) => void;
   setNarrowbandGrid: (on: boolean) => void;
   setNarrowbandWaveformMode: (mode: NarrowbandWaveformMode) => void;
+
+  /** G07 bottom panel (rebuild bottomContent_). */
+  bottomPanelExpanded: boolean;
+  bottomPanelTab: BottomPanelTab;
+  bottomPanelHeightPx: number;
+  shellLogLines: string[];
+  taskProgress: { label: string; percent: number | null; detail: string };
+  setBottomPanelExpanded: (open: boolean) => void;
+  setBottomPanelTab: (tab: BottomPanelTab) => void;
+  setBottomPanelHeightPx: (px: number) => void;
+  appendShellLog: (line: string) => void;
+  clearShellLog: () => void;
+  setTaskProgress: (p: { label?: string; percent?: number | null; detail?: string }) => void;
+
+  /** G06 page chrome prefs (no fake DSP). */
+  nbModulationType: NarrowbandModulationType;
+  nbSymbolRate: string;
+  nbDlModelLabel: string;
+  nbDlTargetRate: string;
+  nbDlAllowResample: boolean;
+  nbDemodMode: NarrowbandDemodMode;
+  setNbModulationType: (t: NarrowbandModulationType) => void;
+  setNbSymbolRate: (v: string) => void;
+  setNbDlModelLabel: (v: string) => void;
+  setNbDlTargetRate: (v: string) => void;
+  setNbDlAllowResample: (v: boolean) => void;
+  setNbDemodMode: (m: NarrowbandDemodMode) => void;
   setRightPage: (page: RightPage) => void;
   toggleRightPanel: () => void;
   setRightPanelCollapsed: (collapsed: boolean) => void;
@@ -231,6 +261,17 @@ export const useUiStore = create<UiState>((set, get) => ({
   narrowbandFreqMode: 'baseband',
   narrowbandGrid: true,
   narrowbandWaveformMode: 'iq',
+  bottomPanelExpanded: false,
+  bottomPanelTab: 'log',
+  bottomPanelHeightPx: 150,
+  shellLogLines: ['Web shell ready · G07 bottom panel (no PASS)'],
+  taskProgress: { label: '', percent: null, detail: '' },
+  nbModulationType: 'unknown',
+  nbSymbolRate: '1e6',
+  nbDlModelLabel: '',
+  nbDlTargetRate: '2.048e6',
+  nbDlAllowResample: false,
+  nbDemodMode: 'none',
   level: { ...DEFAULT_LEVEL },
   display: { ...DEFAULT_DISPLAY },
   levelDraft: null,
@@ -361,6 +402,30 @@ export const useUiStore = create<UiState>((set, get) => ({
   setNarrowbandFreqMode: (mode) => set({ narrowbandFreqMode: mode }),
   setNarrowbandGrid: (on) => set({ narrowbandGrid: on }),
   setNarrowbandWaveformMode: (mode) => set({ narrowbandWaveformMode: mode }),
+  setBottomPanelExpanded: (open) => set({ bottomPanelExpanded: open }),
+  setBottomPanelTab: (tab) => set({ bottomPanelTab: tab }),
+  setBottomPanelHeightPx: (px) =>
+    set({ bottomPanelHeightPx: Math.max(80, Math.min(320, Math.round(px))) }),
+  appendShellLog: (line) =>
+    set((s) => {
+      const next = [...s.shellLogLines, line];
+      return { shellLogLines: next.length > 300 ? next.slice(next.length - 300) : next };
+    }),
+  clearShellLog: () => set({ shellLogLines: [] }),
+  setTaskProgress: (p) =>
+    set((s) => ({
+      taskProgress: {
+        label: p.label ?? s.taskProgress.label,
+        percent: p.percent !== undefined ? p.percent : s.taskProgress.percent,
+        detail: p.detail ?? s.taskProgress.detail,
+      },
+    })),
+  setNbModulationType: (t) => set({ nbModulationType: t }),
+  setNbSymbolRate: (v) => set({ nbSymbolRate: v }),
+  setNbDlModelLabel: (v) => set({ nbDlModelLabel: v }),
+  setNbDlTargetRate: (v) => set({ nbDlTargetRate: v }),
+  setNbDlAllowResample: (v) => set({ nbDlAllowResample: v }),
+  setNbDemodMode: (m) => set({ nbDemodMode: m }),
 
   updateLevelDraft: (patch) =>
     set((s) => ({
