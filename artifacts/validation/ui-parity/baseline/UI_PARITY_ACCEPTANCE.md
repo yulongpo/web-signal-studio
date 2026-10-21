@@ -1,3 +1,5 @@
+> Bot-A `2026-10-21 22:20` Asia/Shanghai: Web **`23c38d0`** vs desktop `17471a6` -- short G01 delta (`06911b3`): BrandV2/window-controls + View fit/restore + File depth **MET**; **G01 stays PARTIAL** (not CLOSED). Full reopen NOT needed. Counts unchanged OPEN 9 / PARTIAL 13 / CLOSED 1. See `INCREMENTAL_23c38d0.md`. **No PASS.**
+
 > Evidence tip `2d12522` / `qa/web-3d7ab59`; audit subject `3d7ab59`; no PASS.
 
 # UI 瀵圭瓑鍙墽琛岄獙鏀剁煩闃碉紙Bot-A 澧為噺 @ 17471a6锛?
@@ -12,7 +14,7 @@
 |------|-----|
 | 閺冨爼妫块敍鍦搒ia/Shanghai閿?| 2026-10-21 21:33:00+閿涘澁ebase `fb2e020`閿?|
 | 鐎电懓绨插顔跨獩濞撳懎宕?| `UI_PARITY_GAP_AUDIT.md`閿涘湙01閳ユ弸26 + INCREMENTAL DIFF閿?|
-| **Web tip** | **`3d7ab59`**锛圥R#3 `2e65e82`锛涜 INCREMENTAL_3d7ab59锛?|
+| **Web tip** | **`23c38d0`** (incl. `06911b3` G01 three areas; see INCREMENTAL_23c38d0; no PASS) |
 | **濡楀矂娼伴柨姘卞仯** | **`17471a6`**閿涘潉rebuild/a143-native`閿?|
 | 閸忓牓鐛欓惌鈺呮█ | `866e699`閿涘牆顕悡?Web `be885f2` / 娑撳﹥鐖?`0f108d0`閿?|
 | **IQ 缁撅附娼?* | 娴?`D:\project\signal_studio_rebuild\resources\sigmf_data_demo\` |
