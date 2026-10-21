@@ -16,6 +16,7 @@ import {
   frameIndexFromPlotX,
   PLOT_MARGIN,
 } from './chartGesture';
+import { resolveNbPsdLinkedFreqHz } from './nbPsdFreqFromDwell';
 
 function PanelShell({
   title,
@@ -240,11 +241,35 @@ export function NarrowbandObserveCharts() {
     return timeSec.min + ((i + 0.5) / frameCount) * span;
   }, [pinnedDwellIndex, result]);
 
-  // G18 NB PSD freq vline: reuse linkedCursor.frequencyHz (no new D store field).
-  const psdLinkedFreqHz =
-    linkedCursor.pinned && Number.isFinite(linkedCursor.frequencyHz)
-      ? linkedCursor.frequencyHz
-      : null;
+  // G18 NB PSD freq vline: linkedCursor when pinned; else dwell-only historic
+  // recovery from frame PSD peak / band center (desktop pinCursor always has f).
+  const psdFreqResolved = useMemo(
+    () =>
+      resolveNbPsdLinkedFreqHz({
+        linkedPinned: linkedCursor.pinned,
+        linkedFrequencyHz: linkedCursor.frequencyHz,
+        pinnedDwellIndex,
+        psdMode,
+        framePsdY:
+          psdMode === 'frame' && result && result.psdFrame.length > 0
+            ? result.psdFrame
+            : psdPlot?.kind === 'frame-stft'
+              ? psdPlot.y
+              : null,
+        xMin: psdXDomain?.min,
+        xMax: psdXDomain?.max,
+      }),
+    [
+      linkedCursor.pinned,
+      linkedCursor.frequencyHz,
+      pinnedDwellIndex,
+      psdMode,
+      result,
+      psdPlot,
+      psdXDomain,
+    ],
+  );
+  const psdLinkedFreqHz = psdFreqResolved.freqHz;
 
 
   return (
@@ -303,6 +328,7 @@ export function NarrowbandObserveCharts() {
             'data-nb-psd-frame-count': result?.psdFrameCount ?? undefined,
             'data-nb-psd-pinned-dwell': pinnedDwellIndex ?? undefined,
             'data-g18-nb-psd-freq-vline': psdLinkedFreqHz == null ? 'false' : 'true',
+            'data-g18-nb-psd-freq-source': psdFreqResolved.source,
             'data-g18-linked-cursor': linkedCursor.pinned ? 'true' : 'false',
           }}
         >
@@ -422,6 +448,30 @@ export function NarrowbandObserveCharts() {
                 onScrub={(idx) => {
                   setPinnedDwellIndex(idx);
                   setPsdMode('frame');
+                  // Keep/restore PSD freq vline while scrubbing (dwell-only → band center).
+                  const tDom = result.stft.timeSec;
+                  const fc = result.stft.frameCount;
+                  const span = tDom.max - tDom.min;
+                  const timeSec =
+                    fc > 0 && span > 0 && Number.isFinite(span)
+                      ? tDom.min + ((idx + 0.5) / fc) * span
+                      : tDom.min;
+                  const freqHz =
+                    linkedCursor.pinned && Number.isFinite(linkedCursor.frequencyHz)
+                      ? linkedCursor.frequencyHz
+                      : stftFreq
+                        ? (stftFreq.min + stftFreq.max) / 2
+                        : undefined;
+                  pinLinkedCursor({
+                    source: 'main',
+                    timeSec,
+                    frequencyHz: freqHz,
+                    selectedFrame: idx,
+                    centerTimeSec: (tDom.min + tDom.max) / 2,
+                    centerFrequencyHz: stftFreq
+                      ? (stftFreq.min + stftFreq.max) / 2
+                      : undefined,
+                  });
                 }}
               />
             ) : null}
