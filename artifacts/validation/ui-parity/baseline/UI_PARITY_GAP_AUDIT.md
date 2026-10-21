@@ -1,3 +1,15 @@
+> Bot-A `2026-10-21 23:41` Asia/Shanghai: Web **`647978c`** vs desktop `17471a6` — G19/G07/G02/G08/G11 PARTIAL deepened (B `d7d44c1` table/paging/quality+G07/G02/G08+G18 shell; C `2ac1f9b` overview OpenHand; G `635d07a` evidence); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_647978c.md`. **No PASS.**
+
+| ID | Prior (`9248453`) | Now (`647978c`) | Note |
+|----|---------------------|-------------------|------|
+| **G19** | PARTIAL 加深（table/paging/quality 缺） | **PARTIAL 加深** | `d7d44c1` Qt-ish table + paging(200) + quality MET；完整 Qt 列矩阵残 → **非 CLOSED** |
+| **G07** | PARTIAL 加深（shell MET） | **PARTIAL 加深** | `d7d44c1` fuller docks（quality/paging/detect header+inspector）MET；live Detect feeds 残 → **非 CLOSED** |
+| **G02** | PARTIAL 加深（overflow QLabel 残） | **PARTIAL 加深** | `d7d44c1` overflow STFT点数/色板 (+检测ROI/标记) MET；更广 chrome 残 → **非 CLOSED** |
+| **G08** | PARTIAL 加深（底栏高度缺） | **PARTIAL 加深** | `d7d44c1` bottom height 100–500+persist MET；collapse-to-min 未复验 → **非 CLOSED** |
+| **G11** | PARTIAL 加深（overview OpenHand 缺） | **PARTIAL 加深** | `2ac1f9b` overview grab/grabbing/pointer MET；mark-edge 残 → **非 CLOSED** |
+| **G18** | PARTIAL | **PARTIAL 加深** | `d7d44c1` STFT N·palette shell MET；PSD mode 仍 C/D `—` → **非 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_647978c.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-21 23:20` Asia/Shanghai: Web **`9248453`** vs desktop `17471a6` — G19/G02/G08/G07 PARTIAL deepened (B `d54af1b`: AnnotationPanel paint, Spec QLabel, column resize, BottomPanel shell); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_9248453.md`. **No PASS.**
 
 | ID | Prior (`f4c67be`) | Now (`9248453`) | Note |
