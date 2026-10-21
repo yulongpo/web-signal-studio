@@ -1,0 +1,59 @@
+{
+  "id": "qa-web-2f8162b-g18-multi-view",
+  "tip_web_evidence": "2f8162bedc05097ebb0fecd63521c82a66e54b1d",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "captures": [
+    "01-g02-window-stamps-regression.png",
+    "02-g18-multi-view-stft-wave-linkedCursor.png",
+    "02b-nb-wave-multi-view-crop.png",
+    "02c-nb-stft-linked-cursor-crop.png",
+    "03-g18-dwell-only-multi-view-regression.png",
+    "04-g18-esc-clears-multi-view.png",
+    "fold-web-9256a2d/* (14 files)"
+  ],
+  "docs": [
+    "G18-NB-MULTI-VIEW-STFT-WAVE-HANDOFF.md",
+    "G18-NB-DWELL-ONLY-FREQ-HANDOFF.md",
+    "BOT_B_WAVE21_G02_WINDOW_OVERLAP.md",
+    "nbMultiViewLinked.ts",
+    "nbMultiViewLinked.test.ts"
+  ],
+  "observations": {
+    "g02": {
+      "strip_dsp": "wave19 wave21",
+      "strip_wave": "wave11 wave14 wave19 wave21",
+      "window": "hann",
+      "overlap": "0.75",
+      "hop": "64",
+      "fftn": "256"
+    },
+    "ddc_ready": true,
+    "multi_view": {
+      "wave_multi": "true",
+      "wave_linked": "true",
+      "stft_linked_cursor": "true",
+      "stft_linked": "true",
+      "psd_vline": "true",
+      "psd_source": "linked",
+      "psd_linked": "true"
+    },
+    "dwell_only": {
+      "source": "dwell-peak",
+      "vline": "true",
+      "wave_multi": "true",
+      "stft_linked": "true"
+    },
+    "esc_nb": {
+      "linkedPinned": false,
+      "dwell": null,
+      "psdMode": "statistical",
+      "wave_multi": "false",
+      "stft_linked": "false",
+      "psd_source": "none"
+    }
+  },
+  "gaps": []
+}
