@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 00:47` Asia/Shanghai: Web **`4c28588`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave11 editCell/export; G evidence wave9/10; early-audit). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4c28588.md`. **No PASS.**
+
+| ID | Prior (`a48481d`) | Now (`4c28588`) | Note |
+|----|---------------------|-------------------|------|
+| **G19** | PARTIAL 加深（editCell/export 残） | **PARTIAL 加深** | editCell+export MET；Evidence/QFileDialog 残 — **未 CLOSED** |
+| **G02** | PARTIAL | **PARTIAL 加深（轻）** | wave11 strip MET — **未 CLOSED** |
+| **G08** | PARTIAL | **PARTIAL 加深（轻）** | wave11 shell MET — **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详 `INCREMENTAL_4c28588.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:40` Asia/Shanghai: Web **`a48481d`** vs desktop `17471a6` — G19/G11/G18 PARTIAL deepened (B wave9 interactive; C file-fullRange + margin/scrubber; covers 787623d). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_a48481d.md`. **No PASS.**
 
 | ID | Prior (`f9a56b8`) | Now (`a48481d`) | Note |
