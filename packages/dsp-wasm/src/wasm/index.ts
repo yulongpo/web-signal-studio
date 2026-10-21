@@ -12,3 +12,4 @@ export {
   wasmFftRadix2WithModule,
 } from './WasmFftEngine.js';
 export { WasmReferencePsdEngine, computePsdWithFft } from './WasmPsdEngine.js';
+export { WasmReferenceStftEngine, computeStftWithFft } from './WasmStftEngine.js';

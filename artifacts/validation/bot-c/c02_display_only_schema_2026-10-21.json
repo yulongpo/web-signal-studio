@@ -1,0 +1,52 @@
+{
+  "bot": "bot-c",
+  "gate": "C-02",
+  "writtenAt": "2026-10-21T11:15:44.536Z",
+  "displayOnly": true,
+  "allowedKeys": [
+    "width",
+    "height",
+    "displayOnly",
+    "reduce",
+    "extractMs",
+    "sourceWindow",
+    "dataLength",
+    "dataPeak"
+  ],
+  "forbiddenKeysAssertedAbsent": [
+    "hz",
+    "freqHz",
+    "frequencyHz",
+    "frequency",
+    "markerId",
+    "marker",
+    "markers",
+    "detectionId",
+    "detection",
+    "detections",
+    "timeSec",
+    "sampleIndex",
+    "businessCoords"
+  ],
+  "sample": {
+    "width": 4,
+    "height": 4,
+    "displayOnly": true,
+    "reduce": "peak",
+    "extractMs": 0.020099999999956708,
+    "sourceWindow": {
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 8
+    },
+    "dataLength": 16,
+    "dataPeak": 3.5
+  },
+  "status": "WIP",
+  "note": "vitest displayOnlySchema.test.ts asserts JSON schema; dual-written docs+artifacts; no detection coords",
+  "paths": {
+    "docs": "docs/acceptance/evidence/bot-c/c02_display_only_schema_2026-10-21.json",
+    "artifacts": "artifacts/validation/bot-c/c02_display_only_schema_2026-10-21.json"
+  }
+}

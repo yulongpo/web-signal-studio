@@ -1,8 +1,11 @@
 /**
- * DspWorkerClient 鈥?cancelable PSD / STFT / DDC over an injectable WorkerBackend.
+ * DspWorkerClient — cancelable PSD / STFT / DDC over an injectable WorkerBackend.
  * Default backend is InProcessAsyncBackend (Node/vitest friendly).
  * Use createNodeDspWorkerClient() for a real worker_threads path.
  * Use createBrowserDspWorkerClient() for a browser module Worker path.
+ *
+ * Package C: optional FFT engine ('js' | 'wasm-fft') via configureEngine /
+ * DspWorkerClientOptions.engine (default 'js').
  */
 
 import type {
@@ -22,6 +25,8 @@ import {
 } from './browser-backend.js';
 import type {
   DdcResultWire,
+  DspFftEngineKind,
+  DspWorkerConfiguredResponse,
   DspWorkerRequest,
   DspWorkerResponse,
   PsdResultWire,
@@ -56,6 +61,12 @@ function copyIqBuffer(iq: Float32Array): { buffer: ArrayBuffer; transfer: ArrayB
 
 export interface DspWorkerClientOptions {
   backend?: WorkerBackend;
+  /**
+   * FFT engine for PSD/STFT inside the worker (Package C).
+   * Default 'js'. When 'wasm-fft', a configure message is posted on construct;
+   * if WASM fails to load, the worker falls back to JS.
+   */
+  engine?: DspFftEngineKind;
 }
 
 export class DspWorkerClient {
@@ -65,10 +76,11 @@ export class DspWorkerClient {
     {
       resolve: (value: unknown) => void;
       reject: (err: Error) => void;
-      op: 'psd' | 'stft' | 'ddc';
+      op: 'psd' | 'stft' | 'ddc' | 'configure';
     }
   >();
   private closed = false;
+  private readonly configurePromise: Promise<DspWorkerConfiguredResponse | null>;
 
   constructor(options: DspWorkerClientOptions = {}) {
     this.backend = options.backend ?? new InProcessAsyncBackend();
@@ -77,6 +89,36 @@ export class DspWorkerClient {
       for (const [, p] of this.pending) p.reject(err);
       this.pending.clear();
     });
+
+    const engine = options.engine ?? 'js';
+    if (engine === 'js') {
+      this.configurePromise = Promise.resolve(null);
+    } else {
+      this.configurePromise = this.configureEngine(engine);
+    }
+  }
+
+  /**
+   * Select FFT engine used for subsequent PSD/STFT jobs.
+   * Returns the configured ack (actual engine may be js if wasm load failed).
+   */
+  async configureEngine(engine: DspFftEngineKind): Promise<DspWorkerConfiguredResponse> {
+    if (this.closed) return Promise.reject(abortError('DspWorkerClient closed'));
+    const jobId = nextJobId();
+    const msg: DspWorkerRequest = { kind: 'configure', jobId, engine };
+    return new Promise<DspWorkerConfiguredResponse>((resolve, reject) => {
+      this.pending.set(jobId, {
+        op: 'configure',
+        resolve: (value) => resolve(value as DspWorkerConfiguredResponse),
+        reject,
+      });
+      this.backend.post(msg);
+    });
+  }
+
+  /** Await initial engine configure (no-op when engine is 'js'). */
+  async ready(): Promise<DspWorkerConfiguredResponse | null> {
+    return this.configurePromise;
   }
 
   async analyzePsd(
@@ -84,6 +126,7 @@ export class DspWorkerClient {
     iqInterleaved: Float32Array,
     signal?: AbortSignal,
   ): Promise<PsdResult> {
+    await this.configurePromise;
     const merged = signal ?? request.signal;
     const { buffer, transfer } = copyIqBuffer(iqInterleaved);
     const msg: DspWorkerRequest = {
@@ -113,6 +156,7 @@ export class DspWorkerClient {
     iqInterleaved: Float32Array,
     signal?: AbortSignal,
   ): Promise<StftResult> {
+    await this.configurePromise;
     const merged = signal ?? request.signal;
     const { buffer, transfer } = copyIqBuffer(iqInterleaved);
     const msg: DspWorkerRequest = {
@@ -143,6 +187,7 @@ export class DspWorkerClient {
     iqInterleaved: Float32Array,
     signal?: AbortSignal,
   ): Promise<DdcResult> {
+    await this.configurePromise;
     const merged = signal ?? request.signal;
     const { buffer, transfer } = copyIqBuffer(iqInterleaved);
     let firTapsBuffer: ArrayBuffer | undefined;
@@ -232,6 +277,10 @@ export class DspWorkerClient {
       pending.resolve(response.payload);
       return;
     }
+    if (response.kind === 'configured') {
+      pending.resolve(response);
+      return;
+    }
     if (response.kind === 'cancelled') {
       pending.reject(abortError());
       return;
@@ -248,17 +297,19 @@ export function createDspWorkerClient(options?: DspWorkerClientOptions): DspWork
 }
 
 /** Real worker_threads client (bundles handler via esbuild). Lazy-imports node-backend. */
-export async function createNodeDspWorkerClient(): Promise<DspWorkerClient> {
+export async function createNodeDspWorkerClient(
+  options?: Pick<DspWorkerClientOptions, 'engine'>,
+): Promise<DspWorkerClient> {
   const { createNodeWorkerBackend } = await import('./node-backend.js');
   const backend = await createNodeWorkerBackend();
-  return new DspWorkerClient({ backend });
+  return new DspWorkerClient({ backend, engine: options?.engine });
 }
 
 /** Browser module Worker client (Vite: new URL('./dsp-worker.ts', import.meta.url)). */
 export function createBrowserDspWorkerClient(
-  options?: BrowserWorkerBackendOptions,
+  options?: BrowserWorkerBackendOptions & Pick<DspWorkerClientOptions, 'engine'>,
 ): DspWorkerClient {
-  const backend = new BrowserWorkerBackend(options);
-  return new DspWorkerClient({ backend });
+  const { engine, ...backendOpts } = options ?? {};
+  const backend = new BrowserWorkerBackend(backendOpts);
+  return new DspWorkerClient({ backend, engine });
 }
-

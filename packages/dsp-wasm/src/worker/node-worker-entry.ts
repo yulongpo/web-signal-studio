@@ -5,6 +5,7 @@
 import { parentPort } from 'node:worker_threads';
 import {
   createCancelRegistry,
+  createHandlerState,
   handleDspWorkerRequest,
 } from './dsp-worker-handler.js';
 import { collectTransferables, type DspWorkerRequest } from './protocol.js';
@@ -14,10 +15,11 @@ if (!parentPort) {
 }
 
 const registry = createCancelRegistry();
+const state = createHandlerState();
 
 parentPort.on('message', (message: DspWorkerRequest) => {
   void (async () => {
-    const response = await handleDspWorkerRequest(message, registry);
+    const response = await handleDspWorkerRequest(message, registry, state);
     if (!response) return;
     const transfer = collectTransferables(response);
     parentPort!.postMessage(response, transfer);

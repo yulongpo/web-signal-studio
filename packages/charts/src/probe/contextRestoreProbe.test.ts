@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { runContextRestoreProbe } from "./contextRestoreProbe.js";
-import { writeFileSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { dualWriteEvidenceJson, resolveProbeRepoRoot } from "./dualWriteEvidence.js";
 
 describe("C-04 context-restore probe", () => {
   it("records lost->restored transitions with gpu:false by default", () => {
@@ -26,12 +25,19 @@ describe("C-04 context-restore probe", () => {
     expect(restored?.plan?.reuploadTextures).toBe(true);
   });
 
-  it("writes evidence JSON when WSS_PROBE_REPO set", () => {
-    const repo = process.env.WSS_PROBE_REPO;
-    if (!repo) { expect(true).toBe(true); return; }
+  it("dual-writes evidence JSON to docs + artifacts when repo root known", () => {
+    const repo = resolveProbeRepoRoot() ?? process.env.WSS_PROBE_REPO;
+    if (!repo) {
+      expect(true).toBe(true);
+      return;
+    }
     const probe = runContextRestoreProbe({ gpuAvailable: false });
-    const dir = join(repo, "artifacts/validation/bot-c");
-    mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, "charts_probe_context_restore_2026-10-21.json"), JSON.stringify(probe, null, 2), "utf8");
+    const { docsPath, artifactsPath } = dualWriteEvidenceJson(
+      "charts_probe_context_restore_2026-10-21.json",
+      probe,
+      { repoRoot: repo },
+    );
+    expect(docsPath.replace(/\\/g, "/")).toContain("docs/acceptance/evidence/bot-c/");
+    expect(artifactsPath.replace(/\\/g, "/")).toContain("artifacts/validation/bot-c/");
   });
 });

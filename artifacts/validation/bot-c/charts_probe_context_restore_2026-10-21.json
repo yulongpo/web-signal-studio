@@ -1,0 +1,45 @@
+{
+  "bot": "bot-c",
+  "writtenAt": "2026-10-21T11:15:44.537Z",
+  "package": "@wss/charts",
+  "gate": "C-04",
+  "gpu": false,
+  "gpuAvailable": false,
+  "note": "simulated context restore (gpu:false / headless); interaction P95 is CPU synthetic",
+  "transitions": [
+    {
+      "from": "ok",
+      "event": "init-ok",
+      "to": "ok"
+    },
+    {
+      "from": "ok",
+      "event": "lost",
+      "to": "lost",
+      "plan": {
+        "disposeRenderer": false,
+        "createRenderer": false,
+        "reuploadTextures": false,
+        "uiState": "lost"
+      }
+    },
+    {
+      "from": "lost",
+      "event": "restored",
+      "to": "restored",
+      "plan": {
+        "disposeRenderer": true,
+        "createRenderer": true,
+        "reuploadTextures": true,
+        "uiState": "restored"
+      }
+    },
+    {
+      "from": "restored",
+      "event": "init-ok",
+      "to": "ok"
+    }
+  ],
+  "finalState": "ok",
+  "relatedInteractionProbe": "docs/acceptance/evidence/bot-c/charts_probe_interaction_p95_2026-10-21.json"
+}

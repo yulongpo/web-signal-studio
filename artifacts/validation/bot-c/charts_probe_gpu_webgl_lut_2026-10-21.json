@@ -1,0 +1,15 @@
+{
+  "bot": "bot-c",
+  "writtenAt": "2026-10-21T11:15:44.537Z",
+  "package": "@wss/charts",
+  "gate": "C-01",
+  "gpuAvailable": false,
+  "webglVersion": null,
+  "textureFormat": null,
+  "lutSize": 256,
+  "lutFormat": "RGBA8",
+  "rendererVendor": null,
+  "rendererRenderer": null,
+  "maxTextureSize": null,
+  "note": "no WebGL2 context (headless / Node); schema emitted for QA"
+}

@@ -42,6 +42,7 @@ export type {
   DspWorkerRequest,
   DspWorkerResponse,
   DspWorkerOp,
+  DspFftEngineKind,
 } from './worker/protocol.js';
 
 export {
@@ -59,6 +60,7 @@ export async function createNodeWorkerBackend(): Promise<
 }
 
 // Package B — Emscripten WASM FFT/PSD (coexists with JS fftRadix2 / ReferencePsdEngine)
+// Package C — WASM STFT + optional Worker wasm-fft engine
 export {
   isWasmFftAvailable,
   isWasmFftLoaded,
@@ -69,6 +71,8 @@ export {
   wasmFftRadix2WithModule,
   WasmReferencePsdEngine,
   computePsdWithFft,
+  WasmReferenceStftEngine,
+  computeStftWithFft,
 } from './wasm/index.js';
 export type { DspFftModule } from './wasm/index.js';
 export type { FftRadix2Fn } from './psd.js';

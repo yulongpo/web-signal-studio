@@ -391,8 +391,24 @@ test.describe("Bot-C charts QA evidence (WIP)", () => {
     expect(Math.abs(before.bufferWidth - before.expectedBufferW)).toBeLessThanOrEqual(1);
     expect(Math.abs(before.bufferHeight - before.expectedBufferH)).toBeLessThanOrEqual(1);
 
+    // Viewport shrink alone can leave clientWidth unchanged when shell/layout
+    // caps chart width (~845). Force a measurable CSS size on the chart element.
     await page.setViewportSize({ width: 900, height: 600 });
-    await page.waitForTimeout(500);
+    await chart.evaluate((el) => {
+      const node = el as HTMLElement;
+      node.style.boxSizing = "border-box";
+      node.style.width = "640px";
+      node.style.height = "360px";
+      node.style.maxWidth = "640px";
+      node.style.minWidth = "0";
+    });
+    await page.evaluate(() => window.dispatchEvent(new Event("resize")));
+    await expect
+      .poll(async () => {
+        const m = await readChartMetrics(page);
+        return m.cssW !== before.cssW && Math.abs(m.bufferWidth - m.expectedBufferW) <= 1 ? 1 : 0;
+      }, { timeout: 8000 })
+      .toBe(1);
     await expect(chart).toHaveAttribute("data-webgl-state", "ok");
     const afterViewport = await readChartMetrics(page);
     expect(afterViewport.cssW).not.toBe(before.cssW);

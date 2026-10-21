@@ -8,7 +8,10 @@ import type { SpectralWindowName } from '@wss/contracts';
 
 export type DspWorkerOp = 'psd' | 'stft' | 'ddc';
 
-export type DspWorkerRequestKind = DspWorkerOp | 'cancel';
+/** FFT kernel used inside the worker for PSD/STFT. Default is JS. */
+export type DspFftEngineKind = 'js' | 'wasm-fft';
+
+export type DspWorkerRequestKind = DspWorkerOp | 'cancel' | 'configure';
 
 export interface PsdParamsWire {
   begin: string;
@@ -66,11 +69,20 @@ export interface DspWorkerCancelRequest {
   jobId: string;
 }
 
+/** One-time / reconfigurable FFT engine selection (Package C). Default remains JS. */
+export interface DspWorkerConfigureRequest {
+  kind: 'configure';
+  jobId: string;
+  /** Requested engine; 'js' is default. 'wasm-fft' loads Package B WASM FFT. */
+  engine: DspFftEngineKind;
+}
+
 export type DspWorkerRequest =
   | DspWorkerPsdRequest
   | DspWorkerStftRequest
   | DspWorkerDdcRequest
-  | DspWorkerCancelRequest;
+  | DspWorkerCancelRequest
+  | DspWorkerConfigureRequest;
 
 export interface PsdResultWire {
   frequenciesHz: ArrayBuffer; // Float64
@@ -113,10 +125,21 @@ export interface DspWorkerCancelledResponse {
   jobId: string;
 }
 
+export interface DspWorkerConfiguredResponse {
+  kind: 'configured';
+  jobId: string;
+  /** Engine actually in use after configure (may be js if wasm load failed). */
+  engine: DspFftEngineKind;
+  /** True when wasm-fft was requested but JS was kept after load failure. */
+  fellBackToJs?: boolean;
+  message?: string;
+}
+
 export type DspWorkerResponse =
   | DspWorkerResultResponse
   | DspWorkerErrorResponse
-  | DspWorkerCancelledResponse;
+  | DspWorkerCancelledResponse
+  | DspWorkerConfiguredResponse;
 
 /** Collect transferable ArrayBuffers from a response for postMessage. */
 export function collectTransferables(response: DspWorkerResponse): ArrayBuffer[] {
