@@ -7,6 +7,10 @@ artifacts/validation/bot-c/*
 !artifacts/validation/bot-c/*.json
 !artifacts/validation/bot-c/*.md
 !artifacts/validation/bot-c/*.png
+!artifacts/validation/bot-d/
+artifacts/validation/bot-d/*
+!artifacts/validation/bot-d/*.json
+!artifacts/validation/bot-d/*.md
 !artifacts/validation/license/
 artifacts/validation/license/*
 !artifacts/validation/license/*.json
