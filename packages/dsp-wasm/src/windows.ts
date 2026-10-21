@@ -1,7 +1,11 @@
 import type { SpectralWindowName } from '@wss/contracts';
 
 /** Build a real-valued window of length n. */
-export function makeWindow(name: SpectralWindowName, n: number): Float64Array {
+export function makeWindow(
+  name: SpectralWindowName,
+  n: number,
+  kaiserBeta: number = 8.6,
+): Float64Array {
   if (!Number.isInteger(n) || n <= 0) {
     throw new RangeError(`window length must be positive integer, got ${n}`);
   }
@@ -52,8 +56,8 @@ export function makeWindow(name: SpectralWindowName, n: number): Float64Array {
       }
       break;
     case 'kaiser': {
-      // β=8.6 default; I0 Bessel approximation.
-      const beta = 8.6;
+      // Default β=8.6 (desktop / DEFAULT_KAISER_BETA); overridable via StftRequest.kaiserBeta.
+      const beta = Number.isFinite(kaiserBeta) && kaiserBeta >= 0 ? kaiserBeta : 8.6;
       const denom = besselI0(beta);
       const alpha = (n - 1) / 2;
       for (let i = 0; i < n; i++) {

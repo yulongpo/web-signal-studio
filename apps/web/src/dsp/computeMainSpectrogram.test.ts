@@ -49,6 +49,10 @@ describe('computeMainSpectrogram', () => {
     expect(result.fftSize).toBe(256);
     expect(result.hopSize).toBe(64);
     expect(result.overlap).toBeCloseTo(0.75, 10);
+    expect(result.method).toBe('welch');
+    expect(result.segmentMilliseconds).toBeCloseTo((256 / 1_000_000) * 1000, 12);
+    expect(result.spectrumStatistic).toBeNull();
+    expect(result.kaiserBeta).toBeNull();
 
     let max = 0;
     for (let i = 0; i < result.power.length; i++) {
@@ -98,5 +102,11 @@ describe('G02 FFT window/overlap publish helpers', () => {
     expect(overlapFromHop(1024, 512)).toBeCloseTo(0.5, 12);
     expect(overlapFromHop(256, 256)).toBe(0);
     expect(overlapFromHop(0, 64)).toBe(0);
+  });
+});
+
+describe('G02 STFT contract helpers', () => {
+  it('MAIN_STFT_DEFAULTS.method is welch', () => {
+    expect(MAIN_STFT_DEFAULTS.method).toBe('welch');
   });
 });

@@ -2,7 +2,11 @@
  * Synthetic two-tone IQ → STFT via DspWorkerClient for the main chart.
  * Labeled synthetic fixture — NOT a real capture / file IQ path.
  */
-import type { SpectralWindowName } from '@wss/contracts';
+import type { SpectralWindowName, StftSupportedMethod } from '@wss/contracts';
+import {
+  DEFAULT_KAISER_BETA,
+  segmentMillisecondsFromFft,
+} from '@wss/contracts';
 import type { DspWorkerClient } from '@wss/dsp-wasm';
 import { createDspWorkerClient, InProcessAsyncBackend } from '@wss/dsp-wasm';
 
@@ -13,6 +17,8 @@ export const MAIN_STFT_DEFAULTS = {
   fftSize: 256,
   hopSize: 64,
   window: 'hann' as const,
+  method: 'welch' as const satisfies StftSupportedMethod,
+  kaiserBeta: DEFAULT_KAISER_BETA,
 } as const;
 
 /** Overlap ratio from hop: 1 - hop/fft (clamped to [0, 1)). */
@@ -37,6 +43,17 @@ export interface MainSpectrogramResult {
   hopSize: number;
   window: SpectralWindowName;
   overlap: number;
+  /** Always 'welch' — only implemented STFT method. */
+  method: StftSupportedMethod;
+  /** Derived segment duration ms = fftSize/fs*1000 (desktop segmentMilliseconds). */
+  segmentMilliseconds: number;
+  /** Kaiser β used when window is kaiser; else null. */
+  kaiserBeta: number | null;
+  /**
+   * SpectrumStatistic is PSD-only on desktop STFT path → always null here.
+   * Strip should show NA / — until a real PSD statistic path exists.
+   */
+  spectrumStatistic: null;
 }
 
 export interface ComputeMainSpectrogramOptions {
@@ -46,6 +63,8 @@ export interface ComputeMainSpectrogramOptions {
   fftSize?: number;
   hopSize?: number;
   window?: SpectralWindowName;
+  method?: StftSupportedMethod;
+  kaiserBeta?: number;
   sampleRateHz?: number;
   /** Tone frequencies in Hz (baseband). */
   toneHz?: [number, number];
@@ -105,6 +124,11 @@ export async function computeMainSpectrogram(
   const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
   const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
   const window: SpectralWindowName = options.window ?? MAIN_STFT_DEFAULTS.window;
+  const method: StftSupportedMethod = options.method ?? MAIN_STFT_DEFAULTS.method;
+  const kaiserBeta =
+    options.kaiserBeta != null && Number.isFinite(options.kaiserBeta)
+      ? options.kaiserBeta
+      : MAIN_STFT_DEFAULTS.kaiserBeta;
   const sampleRateHz = options.sampleRateHz ?? 1_000_000;
   const toneHz = options.toneHz ?? ([150_000, -220_000] as [number, number]);
   const frameTarget = 128;
@@ -117,6 +141,7 @@ export async function computeMainSpectrogram(
 
   try {
     const iq = synthesizeTwoToneIq({ sampleCount, sampleRateHz, toneHz });
+    const segmentMilliseconds = segmentMillisecondsFromFft(fftSize, sampleRateHz);
     const stft = await client.analyzeStft(
       {
         begin: 0n,
@@ -125,6 +150,9 @@ export async function computeMainSpectrogram(
         hopSize,
         window,
         sampleRateHz,
+        method,
+        segmentMilliseconds,
+        kaiserBeta: window === 'kaiser' ? kaiserBeta : undefined,
       },
       iq,
       options.signal,
@@ -151,6 +179,10 @@ export async function computeMainSpectrogram(
       hopSize,
       window,
       overlap: overlapFromHop(fftSize, hopSize),
+      method,
+      segmentMilliseconds,
+      kaiserBeta: window === 'kaiser' ? kaiserBeta : null,
+      spectrumStatistic: null,
     };
   } finally {
     if (ownClient) await client.close();
