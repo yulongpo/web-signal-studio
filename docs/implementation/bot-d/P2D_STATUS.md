@@ -1,47 +1,56 @@
 # Bot-D P2-D status
 
 - updated_at: 2026-10-21 (Asia/Shanghai)
-- stage: Browser Worker backend + apps/web STFT wiring
-- worktree: `D:\\project\\wss-wt-d`
-- branch: `work/bot-d-dsp`
-- base: `27f71e8` (origin/main tip at sync)
-- package_scope: `@wss/*`
-- shared_tree (`D:\\project\\web_signal_studio`): **no writes**
-- rebuild: **never touch**
+- stage: Package A — IQ WAV + FSA chunked read → DSP Worker STFT
+- worktree: D:\\project\\wss-wt-d
+- branch: work/bot-d-dsp
+- base: 9f6ec00 (origin/main tip at Package A start; typecheck-green tip)
+- package_scope: @wss/*
+- shared_tree (D:\\project\\web_signal_studio): **no writes**
+- rebuild: **read-only reference** (wav_metadata.h/.cpp restricted profile)
 
-## Delivered (this drop)
+## Delivered (Package A)
 
-### Browser Worker (`packages/dsp-wasm/src/worker/`)
-- `browser-backend.ts` — `BrowserWorkerBackend` via `globalThis.Worker` + Vite-friendly `new URL('./dsp-worker.ts', import.meta.url)`; clear throw when Worker missing
-- `createBrowserWorkerBackend` / `createBrowserDspWorkerClient` (AbortSignal cancel via existing protocol)
-- `dsp-worker.ts` remains browser `self.onmessage` entry (shared handler)
-- Exports from `packages/dsp-wasm/src/index.ts`
+### packages/file-io
+- wav-meta.ts — RIFF/WAVE parse for restricted PCM16 LE stereo IQ (Qt parity: full RIFF validate before publish; no RF center; reject RF64/RIFX/float/extensible)
+- wav-reader.ts — describeWav / openIqWavFromArrayBuffer / openIqWavFromBlob (payload-only via dataOffset)
+- lob-chunked-reader.ts — BlobChunkedReader via lob.slice().arrayBuffer(); available-prefix + DEFAULT_CHUNK_BYTES + AbortSignal
+- sa.ts — detectFsaCapabilities, openFromFileSystemFileHandle, pickAndOpenIqWav; FsaUnsupportedError when picker missing (no crash)
+- uildPcm16LeStereoIqWav — in-memory format fixture builder (tests only)
+- Exported decodeToFloat32Iq for shared decode path
+- Exports from index.ts
 
-### apps/web wiring
-- deps: `@wss/dsp-wasm`, `@wss/file-io`
-- vite aliases + `worker.format: 'es'` + optimizeDeps exclude
-- `src/dsp/useDspWorkerClient.ts` — create once, dispose on unmount (browser Worker with in-process fallback)
-- `src/dsp/computeMainSpectrogram.ts` — labeled synthetic two-tone IQ → STFT → chart power (`sourceLabel: 'synthetic fixture'`)
-- `MainChartHost.tsx` — real STFT path when client ready; `data-dsp-source="synthetic-stft-worker"`; demo synthPower only as loading/fallback
+### STFT loop helper (pps/web/src/dsp/)
+- stftFromChunkedReader.ts — chunked IQ Float32 → DspWorkerClient.analyzeStft with AbortSignal
+- Does **not** replace MainChartHost synthetic fixture; requires explicit sourceLabel
 
 ### Tests
-- `worker/browser-backend.test.ts` — constructor guard + FakeWorker; live Worker gated with `describe.skipIf`
-- `apps/web/src/dsp/computeMainSpectrogram.test.ts` — InProcessAsyncBackend inject (no browser Worker in CI)
+- packages/file-io/src/wav-iq.test.ts — descriptor, boundaries (empty/one/past EOF/chunk budget), cancel, blob open, FSA fake handle + unsupported
+- packages/dsp-wasm/src/worker/wav-stft.integration.test.ts — fixture WAV → STFT finite power + abort
+- pps/web/src/dsp/stftFromChunkedReader.test.ts — multi-chunk loop + abort
 
 ### contracts
-- Consume only. No ownership change.
+- Consume only (ChunkReadRequest/Response, DEFAULT_CI16_LE_IQ, DEFAULT_CHUNK_BYTES, SampleIndex). No ownership change.
 
-## Test results
+### Browser Worker
+- Untouched. Package A uses existing createDspWorkerClient / InProcess path in tests; browser Worker path remains as previously delivered.
 
-```
-npx vitest run packages/file-io packages/dsp-wasm
- Test Files  8 passed (8)
-      Tests  27 passed | 1 skipped (28)
+## Prior drop (Browser Worker + synthetic chart STFT)
 
-apps/web: npx vitest run
- Test Files  2 passed (2)
-      Tests  6 passed (6)
+### Browser Worker (packages/dsp-wasm/src/worker/)
+- rowser-backend.ts — BrowserWorkerBackend via globalThis.Worker + Vite-friendly 
+ew URL('./dsp-worker.ts', import.meta.url)
+- createBrowserDspWorkerClient; AbortSignal cancel via existing protocol
 
-npx vitest run (root packages)
- (see commit shortstat / local run)
-```
+### apps/web wiring (unchanged by Package A chart path)
+- computeMainSpectrogram.ts — labeled synthetic two-tone IQ → STFT (sourceLabel: 'synthetic fixture')
+- MainChartHost.tsx — data-dsp-source="synthetic-stft-worker"
+
+## Verify commands
+
+`
+npx vitest run packages/file-io
+npx vitest run packages/dsp-wasm
+npm run typecheck -w @wss/web
+npm run test -w @wss/web
+`
