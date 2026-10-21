@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 02:37` Asia/Shanghai: Web tip **`762b876`** vs desktop `17471a6` — G02 PARTIAL deepened (B `d88dad7` wave29: SpecParamStrip auto-N/removeMean → D `resolveAnalysisSamples` / `StftRequest.removeMean`; settle `dspAutoNb`/`dspRemoveMean`). Strip `data-auto-n=on|off` (no longer NA-only). Multitaper/Burg still **BLOCKED**. Soft G08 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_762b876/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`ab48064`) | Now (`762b876`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL（DSP MET；UI 未接线） | **PARTIAL 加深** | UI→DSP MET；Multitaper/Burg / non-PoT / DDC 残 → **未 CLOSED** |
+| **G08** | PARTIAL | **unchanged PARTIAL** | soft 无回归 |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未发明 / 未抬升 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_762b876/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:34` Asia/Shanghai: Web tip **`ab48064`** vs desktop `17471a6` — G02 PARTIAL DSP deepen (D `fac1e48`: `resolveAnalysisSamples` + `StftRequest.removeMean` + `dspRemoveMean`/`dspAutoNb`). SpecParamStrip still `data-auto-n=na` / unwired → **not CLOSED**. Multitaper/Burg still **BLOCKED**. Soft G08 from ab32f6e holds. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ab48064/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`ab32f6e` / ca28052) | Now (`ab48064`) | Note |
