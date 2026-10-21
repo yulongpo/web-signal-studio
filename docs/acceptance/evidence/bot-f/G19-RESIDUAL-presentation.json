@@ -1,0 +1,30 @@
+﻿{
+  "id": "G19",
+  "matrix_pass_claimed": false,
+  "status": "PARTIAL_deepened",
+  "base_tip": "5d33611e178473977b2076c4ec817cde1175719e",
+  "desktop": "17471a6",
+  "desktop_presentation": "c1f2cce",
+  "closed": [
+    "title_tooltip_sourceTooltip",
+    "channel_relation_detail_map",
+    "compact_channel_detail",
+    "unread_badge",
+    "detectionRuns_branch",
+    "web_reexports"
+  ],
+  "g18": {
+    "taken": false,
+    "reason": "display-summary UI (reference/dynamic) owned by Bot-B; not project-io"
+  },
+  "tests": {
+    "command": "npx vitest run packages/project-io/src/engineering-tree.test.ts packages/project-io/src/g19-sigmf-import.test.ts",
+    "passed": 7,
+    "skipped": 1
+  },
+  "b_gaps": [
+    "wire node.tooltip/title in ProjectTree",
+    "optional CN relation copy",
+    "G20 Open IQ UI"
+  ]
+}

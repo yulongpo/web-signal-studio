@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Thin re-export surface so apps/web can import project open/save without
  * scattering `@wss/project-io` deep imports. Bot-F owns this folder;
  * Bot-B owns uiStore / shell UI wiring that calls these primitives.
@@ -33,6 +33,10 @@ export {
   listMarkNodes,
   ANNOTATION_SOURCE_TREE_COLORS,
   ANNOTATION_SOURCE_TREE_LABELS,
+  CHANNEL_SOURCE_RELATION_DETAILS,
+  normalizeChannelSourceRelation,
+  channelRelationDetail,
+  type ChannelSourceRelationCode,
   type EngineeringTreeNode,
   type G19E2eHookApi,
 } from '@wss/project-io';
