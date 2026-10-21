@@ -80,3 +80,4 @@
 | 2026-10-21 | WSS-QA-G | Bot-G 独立复核 @ tip `3ad9035` / CI run 39589623844：M-03/C-01/C-03/C-04 → **PASS**（ANGLE/SwiftShader；charts 52/52；software GL / toDataURL）；M-04/C-02 仍 WIP |
 | 2026-10-21 | WSS-QA-G | Bot-G 独立复核 @ tip `8a35dfc` / CI run 39590792956（failure）：M-04/C-02 **保持 WIP**（charts-playwright 硬开但失败；C-02 dualWrite 双路径 OK 但证据仍 schema-only）；charts unit **55/55**；祖先含 `389b135` |
 | 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `0898ec7`→`b82e324` / CI run 39591371842 (charts-playwright success)：M-04 → **PASS**；C-02 / M-01 / M-05 / M-07 **keep WIP** (C-02 schema-only; M-01 no dedicated evidence; M-05 screenshots-only; M-07 golden present but D no PASS claim) |
+| 2026-10-21 | Bot-C | C-P3 @ tip after f9f4616: C-02 **live** display-only tile extract dual-write (c02_display_only_extract_live_*.json) + interaction p95/idle-settle evidence (**C-02 still WIP, no self-PASS**; M-04 already PASS by G) |

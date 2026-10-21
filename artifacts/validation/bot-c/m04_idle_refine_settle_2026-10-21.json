@@ -1,0 +1,234 @@
+{
+  "bot": "bot-c",
+  "gate": "C-P3",
+  "kind": "idle-settle-refine-evidence",
+  "writtenAt": "2026-10-21T11:32:27.896Z",
+  "package": "@wss/charts",
+  "status": "WIP",
+  "note": "Preview while pan/zoom; refine entered via PreviewRefineController idleSettleMs timer (not requestRefine). Dual-written. M-04 already PASS by QA — this fills idle refine evidence chain. No self-PASS.",
+  "idleSettleMsConfigured": 25,
+  "lastInteractionAtMs": 36.41020000000003,
+  "refineEnteredAtMs": 76.43050000000017,
+  "settleObservedMs": 40.020300000000134,
+  "modeAfterIdleWait": "refine",
+  "refinedViaIdleTimer": true,
+  "timeline": [
+    {
+      "t": 0.03710000000000946,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 1.4628999999999905,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 2.7746000000001914,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 3.8822999999999865,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 4.966499999999996,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 5.82100000000014,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 7.1016000000001895,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 8.369200000000092,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 9.648500000000013,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 10.97460000000001,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 12.2346,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 13.555900000000065,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 14.817900000000009,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 16.093900000000076,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 17.399200000000064,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 18.72090000000003,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 19.996000000000095,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 21.046800000000076,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 22.163500000000113,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 23.345100000000002,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 24.449800000000096,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 25.501000000000204,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 26.39409999999998,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 27.519400000000132,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 28.552900000000136,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 29.60180000000014,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 30.753000000000156,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 31.65800000000013,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 32.65380000000005,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 33.50189999999998,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 34.43860000000018,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 35.56860000000006,
+      "event": "onPreview",
+      "mode": "preview"
+    },
+    {
+      "t": 36.40970000000016,
+      "event": "interaction-stopped",
+      "mode": "preview"
+    },
+    {
+      "t": 61.44530000000009,
+      "event": "onRefine",
+      "mode": "refine"
+    },
+    {
+      "t": 76.43299999999999,
+      "event": "after-idle-wait",
+      "mode": "refine"
+    }
+  ],
+  "byMode": {
+    "preview": {
+      "sampleCount": 32,
+      "frameMs": {
+        "count": 32,
+        "min": 0.9903000000000702,
+        "max": 1.5163000000000193,
+        "mean": 1.3019968749999817,
+        "p50": 1.303750000000009,
+        "p95": 1.4934899999998232
+      },
+      "extractMs": {
+        "count": 32,
+        "min": 0.8314000000000306,
+        "max": 1.2971000000000004,
+        "mean": 1.095746874999982,
+        "p50": 1.098600000000033,
+        "p95": 1.2791949999999361
+      }
+    },
+    "refine": {
+      "sampleCount": 8,
+      "frameMs": {
+        "count": 8,
+        "min": 1.4052000000000135,
+        "max": 1.5321999999998481,
+        "mean": 1.4913375000000362,
+        "p50": 1.507850000000067,
+        "p95": 1.527859999999973
+      },
+      "extractMs": {
+        "count": 8,
+        "min": 1.0552000000000135,
+        "max": 1.1589000000001306,
+        "mean": 1.092587500000036,
+        "p50": 1.0822000000000571,
+        "p95": 1.1476650000000859
+      }
+    }
+  },
+  "relatedP95": "artifacts/validation/bot-c/charts_probe_interaction_p95_2026-10-21.json",
+  "relatedCondensed": "artifacts/validation/bot-c/CONDENSED_interaction_p95.json"
+}
