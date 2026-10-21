@@ -2129,3 +2129,158 @@ body,
 .tree-root[data-presentation='desktop-cn-chrome'] {
   font-size: 12px;
 }
+/* G19 AnnotationPanel multi-select paint — desktop 17471a6 */
+.chart-mark-rect[data-selected='true'],
+.chart-mark-rect.chart-mark-selected {
+  border-color: #96d6ef;
+  background: rgba(24, 63, 89, 0.45);
+}
+.chart-mark-rect[data-current='true'],
+.chart-mark-rect.chart-mark-current {
+  border-color: #53bcf0;
+  background: rgba(32, 93, 124, 0.55);
+  box-shadow: inset 3px 0 0 #53bcf0;
+}
+.chart-mark-rect[data-hovered='true'] {
+  outline: 1px solid #99d8f1;
+}
+
+.annotation-mark-table {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 280px;
+  overflow: auto;
+}
+.annotation-mark-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  padding: 3px 8px;
+  cursor: pointer;
+  color: #b2cbe4;
+  border-radius: 2px;
+}
+.annotation-mark-row.is-hovered { background: #22425a; }
+.annotation-mark-row.is-selected { background: #183f59; }
+.annotation-mark-row.is-current {
+  background: #205d7c;
+  font-weight: 600;
+  color: #e0f5ff;
+  box-shadow: inset 3px 0 0 #53bcf0;
+}
+.annotation-mark-check {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #506d85;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+.annotation-mark-check.on {
+  background: #347c9e;
+  border-color: #96d6ef;
+}
+.annotation-mark-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.annotation-mark-range { font-size: 10px; color: #8da8c2; }
+.annotation-select-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+/* G02 strip QLabel chrome */
+.chart-strip-qlabel {
+  font-size: 12px;
+  color: #8da8c2;
+  padding: 0 4px;
+  white-space: nowrap;
+  user-select: none;
+}
+.chart-strip-level-summary {
+  color: #b2cbe4;
+  font-variant-numeric: tabular-nums;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* G08 column resize */
+.app-shell-body[data-shell-resizable='true'] {
+  display: grid;
+  grid-template-columns: var(--shell-left-w, 278px) 6px 1fr 6px var(--shell-right-w, 390px);
+}
+.shell-col-resize {
+  width: 6px;
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+.shell-col-resize::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 2px;
+  background: #243041;
+}
+.shell-col-resize:hover::after,
+.shell-col-resize:active::after {
+  background: #53bcf0;
+}
+.app-shell-rail-collapsed .app-shell-body[data-shell-resizable='true'] {
+  grid-template-columns: var(--shell-left-w, 278px) 6px 1fr 48px;
+}
+.app-shell-rail-collapsed .shell-col-resize-right {
+  display: none;
+}
+
+/* G07 DetectionPanel / AnnotationPanel bottom shell */
+.bottom-selection-summary {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: #8da8c2;
+}
+.bottom-annotation-select-all {
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+.bottom-detection-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+.bottom-detect-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  min-height: 80px;
+}
+.bottom-detect-col {
+  border: 1px solid #243041;
+  border-radius: 4px;
+  padding: 8px;
+  background: #121820;
+  min-height: 0;
+}
+.bottom-detect-col-title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b2cbe4;
+}
+.bottom-dock-toolbar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

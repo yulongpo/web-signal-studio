@@ -23,11 +23,11 @@ export function AuxParamStrip() {
 
   return (
     <header className="chart-strip chart-strip-aux" data-testid="chart-strip-aux">
-      <span className="chart-strip-caption" data-testid="chart-strip-caption-aux">
+      <span className="chart-strip-caption chart-strip-qlabel" data-testid="chart-strip-caption-aux">
         辅助分析
       </span>
-      <span className="chart-strip-title" aria-hidden>
-        Aux
+      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-kind">
+        视图
       </span>
       <button
         type="button"
@@ -76,6 +76,7 @@ export function SpecParamStrip() {
   const setActiveTool = useUiStore((s) => s.setActiveTool);
   const workspaceMode = useUiStore((s) => s.workspaceMode);
   const setWorkspaceMode = useUiStore((s) => s.setWorkspaceMode);
+  const level = useUiStore((s) => s.level);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -225,7 +226,20 @@ export function SpecParamStrip() {
             </span>
           ) : null}
         </div>
-        <div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
+                <span
+          className="chart-strip-qlabel chart-strip-level-summary"
+          data-testid="chart-strip-qlabel-level"
+          title={`参考 ${level.refLevelDb.toFixed(2)} dB · 动态 ${level.dynamicRangeDb.toFixed(2)} dB`}
+        >
+          {`参考 ${level.refLevelDb.toFixed(2)} · 动态 ${level.dynamicRangeDb.toFixed(2)}`}
+        </span>
+        <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-stft">
+          STFT点数
+        </span>
+        <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-palette">
+          色板
+        </span>
+<div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
           <button
             type="button"
             data-testid="btn-toolbar-overflow"

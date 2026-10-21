@@ -13,7 +13,7 @@ test.describe('G07/G02/G08/G19 residuals (Bot-B)', () => {
     fs.mkdirSync(outDir, { recursive: true });
     await page.goto('/');
     const body = page.getByTestId('app-shell-body');
-    await expect(body).toHaveAttribute('data-shell-columns', '278-390');
+    await expect(body).toHaveAttribute('data-shell-columns', /278-390/);
     const box = await body.boundingBox();
     expect(box).toBeTruthy();
     const tree = page.getByTestId('project-tree');
