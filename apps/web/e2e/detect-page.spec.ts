@@ -84,6 +84,33 @@ const MODEL_MISSING_CAPS = {
   },
 };
 
+
+const WEIGHT_HASH_CAPS = {
+  ...BLOCKED_CAPS,
+  detection: {
+    ffscn: false,
+    scn: false,
+    reasons: [
+      'BLOCKED: WEIGHT_HASH_MISMATCH for ffscn at model.pth (hash/version mismatch)',
+      'BLOCKED: WEIGHT_HASH_MISMATCH for scn at model.pth (hash/version mismatch)',
+    ],
+    uiMessages: [
+      {
+        code: 'MODEL_HASH_MISMATCH',
+        severity: 'error',
+        en: "Detection model hash/version does not match the configured expectation.",
+        zh: "检测模型哈希/版本与配置期望不一致。",
+      },
+      {
+        code: 'WEIGHT_HASH_MISMATCH',
+        severity: 'error',
+        en: "Detection model hash/version does not match the configured expectation.",
+        zh: "检测模型哈希/版本与配置期望不一致。",
+      },
+    ],
+  },
+};
+
 test.describe('detection page', () => {
   test('opens detect tab; mocked capabilities disable buttons and show zh banner', async ({
     page,
@@ -247,4 +274,34 @@ test.describe('detection page', () => {
     await expect(page.getByTestId('detect-capabilities-banner')).toBeVisible();
     await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
   });
+
+  test('WEIGHT_HASH_MISMATCH banners use server uiMessages; no candidates', async ({ page }) => {
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify(WEIGHT_HASH_CAPS),
+      });
+    });
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detect-page')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="detect-ui-code"][data-code="WEIGHT_HASH_MISMATCH"]').first(),
+    ).toBeVisible();
+    await expect(
+      page.locator('[data-testid="detect-ui-code"][data-code="MODEL_HASH_MISMATCH"]').first(),
+    ).toBeVisible();
+    await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
+    await expect(page.getByTestId('detect-btn-scn')).toBeDisabled();
+    await expect(page.getByTestId('detect-candidates')).toHaveCount(0);
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+    await expect(page.getByTestId('detect-gate-reason-ffscn')).toBeVisible();
+  });
+
 });

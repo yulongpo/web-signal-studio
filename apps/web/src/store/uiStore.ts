@@ -118,6 +118,7 @@ export interface UiState {
   setLocalComputeBaseUrl: (url: string) => void;
   setDetectSampleRange: (range: { start: string; end: string }) => void;
   setDspSource: (source: DspSourceKind) => void;
+  setStatusFileLabel: (label: string) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -298,6 +299,7 @@ export const useUiStore = create<UiState>((set, get) => ({
     }),
 
   setDspSource: (source) => set({ dspSource: source }),
+  setStatusFileLabel: (label) => set({ statusFileLabel: label }),
 }));
 
 

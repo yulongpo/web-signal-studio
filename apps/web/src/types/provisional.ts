@@ -43,4 +43,9 @@ export interface StatusCursor {
 }
 
 /** Main-chart DSP power source (Bot-D worker path + Bot-B chip). */
-export type DspSourceKind = 'loading' | 'synthetic-stft-worker' | 'demo-fallback';
+export type DspSourceKind =
+  | 'loading'
+  | 'synthetic-stft-worker'
+  | 'file-stft-worker'
+  | 'fsa-wav-stft'
+  | 'demo-fallback';

@@ -23,11 +23,16 @@ Owner: Bot-B (`work/bot-b-web-shell`, worktree `D:\project\wss-wt-b`).
 
 ## STFT worker path (Bot-D + Bot-B polish)
 
-- `MainChartHost` uses `useDspWorkerClient` + `computeMainSpectrogram`.
-- Host attribute `data-dsp-source`: `loading` | `synthetic-stft-worker` | `demo-fallback`.
+- `MainChartHost` uses `useDspWorkerClient` + either:
+  - **Opened IQ**: `@wss/file-io` FSA (`pickAndOpenIqWav`) or `<input type=file>` → `openIqWavFromBlob` → `stftFromChunkedReader` / `computeFileSpectrogram`
+  - **No file / clear / open fail**: `computeMainSpectrogram` synthetic two-tone fixture
+- Session: `iqFileSession` (ChunkedReader) + toolbar Open IQ / Clear IQ (`btn-open-iq-wav`, `btn-clear-iq-wav`, `input-iq-wav`).
+- Host attribute `data-dsp-source`: `loading` | `synthetic-stft-worker` | `file-stft-worker` | `fsa-wav-stft` | `demo-fallback`.
+- Explicit `sourceLabel`: file path never labeled synthetic; synthetic never claimed as live/capture.
 - Visible chip `data-testid="dsp-source-chip"` (also mirrored on StatusBar `status-dsp-source`).
-- AbortController cancel on unmount kept.
+- AbortController cancel on re-open / unmount kept.
 - Demo `synthPower` is loading/fallback only — never claimed as real capture.
+
 
 ## Project IO (`@wss/project-io` / Bot-F session)
 
@@ -61,7 +66,7 @@ Follows `services/local-compute/docs/DETECTION_PAGE_CONTRACT.md`, `REAL_MODEL_IN
 
 ### STFT data-testids
 
-`main-chart-host` (`data-dsp-source`), `dsp-source-chip`, `status-dsp-source`
+`main-chart-host` (`data-dsp-source`), `dsp-source-chip`, `status-dsp-source`, `btn-open-iq-wav`, `btn-clear-iq-wav`, `input-iq-wav`, `iq-open-error`
 
 ## Package
 
