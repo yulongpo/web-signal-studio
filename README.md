@@ -1,6 +1,7 @@
 ﻿# Web Signal Studio
 
-将 Qt 桌面信号分析软件（yulongpo/signal_studio · ebuild/a143-native）重构为 **Web-based** 工程。
+将 Qt 桌面信号分析软件（yulongpo/signal_studio · 
+ebuild/a143-native）重构为 **Web-based** 工程。
 
 本仓库是唯一可写的开发、编译、测试与交付目录。上游桌面工程副本仅作只读参考，位于 .work/upstream-readonly/（已 gitignore）。
 
@@ -67,3 +68,40 @@ uvicorn main:app --reload --port 8000
 ## 许可与归属
 
 源工程与目标工程均属项目所有者；本仓库仅用于 Web 重构交付。
+
+
+## Delivery / QA run-through (P6)
+
+> Packaging inventory: `artifacts/delivery/manifest.json` + `artifacts/delivery/sha256sums.txt`
+> (`packagingKind=evidence_path_manifest`). **FINAL_DELIVERED is not claimed here** — CAO decides after merge.
+> Draft closeout: `docs/acceptance/FINAL_CHECKLIST_DRAFT.md`. Acceptance matrix: `docs/acceptance/ACCEPTANCE_MATRIX.md`.
+
+### Quick start (this repo)
+
+```powershell
+cd <clone-or-worktree>   # e.g. D:\project\wss-wt-g
+npm install
+npm run dev --workspace=@wss/web
+```
+
+Open the Vite URL printed in the terminal (default `http://localhost:5173`).
+
+### Optional local-compute (DSP / detection degrade)
+
+```powershell
+cd <clone-or-worktree>\services\local-compute
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+$env:LOCAL_COMPUTE_DISABLE_TORCH = "1"   # contract / degrade suite
+uvicorn app.main:app --reload --port 8000
+```
+
+Front-end may proxy `/api` to `http://127.0.0.1:8000`. Detection stays **BLOCKED** without GPU + mounted FFSCN/SCN weights (by design; no invented candidates).
+
+### Known limits
+
+- CI job **e2e non-charts** is still disabled; charts covered by `charts-playwright`. Playwright evidence for shell/M-06 is committed under `docs/acceptance/evidence/`.
+- Real FFSCN/SCN inference requires NVIDIA GPU + weight files; M-09 acceptance is the degrade / no-model path.
+- This delivery package does **not** ship a release zip/installer — only hashed evidence paths in the manifest.
+

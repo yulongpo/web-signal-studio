@@ -15,3 +15,7 @@
 ## Gate
 
 - Q-05 → **WIP** (skeleton OK; await packaging / sha256 fill for PASS)
+
+---
+
+**SUPERSEDED** by `q05_delivery_manifest_2026-10-21.md` @ tip `631f22a` packaging (Q-05 PASS).

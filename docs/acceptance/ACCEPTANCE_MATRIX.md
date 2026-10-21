@@ -9,13 +9,13 @@
 
 | 阶段 | 名称 | 判定 | 证据入口 |
 |------|------|------|----------|
-| P0 | 脚手架 / 上游基线 / 文档 | WIP | `artifacts/validation/p0_qa_baseline_*.md` |
-| P1 | 审计 + 契约 | TODO | |
-| P2 | Web 主壳 / 加载 / 图谱 / 标记 | TODO | |
-| P3 | DSP WASM / local-compute | TODO | |
-| P4 | 宽带检测 | TODO | |
-| P5 | 持久化 + E2E + 性能 | TODO | |
-| P6 | 回归 + 发布 | TODO | `docs/acceptance/RELEASE_CHECKLIST.md` |
+| P0 | 脚手架 / 上游基线 / 文档 | PASS | `artifacts/validation/p0_qa_baseline_*.md` + matrix/docs @ tip `631f22a` |
+| P1 | 审计 + 契约 | PASS | M-10 BigInt contracts PASS; Q-03/Q-04 license/secrets PASS |
+| P2 | Web 主壳 / 加载 / 图谱 / 标记 | PASS | M-01..M-06 + C-01..C-04 PASS (Playwright/charts evidence) |
+| P3 | DSP WASM / local-compute | PASS | M-07 DDC e2e + dsp-wasm/local-compute evidence PASS |
+| P4 | 宽带检测 | PASS | M-09 FFSCN/SCN degrade / no-model path PASS (live GPU N/A) |
+| P5 | 持久化 + E2E + 性能 | PASS | M-08 v6 + M-06 Playwright evidence; charts-playwright CI; non-charts e2e still disabled in CI (known limit) |
+| P6 | 回归 + 发布 | PASS | Q-01..Q-05 PASS; delivery manifest + FINAL_CHECKLIST_DRAFT (`FINAL_DELIVERED` not claimed) |
 
 ## 源 → Web 对等（抽样骨架）
 
@@ -52,7 +52,7 @@
 | Q-02 | Playwright E2E（真实本机/CI 服务） | PASS（本地） | `tests/e2e/shell-nav.spec.ts` + `artifacts/validation/p1g/e2e.log` |
 | Q-03 | 许可证 / 依赖扫描 | PASS | Bot-G P6: root `LICENSE` (MIT) + `"license": "MIT"` on root and all `@wss/*` packages (closes prior UNLICENSED=`@wss/web` + missing LICENSE); evidence `docs/acceptance/evidence/bot-g/q03_license_close_2026-10-21.{md,json}` + `artifacts/validation/license/REPORT.md` |
 | Q-04 | 无密钥 / 大样本入 Git | PASS | Bot-G P6 secrets sweep: no pattern hits; only `.env.example`; tiny fixtures only; `.gitignore` tightened (env/credentials/keys/weights/IQ) + delivery allowlist — `docs/acceptance/evidence/bot-g/q04_secrets_gitignore_2026-10-21.{md,json}` |
-| Q-05 | `artifacts/delivery/manifest.json` | WIP | Bot-G P6 skeleton committed (`artifacts/delivery/manifest.json`); tip/CI/license/packages/evidence paths filled; `delivery.artifacts` empty pending packaging — `docs/acceptance/evidence/bot-g/q05_delivery_manifest_skeleton_2026-10-21.md` |
+| Q-05 | `artifacts/delivery/manifest.json` | PASS | Bot-G P6 @ tip `631f22a` / CI [run 39597608528](https://github.com/yulongpo/web-signal-studio/actions/runs/39597608528): `packagingKind=evidence_path_manifest`; sha256 inventory in `artifacts/delivery/sha256sums.txt` + filled `delivery.artifacts`; tip/CI/license/packages/evidence paths; `finalDeliveredClaimed:false`; draft `docs/acceptance/FINAL_CHECKLIST_DRAFT.md`; evidence `docs/acceptance/evidence/bot-g/q05_delivery_manifest_2026-10-21.md` |
 | Q-06 | 只读边界：`signal_studio_rebuild` 无本任务写入 | PASS* | 见下方「只读边界核验」 |
 
 \*PASS 指 **WSS 任务包未对该目录执行写入**；该目录自身可有与桌面 UX 相关的既有脏工作树，须与本 Web 重构任务区分。
