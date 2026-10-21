@@ -33,6 +33,7 @@ import {
 } from '../dsp/iqFileSession';
 import { AdaptiveValueEdit } from './AdaptiveValueEdit';
 import { formatDetectionPhysicalTimes } from './adaptiveValue';
+import { secondsToSampleIndex } from './chartGesture';
 
 const POLL_MS = 500;
 
@@ -126,6 +127,61 @@ function BannerMessages({
   );
 }
 
+
+type DetectSegmentOption = {
+  id: string;
+  annotationId: string;
+  start: string;
+  end: string;
+  label: string;
+};
+
+/** List real mark segments for DetectionCard — never invents empty fake rows. */
+function listActiveMarkSegments(): DetectSegmentOption[] {
+  const hook = typeof window !== 'undefined' ? window.__wssM06 : undefined;
+  if (!hook) return [];
+  const anns = (hook.session.annotations.annotations ?? []).filter((a) => !a.deleted);
+  const snap = hook.getState?.();
+  const activeId = snap?.activeMarkId ?? null;
+  const focus = (activeId ? anns.find((a) => a.id === activeId) : null) ?? anns[0] ?? null;
+  if (!focus) return [];
+  const segs = focus.segments ?? [];
+  if (segs.length > 0) {
+    return segs.map((seg, index) => ({
+      id: seg.id,
+      annotationId: focus.id,
+      start: String(seg.start),
+      end: String(seg.end),
+      label: `\u6d3b\u52a8\u6bb5 ${index + 1} \u00b7 [${seg.start}, ${seg.end})`,
+    }));
+  }
+  // Compat projection: annotation start/end when segments[] absent (contracts note).
+  if (focus.start != null && focus.end != null) {
+    const id = focus.activeSegmentId || `${focus.id}:compat`;
+    return [
+      {
+        id,
+        annotationId: focus.id,
+        start: String(focus.start),
+        end: String(focus.end),
+        label: `\u6d3b\u52a8\u6bb5 1 \u00b7 [${focus.start}, ${focus.end})`,
+      },
+    ];
+  }
+  return [];
+}
+
+function availableFileSampleEnd(iq: { reader: { availablePrefix: () => { availableSamples: bigint } } } | null): string | null {
+  if (!iq) return null;
+  try {
+    const n = iq.reader.availablePrefix().availableSamples;
+    if (n <= 0n) return null;
+    return n.toString();
+  } catch {
+    return null;
+  }
+}
+
 export function DetectPage() {
   const token = useUiStore((s) => s.localComputeToken);
   const setToken = useUiStore((s) => s.setLocalComputeToken);
@@ -163,6 +219,9 @@ export function DetectPage() {
   const [rangeOrigin, setRangeOrigin] = useState<
     'visible' | 'available-file' | 'active-segment' | 'custom'
   >('visible');
+  const [selectedSegmentId, setSelectedSegmentId] = useState<string>('');
+  const [m06Tick, setM06Tick] = useState(0);
+  const navWindowTime = useUiStore((s) => s.navWindowTime);
   const [params, setParams] = useState<DetectionCardParams>(DEFAULT_DETECTION_PARAMS);
   const pollTimer = useRef<number | null>(null);
 
@@ -195,6 +254,81 @@ export function DetectPage() {
       }),
     [sampleRateHz, params.fftSize, params.hopMilliseconds, params.modelFrames, params.modelHopFrames],
   );
+
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (window.__wssM06) setM06Tick((t) => t + 1);
+    }, 400);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const segmentOptions = useMemo(() => {
+    void m06Tick;
+    return listActiveMarkSegments();
+  }, [m06Tick]);
+
+  useEffect(() => {
+    if (!segmentOptions.length) {
+      if (selectedSegmentId) setSelectedSegmentId('');
+      return;
+    }
+    if (!segmentOptions.some((s) => s.id === selectedSegmentId)) {
+      setSelectedSegmentId(segmentOptions[0]!.id);
+    }
+  }, [segmentOptions, selectedSegmentId]);
+
+  const applyVisibleRange = useCallback(() => {
+    const fs = sampleRateHz;
+    if (fs == null || !(fs > 0)) return false;
+    const start = secondsToSampleIndex(navWindowTime.min, fs);
+    const endRaw = secondsToSampleIndex(navWindowTime.max, fs);
+    if (start == null || endRaw == null) return false;
+    let end = endRaw;
+    try {
+      if (BigInt(end) <= BigInt(start)) end = (BigInt(start) + 1n).toString();
+    } catch {
+      return false;
+    }
+    setDetectSampleRange({ start, end }, 'default');
+    return true;
+  }, [navWindowTime.max, navWindowTime.min, sampleRateHz, setDetectSampleRange]);
+
+  const applyAvailableFileRange = useCallback(() => {
+    const end = availableFileSampleEnd(iqSession);
+    if (end == null) return false;
+    setDetectSampleRange({ start: '0', end }, 'file');
+    return true;
+  }, [iqSession, setDetectSampleRange]);
+
+  const applyActiveSegmentRange = useCallback(
+    (segId: string) => {
+      const seg = segmentOptions.find((s) => s.id === segId);
+      if (!seg) return false;
+      setDetectSampleRange({ start: seg.start, end: seg.end }, 'default');
+      return true;
+    },
+    [segmentOptions, setDetectSampleRange],
+  );
+
+  // Visible-region ↔ main-chart navWindow alignment (Qt file->view).
+  useEffect(() => {
+    if (rangeOrigin !== 'visible') return;
+    applyVisibleRange();
+  }, [rangeOrigin, applyVisibleRange, navWindowTime.min, navWindowTime.max, sampleRateHz]);
+
+  // available-file ↔ IQ availablePrefix (honest; no invented length).
+  useEffect(() => {
+    if (rangeOrigin !== 'available-file') return;
+    applyAvailableFileRange();
+  }, [rangeOrigin, applyAvailableFileRange, iqEpoch]);
+
+  // active-segment ↔ real mark segment range.
+  useEffect(() => {
+    if (rangeOrigin !== 'active-segment') return;
+    if (!selectedSegmentId) return;
+    applyActiveSegmentRange(selectedSegmentId);
+  }, [rangeOrigin, selectedSegmentId, applyActiveSegmentRange]);
+
 
 
   const makeClient = useCallback(
@@ -1149,16 +1283,12 @@ export function DetectPage() {
             onChange={(e) => {
               const next = e.target.value as typeof rangeOrigin;
               setRangeOrigin(next);
-              if (next === 'available-file' && hasIqSource) {
-                // Keep existing file range if already from file; otherwise leave samples as-is.
-                setDetectSampleRange(sampleRange, 'file');
+              if (next === 'available-file') applyAvailableFileRange();
+              if (next === 'visible') applyVisibleRange();
+              if (next === 'active-segment' && selectedSegmentId) {
+                applyActiveSegmentRange(selectedSegmentId);
               }
-              if (next === 'visible') {
-                setDetectSampleRange(sampleRange, 'default');
-              }
-              if (next === 'custom' && rangeSource !== 'roi') {
-                // Custom waits for chart ROI confirm — do not invent a range.
-              }
+              // custom waits for chart ROI confirm — do not invent a range.
             }}
           >
             <option value="visible">当前可见区域</option>
@@ -1177,11 +1307,28 @@ export function DetectPage() {
           <select
             data-testid="detection-active-segment"
             data-object-name="detectionActiveSegment"
-            disabled
-            defaultValue=""
-            title="活动标记段绑定仍 PARTIAL — 无伪造段列表"
+            disabled={busy || segmentOptions.length === 0}
+            value={selectedSegmentId}
+            onChange={(e) => {
+              const id = e.target.value;
+              setSelectedSegmentId(id);
+              applyActiveSegmentRange(id);
+            }}
+            title={
+              segmentOptions.length
+                ? '来自当前活动标记的真实段（不伪造）'
+                : '无可用活动段—不伪造段列表'
+            }
           >
-            <option value="">（无可用活动段 · PARTIAL）</option>
+            {segmentOptions.length === 0 ? (
+              <option value="">（无可用活动段）</option>
+            ) : (
+              segmentOptions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.label}
+                </option>
+              ))
+            )}
           </select>
         </label>
         <p
@@ -1195,10 +1342,12 @@ export function DetectPage() {
           {rangeOrigin === 'custom' || rangeSource === 'roi'
             ? '来自图上检测 ROI 确认。确认不会自动运行检测。'
             : rangeOrigin === 'available-file' || rangeSource === 'file'
-              ? '来自已打开工程的样本区间。'
+              ? '来自已打开 IQ / 工程的可用样本区间。'
               : rangeOrigin === 'active-segment'
-                ? '活动标记段：列表仍 PARTIAL（不伪造段）。'
-                : '当前可见区域（与主图窗口对齐仍 PARTIAL；区间如下）。'}
+                ? segmentOptions.length
+                  ? '来自当前活动标记段（真实列表）。'
+                  : '活动标记段：当前无可用段（不伪造）。'
+                : '当前可见区域（与主图 navWindow 对齐）。'}
         </p>
         <button
           type="button"
