@@ -1,7 +1,11 @@
 /**
  * Opened IQ ChunkedReader → STFT → main-chart spectrogram (parallel to synthetic fixture).
  */
-import type { SpectralWindowName } from '@wss/contracts';
+import type { SpectralWindowName, StftSupportedMethod } from '@wss/contracts';
+import {
+  DEFAULT_KAISER_BETA,
+  segmentMillisecondsFromFft,
+} from '@wss/contracts';
 import type { DspWorkerClient } from '@wss/dsp-wasm';
 import type { ChunkedReader } from '@wss/file-io';
 import { stftFromChunkedReader } from './stftFromChunkedReader';
@@ -26,6 +30,10 @@ export interface FileSpectrogramResult {
   hopSize: number;
   window: SpectralWindowName;
   overlap: number;
+  method: StftSupportedMethod;
+  segmentMilliseconds: number;
+  kaiserBeta: number | null;
+  spectrumStatistic: null;
 }
 
 export interface ComputeFileSpectrogramOptions {
@@ -37,6 +45,8 @@ export interface ComputeFileSpectrogramOptions {
   fftSize?: number;
   hopSize?: number;
   window?: SpectralWindowName;
+  method?: StftSupportedMethod;
+  kaiserBeta?: number;
   /** Cap samples for first paint (default: enough for ~128 frames). */
   maxSamples?: bigint;
 }
@@ -47,6 +57,11 @@ export async function computeFileSpectrogram(
   const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
   const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
   const window: SpectralWindowName = options.window ?? MAIN_STFT_DEFAULTS.window;
+  const method: StftSupportedMethod = options.method ?? MAIN_STFT_DEFAULTS.method;
+  const kaiserBeta =
+    options.kaiserBeta != null && Number.isFinite(options.kaiserBeta)
+      ? options.kaiserBeta
+      : DEFAULT_KAISER_BETA;
   const frameTarget = 128;
   const defaultMax = BigInt(fftSize + (frameTarget - 1) * hopSize);
   const maxSamples = options.maxSamples ?? defaultMax;
@@ -65,6 +80,8 @@ export async function computeFileSpectrogram(
     fftSize,
     hopSize,
     window,
+    method,
+    kaiserBeta,
     signal: options.signal,
   });
 
@@ -93,5 +110,9 @@ export async function computeFileSpectrogram(
     hopSize,
     window,
     overlap: overlapFromHop(fftSize, hopSize),
+    method,
+    segmentMilliseconds: segmentMillisecondsFromFft(fftSize, sampleRateHz),
+    kaiserBeta: window === 'kaiser' ? kaiserBeta : null,
+    spectrumStatistic: null,
   };
 }

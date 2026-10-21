@@ -9,6 +9,8 @@ import type {
   LocalComputeTaskRecord,
   LocalComputeCapabilities,
   SpectralWindowName,
+  StftSupportedMethod,
+  SpectrumStatisticName,
 } from '@wss/contracts';
 import {
   openProjectFromJsonText,
@@ -158,6 +160,23 @@ export interface UiState {
   dspFftHopSize: number | null;
   /** FFT size actually used by last STFT (may differ from UI stftN until wired). */
   dspFftSizeActive: number | null;
+  /**
+   * G02 STFT method actually used. Web only implements 'welch'.
+   * null until STFT settles; Multitaper/Burg/etc. stay BLOCKED (never published as fake).
+   */
+  dspSpectralMethod: StftSupportedMethod | null;
+  /**
+   * G02 segment duration ms derived from active fftSize/fs (desktop segmentMilliseconds).
+   * Desktop auto N/B (0) is not implemented on web.
+   */
+  dspSegmentMs: number | null;
+  /**
+   * SpectrumStatistic — PSD-only on desktop STFT path. Always null for main STFT publish
+   * (honest NA; Bot-B should stamp — / NA, not invent Mean).
+   */
+  dspSpectrumStatistic: SpectrumStatisticName | null;
+  /** Kaiser β when window is kaiser; else null. */
+  dspKaiserBeta: number | null;
 
   /** G06 narrowband page + display settings (persist across page/overflow). */
   narrowbandPage: NarrowbandPageId;
@@ -298,6 +317,11 @@ export interface UiState {
       overlap: number;
       hopSize: number;
       fftSize: number;
+      method: StftSupportedMethod;
+      segmentMs: number;
+      /** null = NA (STFT has no SpectrumStatistic on desktop). */
+      spectrumStatistic: SpectrumStatisticName | null;
+      kaiserBeta: number | null;
     } | null,
   ) => void;
 }
@@ -392,6 +416,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   dspFftOverlap: null,
   dspFftHopSize: null,
   dspFftSizeActive: null,
+  dspSpectralMethod: null,
+  dspSegmentMs: null,
+  dspSpectrumStatistic: null,
+  dspKaiserBeta: null,
 
   setActiveTool: (tool) => set({ activeTool: tool }),
   setRightPage: (page) => set({ rightPage: page }),
@@ -777,6 +805,10 @@ export const useUiStore = create<UiState>((set, get) => ({
         dspFftOverlap: null,
         dspFftHopSize: null,
         dspFftSizeActive: null,
+        dspSpectralMethod: null,
+        dspSegmentMs: null,
+        dspSpectrumStatistic: null,
+        dspKaiserBeta: null,
       });
       return;
     }
@@ -785,11 +817,20 @@ export const useUiStore = create<UiState>((set, get) => ({
       : 0;
     const hopSize = Math.max(1, Math.floor(params.hopSize));
     const fftSize = Math.max(2, Math.floor(params.fftSize));
+    const segmentMs = Number.isFinite(params.segmentMs) ? Math.max(0, params.segmentMs) : 0;
+    const kaiserBeta =
+      params.kaiserBeta != null && Number.isFinite(params.kaiserBeta)
+        ? params.kaiserBeta
+        : null;
     set({
       dspFftWindow: params.window,
       dspFftOverlap: overlap,
       dspFftHopSize: hopSize,
       dspFftSizeActive: fftSize,
+      dspSpectralMethod: params.method,
+      dspSegmentMs: segmentMs,
+      dspSpectrumStatistic: params.spectrumStatistic,
+      dspKaiserBeta: kaiserBeta,
     });
   },
 }));

@@ -1,5 +1,10 @@
 import type { StftRequest, StftResult, SampleIndex } from '@wss/contracts';
-import { sampleIndexToDecimal } from '@wss/contracts';
+import {
+  sampleIndexToDecimal,
+  isStftSupportedMethod,
+  DEFAULT_KAISER_BETA,
+  segmentMillisecondsFromFft,
+} from '@wss/contracts';
 import { fftRadix2, isPowerOfTwo, binFrequencyHz } from './fft.js';
 import type { StftEngine } from './interfaces.js';
 import type { FftRadix2Fn } from './psd.js';
@@ -40,6 +45,11 @@ export async function computeStft(
 ): Promise<StftResult> {
   const { fftSize, hopSize, window, sampleRateHz } = request;
   throwIfAborted(request.signal);
+  if (!isStftSupportedMethod(request.method)) {
+    throw new RangeError(
+      `STFT method '${String(request.method)}' is BLOCKED on web (only 'welch' is implemented)`,
+    );
+  }
   if (!isPowerOfTwo(fftSize)) {
     throw new RangeError(`STFT fftSize must be power of two, got ${fftSize}`);
   }
@@ -63,7 +73,13 @@ export async function computeStft(
     throw new RangeError('STFT span exceeds Number.MAX_SAFE_INTEGER');
   }
 
-  const win = makeWindow(window, fftSize);
+  const kaiserBeta =
+    request.kaiserBeta != null && Number.isFinite(request.kaiserBeta)
+      ? request.kaiserBeta
+      : DEFAULT_KAISER_BETA;
+  // segmentMilliseconds is contract/publish metadata; framing uses fftSize samples.
+  void (request.segmentMilliseconds ?? segmentMillisecondsFromFft(fftSize, sampleRateHz));
+  const win = makeWindow(window, fftSize, kaiserBeta);
   const wPow = windowPowerSum(win);
   const scale = 1 / (wPow * sampleRateHz);
 

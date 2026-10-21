@@ -207,6 +207,10 @@ export function MainChartHost() {
           overlap: result.overlap,
           hopSize: result.hopSize,
           fftSize: result.fftSize,
+          method: result.method,
+          segmentMs: result.segmentMilliseconds,
+          spectrumStatistic: result.spectrumStatistic,
+          kaiserBeta: result.kaiserBeta,
         });
         setIqFormat(session.format);
         setStatusFileLabel(session.fileName);
@@ -230,6 +234,10 @@ export function MainChartHost() {
         overlap: result.overlap,
         hopSize: result.hopSize,
         fftSize: result.fftSize,
+        method: result.method,
+        segmentMs: result.segmentMilliseconds,
+        spectrumStatistic: result.spectrumStatistic,
+        kaiserBeta: result.kaiserBeta,
       });
       setIqFormat(null);
       setStatusFileLabel('No file (synthetic fixture)');

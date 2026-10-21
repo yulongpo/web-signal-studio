@@ -6,7 +6,12 @@
  */
 import type { ChunkedReader } from '@wss/file-io';
 import type { DspWorkerClient } from '@wss/dsp-wasm';
-import type { StftResult, SpectralWindowName } from '@wss/contracts';
+import type {
+  StftResult,
+  SpectralWindowName,
+  StftSupportedMethod,
+} from '@wss/contracts';
+import { DEFAULT_KAISER_BETA, segmentMillisecondsFromFft } from '@wss/contracts';
 import { DEFAULT_CHUNK_BYTES } from '@wss/contracts';
 
 export interface StftFromChunkedReaderOptions {
@@ -20,6 +25,8 @@ export interface StftFromChunkedReaderOptions {
   fftSize?: number;
   hopSize?: number;
   window?: SpectralWindowName;
+  method?: StftSupportedMethod;
+  kaiserBeta?: number;
   maxBytes?: number;
   signal?: AbortSignal;
   /**
@@ -61,6 +68,8 @@ export async function stftFromChunkedReader(
     fftSize = 256,
     hopSize = 64,
     window = 'hann',
+    method = 'welch' as StftSupportedMethod,
+    kaiserBeta = DEFAULT_KAISER_BETA,
     maxBytes = DEFAULT_CHUNK_BYTES,
   } = options;
 
@@ -108,6 +117,7 @@ export async function stftFromChunkedReader(
     }
   }
 
+  const segmentMilliseconds = segmentMillisecondsFromFft(fftSize, sampleRateHz);
   const stft = await client.analyzeStft(
     {
       begin,
@@ -116,6 +126,9 @@ export async function stftFromChunkedReader(
       hopSize,
       window,
       sampleRateHz,
+      method,
+      segmentMilliseconds,
+      kaiserBeta: window === 'kaiser' ? kaiserBeta : undefined,
     },
     iq,
     signal,

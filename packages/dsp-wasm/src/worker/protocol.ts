@@ -29,6 +29,12 @@ export interface StftParamsWire {
   hopSize: number;
   window: SpectralWindowName;
   sampleRateHz: number;
+  /** Only 'welch' is implemented; omit = welch. */
+  method?: 'welch';
+  /** Informational; framing uses fftSize. */
+  segmentMilliseconds?: number;
+  /** Used when window === 'kaiser'. */
+  kaiserBeta?: number;
 }
 
 export interface DdcParamsWire {

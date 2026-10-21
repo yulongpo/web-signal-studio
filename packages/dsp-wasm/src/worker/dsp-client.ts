@@ -169,6 +169,9 @@ export class DspWorkerClient {
         hopSize: request.hopSize,
         window: request.window,
         sampleRateHz: request.sampleRateHz,
+        method: request.method,
+        segmentMilliseconds: request.segmentMilliseconds,
+        kaiserBeta: request.kaiserBeta,
       },
       iqBuffer: buffer,
     };

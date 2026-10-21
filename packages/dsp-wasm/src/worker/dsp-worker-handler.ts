@@ -121,6 +121,9 @@ function toStftRequest(params: StftParamsWire, signal: AbortSignal): StftRequest
     hopSize: params.hopSize,
     window: params.window,
     sampleRateHz: params.sampleRateHz,
+    method: params.method,
+    segmentMilliseconds: params.segmentMilliseconds,
+    kaiserBeta: params.kaiserBeta,
     signal,
   };
 }
