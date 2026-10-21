@@ -1,0 +1,20 @@
+{
+  "item": "G19-TOP8",
+  "owner": "Bot-F",
+  "date_asia_shanghai": "2026-10-21 22:19:59",
+  "base_tip": "c63f1de9e3e8e11c2a62b9e1f20a0ed5b719c3d4",
+  "head_pre_commit": "c63f1de9e3e8e11c2a62b9e1f20a0ed5b719c3d4",
+  "matrix_pass_claimed": false,
+  "command": "npx vitest run --config vitest.config.ts packages/project-io",
+  "result": {
+    "passed": 24,
+    "skipped": 1,
+    "failed": 0
+  },
+  "desktop_ref": "c1f2cce / 17471a6 project_tree_presentation",
+  "gaps_for_bot_b": [
+    "ProjectTree map EngineeringTreeNode",
+    "mark selection UI",
+    "optional tree screenshot"
+  ]
+}
