@@ -1,0 +1,24 @@
+{
+  "item": "M-10",
+  "title": "BigInt sample-index protocol",
+  "owner": "Bot-F",
+  "date_asia_shanghai": "2026-10-21 19:46:36",
+  "worktree": "D:\\project\\wss-wt-f",
+  "branch": "work/bot-f-project-io",
+  "base_tip": "8f09dbca0c97201c70f41645624bed57efb3e50f",
+  "head_pre_commit": "8f09dbca0c97201c70f41645624bed57efb3e50f",
+  "matrix_pass_claimed": false,
+  "command": "npx vitest run --config vitest.config.ts packages/contracts packages/domain",
+  "result": {
+    "test_files": 3,
+    "tests": 35,
+    "failed": 0,
+    "passed": 35
+  },
+  "files": [
+    "packages/contracts/src/sample-index.test.ts",
+    "packages/domain/src/sample-range.ts",
+    "packages/domain/src/sample-range.test.ts",
+    "packages/domain/package.json"
+  ]
+}

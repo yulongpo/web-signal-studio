@@ -11,5 +11,9 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.config.ts packages/domain",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   }
 }

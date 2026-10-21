@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   SAMPLE_INDEX_MAX,
   assertSampleIndex,
+  clampSampleIndex,
+  compareSampleIndex,
   isCanonicalSampleIndexDecimal,
   sampleIndexFromDecimal,
   sampleIndexToDecimal,
@@ -91,5 +93,49 @@ describe('BigInt JSON boundary (wire must be decimal strings)', () => {
     expect(JSON.parse(JSON.stringify(text))).toBe('18446744073709551615');
     expect(sampleIndexFromDecimal(text)).toBe(uint64Max);
     expect(validateSampleIndexDecimal('18446744073709551616').ok).toBe(false);
+  });
+});
+
+
+describe('M-10 sample-index compare / clamp / assert boundary', () => {
+  const past = (1n << 53n) + 17n;
+  const past2 = (1n << 53n) + 99n;
+
+  it('compareSampleIndex orders past-safe values', () => {
+    expect(compareSampleIndex(0n, 1n)).toBe(-1);
+    expect(compareSampleIndex(past2, past)).toBe(1);
+    expect(compareSampleIndex(past, past)).toBe(0);
+    expect(compareSampleIndex(SAMPLE_INDEX_MAX - 1n, SAMPLE_INDEX_MAX)).toBe(-1);
+  });
+
+  it('clampSampleIndex clamps inclusive to [min, max]', () => {
+    expect(clampSampleIndex(past, past + 1n, past2)).toBe(past + 1n);
+    expect(clampSampleIndex(past2 + 10n, past, past2)).toBe(past2);
+    expect(clampSampleIndex(past + 5n, past, past2)).toBe(past + 5n);
+  });
+
+  it('assertSampleIndex accepts bigint and trimmed decimal; rejects null/undefined/number/array', () => {
+    expect(assertSampleIndex(past)).toBe(past);
+    expect(assertSampleIndex(' 0 ')).toBe(0n);
+    expect(assertSampleIndex(sampleIndexToDecimal(SAMPLE_INDEX_MAX))).toBe(SAMPLE_INDEX_MAX);
+    for (const bad of [null, undefined, 1.5, {}, [], true, -1n] as unknown[]) {
+      expect(() => assertSampleIndex(bad)).toThrow();
+    }
+  });
+
+  it('protocol doc: Workers/WASM/JSON must carry decimal strings for sample indexes', () => {
+    const payload = {
+      begin: sampleIndexToDecimal(past),
+      end: sampleIndexToDecimal(SAMPLE_INDEX_MAX),
+      sampleCount: sampleIndexToDecimal(SAMPLE_INDEX_MAX),
+    };
+    const wire = JSON.stringify(payload);
+    expect(wire.includes('"9007199254741009"')).toBe(true);
+    expect(wire.includes('"18446744073709551615"')).toBe(true);
+    // Must not appear as bare JSON numbers in the serialized form
+    expect(wire).not.toMatch(/:\s*9007199254741009([,}])/);
+    const round = JSON.parse(wire) as typeof payload;
+    expect(sampleIndexFromDecimal(round.begin)).toBe(past);
+    expect(sampleIndexFromDecimal(round.end)).toBe(SAMPLE_INDEX_MAX);
   });
 });

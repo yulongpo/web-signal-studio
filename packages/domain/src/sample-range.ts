@@ -1,7 +1,10 @@
 import {
   type SampleIndex,
+  type TimeRangeJson,
+  assertSampleIndex,
   clampSampleIndex,
   compareSampleIndex,
+  sampleIndexFromDecimal,
   sampleIndexToDecimal,
 } from '@wss/contracts';
 
@@ -80,4 +83,24 @@ export function frequencyToBin(frequencyHz: number, sampleRateHz: number, fftSiz
   const bin = Math.round((frequencyHz / sampleRateHz) * fftSize);
   const wrapped = ((bin % fftSize) + fftSize) % fftSize;
   return wrapped;
+}
+
+/**
+ * Wire form for SampleRange: TimeRangeJson (begin/end canonical decimal strings).
+ * Aligns domain half-open ranges with project-v6 / project-io time ranges.
+ */
+export function sampleRangeToJson(range: SampleRange): TimeRangeJson {
+  return {
+    begin: sampleIndexToDecimal(range.begin),
+    end: sampleIndexToDecimal(range.end),
+  };
+}
+
+export function sampleRangeFromJson(json: TimeRangeJson): SampleRange {
+  return makeSampleRange(sampleIndexFromDecimal(json.begin), sampleIndexFromDecimal(json.end));
+}
+
+/** Accept bigint or canonical decimal string endpoints (protocol boundary). */
+export function makeSampleRangeFromUnknown(begin: unknown, end: unknown): SampleRange {
+  return makeSampleRange(assertSampleIndex(begin, 'SampleRange.begin'), assertSampleIndex(end, 'SampleRange.end'));
 }
