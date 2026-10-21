@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Reversible domain ops for annotations + project selection/view.
  * Mutates held JSON docs in place; never deep-clones IQ / sample buffers.
  */
@@ -8,6 +8,7 @@ import {
   type AnnotationJson,
   type AnnotationSourceKind,
   type AnnotationsDocumentJson,
+  type ProjectChannelJson,
   type ProjectDocumentJson,
   type ProjectFileJson,
   type ViewRangeJson,
@@ -49,6 +50,20 @@ function findFile(project: ProjectDocumentJson, fileId: string): ProjectFileJson
     throw new RangeError(`Project file not found: ${fileId}`);
   }
   return file;
+}
+
+function findChannel(
+  project: ProjectDocumentJson,
+  fileId: string,
+  channelId: string,
+): ProjectChannelJson {
+  const file = findFile(project, fileId);
+  const channels = file.channels ?? (file.channels = []);
+  const channel = channels.find((c) => c.id === channelId);
+  if (!channel) {
+    throw new RangeError(`Project channel not found: ${fileId}/${channelId}`);
+  }
+  return channel;
 }
 
 function findAnnotationIndex(doc: AnnotationsDocumentJson, id: string): number {
@@ -168,6 +183,35 @@ export function makeSetAnnotationDeletedCommand(
   };
 }
 
+/** Switch ImportedLabel | Manual | Algorithm; preserves start/end decimals and other fields. */
+export function makeChangeAnnotationSourceKindCommand(
+  doc: AnnotationsDocumentJson,
+  annotationId: string,
+  nextKind: AnnotationSourceKind,
+  label = 'Change annotation source kind',
+): UndoCommand {
+  const kind = assertAnnotationSourceKind(nextKind);
+  const existing = doc.annotations.find((a) => a.id === annotationId);
+  if (!existing) {
+    throw new RangeError(`Annotation not found: ${annotationId}`);
+  }
+  const prevKind = assertAnnotationSourceKind(existing.sourceKind);
+  return {
+    id: nextCommandId('ann-kind'),
+    label,
+    redo() {
+      const ann = doc.annotations.find((a) => a.id === annotationId);
+      if (!ann) throw new RangeError(`Annotation missing: ${annotationId}`);
+      ann.sourceKind = kind;
+    },
+    undo() {
+      const ann = doc.annotations.find((a) => a.id === annotationId);
+      if (!ann) throw new RangeError(`Annotation missing: ${annotationId}`);
+      ann.sourceKind = prevKind;
+    },
+  };
+}
+
 function cloneViewRangeJson(view: ViewRangeJson | undefined): ViewRangeJson | undefined {
   if (!view) return undefined;
   return {
@@ -271,6 +315,43 @@ export function makeSetActiveSelectionCommand(
     },
     undo() {
       applySelection(project, before, fileId);
+    },
+  };
+}
+
+function cloneSourceSnapshot(
+  snap: Record<string, unknown> | undefined,
+): Record<string, unknown> | undefined {
+  if (snap === undefined) return undefined;
+  return { ...snap };
+}
+
+/**
+ * Set/clear a channel's embedded sourceSnapshot (opaque Record).
+ * Encoded JSON should come from project-io attach/encode; domain does not depend on project-io.
+ */
+export function makeSetChannelSourceSnapshotCommand(
+  project: ProjectDocumentJson,
+  fileId: string,
+  channelId: string,
+  next: Record<string, unknown> | undefined,
+  label = 'Set channel source snapshot',
+): UndoCommand {
+  const channel = findChannel(project, fileId, channelId);
+  const before = cloneSourceSnapshot(channel.sourceSnapshot);
+  const after = cloneSourceSnapshot(next);
+  return {
+    id: nextCommandId('ch-snap'),
+    label,
+    redo() {
+      const ch = findChannel(project, fileId, channelId);
+      if (after === undefined) delete ch.sourceSnapshot;
+      else ch.sourceSnapshot = cloneSourceSnapshot(after);
+    },
+    undo() {
+      const ch = findChannel(project, fileId, channelId);
+      if (before === undefined) delete ch.sourceSnapshot;
+      else ch.sourceSnapshot = cloneSourceSnapshot(before);
     },
   };
 }
