@@ -80,6 +80,8 @@ Bound to exact `runId`; cancel is terminal.
 **Hard rule:** service stays up under degradation; DSP stub (`dsp.fft`) may remain true; detection stays unavailable until verified; **no fake forward results**.
 
 
+**G17 residual (Detect UI / cancel / precheck):** DetectPage shows `capabilities.models` as a read-only tree-internal `.engine` inventory (`.pth` marked unavailable / G26 - no picker). Cancel enables for `queued|running` (not only local `busy`), re-fetches the task after `POST .../cancel`, forces `result=null` when `cancelled`, and freezes the no-candidate panel (`data-frozen`). Precheck chips expose `ffscnPresent/Ready`, `scnPresent/Ready`, and `modelSearchRoots` count. Narrowband recognition stays BLOCKED (do not remap detect->labels).
+
 **REAL_RUNTIME honesty (G17):** banner `REAL_RUNTIME` is engine-agnostic. When TensorRT `.engine` smoke passes, also emit `TENSORRT_OK` and set `runtime.engine=TENSORRT_CUDA` / `tensorrtVerified=true`. Detect page debug chips must show the real `runtime.engine` — never imply PyTorch when TRT is the path. Detection `result` is non-null only when `verifiedForward=true` from a real engine (`TENSORRT_CUDA` / `PYTORCH_CUDA` / `PYTORCH_CPU`).
 
 ## Structured precheck (`gpu` / `runtime`)
