@@ -21,13 +21,13 @@
 
 | ID | 源能力（Qt / rebuild） | Web 落点 | 验收方式 | 状态 | 证据 |
 |----|------------------------|----------|----------|------|------|
-| M-01 | 工程打开 / 最近文件 | `packages/project-io` + `apps/web` | 单元 + E2E | WIP | Bot-G spot-check @ tip `b82e324` (Bot-B merge)：impl landed but no dedicated open/recent-file evidence under `docs/acceptance/evidence/bot-b/` (only workspace screenshots)；**keep WIP** |
+| M-01 | 工程打开 / 最近文件 | `packages/project-io` + `apps/web` | 单元 + E2E | PASS | Bot-G @ tip `01d121e` (B-P4 `20a3792`) / CI [run 39593100315](https://github.com/yulongpo/web-signal-studio/actions/runs/39593100315)：`m01_project_io_2026-10-21.json` assertions (open/save/clear + decimal sampleCount) + `m01_project_export_probe.json` (v6 / sampleCount string) + open/saved/cleared PNGs; Playwright `e2e/project-io.spec.ts` (e2e non-charts still disabled in CI — evidence committed) |
 | M-02 | RAW / SigMF / WAV 分块读 | `packages/file-io` | 单测 + fixtures | TODO | |
 | M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | PASS | Bot-G @ tip `3ad9035` / CI [run 39589623844](https://github.com/yulongpo/web-signal-studio/actions/runs/39589623844)：ANGLE/SwiftShader 健康截图 + charts **52/52**；software GL / toDataURL；`docs/acceptance/evidence/bot-c/` |
 | M-04 | 平移缩放 / DPR / 交互预览 | `packages/charts` + `apps/web` | Playwright | PASS | Bot-G @ tip `0898ec7` / CI [run 39591371842](https://github.com/yulongpo/web-signal-studio/actions/runs/39591371842)：`charts-playwright` **success**；ANGLE/SwiftShader；`webglState=ok`；C-03 cssW tracks viewport via forced CSS + expect.poll (0898ec7)；ancestor of tip `b82e324`；`docs/acceptance/evidence/bot-c/` + artifact upload |
-| M-05 | 宽窄带工作区布局 | `apps/web` | E2E + 对照截图 | WIP | Bot-G spot-check @ tip `b82e324`：screenshots `docs/acceptance/evidence/bot-b/b-p3-workspace-wideband.png` + `b-p3-workspace-narrowband-stub.png` present, but no companion probe/JSON/E2E log/assertions；**keep WIP** |
+| M-05 | 宽窄带工作区布局 | `apps/web` | E2E + 对照截图 | PASS | Bot-G @ tip `01d121e` (B-P4)：`m05_workspace_2026-10-21.json` assertions (status-workspace toggle, stub-explicit, no fake DDC, chart/detect retained) + wideband/narrowband-stub PNGs; Playwright `e2e/workspace.spec.ts` (not screenshots-only) |
 | M-06 | 标记 / 通道快照 / 撤销重做 | `packages/domain` + `project-io` | 单测 + E2E | TODO | |
-| M-07 | DDC / FIR / 有理重采样 | `packages/dsp-wasm` / local-compute | 数值对照 | WIP | Bot-G spot-check @ tip `b82e324` (Bot-D merge)：`docs/acceptance/evidence/bot-d/m07_ddc_fir_resample_2026-10-21.{json,md}` + `wasm-m07.golden.test.ts` (JS vs WASM <1e-5) exist, but `matrix_pass_claimed:false` and evidence handoff asks QA not to auto-PASS；**keep WIP** |
+| M-07 | DDC / FIR / 有理重采样 | `packages/dsp-wasm` / local-compute | 数值对照 | PASS | Bot-G @ tip `01d121e` / ancestor `03a8e58` CI [run 39592883096](https://github.com/yulongpo/web-signal-studio/actions/runs/39592883096)：`m07_narrowband_ddc_e2e_2026-10-21.{json,md}` — chunked→Worker processDdc→optional baseband STFT/PSD; JS vs WASM ≤2e-5 (`DDC_SAMPLE_ABS_EPS`); goldens + web helper tests; D `matrix_pass_claimed:false` but evidence meets gate |
 | M-08 | 工程 v6 互操作 | `packages/project-io` | fixtures 往返 | TODO | |
 | M-09 | FFSCN/SCN 检测 + 降级 | `services/local-compute` | 冒烟 + 无模型路径 | TODO | |
 | M-10 | BigInt 索引协议 | contracts / domain | 契约测试 | TODO | |
@@ -35,12 +35,12 @@
 
 ## Bot-C 图谱引擎（实现证据）
 
-> PASS 仅由 WSS-QA-G 独立证据复核后改写；M-04 @ `0898ec7`/`b82e324` → **PASS**；C-02 / M-01 / M-05 / M-07 still WIP.
+> PASS 仅由 WSS-QA-G 独立证据复核后改写：M-04 @ `0898ec7`/`b82e324` → **PASS**；C-02 / M-01 / M-05 / M-07 @ tip `01d121e` → **PASS**。
 
 | ID | 能力 | 落点 | 验收方式 | 状态 | 证据 |
 |----|------|------|----------|------|------|
 | C-01 | WebGL2 标量纹理 + 独立 LUT 热图 | `packages/charts` HeatmapRenderer / SpectrumChart | 单测 + 嵌入 demo | PASS | Bot-G @ `3ad9035` / run 39589623844：gpuAvailable + ANGLE/SwiftShader 健康截图；software GL / toDataURL；`BOT_C_PROBE_INDEX.md` |
-| C-02 | 显示态切片提取（display-only） | `tile/displayExtract` | 单元 + probe | WIP | Bot-G @ tip `0898ec7`/`b82e324`：dualWrite byte-identical to `docs/acceptance/evidence/bot-c/` **and** `artifacts/validation/bot-c/` (PNG/probes present)；but C-02 probe still vitest schema (`c02_display_only_schema_*.json` status=WIP / note=displayOnlySchema.test.ts)；**keep WIP** |
+| C-02 | 显示态切片提取（display-only） | `tile/displayExtract` | 单元 + probe | PASS | Bot-G @ tip `01d121e` / ancestor C-P3 `c99df01`：live `c02_display_only_extract_live_2026-10-21.json` dualWrite byte-identical docs+artifacts; real extracts (grid/viewport/tileSource preview+refine) with extractMs/sourceWindow/dataPeak/dataFnv1a; `runC02LiveDisplayOnlyExtractProbe` + vitest; not schema-only; C no self-PASS |
 | C-03 | DPR / canvas resize | `dpi/canvasSizing` | 单测 + probe dpr 字段 | PASS | Bot-G @ `3ad9035` / run 39589623844：dpr×css buffer 核验；tile/DPI probe；software GL |
 | C-04 | 拖拽/滚轮预览-细化 + WebGL context restore | `interaction/*` + `webgl/contextRestore` + SpectrumChart | 单测 + P50/P95 probe | PASS | Bot-G @ `3ad9035` / run 39589623844：live lose_context restore；`CONDENSED_interaction_p95.json`；software GL |
 
@@ -81,3 +81,4 @@
 | 2026-10-21 | WSS-QA-G | Bot-G 独立复核 @ tip `8a35dfc` / CI run 39590792956（failure）：M-04/C-02 **保持 WIP**（charts-playwright 硬开但失败；C-02 dualWrite 双路径 OK 但证据仍 schema-only）；charts unit **55/55**；祖先含 `389b135` |
 | 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `0898ec7`→`b82e324` / CI run 39591371842 (charts-playwright success)：M-04 → **PASS**；C-02 / M-01 / M-05 / M-07 **keep WIP** (C-02 schema-only; M-01 no dedicated evidence; M-05 screenshots-only; M-07 golden present but D no PASS claim) |
 | 2026-10-21 | Bot-C | C-P3 @ tip after f9f4616: C-02 **live** display-only tile extract dual-write (c02_display_only_extract_live_*.json) + interaction p95/idle-settle evidence (**C-02 still WIP, no self-PASS**; M-04 already PASS by G) |
+| 2026-10-21 | WSS-QA-G | Bot-G independent re-review @ tip `01d121e` (C-P3/M-07/B-P4)：C-02 / M-07 / M-01 / M-05 → **PASS**；p95/idle FYI only (C-04/M-04 already PASS)；CI run 39593100315 success (e2e non-charts still skipped) |
