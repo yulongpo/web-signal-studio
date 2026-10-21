@@ -208,7 +208,7 @@ export function MainChartHost() {
       min = timeSec.min;
       max = timeSec.max;
     }
-    setNavWindowTime({ min, max });
+    setNavWindowTime({ min, max }, { recordHistory: false });
   }, [timeSec.min, timeSec.max, setNavFullTime, setNavWindowTime]);
 
   // G03/G04: publish spectrogram snapshot for nav envelope + aux Wave/PSD derive.
