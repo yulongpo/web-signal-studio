@@ -120,3 +120,9 @@ Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. *
 
 - Tip: `23c38d0`. Evidence: `qa/web-23c38d0/` (BrandV2+window controls, view fit/restore, File menu expanded).
 - **ui_parity_pass_claimed: false**
+
+## Combined pack e134bb6 (Bot-G, Asia/Shanghai 2026-10-21)
+
+- Sync tip `e134bb6`; impl baseline `ba868e4`. Evidence: `qa/web-e134bb6/`.
+- Includes Detect chips, G19 tree, G07, G06, G11, G14, G13.
+- **ui_parity_pass_claimed: false**
