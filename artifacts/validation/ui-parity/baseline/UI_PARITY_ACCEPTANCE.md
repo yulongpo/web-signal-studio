@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:07` Asia/Shanghai: **CAO retarget** Web **`663b522`** (supersedes d7e6973) vs desktop `17471a6` — G08 PARTIAL deepened (B wave23 MenuBar shortcuts). G web-42265bf evidence-only (no elevate). Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_663b522/`. **No PASS.**
+
+| ID | Prior (`42265bf`) | Now (`663b522`) | Note |
+|----|---------------------|-------------------|------|
+| **G08** | PARTIAL（shell re-shot 残） | **PARTIAL 加深** | QKeySequence MET；full re-shot → **未 CLOSED** |
+| **G18** / **G02** | PARTIAL | **unchanged PARTIAL** | G corroborates；residuals 仍在 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_663b522/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:04` Asia/Shanghai: Web **`d7e6973`** vs desktop `17471a6` — G08 PARTIAL deepened (B wave23 MenuBar shortcuts). Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d7e6973.md`. **No PASS.**
 
 | ID | Prior (`42265bf`) | Now (`d7e6973`) | Note |

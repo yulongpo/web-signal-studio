@@ -1,3 +1,4 @@
+> **SUPERSEDED BY CAO retarget → [INCREMENTAL_663b522/](./INCREMENTAL_663b522/)** (Web tip `663b522`). Keep as historical G08 evidence only. **matrix_pass_claimed: false**. No PASS.
 # INCREMENTAL_d7e6973 — B wave23 G08 MenuBar QKeySequence parity (no PASS)
 
 | Field | Value |
