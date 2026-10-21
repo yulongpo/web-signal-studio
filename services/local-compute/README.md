@@ -70,3 +70,10 @@ pytest -q
 
 See [docs/HTTP_CLIENT_EXAMPLES.md](docs/HTTP_CLIENT_EXAMPLES.md) and [examples/detection-page-client.ts](examples/detection-page-client.ts) for Bot-B wiring (Bearer, capabilities, tasks, BLOCKED / uiMessages). No fake FFSCN/SCN inference.
 
+
+## Real model integration
+
+- Inventory: `docs/MODEL_INVENTORY.md`
+- Bot-B / operator notes: `docs/REAL_MODEL_INTEGRATION.md`
+- Prefer `LOCAL_COMPUTE_MODEL_DIR` or explicit `LOCAL_COMPUTE_*_PATH` + algorithm HOMEs.
+- Detection becomes ready only after verified PyTorch load+forward; never invents candidates.

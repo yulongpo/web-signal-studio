@@ -1,0 +1,7 @@
+# Optional extras for real FFSCN/SCN inference.
+# Install into the SAME interpreter that has a CUDA-capable torch wheel.
+-r requirements.txt
+# torch: install from the official CUDA index for your GPU, e.g.
+#   pip install torch --index-url https://download.pytorch.org/whl/cu128
+numpy>=1.26
+scipy>=1.11

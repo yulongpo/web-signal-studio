@@ -106,7 +106,7 @@ Cancel bound to **exact** `runId`. Response includes `status`, `message`, `messa
 | Configured path missing | false | `MODEL_PATH_MISSING` | Configured detection model path is missing on disk. | 配置的检测模型路径在磁盘上不存在。 |
 | Hash mismatch | false | `MODEL_HASH_MISMATCH` | Detection model hash/version does not match the configured expectation. | 检测模型哈希/版本与配置期望不一致。 |
 | Hash unread | false | `MODEL_HASH_UNAVAILABLE` | Detection model hash could not be read; treating as blocked. | 无法读取检测模型哈希，按不可用处理。 |
-| Stub worker (always today) | false | `STUB_RUNTIME` | Local compute is in stub mode (no TensorRT). Detection will not invent results. | 本地计算处于占位模式（无 TensorRT），检测不会伪造结果。 |
+| Stub worker (no verified PyTorch forward) | false | `STUB_RUNTIME` | Local compute is in stub mode (no TensorRT). Detection will not invent results. | 本地计算处于占位模式（无 TensorRT），检测不会伪造结果。 |
 | Policy guard | false | `NO_FAKE_INFERENCE` | Refusing to invent FFSCN/SCN detection candidates. | 拒绝伪造 FFSCN/SCN 检测候选结果。 |
 
 **Hard rule:** service stays up under degradation; DSP stub (`dsp.fft`) may remain true; detection stays unavailable; **no fake forward results**.
@@ -175,3 +175,15 @@ queued -> running -> {succeeded | failed | cancelled | BLOCKED}
 - `POST .../cancel` is bound to the **exact** `runId` and is **terminal**: late worker writes (including `BLOCKED`) cannot overwrite `cancelled`.
 - `GET /tasks/{runId}` may include `statusHistory` (e.g. `["queued","running","cancelled"]`) for clarity.
 - Detection stub paths always label evidence with `STUB_NON_TENSORRT` and never invent candidates.
+
+## Real PyTorch runtime (Bot-E)
+
+When weights + CUDA torch + algorithm HOMEs pass smoke load:
+
+- `detection.ffscn` / `detection.scn` may become `true`
+- `runtime.engine` becomes `PYTORCH_CUDA` (or `PYTORCH_CPU` if explicitly allowed)
+- `POST /tasks` with a real `sourcePath` may return `result.verifiedForward=true` and real `candidates`
+- Missing `sourcePath` still yields `BLOCKED` + `SOURCE_MISSING` (never invents)
+
+Details: [REAL_MODEL_INTEGRATION.md](./REAL_MODEL_INTEGRATION.md), inventory: [MODEL_INVENTORY.md](./MODEL_INVENTORY.md).
+

@@ -37,7 +37,6 @@ from .worker import (
     cancel_join_timeout_s,
     clear_handles,
     get_handle,
-    start_stub_worker,
 )
 
 _lock = threading.Lock()
@@ -138,9 +137,14 @@ def _apply_update(
         if clear_result:
             updates["result"] = None
         elif result is not None:
+            from .torch_runtime import REAL_ENGINE_LABELS
+
             banned = {"candidates", "detections", "ffscn", "scn", "boxes"}
-            if any(k in result for k in banned):
-                # Fabricated detection payload: force BLOCKED if transition allows.
+            verified = bool(result.get("verifiedForward")) and (
+                result.get("engine") in REAL_ENGINE_LABELS
+            )
+            if any(k in result for k in banned) and not verified:
+                # Fabricated / unverified detection payload: force BLOCKED.
                 if can_transition(record.status, TaskStatus.BLOCKED):
                     updates["result"] = None
                     updates["status"] = TaskStatus.BLOCKED
@@ -198,14 +202,25 @@ def create_task(body: TaskCreateRequest) -> TaskCreateResponse:
     with _lock:
         _tasks[run_id] = record
 
-    start_stub_worker(
-        run_id,
-        kind=body.kind,
-        is_detection=is_detection,
-        block_reasons=block_reasons,
-        ui_messages=ui_msgs,
-        apply_update=_apply_update,
-    )
+    from .capabilities import family_ready
+    from .worker import start_detection_worker, start_stub_worker
+
+    if is_detection and family_ready(body.kind):
+        start_detection_worker(
+            run_id,
+            kind=body.kind,
+            source_path=body.sourcePath,
+            apply_update=_apply_update,
+        )
+    else:
+        start_stub_worker(
+            run_id,
+            kind=body.kind,
+            is_detection=is_detection,
+            block_reasons=block_reasons,
+            ui_messages=ui_msgs,
+            apply_update=_apply_update,
+        )
     return TaskCreateResponse(runId=run_id)
 
 

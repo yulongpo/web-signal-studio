@@ -11,12 +11,20 @@ REQUIRED_UI_CODES = {
     "GPU_MISSING",
     "GPU_UNVERIFIED",
     "GPU_PROBE_ERROR",
+    "TORCH_MISSING",
+    "TORCH_CPU_ONLY",
+    "TORCH_CUDA_OK",
     "MODEL_MISSING_FFSCN",
     "MODEL_MISSING_SCN",
     "MODEL_PATH_MISSING",
+    "MODEL_HOME_MISSING",
     "MODEL_HASH_MISMATCH",
     "MODEL_HASH_UNAVAILABLE",
+    "MODEL_LOAD_FAILED",
+    "SOURCE_MISSING",
+    "INFERENCE_FAILED",
     "STUB_RUNTIME",
+    "REAL_RUNTIME",
     "NO_FAKE_INFERENCE",
 }
 
@@ -64,7 +72,7 @@ def test_capabilities_ui_messages_bilingual_degradation(client, auth_headers):
     assert "STUB_RUNTIME" in codes
     assert "NO_FAKE_INFERENCE" in codes
     # GPU path: missing or unverified
-    assert codes & {"GPU_MISSING", "GPU_UNVERIFIED", "GPU_PROBE_ERROR"}
+    assert codes & {"GPU_MISSING", "GPU_UNVERIFIED", "GPU_PROBE_ERROR", "TORCH_MISSING"}
     # Model missing (default empty models/)
     assert codes & {"MODEL_MISSING_FFSCN", "MODEL_MISSING_SCN"}
     for m in msgs:

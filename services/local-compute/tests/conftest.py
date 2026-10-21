@@ -14,6 +14,8 @@ os.environ["LOCAL_COMPUTE_CORS_ORIGINS"] = "http://localhost:5173"
 # Fast stub timing for contract tests (overridable per-test)
 os.environ.setdefault("LOCAL_COMPUTE_STUB_STEP_MS", "30")
 os.environ.setdefault("LOCAL_COMPUTE_STUB_STEPS", "6")
+# Keep contract suite deterministic: no accidental real torch readiness
+os.environ["LOCAL_COMPUTE_DISABLE_TORCH"] = "1"
 
 
 @pytest.fixture()
@@ -24,6 +26,8 @@ def client():
 
     init_auth()
     clear_tasks()
+    from app.torch_runtime import clear_torch_cache
+    clear_torch_cache()
     with TestClient(app) as c:
         yield c
     clear_tasks()

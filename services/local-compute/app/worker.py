@@ -257,3 +257,148 @@ def start_stub_worker(
     handle.thread = t
     t.start()
     return handle
+
+
+def start_detection_worker(
+    run_id: str,
+    *,
+    kind: str,
+    source_path: str | None,
+    apply_update: Callable[..., None],
+) -> RunHandle:
+    """Run real FFSCN/SCN inference when capabilities marked the family ready.
+
+    Still refuses to invent candidates: missing sourcePath or inference errors
+    finish as BLOCKED/FAILED with clear reasons.
+    """
+    handle = RunHandle(run_id)
+    with _handles_lock:
+        old = _handles.get(run_id)
+        if old is not None:
+            old.request_cancel()
+        _handles[run_id] = handle
+
+    def _run() -> None:
+        try:
+            apply_update(
+                run_id,
+                status=TaskStatus.RUNNING,
+                progress=0.0,
+                message=f"real detection worker started (kind={kind})",
+                message_zh=f"真检测工作线程已启动 (kind={kind})",
+                evidence_notes="engine=pending-real; status=queued->running",
+            )
+            if handle.cancel_event.is_set():
+                apply_update(
+                    run_id,
+                    status=TaskStatus.CANCELLED,
+                    progress=0.0,
+                    message="Cancelled by client (exact runId)",
+                    message_zh="已由客户端取消（精确 runId）",
+                    clear_result=True,
+                    evidence_notes="cancel before inference; status->cancelled",
+                )
+                return
+
+            from .inference.pipeline import run_detection_inference
+
+            def _progress(p: float, en: str, zh: str) -> None:
+                if handle.cancel_event.is_set():
+                    return
+                apply_update(
+                    run_id,
+                    status=TaskStatus.RUNNING,
+                    progress=min(0.99, float(p)),
+                    message=en,
+                    message_zh=zh,
+                )
+
+            outcome = run_detection_inference(
+                kind=kind,
+                source_path=source_path,
+                cancel_cb=handle.cancel_event.is_set,
+                progress_cb=_progress,
+            )
+
+            if handle.cancel_event.is_set() or outcome.cancelled:
+                apply_update(
+                    run_id,
+                    status=TaskStatus.CANCELLED,
+                    progress=1.0,
+                    message="Cancelled by client (exact runId)",
+                    message_zh="已由客户端取消（精确 runId）",
+                    clear_result=True,
+                    evidence_notes="cancel during/after inference; status->cancelled",
+                )
+                return
+
+            if outcome.ok and outcome.result is not None:
+                eng = outcome.result.get("engine", "PYTORCH")
+                apply_update(
+                    run_id,
+                    status=TaskStatus.SUCCEEDED,
+                    progress=1.0,
+                    message=outcome.message,
+                    message_zh=outcome.message_zh,
+                    result=outcome.result,
+                    evidence_notes=(
+                        f"engine={eng}; verifiedForward=true; "
+                        f"candidates={outcome.result.get('candidateCount')}; "
+                        "status->succeeded"
+                    ),
+                )
+                return
+
+            if outcome.failed:
+                apply_update(
+                    run_id,
+                    status=TaskStatus.FAILED,
+                    progress=1.0,
+                    message=outcome.message or "detection inference failed",
+                    message_zh=outcome.message_zh or "检测推理失败",
+                    clear_result=True,
+                    block_reasons=list(outcome.reasons),
+                    evidence_notes="real inference failed; status->failed",
+                )
+                return
+
+            # Default: BLOCKED (missing source, load gap, policy)
+            from .capabilities import ui_message
+
+            ui_msgs = [ui_message(c) for c in outcome.ui_codes if c]
+            apply_update(
+                run_id,
+                status=TaskStatus.BLOCKED,
+                progress=1.0,
+                message=outcome.message or "Detection blocked",
+                message_zh=outcome.message_zh or "检测不可用",
+                block_reasons=list(outcome.reasons) or [
+                    "BLOCKED: real detection path refused without verified forward"
+                ],
+                ui_messages=ui_msgs,
+                clear_result=True,
+                evidence_notes="real path blocked (no fabricated candidates); status->BLOCKED",
+            )
+        except Exception as exc:  # noqa: BLE001
+            log.exception("detection worker failed for %s", run_id)
+            apply_update(
+                run_id,
+                status=TaskStatus.FAILED,
+                message=f"detection worker error: {exc}",
+                message_zh=f"检测工作线程错误: {exc}",
+                clear_result=True,
+                evidence_notes="detection worker exception; status->failed",
+            )
+        finally:
+            handle.finished.set()
+            drop_handle(run_id)
+
+    t = threading.Thread(
+        target=_run,
+        name=f"local-compute-detect-{run_id[:8]}",
+        daemon=True,
+    )
+    handle.thread = t
+    t.start()
+    return handle
+
