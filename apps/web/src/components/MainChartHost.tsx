@@ -103,6 +103,10 @@ export function MainChartHost() {
   const setDspSourceStore = useUiStore((s) => s.setDspSource);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
+  const navWindowTime = useUiStore((s) => s.navWindowTime);
+  const setNavFullTime = useUiStore((s) => s.setNavFullTime);
+  const setNavWindowTime = useUiStore((s) => s.setNavWindowTime);
+  const setSpectrogramDisplay = useUiStore((s) => s.setSpectrogramDisplay);
   const activeTool = useUiStore((s) => s.activeTool);
   const setActiveTool = useUiStore((s) => s.setActiveTool);
   const setDetectSampleRange = useUiStore((s) => s.setDetectSampleRange);
@@ -193,6 +197,31 @@ export function MainChartHost() {
   const power = spec?.power ?? fallbackPower;
   const freqHz = spec?.freqHz ?? { min: -5e6, max: 5e6 };
   const timeSec = spec?.timeSec ?? { min: 0, max: 1 };
+
+  // G03: keep navigation full extent in sync with main spectrogram time.
+  useEffect(() => {
+    setNavFullTime({ min: timeSec.min, max: timeSec.max });
+    const w = useUiStore.getState().navWindowTime;
+    let min = Math.max(timeSec.min, Math.min(w.min, timeSec.max));
+    let max = Math.min(timeSec.max, Math.max(w.max, timeSec.min));
+    if (!(max > min)) {
+      min = timeSec.min;
+      max = timeSec.max;
+    }
+    setNavWindowTime({ min, max });
+  }, [timeSec.min, timeSec.max, setNavFullTime, setNavWindowTime]);
+
+  // G03/G04: publish spectrogram snapshot for nav envelope + aux Wave/PSD derive.
+  useEffect(() => {
+    setSpectrogramDisplay({
+      power,
+      binCount,
+      frameCount,
+      freqHz,
+      timeSec,
+    });
+  }, [power, binCount, frameCount, freqHz.min, freqHz.max, timeSec.min, timeSec.max, setSpectrogramDisplay]);
+
 
   const colormap: ColormapName = (
     PALETTE_OK.includes(paletteId as ColormapName) ? paletteId : 'viridis'
@@ -315,7 +344,7 @@ export function MainChartHost() {
         colormap={colormap}
         levels={{ min: levelMin, max: levelMax }}
         freqHz={freqHz}
-        timeSec={timeSec}
+        timeSec={chartMode === 'stft' ? navWindowTime : timeSec}
         height="100%"
         testId="chart-main"
         wheelModel="desktop-axis"

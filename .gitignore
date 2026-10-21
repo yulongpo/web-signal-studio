@@ -81,3 +81,8 @@ artifacts/validation/ui-parity/baseline/*
 !artifacts/validation/ui-parity/qa/
 artifacts/validation/ui-parity/qa/*
 !artifacts/validation/ui-parity/qa/**
+!artifacts/validation/ui-parity/bot-c/
+artifacts/validation/ui-parity/bot-c/*
+!artifacts/validation/ui-parity/bot-c/*.json
+!artifacts/validation/ui-parity/bot-c/*.md
+!artifacts/validation/ui-parity/bot-c/*.png

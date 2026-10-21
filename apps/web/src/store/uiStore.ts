@@ -66,6 +66,22 @@ export interface UiState {
   stftN: number;
   paletteId: string;
   auxChartKind: AuxChartKind;
+  /** G03 full capture time extent (seconds). */
+  navFullTime: { min: number; max: number };
+  /** G03 linked time window for main/aux. */
+  navWindowTime: { min: number; max: number };
+  /** G05 aux pane height (CSS px). */
+  auxPaneHeightPx: number;
+  /** G05 nav pane height (CSS px). */
+  navPaneHeightPx: number;
+  /** Main spectrogram snapshot for nav/aux derive (display only). */
+  spectrogramDisplay: {
+    power: Float32Array;
+    binCount: number;
+    frameCount: number;
+    freqHz: { min: number; max: number };
+    timeSec: { min: number; max: number };
+  } | null;
   workspaceMode: WorkspaceMode;
   level: LevelSettings;
   display: DisplaySettings;
@@ -114,6 +130,19 @@ export interface UiState {
   setStftN: (n: number) => void;
   setPaletteId: (id: string) => void;
   setAuxChartKind: (kind: AuxChartKind) => void;
+  setNavWindowTime: (win: { min: number; max: number }) => void;
+  setNavFullTime: (full: { min: number; max: number }) => void;
+  setAuxPaneHeightPx: (px: number) => void;
+  setNavPaneHeightPx: (px: number) => void;
+  setSpectrogramDisplay: (
+    snap: {
+      power: Float32Array;
+      binCount: number;
+      frameCount: number;
+      freqHz: { min: number; max: number };
+      timeSec: { min: number; max: number };
+    } | null,
+  ) => void;
   setWorkspaceMode: (mode: WorkspaceMode) => void;
   updateLevelDraft: (patch: Partial<LevelSettings>) => void;
   updateDisplayDraft: (patch: Partial<DisplaySettings>) => void;
@@ -150,6 +179,11 @@ export const useUiStore = create<UiState>((set, get) => ({
   stftN: 1024,
   paletteId: 'viridis',
   auxChartKind: 'wave',
+  navFullTime: { min: 0, max: 1 },
+  navWindowTime: { min: 0, max: 1 },
+  auxPaneHeightPx: 160,
+  navPaneHeightPx: 36,
+  spectrogramDisplay: null,
   workspaceMode: 'wideband',
   level: { ...DEFAULT_LEVEL },
   display: { ...DEFAULT_DISPLAY },
@@ -216,6 +250,11 @@ export const useUiStore = create<UiState>((set, get) => ({
   setStftN: (n) => set({ stftN: n }),
   setPaletteId: (id) => set({ paletteId: id }),
   setAuxChartKind: (kind) => set({ auxChartKind: kind }),
+  setNavWindowTime: (win) => set({ navWindowTime: { ...win } }),
+  setNavFullTime: (full) => set({ navFullTime: { ...full } }),
+  setAuxPaneHeightPx: (px) => set({ auxPaneHeightPx: px }),
+  setNavPaneHeightPx: (px) => set({ navPaneHeightPx: px }),
+  setSpectrogramDisplay: (snap) => set({ spectrogramDisplay: snap }),
   setWorkspaceMode: (mode) => set({ workspaceMode: mode }),
 
   updateLevelDraft: (patch) =>

@@ -128,14 +128,6 @@ export { SpectrumChart, type SpectrumChartProps } from "./react/SpectrumChart.js
 export { SpectrumHeatmapDemo } from "./react/SpectrumHeatmapDemo.js";
 export { HeatmapDemo } from "./react/HeatmapDemo.js";
 
-/** Stub: waveform / PSD line path — filled by later Bot-C iteration. */
-export interface WaveformSeriesStub {
-  /** Interleaved or Y-only samples for display. */
-  y: Float32Array;
-  xMin: number;
-  xMax: number;
-  kind: "waveform" | "psd";
-}
 
 export {
   createSpectrogramTileSource,
@@ -196,3 +188,6 @@ export {
   type IdleSettleProbeOptions,
 } from "./probe/interactionP95Probe.js";
 
+export { WaveformChart, type WaveformChartProps, type WaveformKind } from "./react/WaveformChart.js";
+export { NavigationChart, type NavigationChartProps } from "./react/NavigationChart.js";
+export { VerticalSplitter, type VerticalSplitterProps } from "./react/VerticalSplitter.js";
