@@ -120,6 +120,8 @@ export function MainChartHost() {
   const stftWindowPref = useUiStore((s) => s.stftWindowPref);
   const stftOverlapPref = useUiStore((s) => s.stftOverlapPref);
   const stftKaiserBetaPref = useUiStore((s) => s.stftKaiserBetaPref);
+  const stftAutoNbPref = useUiStore((s) => s.stftAutoNbPref);
+  const stftRemoveMeanPref = useUiStore((s) => s.stftRemoveMeanPref);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
   const navWindowTime = useUiStore((s) => s.navWindowTime);
@@ -179,6 +181,8 @@ export function MainChartHost() {
     const window = stftWindowPref;
     const method = 'welch' as const;
     const kaiserBeta = stftKaiserBetaPref;
+    const removeMean = stftRemoveMeanPref;
+    const autoNb = stftAutoNbPref;
 
     const run = async () => {
       if (session) {
@@ -193,6 +197,15 @@ export function MainChartHost() {
           window,
           method,
           kaiserBeta,
+          removeMean,
+          ...(autoNb
+            ? {
+                segmentMilliseconds: 0 as const,
+                // Full-band IQ: display bandwidth = fs (desktop upper-lower).
+                bandwidthHz: session.sampleRateHz,
+                analysisPoints: fftSize,
+              }
+            : {}),
         });
         if (ac.signal.aborted) return;
         const kind = kindForVia(session.via);
@@ -233,6 +246,15 @@ export function MainChartHost() {
         window,
         method,
         kaiserBeta,
+        removeMean,
+        sampleRateHz: 1_000_000,
+        ...(autoNb
+          ? {
+              segmentMilliseconds: 0 as const,
+              bandwidthHz: 1_000_000,
+              analysisPoints: fftSize,
+            }
+          : {}),
       });
       if (ac.signal.aborted) return;
       setSpec(result);
@@ -268,7 +290,7 @@ export function MainChartHost() {
     });
 
     return () => ac.abort();
-  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, stftKaiserBetaPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
+  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, stftKaiserBetaPref, stftAutoNbPref, stftRemoveMeanPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;

@@ -116,8 +116,14 @@ export function SpecParamStrip() {
   const dspSegmentMs = useUiStore((s) => s.dspSegmentMs);
   const dspSpectrumStatistic = useUiStore((s) => s.dspSpectrumStatistic);
   const dspKaiserBeta = useUiStore((s) => s.dspKaiserBeta);
+  const dspRemoveMean = useUiStore((s) => s.dspRemoveMean);
+  const dspAutoNb = useUiStore((s) => s.dspAutoNb);
   const stftKaiserBetaPref = useUiStore((s) => s.stftKaiserBetaPref);
   const setStftKaiserBetaPref = useUiStore((s) => s.setStftKaiserBetaPref);
+  const stftAutoNbPref = useUiStore((s) => s.stftAutoNbPref);
+  const setStftAutoNbPref = useUiStore((s) => s.setStftAutoNbPref);
+  const stftRemoveMeanPref = useUiStore((s) => s.stftRemoveMeanPref);
+  const setStftRemoveMeanPref = useUiStore((s) => s.setStftRemoveMeanPref);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -222,6 +228,10 @@ export function SpecParamStrip() {
     dspKaiserBeta == null || !Number.isFinite(dspKaiserBeta)
       ? '—'
       : String(dspKaiserBeta);
+  const autoNbLabel =
+    dspAutoNb == null ? '—' : dspAutoNb ? 'auto N/B' : 'fixed N';
+  const removeMeanLabel =
+    dspRemoveMean == null ? '—' : dspRemoveMean ? 'on' : 'off';
   const hasWindow = dspFftWindow != null;
   const hasOverlap = dspFftOverlap != null && Number.isFinite(dspFftOverlap);
 
@@ -229,7 +239,7 @@ return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26" data-strip-dsp="wave19 wave21 wave25 wave26" data-stft-n-drives-compute="wave22"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26 wave29" data-strip-dsp="wave19 wave21 wave25 wave26 wave29" data-stft-n-drives-compute="wave22"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -510,6 +520,41 @@ return (
         >
           {kaiserBetaLabel}
         </span>
+
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-auto-nb"
+          data-strip-wave="wave29"
+          title="D dspAutoNb publish"
+        >
+          AutoN
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-value-auto-nb"
+          data-dsp-auto-nb={dspAutoNb == null ? "" : dspAutoNb ? "true" : "false"}
+          data-strip-empty={dspAutoNb == null ? "true" : "false"}
+          data-strip-wave="wave29"
+        >
+          {autoNbLabel}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-remove-mean"
+          data-strip-wave="wave29"
+          title="D dspRemoveMean publish"
+        >
+          Mean0
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-value-remove-mean"
+          data-dsp-remove-mean={dspRemoveMean == null ? "" : dspRemoveMean ? "true" : "false"}
+          data-strip-empty={dspRemoveMean == null ? "true" : "false"}
+          data-strip-wave="wave29"
+        >
+          {removeMeanLabel}
+        </span>
 <span
           className="chart-strip-qlabel"
           data-testid="chart-strip-qlabel-dsp-source"
@@ -683,19 +728,37 @@ return (
               <div
                 className="overflow-item overflow-qlabel-only"
                 data-testid="overflow-spectral-segment-ms"
-                data-strip-wave="wave25 wave26" data-auto-n="na" data-auto-n-status="BLOCKED" title="Desktop auto N/B (segmentMs=0) is not implemented; web sizes by fftSize (D dspSegmentMs = fft/fs*1000)"
+                data-strip-wave="wave25 wave26 wave29"
+                data-auto-n={stftAutoNbPref ? "on" : "off"}
+                data-dsp-auto-nb={dspAutoNb == null ? "" : dspAutoNb ? "true" : "false"}
+                title="Desktop segmentMilliseconds: 0 = auto N/B via resolveAnalysisSamples (bandwidthHz + analysisPoints=stftN)"
               >
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-segment-ms">分段时长</span>
                 <span className="muted" data-testid="overflow-stft-segment-ms">
-                  {segmentMsLabel}
+                  {stftAutoNbPref
+                    ? dspAutoNb
+                      ? `auto N/B → ${segmentMsLabel}`
+                      : "auto N/B (pending settle)"
+                    : segmentMsLabel}
                 </span>
-              
+                <label className="overflow-toggle" data-testid="overflow-stft-auto-nb-toggle">
+                  <input
+                    type="checkbox"
+                    data-testid="toggle-stft-auto-nb"
+                    checked={stftAutoNbPref}
+                    onChange={(e) => setStftAutoNbPref(e.target.checked)}
+                  />
+                  <span data-testid="overflow-stft-auto-nb-label">auto N/B (segmentMs=0)</span>
+                </label>
                 <span
                   className="overflow-disabled-copy muted"
                   data-testid="overflow-stft-segment-auto-n"
-                  data-blocked="true"
+                  data-blocked="false"
+                  data-strip-wave="wave29"
                 >
-                  auto N/B: NA (sized by fftSize)
+                  {stftAutoNbPref
+                    ? "uses resolveAnalysisSamples(bandwidth=fs, points=stftN)"
+                    : "fixed fftSize=stftN (derived seg ms)"}
                 </span>
               </div>
               <label
@@ -732,6 +795,25 @@ return (
                 ) : null}
 
               </label>
+              <label
+                className="overflow-item overflow-toggle-row"
+                data-testid="overflow-spectral-remove-mean"
+                data-strip-wave="wave29"
+                data-dsp-remove-mean={dspRemoveMean == null ? "" : dspRemoveMean ? "true" : "false"}
+              >
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-remove-mean">去除均值</span>
+                <input
+                  type="checkbox"
+                  data-testid="toggle-stft-remove-mean"
+                  checked={stftRemoveMeanPref}
+                  onChange={(e) => setStftRemoveMeanPref(e.target.checked)}
+                  title="Desktop removeMean: subtract complex mean per frame before window (D StftRequest)"
+                />
+                <span className="muted" data-testid="overflow-stft-remove-mean-pub">
+                  pub: {removeMeanLabel}
+                </span>
+              </label>
+
 
 
               <label className="overflow-item">

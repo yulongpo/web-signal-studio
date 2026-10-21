@@ -87,6 +87,10 @@ export interface UiState {
   stftOverlapPref: number;
   /** G02 chrome pref: Kaiser beta when window=kaiser (drives next compute; != dspKaiserBeta publish). */
   stftKaiserBetaPref: number;
+  /** G02 chrome: desktop auto N/B (segmentMs===0 + bandwidth/points). Drives compute; D publishes dspAutoNb. */
+  stftAutoNbPref: boolean;
+  /** G02 chrome: desktop removeMean. Drives compute; D publishes dspRemoveMean. */
+  stftRemoveMeanPref: boolean;
   paletteId: string;
   auxChartKind: AuxChartKind;
   /** G03 full capture time extent (seconds). */
@@ -258,6 +262,8 @@ export interface UiState {
   setStftWindowPref: (w: SpectralWindowName) => void;
   setStftOverlapPref: (overlap: number) => void;
   setStftKaiserBetaPref: (beta: number) => void;
+  setStftAutoNbPref: (on: boolean) => void;
+  setStftRemoveMeanPref: (on: boolean) => void;
   setPaletteId: (id: string) => void;
   setAuxChartKind: (kind: AuxChartKind) => void;
   setNavWindowTime: (
@@ -351,6 +357,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   stftWindowPref: 'hann',
   stftOverlapPref: 0.75,
   stftKaiserBetaPref: DEFAULT_KAISER_BETA,
+  stftAutoNbPref: false,
+  stftRemoveMeanPref: false,
   paletteId: 'viridis',
   auxChartKind: 'wave',
   navFullTime: { min: 0, max: 1 },
@@ -493,6 +501,8 @@ export const useUiStore = create<UiState>((set, get) => ({
         ? Math.min(Math.max(beta, 0), 30)
         : DEFAULT_KAISER_BETA,
     }),
+  setStftAutoNbPref: (on) => set({ stftAutoNbPref: Boolean(on) }),
+  setStftRemoveMeanPref: (on) => set({ stftRemoveMeanPref: Boolean(on) }),
   setPaletteId: (id) => set({ paletteId: id }),
   setAuxChartKind: (kind) => set({ auxChartKind: kind }),
   setNavWindowTime: (win, opts) => {
