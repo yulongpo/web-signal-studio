@@ -28,3 +28,18 @@ export {
   /** @deprecated Use ReferenceDdcEngine */
   NotImplementedDdcEngine,
 } from './interfaces.js';
+
+export {
+  DspWorkerClient,
+  createDspWorkerClient,
+  createNodeDspWorkerClient,
+} from './worker/dsp-client.js';
+export type { DspWorkerClientOptions } from './worker/dsp-client.js';
+export { InProcessAsyncBackend } from './worker/backends.js';
+export type { WorkerBackend } from './worker/backends.js';
+export { createNodeWorkerBackend } from './worker/node-backend.js';
+export type {
+  DspWorkerRequest,
+  DspWorkerResponse,
+  DspWorkerOp,
+} from './worker/protocol.js';
