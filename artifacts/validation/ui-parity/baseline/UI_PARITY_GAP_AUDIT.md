@@ -1,3 +1,14 @@
+> Bot-A `2026-10-22 00:30` Asia/Shanghai: Web tip **`f9a56b8`** vs desktop `17471a6` — G11/G18/G19 PARTIAL deepened (C `e688975` bounds+unselected PointingHand + STFT pin; B `9e175d4` right-rail pin + AnnotationPanel re-shot + G02/G08 skim; ort kept both chrome). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f9a56b8.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`5a0b035`) | Now (`f9a56b8`) | Note |
+|----|-------------------|-----------------|------|
+| **G11** | PARTIAL 加深（bounds/unselected 残） | **PARTIAL 加深** | `e688975` view-bounds clamp + PointingHand MET；file-fullRange 残 → **未 CLOSED** |
+| **G18** | PARTIAL 加深（chrome 残） | **PARTIAL 加深** | STFT click pin (C) + right-rail pin (B) MET；margin-map/scrubber 残 → **未 CLOSED** |
+| **G19** | PARTIAL 加深（re-shot 残） | **PARTIAL 加深** | `9e175d4` Qt headers + range inspector MET；全交互 re-shot 残 → **未 CLOSED** |
+| **G02** | PARTIAL 加深 | **PARTIAL 加深（轻）** | wave8 unit/freq/spacing QLabels MET → **未 CLOSED** |
+| **G08** | PARTIAL 加深 | **PARTIAL 加深（轻）** | wave8 shell-reshot stamps MET → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详见 `INCREMENTAL_f9a56b8.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:20` Asia/Shanghai: Web tip **5a0b035**: G19/G07/G02/G08 PARTIAL deepened (B wave7); see `INCREMENTAL_5a0b035.md`. **No PASS.** matrix_pass_claimed: false. Counts OPEN 7 / PARTIAL 16 / CLOSED 2.
 > Bot-A `2026-10-22 00:13` Asia/Shanghai: Web **`2d9e83b`** vs desktop `17471a6` — G11/G18 PARTIAL deepened (B `85dab15` Overlay backticks restored; D `08b424e` store→DDC; C `4249d64` UI→store; Overlay BLOCKER + unwired residual cleared; not CLOSED); supersedes draft INCREMENTAL_aeacc5f. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2d9e83b.md`. **No PASS.**
 
