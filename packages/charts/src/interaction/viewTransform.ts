@@ -149,11 +149,26 @@ export function wheelDeltaToZoomFactor(
   return deltaY < 0 ? baseFactor : 1 / baseFactor;
 }
 
-/** Desktop box-zoom ignores drags whose diagonal is shorter than this. */
+/**
+ * Desktop PlotWidget ZoomBox accepts a drag only when BOTH edges are >= 8 CSS px
+ * (`box.width() >= 8 && box.height() >= 8` @ signal_studio_rebuild 17471a6).
+ * Kept name for API stability; prefer {@link BOX_ZOOM_MIN_EDGE_PX} + {@link isBoxZoomLargeEnough}.
+ */
 export const BOX_ZOOM_MIN_DIAGONAL_PX = 8;
+
+/** Minimum CSS width AND height for a navigate/zoom-box commit (desktop parity). */
+export const BOX_ZOOM_MIN_EDGE_PX = 8;
 
 export function boxDiagonalPx(widthPx: number, heightPx: number): number {
   return Math.hypot(widthPx, heightPx);
+}
+
+/** True when the rubber-band is large enough to apply a view zoom (desktop rule). */
+export function isBoxZoomLargeEnough(widthPx: number, heightPx: number): boolean {
+  return (
+    Math.abs(widthPx) >= BOX_ZOOM_MIN_EDGE_PX &&
+    Math.abs(heightPx) >= BOX_ZOOM_MIN_EDGE_PX
+  );
 }
 
 /**
