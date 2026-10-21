@@ -42,6 +42,11 @@ from .models import (
     RuntimePrecheck,
     UiMessage,
 )
+from .tensorrt_runtime import (
+    REAL_ENGINE_TRT,
+    probe_tensorrt,
+    smoke_for_engine,
+)
 from .torch_runtime import (
     REAL_ENGINE_LABELS,
     clear_torch_cache,
@@ -151,6 +156,26 @@ UI_COPY: dict[str, tuple[str, str, str]] = {
         "Refusing to invent FFSCN/SCN detection candidates.",
         "拒绝伪造 FFSCN/SCN 检测候选结果。",
     ),
+    "TENSORRT_RUNTIME_MISSING": (
+        "error",
+        "TensorRT runtime missing/unusable; .engine detection stays blocked (no invented candidates).",
+        "TensorRT 运行时不可用，.engine 检测保持阻断（拒绝伪造候选）。",
+    ),
+    "ENGINE_MISSING": (
+        "error",
+        "Canonical TensorRT .engine not found under signal_studio_rebuild detection-models.",
+        "未在 signal_studio_rebuild detection-models 下找到规范 TensorRT .engine。",
+    ),
+    "ENGINE_LOAD_FAILED": (
+        "error",
+        "TensorRT .engine deserialize/load failed; detection stays blocked.",
+        "TensorRT .engine 反序列化/加载失败，检测保持阻断。",
+    ),
+    "TENSORRT_OK": (
+        "info",
+        "TensorRT runtime importable.",
+        "TensorRT 运行时可导入。",
+    ),
     "TENSORRT_NA": (
         "error",
         "TensorRT .engine weights are N/A (no TensorRT runtime). Detection stays blocked.",
@@ -165,34 +190,43 @@ UI_COPY: dict[str, tuple[str, str, str]] = {
 
 
 def non_torch_artifact_code(path: Path | None) -> str | None:
-    """`.engine` / `.onnx` are discovered but not executable here.
+    """Classify non-PyTorch artifacts.
 
-    Reference trees ship PyTorch `.pth` only. Never treat a deployment
-    artifact as a successful forward.
+    .onnx remains N/A. .engine is handled by the TensorRT probe path
+    (ready after real deserialize, else TENSORRT_RUNTIME_MISSING /
+    ENGINE_LOAD_FAILED). Never invent candidates.
     """
     if path is None:
         return None
     suf = path.suffix.lower()
-    if suf == ".engine":
-        return "TENSORRT_NA"
     if suf == ".onnx":
         return "ONNX_NA"
     return None
 
 
 def non_torch_block_reason(family: str, path: Path) -> str:
-    code = non_torch_artifact_code(path)
-    if code == "TENSORRT_NA":
-        return (
-            f"BLOCKED: {family} TensorRT .engine is N/A at {path} "
-            "(no TensorRT runtime wired; PyTorch .pth/.pt only; refusing to invent)"
-        )
-    if code == "ONNX_NA":
+    suf = path.suffix.lower()
+    if suf == ".engine":
+        probe = probe_tensorrt()
+        if not probe.available:
+            return (
+                f"BLOCKED: {family} TensorRT .engine at {path} "
+                f"(TENSORRT_RUNTIME_MISSING: {probe.reason}; refusing to invent)"
+            )
+        smoke = smoke_for_engine(family, path)
+        if not smoke.ok:
+            return (
+                f"BLOCKED: {family} ENGINE_LOAD_FAILED at {path} "
+                f"({smoke.detail}; refusing to invent)"
+            )
+        return f"BLOCKED: {family} TensorRT .engine not ready at {path}"
+    if suf == ".onnx":
         return (
             f"BLOCKED: {family} ONNX is N/A at {path} "
-            "(no ONNX runtime wired; PyTorch .pth/.pt only; refusing to invent)"
+            "(no ONNX runtime wired; refusing to invent)"
         )
-    return f"BLOCKED: {family} weight suffix {path.suffix} is not a PyTorch checkpoint"
+    return f"BLOCKED: {family} weight suffix {path.suffix} is not supported for detection"
+
 
 
 def ui_message(code: str) -> UiMessage:
@@ -459,22 +493,53 @@ def probe_detection_readiness() -> DetectionReadiness:
         torch_probe.cuda_available or allow_cpu
     )
 
-    # TensorRT .engine / ONNX are N/A: report BLOCKED and never smoke-load them.
-    ffscn_na = non_torch_artifact_code(ffscn_path) if ffscn_present else None
-    scn_na = non_torch_artifact_code(scn_path) if scn_present else None
-    if ffscn_na and ffscn_path is not None:
+    # ONNX stays N/A. .engine uses TensorRT probe (ready only after real deserialize).
+    ffscn_onnx = non_torch_artifact_code(ffscn_path) if ffscn_present else None
+    scn_onnx = non_torch_artifact_code(scn_path) if scn_present else None
+    if ffscn_onnx and ffscn_path is not None:
         reasons.append(non_torch_block_reason("FFSCN", ffscn_path))
-        ui_codes.append(ffscn_na)
-    if scn_na and scn_path is not None:
+        ui_codes.append(ffscn_onnx)
+    if scn_onnx and scn_path is not None:
         reasons.append(non_torch_block_reason("SCN", scn_path))
-        ui_codes.append(scn_na)
+        ui_codes.append(scn_onnx)
 
+    trt_probe = probe_tensorrt()
+    tensorrt_verified = False
+
+    def _try_trt_ready(family: str, path: Path | None, present: bool, hash_ok: bool) -> bool:
+        nonlocal engine, tensorrt_verified
+        if not present or path is None or not hash_ok:
+            return False
+        if path.suffix.lower() != ".engine":
+            return False
+        if not trt_probe.available:
+            reasons.append(non_torch_block_reason(family, path))
+            ui_codes.append("TENSORRT_RUNTIME_MISSING")
+            ui_codes.append("TENSORRT_NA")  # legacy alias
+            return False
+        smoke = smoke_for_engine(family, path)
+        if smoke.ok:
+            engine = REAL_ENGINE_TRT
+            tensorrt_verified = True
+            return True
+        reasons.append(non_torch_block_reason(family, path))
+        ui_codes.append("ENGINE_LOAD_FAILED")
+        return False
+
+    if ffscn_present and ffscn_path is not None and ffscn_path.suffix.lower() == ".engine":
+        ffscn_ready = _try_trt_ready("FFSCN", ffscn_path, ffscn_present, ffscn_hash_ok)
+    if scn_present and scn_path is not None and scn_path.suffix.lower() == ".engine":
+        scn_ready = _try_trt_ready("SCN", scn_path, scn_present, scn_hash_ok)
+
+    # Legacy PyTorch .pth only when no .engine was selected for that family.
     if torch_ok_for_ready:
         if (
-            ffscn_present
+            not ffscn_ready
+            and ffscn_present
             and ffscn_path is not None
             and ffscn_hash_ok
-            and not ffscn_na
+            and ffscn_path.suffix.lower() in {".pth", ".pt"}
+            and not ffscn_onnx
         ):
             home = source_home("FFSCN")
             if home is None:
@@ -488,14 +553,13 @@ def probe_detection_readiness() -> DetectionReadiness:
                 else:
                     reasons.append(f"BLOCKED: FFSCN {smoke.detail}")
                     ui_codes.append("MODEL_LOAD_FAILED")
-        elif ffscn_present and not ffscn_hash_ok:
-            # Expected-hash configured and failed — never load/forward.
-            ffscn_ready = False
         if (
-            scn_present
+            not scn_ready
+            and scn_present
             and scn_path is not None
             and scn_hash_ok
-            and not scn_na
+            and scn_path.suffix.lower() in {".pth", ".pt"}
+            and not scn_onnx
         ):
             home = source_home("SCN")
             if home is None:
@@ -509,8 +573,7 @@ def probe_detection_readiness() -> DetectionReadiness:
                 else:
                     reasons.append(f"BLOCKED: SCN {smoke.detail}")
                     ui_codes.append("MODEL_LOAD_FAILED")
-        elif scn_present and not scn_hash_ok:
-            scn_ready = False
+
 
     if ffscn_ready or scn_ready:
         ui_codes.append("REAL_RUNTIME")
@@ -550,7 +613,7 @@ def probe_detection_readiness() -> DetectionReadiness:
 
     runtime = RuntimePrecheck(
         engine=engine,
-        tensorrtVerified=False,
+        tensorrtVerified=tensorrt_verified,
         cudaVerified=bool(torch_probe.cuda_available),
         canInventResults=False,
         modelSearchRoots=model_search_root_strings(),
@@ -683,7 +746,7 @@ def build_capabilities() -> CapabilitiesResponse:
         "out/vs2026-qt611-release_bin/detection-models "
         "(ffscn_epoch1200_dynamic_fp32.engine, scn_model.engine). "
         "IQ smoke file is resources/sigmf_data_demo/0000000.sigmf-data.",
-        "TensorRT .engine and ONNX stay N/A (TENSORRT_NA / ONNX_NA) until a "
+        "TensorRT .engine ready only after real deserialize; else TENSORRT_RUNTIME_MISSING / ENGINE_LOAD_FAILED. ONNX stays N/A. "
         "TensorRT runtime is wired. Do not claim live detection.",
         "Task status machine: queued->running->{succeeded|failed|cancelled|BLOCKED}; "
         "cancel always wins over late worker updates.",

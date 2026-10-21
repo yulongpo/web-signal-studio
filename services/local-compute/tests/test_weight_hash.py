@@ -1,6 +1,6 @@
-"""Optional weight SHA-256 hardening (env aliases + JSON manifest).
+﻿"""Optional weight SHA-256 hardening (env aliases + JSON manifest).
 
-Uses temp .pth bytes only — no torch, no fake TensorRT engines.
+Uses temp .pth bytes only 鈥?no torch, no fake TensorRT engines.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ def test_weight_hash_mismatch_env_blocks_pth(
 ):
     """Configured expected hash that does not match => BLOCKED + no ready."""
     _clear_hash_envs(monkeypatch)
-    model = tmp_path / "model_epoch_0210.pth"
+    model = tmp_path / "ffscn.pth"
     payload = b"FAKE-PTH-BYTES-FOR-HASH-TEST-ONLY"
     model.write_bytes(payload)
     monkeypatch.setenv("LOCAL_COMPUTE_MODEL_DIR", str(tmp_path))
@@ -52,7 +52,7 @@ def test_weight_hash_mismatch_sha256_env_alias(
     client, auth_headers, tmp_path, monkeypatch
 ):
     _clear_hash_envs(monkeypatch)
-    model = tmp_path / "epoch_105.pth"
+    model = tmp_path / "scn.pth"
     model.write_bytes(b"scn-fake-pth")
     monkeypatch.setenv("LOCAL_COMPUTE_MODEL_DIR", str(tmp_path))
     monkeypatch.setenv("LOCAL_COMPUTE_SCN_SHA256", "cd" * 32)
@@ -105,7 +105,7 @@ def test_weight_hash_match_via_manifest_notes(
     clear_hash_manifest_cache()
 
     data = client.get("/capabilities", headers=auth_headers).json()
-    # Still blocked (DISABLE_TORCH) — but not for hash mismatch
+    # Still blocked (DISABLE_TORCH) 鈥?but not for hash mismatch
     assert data["detection"]["ffscn"] is False
     reasons = " | ".join(data["detection"]["reasons"])
     assert "WEIGHT_HASH_MISMATCH" not in reasons
@@ -120,9 +120,9 @@ def test_missing_expected_hash_config_is_optional(
     client, auth_headers, tmp_path, monkeypatch
 ):
     """No expected-hash env/manifest => probe continues; identity reported;
-    BLOCKED only for stub/torch/other reasons — not for hash."""
+    BLOCKED only for stub/torch/other reasons 鈥?not for hash."""
     _clear_hash_envs(monkeypatch)
-    model = tmp_path / "model_epoch_0210.pth"
+    model = tmp_path / "ffscn.pth"
     payload = b"optional-hash-absent"
     model.write_bytes(payload)
     digest = hashlib.sha256(payload).hexdigest()
@@ -150,3 +150,4 @@ def test_missing_expected_hash_config_is_optional(
 def test_weight_hash_ui_copy_has_alias():
     assert "WEIGHT_HASH_MISMATCH" in UI_COPY
     assert UI_COPY["WEIGHT_HASH_MISMATCH"][1] == UI_COPY["MODEL_HASH_MISMATCH"][1]
+

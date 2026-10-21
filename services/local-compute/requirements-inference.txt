@@ -1,7 +1,9 @@
-# Optional extras for real FFSCN/SCN inference.
+# Optional extras for real FFSCN/SCN inference (TensorRT path).
 # Install into the SAME interpreter that has a CUDA-capable torch wheel.
 -r requirements.txt
 # torch: install from the official CUDA index for your GPU, e.g.
 #   pip install torch --index-url https://download.pytorch.org/whl/cu128
+# TensorRT must match engine build (manifest: 10.11.0.33):
+#   pip install tensorrt==10.11.0.33
 numpy>=1.26
 scipy>=1.11

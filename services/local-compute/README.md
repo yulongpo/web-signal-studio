@@ -1,4 +1,4 @@
-# local-compute (Web Signal Studio)
+﻿# local-compute (Web Signal Studio)
 
 Optional **loopback-only** FastAPI service implementing [WEB_NATIVE_PROTOCOL](../../docs/architecture/WEB_NATIVE_PROTOCOL.md) v0.1.0.
 
@@ -57,7 +57,7 @@ pytest -q
 ## Frontend detection-page contract
 
 - Markdown: [docs/DETECTION_PAGE_CONTRACT.md](docs/DETECTION_PAGE_CONTRACT.md)
-- OpenAPI (committed): [openapi.yaml](openapi.yaml) — also live at `GET /openapi.json`
+- OpenAPI (committed): [openapi.yaml](openapi.yaml) 鈥?also live at `GET /openapi.json`
 - TS types: `@wss/contracts` `local-compute` exports (`LocalComputeCapabilities`, `uiMessages`, etc.)
 
 ### No-GPU / no-model degradation copy
@@ -76,4 +76,5 @@ See [docs/HTTP_CLIENT_EXAMPLES.md](docs/HTTP_CLIENT_EXAMPLES.md) and [examples/d
 - Inventory: `docs/MODEL_INVENTORY.md`
 - Bot-B / operator notes: `docs/REAL_MODEL_INTEGRATION.md`
 - Canonical smoke paths (desktop rebuild tree only): `LOCAL_COMPUTE_MODEL_DIR` = `D:\project\signal_studio_rebuild\out\vs2026-qt611-release_bin\detection-models`, with `ffscn_epoch1200_dynamic_fp32.engine` and `scn_model.engine`. IQ: `resources\sigmf_data_demo\0000000.sigmf-data` (+ meta/json).
-- Those `.engine` files stay `TENSORRT_NA` / `BLOCKED` until a TensorRT runtime is wired. Do not claim live detection. Never invent candidates.
+- Those `.engine` files are ready only after real TensorRT deserialize (`TENSORRT_CUDA`); else BLOCKED with honest codes. Do not claim live detection. Never invent candidates.
+

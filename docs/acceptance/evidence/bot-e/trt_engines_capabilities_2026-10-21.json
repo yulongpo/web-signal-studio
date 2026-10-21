@@ -1,0 +1,20 @@
+{
+  "detection": {
+    "ffscn": true,
+    "scn": true,
+    "reasons": [],
+    "uiCodes": [
+      "REAL_RUNTIME"
+    ]
+  },
+  "runtime": {
+    "engine": "TENSORRT_CUDA",
+    "tensorrtVerified": true,
+    "cudaVerified": true,
+    "canInventResults": false,
+    "ffscnReady": true,
+    "scnReady": true,
+    "ffscnPresent": true,
+    "scnPresent": true
+  }
+}
