@@ -13,6 +13,7 @@ describe('G02 dspFft / spectral contract store', () => {
     expect(s.dspFftOverlap).toBeNull();
     expect(s.dspFftHopSize).toBeNull();
     expect(s.dspFftSizeActive).toBeNull();
+    expect(s.dspAnalysisSamples).toBeNull();
     expect(s.dspSpectralMethod).toBeNull();
     expect(s.dspSegmentMs).toBeNull();
     expect(s.dspSpectrumStatistic).toBeNull();
@@ -27,6 +28,7 @@ describe('G02 dspFft / spectral contract store', () => {
       overlap: 0.75,
       hopSize: 64,
       fftSize: 256,
+      analysisSamples: 200,
       method: 'welch',
       segmentMs: 0.256,
       spectrumStatistic: null,
@@ -39,6 +41,7 @@ describe('G02 dspFft / spectral contract store', () => {
     expect(s.dspFftOverlap).toBeCloseTo(0.75, 10);
     expect(s.dspFftHopSize).toBe(64);
     expect(s.dspFftSizeActive).toBe(256);
+    expect(s.dspAnalysisSamples).toBe(200);
     expect(s.dspSpectralMethod).toBe('welch');
     expect(s.dspSegmentMs).toBeCloseTo(0.256, 10);
     expect(s.dspSpectrumStatistic).toBeNull();
@@ -53,6 +56,7 @@ describe('G02 dspFft / spectral contract store', () => {
       overlap: 0.5,
       hopSize: 128,
       fftSize: 256,
+      analysisSamples: 256,
       method: 'welch',
       segmentMs: 1,
       spectrumStatistic: null,
@@ -67,6 +71,7 @@ describe('G02 dspFft / spectral contract store', () => {
       overlap: 0.5,
       hopSize: 128,
       fftSize: 256,
+      analysisSamples: 256,
       method: 'welch',
       segmentMs: 0.5,
       spectrumStatistic: null,
@@ -75,6 +80,8 @@ describe('G02 dspFft / spectral contract store', () => {
     useUiStore.getState().setDspFftAnalysisParams(null);
     const s = useUiStore.getState();
     expect(s.dspFftWindow).toBeNull();
+    expect(s.dspFftSizeActive).toBeNull();
+    expect(s.dspAnalysisSamples).toBeNull();
     expect(s.dspSpectralMethod).toBeNull();
     expect(s.dspSegmentMs).toBeNull();
     expect(s.dspSpectrumStatistic).toBeNull();
@@ -87,6 +94,7 @@ describe('G02 dspFft / spectral contract store', () => {
       overlap: 1.5,
       hopSize: 1,
       fftSize: 64,
+      analysisSamples: 64,
       method: 'welch',
       segmentMs: 0,
       spectrumStatistic: null,
@@ -102,6 +110,7 @@ describe('G02 dspFft / spectral contract store', () => {
       overlap: 0.5,
       hopSize: 128,
       fftSize: 256,
+      analysisSamples: 180,
       method: 'welch',
       segmentMs: 0,
       spectrumStatistic: null,
@@ -111,5 +120,26 @@ describe('G02 dspFft / spectral contract store', () => {
     });
     expect(useUiStore.getState().dspRemoveMean).toBe(true);
     expect(useUiStore.getState().dspAutoNb).toBe(true);
+    expect(useUiStore.getState().dspAnalysisSamples).toBe(180);
+    expect(useUiStore.getState().dspFftSizeActive).toBe(256);
+  });
+
+  it('publishes distinct pre-PoT analysisSamples vs post-PoT fftSizeActive', () => {
+    useUiStore.getState().setDspFftAnalysisParams({
+      window: 'hann',
+      overlap: 0.75,
+      hopSize: 64,
+      fftSize: 256,
+      analysisSamples: 200,
+      method: 'welch',
+      segmentMs: 0,
+      spectrumStatistic: null,
+      kaiserBeta: null,
+      autoNb: true,
+    });
+    const s = useUiStore.getState();
+    expect(s.dspAnalysisSamples).toBe(200);
+    expect(s.dspFftSizeActive).toBe(256);
+    expect(s.dspAnalysisSamples).not.toBe(s.dspFftSizeActive);
   });
 });

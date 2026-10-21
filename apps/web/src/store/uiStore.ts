@@ -168,6 +168,13 @@ export interface UiState {
   /** FFT size actually used by last STFT (may differ from UI stftN until wired). */
   dspFftSizeActive: number | null;
   /**
+   * G02 post-resolve analysis window length that drove STFT sizing.
+   * Auto N/B: desktop-equivalent pre-PoT count from resolveAnalysisSamples.
+   * Explicit path: equals dspFftSizeActive (PoT-only). null until settle / clear.
+   * Distinct from chrome prefs (stftN / stftAutoNbPref).
+   */
+  dspAnalysisSamples: number | null;
+  /**
    * G02 STFT method actually used. Web only implements 'welch'.
    * null until STFT settles; Multitaper/Burg/etc. stay BLOCKED (never published as fake).
    */
@@ -336,6 +343,8 @@ export interface UiState {
       overlap: number;
       hopSize: number;
       fftSize: number;
+      /** Pre-PoT analysisSamples (auto) or equals fftSize (explicit PoT). */
+      analysisSamples: number;
       method: StftSupportedMethod;
       segmentMs: number;
       /** null = NA (STFT has no SpectrumStatistic on desktop). */
@@ -440,6 +449,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   dspFftOverlap: null,
   dspFftHopSize: null,
   dspFftSizeActive: null,
+  dspAnalysisSamples: null,
   dspSpectralMethod: null,
   dspSegmentMs: null,
   dspSpectrumStatistic: null,
@@ -839,6 +849,7 @@ export const useUiStore = create<UiState>((set, get) => ({
         dspFftOverlap: null,
         dspFftHopSize: null,
         dspFftSizeActive: null,
+        dspAnalysisSamples: null,
         dspSpectralMethod: null,
         dspSegmentMs: null,
         dspSpectrumStatistic: null,
@@ -853,6 +864,7 @@ export const useUiStore = create<UiState>((set, get) => ({
       : 0;
     const hopSize = Math.max(1, Math.floor(params.hopSize));
     const fftSize = Math.max(2, Math.floor(params.fftSize));
+    const analysisSamples = Math.max(1, Math.floor(params.analysisSamples));
     const segmentMs = Number.isFinite(params.segmentMs) ? Math.max(0, params.segmentMs) : 0;
     const kaiserBeta =
       params.kaiserBeta != null && Number.isFinite(params.kaiserBeta)
@@ -863,6 +875,7 @@ export const useUiStore = create<UiState>((set, get) => ({
       dspFftOverlap: overlap,
       dspFftHopSize: hopSize,
       dspFftSizeActive: fftSize,
+      dspAnalysisSamples: analysisSamples,
       dspSpectralMethod: params.method,
       dspSegmentMs: segmentMs,
       dspSpectrumStatistic: params.spectrumStatistic,

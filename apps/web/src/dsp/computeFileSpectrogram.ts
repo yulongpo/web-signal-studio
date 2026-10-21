@@ -29,6 +29,11 @@ export interface FileSpectrogramResult {
   samplesRead: bigint;
   /** Actual STFT analysis params used (source of truth for SpecParamStrip). */
   fftSize: number;
+  /**
+   * Desktop-equivalent analysis window length (pre-PoT when auto N/B).
+   * Explicit fft path: equals fftSize. Auto N/B: resolveAnalysisSamples before PoT adapt.
+   */
+  analysisSamples: number;
   hopSize: number;
   window: SpectralWindowName;
   overlap: number;
@@ -73,6 +78,8 @@ export async function computeFileSpectrogram(
   const removeMean = options.removeMean === true;
 
   let autoNb = false;
+  /** Pre-PoT desktop-equivalent length; equals fftSize on explicit PoT path. */
+  let analysisSamples = fftSize;
   let segmentMilliseconds: number;
   if (options.segmentMilliseconds === 0) {
     if (
@@ -90,6 +97,7 @@ export async function computeFileSpectrogram(
       points: options.analysisPoints,
       segmentMilliseconds: 0,
     });
+    analysisSamples = plan.analysisSamples;
     const resolved = webFftSizeFromAnalysisSamples(plan.analysisSamples);
     const overlap = hopSize > 0 && fftSize > 0 ? 1 - hopSize / fftSize : 0.75;
     fftSize = resolved;
@@ -154,6 +162,7 @@ export async function computeFileSpectrogram(
     sampleRateHz,
     samplesRead,
     fftSize,
+    analysisSamples,
     hopSize,
     window,
     overlap: overlapFromHop(fftSize, hopSize),
