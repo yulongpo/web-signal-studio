@@ -1,3 +1,13 @@
+> Bot-A `2026-10-22 00:30` Asia/Shanghai: Web **`f9a56b8`** vs desktop `17471a6` — G11/G18/G19 PARTIAL deepened (C bounds+STFT pin; B right-rail pin + AnnotationPanel re-shot; G02/G08 skim); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f9a56b8.md`. **No PASS.**
+
+| ID | Prior (`5a0b035`) | Now (`f9a56b8`) | Note |
+|----|-------------------|-----------------|------|
+| **G11** | PARTIAL 加深（bounds 残） | **PARTIAL 加深** | `e688975` clamp + PointingHand MET；file-fullRange 残 → **未 CLOSED** |
+| **G18** | PARTIAL 加深（chrome 残） | **PARTIAL 加深** | STFT+rail pin chrome MET；margin-map 残 → **未 CLOSED** |
+| **G19** | PARTIAL 加深（re-shot 残） | **PARTIAL 加深** | Qt headers + range inspector MET；全交互 残 → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详见 `INCREMENTAL_f9a56b8.md`。**无矩阵 PASS**。
+
 > Bot-A `2026-10-22 00:20` Asia/Shanghai: Web **`5a0b035`** vs desktop `17471a6` — G19/G07/G02/G08 PARTIAL deepened (B wave7 edit-path empty evidence + real-caps engine slots + strip physical/Level/Display/STFT N + shell edge hit); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_5a0b035.md`. **No PASS.**
 
 | ID | Prior (`2d9e83b`) | Now (`5a0b035`) | Note |
