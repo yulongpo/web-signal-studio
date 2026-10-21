@@ -2,6 +2,7 @@
   "name": "@wss/web",
   "private": true,
   "version": "0.0.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -44,4 +45,3 @@
     "vitest": "^5.0.5"
   }
 }
-

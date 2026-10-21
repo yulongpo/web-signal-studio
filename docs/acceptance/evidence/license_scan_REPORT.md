@@ -1,21 +1,22 @@
-# License scan (prod) — Bot-G
+# License scan / SPDX close — Bot-G (P6)
 
-- timestamp (Asia/Shanghai): 2026-10-21 18:15
-- head: `8c13686`
-- tool: `license-checker` (prod only) → `licenses_prod.json`, `summary_prod.txt`
+- timestamp (Asia/Shanghai): 2026-10-21 19:41
+- base tip: `1931398`
+- action: root `LICENSE` (MIT) + `"license": "MIT"` on all workspace packages
 
-## Summary
+## Prior (obsolete for Q-03 gap)
 
 | License | Count (prod) |
 |---------|--------------|
 | MIT | 8 |
-| UNLICENSED | 1 (`@wss/web` only) |
+| UNLICENSED | 1 (`@wss/web` only — field omitted) |
 
-- Root `LICENSE` file: **missing**
-- GitHub `license` field: **null**
-- Flagged copyleft/proprietary tokens in prod scan: **none** (beyond UNLICENSED self-package)
+## After close
 
-## Gate recommendation
+- Root `LICENSE`: **present** (MIT)
+- Workspace package SPDX: **MIT** (root + 7 `@wss/*`)
+- UNLICENSED self-package gap: **closed**
 
-- Q-03: **PASS** for inventory evidence; **WIP** for legal publish (need root LICENSE + SPDX decision from CAO).
-- Do not block CI merge on UNLICENSED for private `@wss/*` packages until release policy says otherwise.
+## Gate
+
+- Q-03 → **PASS** (see `docs/acceptance/evidence/bot-g/q03_license_close_2026-10-21.md`)

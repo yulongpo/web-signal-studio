@@ -1,26 +1,17 @@
 {
   "name": "@wss/charts",
-  "version": "0.1.0",
   "private": true,
-  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
   "description": "WebGL2 spectrum / waterfall / PSD / waveform charts for Web Signal Studio (Bot-C)",
-  "main": "./src/index.ts",
-  "module": "./src/index.ts",
-  "types": "./src/index.ts",
-  "exports": {
-    ".": "./src/index.ts",
-    "./react": "./src/react/index.ts",
-    "./HeatmapCanvas": "./src/react/HeatmapCanvas.tsx",
-    "./SpectrumChart": "./src/react/SpectrumChart.tsx"
-  },
+  "type": "module",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+  "dependencies": {
+    "@wss/dsp-wasm": "*"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
@@ -32,12 +23,22 @@
     "typescript": "~5.9.0",
     "vitest": "^3.2.4"
   },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
   "files": [
     "src",
     "demo",
     "README.md"
   ],
-  "dependencies": {
-    "@wss/dsp-wasm": "*"
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./react": "./src/react/index.ts",
+    "./HeatmapCanvas": "./src/react/HeatmapCanvas.tsx",
+    "./SpectrumChart": "./src/react/SpectrumChart.tsx"
   }
 }
