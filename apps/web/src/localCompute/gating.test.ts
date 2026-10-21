@@ -5,6 +5,11 @@ import type {
   LocalComputeTaskRecord,
 } from '@wss/contracts';
 import {
+  LOCAL_COMPUTE_STUB_RUNTIME_COPY,
+  LOCAL_COMPUTE_STUB_ENGINE,
+  LOCAL_COMPUTE_UI_CODES,
+} from '@wss/contracts';
+import {
   bannerTextsFromCapabilities,
   canRunDetect,
   candidatesForDraw,
@@ -17,16 +22,17 @@ import {
   uiMessagesForBanner,
 } from './gating';
 
+/** STUB fixture MUST use contracts copy — no duplicated en/zh literals. */
 const blocked: LocalComputeDetectionCapabilities = {
   ffscn: false,
   scn: false,
   reasons: ['BLOCKED: stub'],
   uiMessages: [
     {
-      code: 'STUB_RUNTIME',
-      severity: 'error',
-      en: 'Local compute is in stub mode (no TensorRT). Detection will not invent results.',
-      zh: '本地计算处于占位模式（无 TensorRT），检测不会伪造结果。',
+      code: LOCAL_COMPUTE_STUB_RUNTIME_COPY.code,
+      severity: LOCAL_COMPUTE_STUB_RUNTIME_COPY.severity,
+      en: LOCAL_COMPUTE_STUB_RUNTIME_COPY.en,
+      zh: LOCAL_COMPUTE_STUB_RUNTIME_COPY.zh,
     },
   ],
 };
@@ -76,7 +82,7 @@ function makeTask(
 }
 
 const stubRuntime: LocalComputeRuntimePrecheck = {
-  engine: 'STUB_NON_TENSORRT',
+  engine: LOCAL_COMPUTE_STUB_ENGINE,
   tensorrtVerified: false,
   cudaVerified: false,
   canInventResults: false,
@@ -88,9 +94,20 @@ const stubRuntime: LocalComputeRuntimePrecheck = {
 };
 
 describe('detection gating', () => {
-  it('prefers zh banner text', () => {
-    expect(pickUiMessageText(blocked.uiMessages[0]!, 'zh')).toContain('占位模式');
-    expect(bannerTextsFromCapabilities(blocked, 'zh')[0]).toContain('占位模式');
+  it('prefers zh banner text from LOCAL_COMPUTE_STUB_RUNTIME_COPY', () => {
+    expect(blocked.uiMessages[0]!.en).toBe(LOCAL_COMPUTE_STUB_RUNTIME_COPY.en);
+    expect(blocked.uiMessages[0]!.zh).toBe(LOCAL_COMPUTE_STUB_RUNTIME_COPY.zh);
+    expect(blocked.uiMessages[0]!.severity).toBe(LOCAL_COMPUTE_STUB_RUNTIME_COPY.severity);
+    expect(blocked.uiMessages[0]!.code).toBe(LOCAL_COMPUTE_STUB_RUNTIME_COPY.code);
+    expect(pickUiMessageText(blocked.uiMessages[0]!, 'zh')).toBe(
+      LOCAL_COMPUTE_STUB_RUNTIME_COPY.zh,
+    );
+    expect(bannerTextsFromCapabilities(blocked, 'zh')[0]).toBe(
+      LOCAL_COMPUTE_STUB_RUNTIME_COPY.zh,
+    );
+    expect(pickUiMessageText(blocked.uiMessages[0]!, 'en')).toBe(
+      LOCAL_COMPUTE_STUB_RUNTIME_COPY.en,
+    );
   });
 
   it('gates buttons on ffscn/scn booleans and online/auth', () => {
@@ -110,9 +127,12 @@ describe('detection gating', () => {
     expect(scn?.code).toBe('MODEL_MISSING_SCN');
     expect(isKnownUiCode('GPU_MISSING')).toBe(true);
     expect(isKnownUiCode('MODEL_MISSING_FFSCN')).toBe(true);
+    expect(LOCAL_COMPUTE_UI_CODES).toContain('SOURCE_MISSING');
+    expect(LOCAL_COMPUTE_UI_CODES).toContain('TORCH_MISSING');
+    expect(isKnownUiCode('SOURCE_MISSING')).toBe(true);
   });
 
-  it('renders unknown SOURCE_MISSING from server uiMessages without inventing copy', () => {
+  it('renders SOURCE_MISSING from server uiMessages without inventing copy', () => {
     const withSource: LocalComputeDetectionCapabilities = {
       ffscn: true,
       scn: true,
@@ -128,8 +148,7 @@ describe('detection gating', () => {
     };
     const msgs = uiMessagesForBanner(withSource);
     expect(msgs[0]?.code).toBe('SOURCE_MISSING');
-    expect(pickUiMessageText(msgs[0]!, 'zh')).toContain('sourcePath');
-    // Known via extended set for chip styling; copy still comes from server.
+    expect(pickUiMessageText(msgs[0]!, 'zh')).toBe(withSource.uiMessages[0]!.zh);
     expect(isKnownUiCode('SOURCE_MISSING')).toBe(true);
   });
 
@@ -173,7 +192,7 @@ describe('detection gating', () => {
       status: 'succeeded',
       result: {
         candidates: [{ score: 0.9 }],
-        engine: 'STUB_NON_TENSORRT',
+        engine: LOCAL_COMPUTE_STUB_ENGINE,
       },
     });
     expect(shouldDrawDetectionCandidates(stubOkStatus, stubRuntime)).toBe(false);
