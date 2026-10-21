@@ -17,6 +17,48 @@ class TaskStatus(str, Enum):
     BLOCKED = "BLOCKED"
 
 
+# Explicit status machine for cancel reliability + UI clarity.
+# Terminal states never leave; cancel always wins over late worker updates.
+TERMINAL_STATUSES: frozenset[TaskStatus] = frozenset(
+    {
+        TaskStatus.CANCELLED,
+        TaskStatus.FAILED,
+        TaskStatus.SUCCEEDED,
+        TaskStatus.BLOCKED,
+    }
+)
+
+ALLOWED_TRANSITIONS: dict[TaskStatus, frozenset[TaskStatus]] = {
+    TaskStatus.QUEUED: frozenset(
+        {
+            TaskStatus.RUNNING,
+            TaskStatus.CANCELLED,
+            TaskStatus.FAILED,
+            TaskStatus.BLOCKED,
+        }
+    ),
+    TaskStatus.RUNNING: frozenset(
+        {
+            TaskStatus.RUNNING,  # progress ticks
+            TaskStatus.SUCCEEDED,
+            TaskStatus.FAILED,
+            TaskStatus.CANCELLED,
+            TaskStatus.BLOCKED,
+        }
+    ),
+    TaskStatus.SUCCEEDED: frozenset(),
+    TaskStatus.FAILED: frozenset(),
+    TaskStatus.CANCELLED: frozenset(),
+    TaskStatus.BLOCKED: frozenset(),
+}
+
+
+def can_transition(current: TaskStatus, nxt: TaskStatus) -> bool:
+    if current == nxt and current == TaskStatus.RUNNING:
+        return True
+    return nxt in ALLOWED_TRANSITIONS.get(current, frozenset())
+
+
 class UiMessage(BaseModel):
     """User-facing bilingual copy for the detection page (and other UIs)."""
 
@@ -32,6 +74,31 @@ class ModelInfo(BaseModel):
     sha256: str | None = None
     present: bool = False
     notes: str | None = None
+
+
+class GpuPrecheck(BaseModel):
+    """Structured GPU probe for capabilities / admission (never claims TRT verify)."""
+
+    toolchainVisible: bool = False
+    runtimeVerified: bool = False
+    name: str | None = None
+    driverVersion: str | None = None
+    reason: str | None = None
+    uiCode: str | None = None
+
+
+class RuntimePrecheck(BaseModel):
+    """Engine/runtime identity. Stub today; real TensorRT never implied."""
+
+    engine: str = "STUB_NON_TENSORRT"
+    tensorrtVerified: bool = False
+    cudaVerified: bool = False
+    canInventResults: bool = False
+    modelSearchRoots: list[str] = Field(default_factory=list)
+    ffscnPresent: bool = False
+    scnPresent: bool = False
+    ffscnReady: bool = False
+    scnReady: bool = False
 
 
 class DspCapabilities(BaseModel):
@@ -65,6 +132,8 @@ class CapabilitiesResponse(BaseModel):
     dsp: DspCapabilities
     detection: DetectionCapabilities
     models: list[ModelInfo] = Field(default_factory=list)
+    gpu: GpuPrecheck = Field(default_factory=GpuPrecheck)
+    runtime: RuntimePrecheck = Field(default_factory=RuntimePrecheck)
     notes: list[str] = Field(default_factory=list)
 
 
@@ -110,6 +179,10 @@ class TaskRecord(BaseModel):
     message: str | None = None
     messageZh: str | None = None
     uiMessages: list[UiMessage] = Field(default_factory=list)
+    statusHistory: list[str] = Field(
+        default_factory=list,
+        description="Compact status transition log for cancel/debug clarity",
+    )
     createdAt: str
     updatedAt: str
 

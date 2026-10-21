@@ -27,6 +27,9 @@ def test_committed_openapi_yaml_lists_routes_and_ui_messages():
         assert needle in text, f"missing {needle}"
     assert "DetectionCapabilities" in text
     assert "TaskRecord" in text
+    assert "GpuPrecheck" in text
+    assert "RuntimePrecheck" in text
+    assert "statusHistory" in text
 
 
 def test_detection_page_contract_doc_exists():
@@ -39,3 +42,5 @@ def test_detection_page_contract_doc_exists():
     assert "Authorization: Bearer" in text
     assert "decimal" in text.lower()
     assert "STUB_RUNTIME" in text
+    assert "Structured precheck" in text or "gpu" in text.lower()
+    assert "status machine" in text.lower() or "statusHistory" in text

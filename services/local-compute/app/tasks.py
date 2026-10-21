@@ -2,6 +2,10 @@
 
 Cancel is bound to the exact runId. Detection runs use STUB_NON_TENSORRT
 and finish as BLOCKED (or CANCELLED) — never fabricate FFSCN/SCN results.
+
+Status machine (see models.ALLOWED_TRANSITIONS):
+  queued -> running -> {succeeded|failed|cancelled|BLOCKED}
+  cancel always wins: CANCELLED is terminal and rejects late worker writes.
 """
 
 from __future__ import annotations
@@ -19,6 +23,7 @@ from .capabilities import (
     primary_ui_pair,
 )
 from .models import (
+    TERMINAL_STATUSES,
     EvidenceMeta,
     TaskCancelResponse,
     TaskCreateRequest,
@@ -26,8 +31,14 @@ from .models import (
     TaskRecord,
     TaskStatus,
     UiMessage,
+    can_transition,
 )
-from .worker import clear_handles, get_handle, start_stub_worker
+from .worker import (
+    cancel_join_timeout_s,
+    clear_handles,
+    get_handle,
+    start_stub_worker,
+)
 
 _lock = threading.Lock()
 _tasks: dict[str, TaskRecord] = {}
@@ -79,6 +90,18 @@ def _freeze_request(body: TaskCreateRequest) -> dict[str, Any]:
     return frozen
 
 
+def _append_history(history: list[str], nxt: TaskStatus) -> list[str]:
+    label = nxt.value
+    if history and history[-1] == label:
+        return history
+    out = list(history)
+    out.append(label)
+    # Cap for payload size
+    if len(out) > 32:
+        out = out[-32:]
+    return out
+
+
 def _apply_update(
     run_id: str,
     *,
@@ -96,21 +119,16 @@ def _apply_update(
         record = _tasks.get(run_id)
         if record is None:
             return
-        terminal = {
-            TaskStatus.CANCELLED,
-            TaskStatus.FAILED,
-            TaskStatus.SUCCEEDED,
-            TaskStatus.BLOCKED,
-        }
-        if record.status in terminal and status is not None and status != record.status:
-            if record.status == TaskStatus.CANCELLED:
-                return
-            if status == TaskStatus.RUNNING:
+
+        if status is not None and status != record.status:
+            if not can_transition(record.status, status):
+                # Cancel (and any terminal) always wins over late worker updates.
                 return
 
         updates: dict[str, Any] = {"updatedAt": _now()}
         if status is not None:
             updates["status"] = status
+            updates["statusHistory"] = _append_history(record.statusHistory, status)
         if progress is not None:
             updates["progress"] = progress
         if message is not None:
@@ -122,10 +140,19 @@ def _apply_update(
         elif result is not None:
             banned = {"candidates", "detections", "ffscn", "scn", "boxes"}
             if any(k in result for k in banned):
-                updates["result"] = None
-                updates["status"] = TaskStatus.BLOCKED
-                updates["message"] = "Blocked: refused fabricated detection payload"
-                updates["messageZh"] = "\u5df2\u62d2\u7edd\uff1a\u62d2\u7edd\u4f2a\u9020\u68c0\u6d4b\u7ed3\u679c"
+                # Fabricated detection payload: force BLOCKED if transition allows.
+                if can_transition(record.status, TaskStatus.BLOCKED):
+                    updates["result"] = None
+                    updates["status"] = TaskStatus.BLOCKED
+                    updates["statusHistory"] = _append_history(
+                        record.statusHistory, TaskStatus.BLOCKED
+                    )
+                    updates["message"] = "Blocked: refused fabricated detection payload"
+                    updates["messageZh"] = (
+                        "\u5df2\u62d2\u7edd\uff1a\u62d2\u7edd\u4f2a\u9020\u68c0\u6d4b\u7ed3\u679c"
+                    )
+                else:
+                    updates["result"] = None
             else:
                 updates["result"] = result
         if block_reasons is not None:
@@ -164,6 +191,7 @@ def create_task(body: TaskCreateRequest) -> TaskCreateResponse:
         message=msg_en or "Queued",
         messageZh=msg_zh or "\u5df2\u5165\u961f",
         uiMessages=list(ui_msgs),
+        statusHistory=["queued"],
         createdAt=_now(),
         updatedAt=_now(),
     )
@@ -200,19 +228,24 @@ def cancel_task(run_id: str) -> TaskCancelResponse:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Unknown runId: {run_id}",
             )
-        terminal = {
-            TaskStatus.CANCELLED,
-            TaskStatus.FAILED,
-            TaskStatus.SUCCEEDED,
-            TaskStatus.BLOCKED,
-        }
-        if record.status in terminal:
+        if record.status in TERMINAL_STATUSES:
             return TaskCancelResponse(
                 runId=run_id,
                 status=record.status,
                 message=record.message,
                 messageZh=record.messageZh,
             )
+        history = _append_history(record.statusHistory, TaskStatus.CANCELLED)
+        ev = list(record.evidence)
+        ev.append(
+            EvidenceMeta(
+                kind="cancel",
+                notes=(
+                    f"client cancel bound to exact runId; "
+                    f"prior_status={record.status.value}; status->cancelled"
+                ),
+            )
+        )
         updated = record.model_copy(
             update={
                 "status": TaskStatus.CANCELLED,
@@ -220,6 +253,8 @@ def cancel_task(run_id: str) -> TaskCancelResponse:
                 "messageZh": "\u5df2\u7531\u5ba2\u6237\u7aef\u53d6\u6d88\uff08\u7cbe\u786e runId\uff09",
                 "updatedAt": _now(),
                 "result": None,
+                "statusHistory": history,
+                "evidence": ev,
             }
         )
         _tasks[run_id] = updated
@@ -227,6 +262,9 @@ def cancel_task(run_id: str) -> TaskCancelResponse:
     handle = get_handle(run_id)
     if handle is not None:
         handle.request_cancel()
+        # Join briefly so subsequent GET observes a stable terminal record
+        # and late BLOCKED/SUCCEEDED writes are dropped by the status machine.
+        handle.join(timeout=cancel_join_timeout_s())
 
     return TaskCancelResponse(
         runId=run_id,

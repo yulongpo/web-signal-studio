@@ -8,6 +8,7 @@ Hard rules:
 - Service stays up under degradation; DSP stubs may remain available while
   detection is BLOCKED.
 - uiMessages carry stable bilingual (en/zh) copy for the detection page.
+- gpu + runtime structured precheck fields strengthen reporting for the UI.
 """
 
 from __future__ import annotations
@@ -25,7 +26,9 @@ from .models import (
     CapabilitiesResponse,
     DetectionCapabilities,
     DspCapabilities,
+    GpuPrecheck,
     ModelInfo,
+    RuntimePrecheck,
     UiMessage,
 )
 
@@ -33,6 +36,7 @@ log = logging.getLogger("local-compute.capabilities")
 
 FFSCN_CANDIDATE_NAMES = ("ffscn.engine", "ffscn.onnx", "FFSCN.engine")
 SCN_CANDIDATE_NAMES = ("scn.engine", "scn.onnx", "SCN.engine")
+STUB_ENGINE_LABEL = "STUB_NON_TENSORRT"
 
 # Exact UI strings documented in docs/DETECTION_PAGE_CONTRACT.md — keep in sync.
 UI_COPY: dict[str, tuple[str, str, str]] = {
@@ -40,52 +44,52 @@ UI_COPY: dict[str, tuple[str, str, str]] = {
     "GPU_MISSING": (
         "error",
         "No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.",
-        "未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。",
+        "\u672a\u68c0\u6d4b\u5230 NVIDIA GPU \u5de5\u5177\u94fe\uff0c\u68c0\u6d4b\uff08FFSCN/SCN\uff09\u4e0d\u53ef\u7528\u3002",
     ),
     "GPU_UNVERIFIED": (
         "warning",
         "GPU visible but CUDA/TensorRT runtime is not verified. Detection stays blocked.",
-        "已看到 GPU，但 CUDA/TensorRT 运行时未核验，检测仍不可用。",
+        "\u5df2\u770b\u5230 GPU\uff0c\u4f46 CUDA/TensorRT \u8fd0\u884c\u65f6\u672a\u6838\u9a8c\uff0c\u68c0\u6d4b\u4ecd\u4e0d\u53ef\u7528\u3002",
     ),
     "GPU_PROBE_ERROR": (
         "error",
         "GPU probe failed. Detection (FFSCN/SCN) is unavailable.",
-        "GPU 探测失败，检测（FFSCN/SCN）不可用。",
+        "GPU \u63a2\u6d4b\u5931\u8d25\uff0c\u68c0\u6d4b\uff08FFSCN/SCN\uff09\u4e0d\u53ef\u7528\u3002",
     ),
     "MODEL_MISSING_FFSCN": (
         "error",
         "FFSCN model file is missing. Detection cannot run.",
-        "缺少 FFSCN 模型文件，无法运行检测。",
+        "\u7f3a\u5c11 FFSCN \u6a21\u578b\u6587\u4ef6\uff0c\u65e0\u6cd5\u8fd0\u884c\u68c0\u6d4b\u3002",
     ),
     "MODEL_MISSING_SCN": (
         "error",
         "SCN model file is missing. Detection cannot run.",
-        "缺少 SCN 模型文件，无法运行检测。",
+        "\u7f3a\u5c11 SCN \u6a21\u578b\u6587\u4ef6\uff0c\u65e0\u6cd5\u8fd0\u884c\u68c0\u6d4b\u3002",
     ),
     "MODEL_PATH_MISSING": (
         "error",
         "Configured detection model path is missing on disk.",
-        "配置的检测模型路径在磁盘上不存在。",
+        "\u914d\u7f6e\u7684\u68c0\u6d4b\u6a21\u578b\u8def\u5f84\u5728\u78c1\u76d8\u4e0a\u4e0d\u5b58\u5728\u3002",
     ),
     "MODEL_HASH_MISMATCH": (
         "error",
         "Detection model hash/version does not match the configured expectation.",
-        "检测模型哈希/版本与配置期望不一致。",
+        "\u68c0\u6d4b\u6a21\u578b\u54c8\u5e0c/\u7248\u672c\u4e0e\u914d\u7f6e\u671f\u671b\u4e0d\u4e00\u81f4\u3002",
     ),
     "MODEL_HASH_UNAVAILABLE": (
         "warning",
         "Detection model hash could not be read; treating as blocked.",
-        "无法读取检测模型哈希，按不可用处理。",
+        "\u65e0\u6cd5\u8bfb\u53d6\u68c0\u6d4b\u6a21\u578b\u54c8\u5e0c\uff0c\u6309\u4e0d\u53ef\u7528\u5904\u7406\u3002",
     ),
     "STUB_RUNTIME": (
         "error",
         "Local compute is in stub mode (no TensorRT). Detection will not invent results.",
-        "本地计算处于占位模式（无 TensorRT），检测不会伪造结果。",
+        "\u672c\u5730\u8ba1\u7b97\u5904\u4e8e\u5360\u4f4d\u6a21\u5f0f\uff08\u65e0 TensorRT\uff09\uff0c\u68c0\u6d4b\u4e0d\u4f1a\u4f2a\u9020\u7ed3\u679c\u3002",
     ),
     "NO_FAKE_INFERENCE": (
         "error",
         "Refusing to invent FFSCN/SCN detection candidates.",
-        "拒绝伪造 FFSCN/SCN 检测候选结果。",
+        "\u62d2\u7edd\u4f2a\u9020 FFSCN/SCN \u68c0\u6d4b\u5019\u9009\u7ed3\u679c\u3002",
     ),
 }
 
@@ -106,9 +110,10 @@ class DetectionReadiness:
     reasons: list[str] = field(default_factory=list)
     ui_codes: list[str] = field(default_factory=list)
     models: list[ModelInfo] = field(default_factory=list)
+    gpu: GpuPrecheck = field(default_factory=GpuPrecheck)
+    runtime: RuntimePrecheck = field(default_factory=RuntimePrecheck)
 
     def ui_messages(self) -> list[UiMessage]:
-        # Deduplicate while preserving order.
         seen: set[str] = set()
         out: list[UiMessage] = []
         for code in self.ui_codes:
@@ -129,6 +134,20 @@ def _default_model_dirs() -> list[Path]:
             if part:
                 dirs.append(Path(part))
     return dirs
+
+
+def model_search_roots() -> list[str]:
+    roots: list[str] = []
+    for d in _default_model_dirs():
+        roots.append(str(d.resolve()) if d.exists() else str(d))
+    explicit_ff = _explicit_path("LOCAL_COMPUTE_FFSCN_PATH")
+    explicit_sc = _explicit_path("LOCAL_COMPUTE_SCN_PATH")
+    for p in (explicit_ff, explicit_sc):
+        if p is not None:
+            parent = str(p.parent)
+            if parent not in roots:
+                roots.append(parent)
+    return roots
 
 
 def _explicit_path(env_key: str) -> Path | None:
@@ -243,14 +262,16 @@ def _probe_one(
     return models, reasons, ui_codes, present_any
 
 
-def _gpu_probe() -> tuple[str, str]:
-    """Return (reason, ui_code). Warmup never claims full CUDA/TRT verify."""
+def _gpu_probe() -> GpuPrecheck:
+    """Structured GPU probe. Never claims full CUDA/TRT verify."""
     try:
         smi = shutil.which("nvidia-smi")
         if not smi:
-            return (
-                "nvidia-smi not found (no GPU toolchain visible)",
-                "GPU_MISSING",
+            return GpuPrecheck(
+                toolchainVisible=False,
+                runtimeVerified=False,
+                reason="nvidia-smi not found (no GPU toolchain visible)",
+                uiCode="GPU_MISSING",
             )
         proc = subprocess.run(
             [smi, "--query-gpu=name,driver_version", "--format=csv,noheader"],
@@ -261,15 +282,34 @@ def _gpu_probe() -> tuple[str, str]:
         )
         if proc.returncode == 0 and proc.stdout.strip():
             line = proc.stdout.strip().splitlines()[0].strip()
-            return (
-                f"nvidia-smi sees {line!r} but CUDA/TensorRT runtime "
-                "not verified (BLOCKED)",
-                "GPU_UNVERIFIED",
+            parts = [p.strip() for p in line.split(",")]
+            name = parts[0] if parts else line
+            driver = parts[1] if len(parts) > 1 else None
+            return GpuPrecheck(
+                toolchainVisible=True,
+                runtimeVerified=False,
+                name=name or None,
+                driverVersion=driver,
+                reason=(
+                    f"nvidia-smi sees {line!r} but CUDA/TensorRT runtime "
+                    "not verified (BLOCKED)"
+                ),
+                uiCode="GPU_UNVERIFIED",
             )
-        return "nvidia-smi returned no GPU rows", "GPU_MISSING"
+        return GpuPrecheck(
+            toolchainVisible=False,
+            runtimeVerified=False,
+            reason="nvidia-smi returned no GPU rows",
+            uiCode="GPU_MISSING",
+        )
     except Exception as exc:  # noqa: BLE001
         log.debug("GPU probe failed: %s", exc)
-        return f"GPU probe error: {exc}", "GPU_PROBE_ERROR"
+        return GpuPrecheck(
+            toolchainVisible=False,
+            runtimeVerified=False,
+            reason=f"GPU probe error: {exc}",
+            uiCode="GPU_PROBE_ERROR",
+        )
 
 
 def probe_detection_readiness() -> DetectionReadiness:
@@ -287,25 +327,36 @@ def probe_detection_readiness() -> DetectionReadiness:
         expected_sha=_expected_sha("LOCAL_COMPUTE_SCN_SHA256"),
     )
 
-    gpu_reason, gpu_code = _gpu_probe()
+    gpu = _gpu_probe()
     reasons: list[str] = []
     ui_codes: list[str] = []
     reasons.extend(ffscn_reasons)
     reasons.extend(scn_reasons)
     ui_codes.extend(ffscn_ui)
     ui_codes.extend(scn_ui)
-    reasons.append(f"BLOCKED: {gpu_reason}")
-    ui_codes.append(gpu_code)
+    reasons.append(f"BLOCKED: {gpu.reason}")
+    if gpu.uiCode:
+        ui_codes.append(gpu.uiCode)
 
-    # Even with files + matching hash + GPU visible, warmup has no real engine.
     reasons.append(
-        "BLOCKED: inference worker is STUB_NON_TENSORRT — "
+        f"BLOCKED: inference worker is {STUB_ENGINE_LABEL} — "
         "no fabricated FFSCN/SCN forward path"
     )
     ui_codes.append("STUB_RUNTIME")
     ui_codes.append("NO_FAKE_INFERENCE")
 
-    # Ready flags stay false until a real verified runtime lands.
+    runtime = RuntimePrecheck(
+        engine=STUB_ENGINE_LABEL,
+        tensorrtVerified=False,
+        cudaVerified=False,
+        canInventResults=False,
+        modelSearchRoots=model_search_roots(),
+        ffscnPresent=ffscn_present,
+        scnPresent=scn_present,
+        ffscnReady=False,
+        scnReady=False,
+    )
+
     return DetectionReadiness(
         ffscn_ready=False,
         scn_ready=False,
@@ -314,6 +365,8 @@ def probe_detection_readiness() -> DetectionReadiness:
         reasons=reasons,
         ui_codes=ui_codes,
         models=ffscn_models + scn_models,
+        gpu=gpu,
+        runtime=runtime,
     )
 
 
@@ -330,6 +383,11 @@ def detection_block_reasons_for_kind(kind: str) -> list[str]:
         out.append(
             "BLOCKED: refusing to invent FFSCN/SCN detection candidates"
         )
+    # Surface structured GPU reason code for logs/UI debug.
+    if ready.gpu.uiCode and ready.gpu.reason:
+        tag = f"BLOCKED: gpu.uiCode={ready.gpu.uiCode}"
+        if tag not in out:
+            out.append(tag)
     return out
 
 
@@ -368,8 +426,6 @@ def build_capabilities() -> CapabilitiesResponse:
     ready = probe_detection_readiness()
     ui_msgs = ready.ui_messages()
 
-    # Degradation: service stays up; offer lightweight DSP stub availability
-    # while detection remains BLOCKED.
     dsp = DspCapabilities(
         fft=True,
         psd=False,
@@ -392,11 +448,15 @@ def build_capabilities() -> CapabilitiesResponse:
         "Model identity (path/sha256) may be reported when files exist; "
         "never invents inference.",
         "detection.uiMessages carries bilingual (en/zh) copy for the UI.",
+        "gpu + runtime fields expose structured precheck (engine stays "
+        f"{STUB_ENGINE_LABEL} until TensorRT is verified).",
+        "Task status machine: queued->running->{succeeded|failed|cancelled|BLOCKED}; "
+        "cancel always wins over late worker updates.",
     ]
     if ready.ffscn_present or ready.scn_present:
         notes.append(
             "One or more model files are present — identity metadata reported; "
-            "forward path still BLOCKED (STUB_NON_TENSORRT)."
+            f"forward path still BLOCKED ({STUB_ENGINE_LABEL})."
         )
 
     return CapabilitiesResponse(
@@ -410,5 +470,7 @@ def build_capabilities() -> CapabilitiesResponse:
             uiMessages=ui_msgs,
         ),
         models=ready.models,
+        gpu=ready.gpu,
+        runtime=ready.runtime,
         notes=notes,
     )

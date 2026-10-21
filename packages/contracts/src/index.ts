@@ -94,6 +94,8 @@ export type {
   LocalComputeDetectionCapabilities,
   LocalComputeDspCapabilities,
   LocalComputeModelInfo,
+  LocalComputeGpuPrecheck,
+  LocalComputeRuntimePrecheck,
   LocalComputeCapabilities,
   LocalComputeSampleRange,
   LocalComputeTaskCreateRequest,
@@ -103,4 +105,4 @@ export type {
   LocalComputeTaskCancelResponse,
   LocalComputeUiCode,
 } from './local-compute.js';
-export { LOCAL_COMPUTE_UI_CODES } from './local-compute.js';
+export { LOCAL_COMPUTE_UI_CODES, LOCAL_COMPUTE_STUB_ENGINE } from './local-compute.js';

@@ -1,7 +1,7 @@
 ﻿openapi: 3.0.3
 info:
   title: Web Signal Studio local-compute
-  version: 0.1.2-contract
+  version: 0.1.3-precheck
   description: |
     Loopback-only FastAPI service for WEB_NATIVE_PROTOCOL v0.1.0.
     Detection stays BLOCKED without verified model+GPU; never fabricates FFSCN/SCN results.
@@ -109,6 +109,53 @@ components:
           type: string
         zh:
           type: string
+
+    GpuPrecheck:
+      type: object
+      properties:
+        toolchainVisible:
+          type: boolean
+        runtimeVerified:
+          type: boolean
+          description: Always false until CUDA/TensorRT is verified
+        name:
+          type: string
+          nullable: true
+        driverVersion:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        uiCode:
+          type: string
+          nullable: true
+          description: GPU_MISSING | GPU_UNVERIFIED | GPU_PROBE_ERROR
+    RuntimePrecheck:
+      type: object
+      properties:
+        engine:
+          type: string
+          description: STUB_NON_TENSORRT until real TensorRT lands
+        tensorrtVerified:
+          type: boolean
+        cudaVerified:
+          type: boolean
+        canInventResults:
+          type: boolean
+          description: Always false; never invent FFSCN/SCN candidates
+        modelSearchRoots:
+          type: array
+          items:
+            type: string
+        ffscnPresent:
+          type: boolean
+        scnPresent:
+          type: boolean
+        ffscnReady:
+          type: boolean
+        scnReady:
+          type: boolean
     DetectionCapabilities:
       type: object
       required: [ffscn, scn, reasons, uiMessages]
@@ -125,6 +172,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/UiMessage"
+        statusHistory:
+          type: array
+          items:
+            type: string
+          description: Compact status transition log (queued/running/.../cancelled|BLOCKED)
     DspCapabilities:
       type: object
       properties:

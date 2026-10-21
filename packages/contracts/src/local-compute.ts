@@ -37,6 +37,29 @@ export interface LocalComputeModelInfo {
   notes?: string | null;
 }
 
+/** Structured GPU probe; runtimeVerified stays false until CUDA/TRT is verified. */
+export interface LocalComputeGpuPrecheck {
+  toolchainVisible: boolean;
+  runtimeVerified: boolean;
+  name?: string | null;
+  driverVersion?: string | null;
+  reason?: string | null;
+  uiCode?: string | null;
+}
+
+/** Engine/runtime identity. Stub today; canInventResults is always false. */
+export interface LocalComputeRuntimePrecheck {
+  engine: string;
+  tensorrtVerified: boolean;
+  cudaVerified: boolean;
+  canInventResults: boolean;
+  modelSearchRoots: string[];
+  ffscnPresent: boolean;
+  scnPresent: boolean;
+  ffscnReady: boolean;
+  scnReady: boolean;
+}
+
 export interface LocalComputeCapabilities {
   protocolVersion: string;
   serviceVersion: string;
@@ -46,6 +69,8 @@ export interface LocalComputeCapabilities {
   dsp: LocalComputeDspCapabilities;
   detection: LocalComputeDetectionCapabilities;
   models: LocalComputeModelInfo[];
+  gpu: LocalComputeGpuPrecheck;
+  runtime: LocalComputeRuntimePrecheck;
   notes: string[];
 }
 
@@ -88,6 +113,8 @@ export interface LocalComputeTaskRecord {
   message?: string | null;
   messageZh?: string | null;
   uiMessages: LocalComputeUiMessage[];
+  /** Compact transition log, e.g. ["queued","running","cancelled"] */
+  statusHistory?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -114,3 +141,6 @@ export const LOCAL_COMPUTE_UI_CODES = [
 ] as const;
 
 export type LocalComputeUiCode = (typeof LOCAL_COMPUTE_UI_CODES)[number];
+
+/** Stub engine label until real TensorRT is verified. */
+export const LOCAL_COMPUTE_STUB_ENGINE = 'STUB_NON_TENSORRT' as const;
