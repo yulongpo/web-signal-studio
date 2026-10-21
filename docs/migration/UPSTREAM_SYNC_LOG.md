@@ -130,3 +130,31 @@ ebuild/a143-native @ 17471a6488383b456281d12cb1a6d3d80290205d
 - Synced writing base: origin/main @ 905cdadda26b0ef453256be8352a30824851addf
 - Deliverable: rtifacts/validation/ui-parity/INCREMENTAL_ef2713a.md — G06 stays PARTIAL; observe-page DDC criterion MET; G01 unchanged PARTIAL
 
+
+## 2026-10-21 21:58+08 Bot-A INCREMENTAL_62d3b70（G01 menus + G shots）
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6`**（unchanged） |
+| Web tip | **`62d3b70`**（B `e76ba97` + G `c718171` + A `593948d`） |
+| 主交付 | `artifacts/validation/ui-parity/INCREMENTAL_62d3b70.md` |
+| G01 | **PARTIAL 加深**：Edit/Analysis/Tools/Help 组 MET；corner/rename/File 深度仍缺 |
+| G06 | **PARTIAL 不变**：观察页 DDC MET；G 截图强化证据，不 CLOSED |
+| 计数 | OPEN 10 · PARTIAL 12 · CLOSED 1（G05）· DOCS 1（G25） |
+| PASS | **无**（Bot-A 不自报矩阵 PASS） |
+| 约束 | 未 checkout 共享树；未改实现；rebuild 只读 |
+
+
+## 2026-10-21 22:00+08 Bot-A INCREMENTAL_360aba7（ffeff52 rename + view history）
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6`**（unchanged） |
+| Web tip | **`360aba7`**（`ffeff52` over `62d3b70`） |
+| 主交付 | `artifacts/validation/ui-parity/INCREMENTAL_360aba7.md` |
+| G01 | **PARTIAL 再加深**：rename + view back/forward MET；corner/适应全部/恢复默认/File 深度仍缺 |
+| G15 | **OPEN → PARTIAL**（viewHistory ≤40 + 菜单） |
+| G06 | **PARTIAL 不变** |
+| 计数 | OPEN 9 · PARTIAL 13 · CLOSED 1（G05）· DOCS 1（G25） |
+| PASS | **无** |
+
