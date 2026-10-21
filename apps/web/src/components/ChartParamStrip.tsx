@@ -229,7 +229,7 @@ return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25" data-strip-dsp="wave19 wave21 wave25" data-stft-n-drives-compute="wave22"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26" data-strip-dsp="wave19 wave21 wave25 wave26" data-stft-n-drives-compute="wave22"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -634,7 +634,7 @@ return (
               <div
                 className="overflow-item overflow-qlabel-only"
                 data-testid="overflow-spectral-method"
-                data-strip-wave="wave25"
+                data-strip-wave="wave25 wave26"
               >
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-method">谱估计方法</span>
                 <select
@@ -649,6 +649,14 @@ return (
                     </option>
                   ))}
                 </select>
+                <span
+                  className="overflow-disabled-copy muted"
+                  data-testid="overflow-stft-method-disabled-copy"
+                  data-strip-wave="wave26"
+                >
+                  welch only · Multitaper/Burg/Periodogram/Bartlett BLOCKED
+                </span>
+
                 <ul
                   className="overflow-blocked-methods"
                   data-testid="overflow-stft-blocked-methods"
@@ -675,17 +683,25 @@ return (
               <div
                 className="overflow-item overflow-qlabel-only"
                 data-testid="overflow-spectral-segment-ms"
-                data-strip-wave="wave25"
+                data-strip-wave="wave25 wave26" data-auto-n="na" data-auto-n-status="BLOCKED" title="Desktop auto N/B (segmentMs=0) is not implemented; web sizes by fftSize (D dspSegmentMs = fft/fs*1000)"
               >
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-segment-ms">分段时长</span>
                 <span className="muted" data-testid="overflow-stft-segment-ms">
                   {segmentMsLabel}
                 </span>
+              
+                <span
+                  className="overflow-disabled-copy muted"
+                  data-testid="overflow-stft-segment-auto-n"
+                  data-blocked="true"
+                >
+                  auto N/B: NA (sized by fftSize)
+                </span>
               </div>
               <label
                 className="overflow-item"
                 data-testid="overflow-spectral-kaiser-beta"
-                data-strip-wave="wave25"
+                data-strip-wave="wave25 wave26"
                 data-enabled={stftWindowPref === 'kaiser' ? 'true' : 'false'}
               >
                 <span className="chart-strip-qlabel" data-testid="overflow-qlabel-stft-kaiser-beta">Kaiser β</span>
@@ -704,6 +720,17 @@ return (
                       : `Enable when window=kaiser (default ${DEFAULT_KAISER_BETA})`
                   }
                 />
+                {stftWindowPref !== 'kaiser' ? (
+                  <span
+                    className="overflow-disabled-copy muted"
+                    data-testid="overflow-stft-kaiser-disabled-copy"
+                    data-strip-wave="wave26"
+                    data-blocked="true"
+                  >
+                    disabled until window=kaiser
+                  </span>
+                ) : null}
+
               </label>
 
 
