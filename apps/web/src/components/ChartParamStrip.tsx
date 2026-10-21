@@ -22,7 +22,7 @@ export function AuxParamStrip() {
   const toggleLayer = useUiStore((s) => s.toggleLayer);
 
   return (
-    <header className="chart-strip chart-strip-aux" data-testid="chart-strip-aux" data-strip-nuance="aux-wave8">
+    <header className="chart-strip chart-strip-aux" data-testid="chart-strip-aux" data-strip-nuance="aux-wave8 wave9">
       <span className="chart-strip-caption chart-strip-qlabel" data-testid="chart-strip-caption-aux">
         辅助分析
       </span>
@@ -147,6 +147,7 @@ export function SpecParamStrip() {
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
+      data-strip-nuance="wave9"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -322,6 +323,14 @@ export function SpecParamStrip() {
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-spacing" data-strip-nuance="wave8-spacing">
                 <span className="chart-strip-qlabel">图头间距</span>
                 <span className="chart-strip-qlabel-value">compact</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-palette-unit" data-strip-nuance="wave9">
+                <span className="chart-strip-qlabel">色板单位</span>
+                <span className="chart-strip-qlabel-value" data-strip-unit="palette">index</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-mode-caption" data-strip-nuance="wave9">
+                <span className="chart-strip-qlabel">主图模式</span>
+                <span className="chart-strip-qlabel-value">STFT / Waterfall</span>
               </div>
                             <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-level">
                 <span className="chart-strip-qlabel">参考 / 动态</span>
