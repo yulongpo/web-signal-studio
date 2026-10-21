@@ -1,0 +1,38 @@
+{
+  "matrix_pass_claimed": false,
+  "task": "G17",
+  "baseline": "c63f1de",
+  "detection": {
+    "ffscn": true,
+    "scn": true,
+    "uiCodes": [
+      "REAL_RUNTIME",
+      "TENSORRT_OK"
+    ],
+    "uiMessages": [
+      {
+        "code": "REAL_RUNTIME",
+        "severity": "info",
+        "en": "Verified real detection runtime is ready for this family (TensorRT or PyTorch).",
+        "zh": "该检测族别的真推理运行时已就绪（TensorRT 或 PyTorch）。"
+      },
+      {
+        "code": "TENSORRT_OK",
+        "severity": "info",
+        "en": "TensorRT runtime importable.",
+        "zh": "TensorRT 运行时可导入。"
+      }
+    ]
+  },
+  "runtime": {
+    "engine": "TENSORRT_CUDA",
+    "tensorrtVerified": true,
+    "canInventResults": false,
+    "ffscnReady": true,
+    "scnReady": true
+  },
+  "REAL_RUNTIME_copy": {
+    "en": "Verified real detection runtime is ready for this family (TensorRT or PyTorch).",
+    "zh": "该检测族别的真推理运行时已就绪（TensorRT 或 PyTorch）。"
+  }
+}

@@ -1,7 +1,8 @@
 /**
  * PROVISIONAL — Bot-B detection page (RightRail detect tab).
  * Follows DETECTION_PAGE_CONTRACT.md + REAL_MODEL_INTEGRATION.md.
- * Never invents FFSCN/SCN candidates. Draw only when verifiedForward + PYTORCH_*.
+ * Never invents FFSCN/SCN candidates. Draw only when verifiedForward + real engine
+ * (TENSORRT_CUDA / PYTORCH_CUDA / PYTORCH_CPU).
  */
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type {
@@ -321,6 +322,14 @@ export function DetectPage() {
               engine:{caps.runtime.engine}
             </span>
           ) : null}
+          {caps?.runtime && 'tensorrtVerified' in caps.runtime ? (
+            <span
+              data-testid="detect-tensorrt-verified"
+              data-tensorrt-verified={String(caps.runtime.tensorrtVerified)}
+            >
+              trt:{String(caps.runtime.tensorrtVerified)}
+            </span>
+          ) : null}
           {caps?.runtime && 'canInventResults' in caps.runtime ? (
             <span
               data-testid="detect-can-invent"
@@ -411,10 +420,15 @@ export function DetectPage() {
           className="detect-real-runtime"
           data-testid="detect-real-runtime"
           data-code="REAL_RUNTIME"
+          data-engine={caps?.runtime?.engine ?? ''}
+          data-tensorrt-verified={String(caps?.runtime?.tensorrtVerified ?? false)}
           data-can-invent={String(caps?.runtime?.canInventResults ?? false)}
         >
           <UiCodeChip code="REAL_RUNTIME" />{' '}
           <span>{pickUiMessageText(realRuntimeMsg, 'zh')}</span>
+          {caps?.runtime?.engine ? (
+            <span className="muted"> · engine:{caps.runtime.engine}</span>
+          ) : null}
         </p>
       ) : null}
 

@@ -1,0 +1,36 @@
+{
+  "matrix_pass_claimed": false,
+  "task": "TOP#1 G17 Detect/engine honesty",
+  "baseline": "c63f1de9e3e8e11c2a62b9e1f20a0ed5b719c3d4",
+  "branch": "work/bot-e-g17-detect",
+  "already_ok": [
+    "Engine discovery limited to signal_studio_rebuild detection-models (.engine)",
+    "IQ limited to resources/sigmf_data_demo",
+    "capabilities / cancel / WEIGHT_HASH / TENSORRT_NA degrade from M-09+TRT",
+    "DetectPage gates on detection.ffscn/scn; draw only verifiedForward + real engine",
+    "Live Anaconda TRT deserialize+ready (prior TRT tip ae69401 / main 563458a)"
+  ],
+  "changed_this_tip": [
+    "REAL_RUNTIME EN/ZH engine-agnostic (no longer PyTorch-only wording)",
+    "Emit TENSORRT_OK alongside REAL_RUNTIME when tensorrtVerified",
+    "DetectPage shows engine + tensorrtVerified chips next to REAL_RUNTIME",
+    "DETECTION_PAGE_CONTRACT + contracts LOCAL_COMPUTE_REAL_RUNTIME_COPY aligned",
+    "tests: test_g17_real_runtime_honesty + REQUIRED_UI_CODES expanded"
+  ],
+  "verification": {
+    "pytest_degrade": "64 passed (LOCAL_COMPUTE_DISABLE_TORCH=1, DISABLE_TENSORRT=1)",
+    "live_trt_anaconda": {
+      "engine": "TENSORRT_CUDA",
+      "tensorrtVerified": true,
+      "ffscn": true,
+      "scn": true,
+      "uiCodes": ["REAL_RUNTIME", "TENSORRT_OK"],
+      "canInventResults": false
+    },
+    "cancel_precheck": "test_cancel_status + test_precheck_status passed"
+  },
+  "remaining_blocked": [
+    "Contract .venv without TensorRT still honest BLOCKED/TENSORRT_NA (by design)",
+    "matrix PASS not claimed by Bot-E"
+  ]
+}
