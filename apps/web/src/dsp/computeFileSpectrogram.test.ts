@@ -78,6 +78,10 @@ describe('computeFileSpectrogram', () => {
     expect(result.binCount).toBe(256);
     expect(result.frameCount).toBeGreaterThan(0);
     expect(result.samplesRead).toBe(BigInt(sampleCount));
+    expect(result.window).toBe('hann');
+    expect(result.fftSize).toBe(fftSize);
+    expect(result.hopSize).toBe(hopSize);
+    expect(result.overlap).toBeCloseTo(1 - hopSize / fftSize, 10);
     let max = 0;
     for (let i = 0; i < result.power.length; i++) max = Math.max(max, result.power[i]!);
     expect(max).toBeCloseTo(1, 5);

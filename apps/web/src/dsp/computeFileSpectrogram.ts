@@ -4,7 +4,12 @@
 import type { DspWorkerClient } from '@wss/dsp-wasm';
 import type { ChunkedReader } from '@wss/file-io';
 import { stftFromChunkedReader } from './stftFromChunkedReader';
-import { fftshiftFrame, normalizePower01 } from './computeMainSpectrogram';
+import {
+  fftshiftFrame,
+  normalizePower01,
+  MAIN_STFT_DEFAULTS,
+  overlapFromHop,
+} from './computeMainSpectrogram';
 
 export interface FileSpectrogramResult {
   power: Float32Array;
@@ -15,6 +20,11 @@ export interface FileSpectrogramResult {
   sourceLabel: string;
   sampleRateHz: number;
   samplesRead: bigint;
+  /** Actual STFT analysis params used (source of truth for SpecParamStrip). */
+  fftSize: number;
+  hopSize: number;
+  window: typeof MAIN_STFT_DEFAULTS.window;
+  overlap: number;
 }
 
 export interface ComputeFileSpectrogramOptions {
@@ -32,8 +42,9 @@ export interface ComputeFileSpectrogramOptions {
 export async function computeFileSpectrogram(
   options: ComputeFileSpectrogramOptions,
 ): Promise<FileSpectrogramResult> {
-  const fftSize = options.fftSize ?? 256;
-  const hopSize = options.hopSize ?? 64;
+  const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
+  const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
+  const window = MAIN_STFT_DEFAULTS.window;
   const frameTarget = 128;
   const defaultMax = BigInt(fftSize + (frameTarget - 1) * hopSize);
   const maxSamples = options.maxSamples ?? defaultMax;
@@ -51,7 +62,7 @@ export async function computeFileSpectrogram(
     end,
     fftSize,
     hopSize,
-    window: 'hann',
+    window,
     signal: options.signal,
   });
 
@@ -76,5 +87,9 @@ export async function computeFileSpectrogram(
     sourceLabel,
     sampleRateHz,
     samplesRead,
+    fftSize,
+    hopSize,
+    window,
+    overlap: overlapFromHop(fftSize, hopSize),
   };
 }

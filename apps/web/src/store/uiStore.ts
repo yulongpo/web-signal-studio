@@ -4,7 +4,12 @@
  */
 
 import { create } from 'zustand';
-import type { ProjectDocumentJson, LocalComputeTaskRecord, LocalComputeCapabilities } from '@wss/contracts';
+import type {
+  ProjectDocumentJson,
+  LocalComputeTaskRecord,
+  LocalComputeCapabilities,
+  SpectralWindowName,
+} from '@wss/contracts';
 import {
   openProjectFromJsonText,
   saveProjectToJsonText,
@@ -137,6 +142,19 @@ export interface UiState {
     fellBackToJs: boolean;
   } | null;
 
+  /**
+   * G02 SpecParamStrip: last main-chart STFT window / overlap published by Bot-D.
+   * null until a real STFT path settles (loading / demo-fallback stay null).
+   * Chrome display is Bot-B/C; these fields are the subscribe source.
+   */
+  dspFftWindow: SpectralWindowName | null;
+  /** Overlap ratio in [0, 1) derived from hop/fft of the last STFT. */
+  dspFftOverlap: number | null;
+  /** Hop size (samples) of the last STFT; null when unknown. */
+  dspFftHopSize: number | null;
+  /** FFT size actually used by last STFT (may differ from UI stftN until wired). */
+  dspFftSizeActive: number | null;
+
   /** G06 narrowband page + display settings (persist across page/overflow). */
   narrowbandPage: NarrowbandPageId;
   narrowbandPsdFft: number;
@@ -267,6 +285,15 @@ export interface UiState {
       fellBackToJs: boolean;
     } | null,
   ) => void;
+  /** Publish or clear main STFT window/overlap (Bot-D G02). */
+  setDspFftAnalysisParams: (
+    params: {
+      window: SpectralWindowName;
+      overlap: number;
+      hopSize: number;
+      fftSize: number;
+    } | null,
+  ) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -353,6 +380,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   dspSource: 'loading',
   dspFftEnginePreference: 'js',
   dspFftEngineActive: null,
+  dspFftWindow: null,
+  dspFftOverlap: null,
+  dspFftHopSize: null,
+  dspFftSizeActive: null,
 
   setActiveTool: (tool) => set({ activeTool: tool }),
   setRightPage: (page) => set({ rightPage: page }),
@@ -724,6 +755,28 @@ export const useUiStore = create<UiState>((set, get) => ({
   setStatusFileLabel: (label) => set({ statusFileLabel: label }),
   setDspFftEnginePreference: (engine) => set({ dspFftEnginePreference: engine }),
   setDspFftEngineActive: (active) => set({ dspFftEngineActive: active }),
+  setDspFftAnalysisParams: (params) => {
+    if (!params) {
+      set({
+        dspFftWindow: null,
+        dspFftOverlap: null,
+        dspFftHopSize: null,
+        dspFftSizeActive: null,
+      });
+      return;
+    }
+    const overlap = Number.isFinite(params.overlap)
+      ? Math.min(Math.max(params.overlap, 0), 0.999999)
+      : 0;
+    const hopSize = Math.max(1, Math.floor(params.hopSize));
+    const fftSize = Math.max(2, Math.floor(params.fftSize));
+    set({
+      dspFftWindow: params.window,
+      dspFftOverlap: overlap,
+      dspFftHopSize: hopSize,
+      dspFftSizeActive: fftSize,
+    });
+  },
 }));
 
 
