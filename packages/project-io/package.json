@@ -10,7 +10,8 @@
     "test": "vitest run --config ../../vitest.config.ts packages/project-io"
   },
   "dependencies": {
-    "@wss/contracts": "0.0.0"
+    "@wss/contracts": "0.0.0",
+    "@wss/domain": "0.0.0"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",

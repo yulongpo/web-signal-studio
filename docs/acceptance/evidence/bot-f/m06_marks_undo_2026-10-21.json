@@ -1,0 +1,27 @@
+{
+  "item": "M-06",
+  "title": "marks / channel snapshot / undo-redo",
+  "owner": "Bot-F",
+  "date_asia_shanghai": "2026-10-21 19:48:49",
+  "worktree": "D:\\project\\wss-wt-f",
+  "branch": "work/bot-f-project-io",
+  "base_tip": "8f09dbca0c97201c70f41645624bed57efb3e50f",
+  "head_pre_commit": "ffaa6f8daa702d7b540c44f9efcf36e88d20e40b",
+  "matrix_pass_claimed": false,
+  "command": "npx vitest run --config vitest.config.ts packages/project-io packages/domain",
+  "result": {
+    "test_files": 5,
+    "tests": 41,
+    "failed": 0,
+    "passed": 41
+  },
+  "e2e_hook": "window.__wssM06 via installM06E2eHook / createM06E2eHook",
+  "files": [
+    "packages/project-io/src/m06-mark-session.ts",
+    "packages/project-io/src/m06-e2e-hook.ts",
+    "packages/project-io/src/m06-mark-session.test.ts",
+    "packages/project-io/src/index.ts",
+    "packages/project-io/package.json",
+    "apps/web/src/projectIo/index.ts"
+  ]
+}

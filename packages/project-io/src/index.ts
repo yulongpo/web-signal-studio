@@ -52,3 +52,15 @@ export {
  * by calling the project-session primitives above.
  */
 export type { ProjectSessionHookApi } from './session-hook-contract.js';
+export {
+  M06MarkSession,
+  type M06SessionSnapshot,
+  type M06MarkSessionOptions,
+} from './m06-mark-session.js';
+
+export {
+  WSS_M06_HOOK_KEY,
+  createM06E2eHook,
+  installM06E2eHook,
+  type M06E2eHookApi,
+} from './m06-e2e-hook.js';

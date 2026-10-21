@@ -17,4 +17,10 @@ export {
   parseProjectJson,
   serializeProjectJson,
   ProjectIoError,
+  M06MarkSession,
+  createM06E2eHook,
+  installM06E2eHook,
+  WSS_M06_HOOK_KEY,
+  type M06SessionSnapshot,
+  type M06E2eHookApi,
 } from '@wss/project-io';
