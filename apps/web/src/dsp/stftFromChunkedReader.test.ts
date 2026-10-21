@@ -6,6 +6,7 @@ import {
 import { createDspWorkerClient, InProcessAsyncBackend, type DspWorkerClient } from '@wss/dsp-wasm';
 import { stftFromChunkedReader } from './stftFromChunkedReader';
 
+/** SYNTHETIC FIXTURE ONLY — not SigMF / not runtime UI path. */
 function makeFixtureToneWav(sampleCount: number, sampleRateHz: number, fHz: number): ArrayBuffer {
   const iq = new Int16Array(sampleCount * 2);
   for (let n = 0; n < sampleCount; n++) {
@@ -54,6 +55,43 @@ describe('stftFromChunkedReader', () => {
     expect(result.stft.frameCount).toBeGreaterThan(0);
     for (let i = 0; i < result.stft.linearPower.length; i++) {
       expect(Number.isFinite(result.stft.linearPower[i]!)).toBe(true);
+    }
+  });
+
+  it('golden: STFT frameCount/binCount/power length match hop geometry', async () => {
+    const fftSize = 256;
+    const hopSize = 64;
+    const sampleRateHz = 256_000;
+    // Exact hop geometry: N = fftSize + (F-1)*hop  →  F frames
+    const expectedFrames = 12;
+    const sampleCount = fftSize + (expectedFrames - 1) * hopSize;
+    const buf = makeFixtureToneWav(sampleCount, sampleRateHz, 32_000);
+    const { reader } = openIqWavFromArrayBuffer({
+      id: 'web-fixture-stft-geometry',
+      buffer: buf,
+      label: 'synthetic fixture: STFT geometry',
+    });
+    const client = createDspWorkerClient({ backend: new InProcessAsyncBackend() });
+    clients.push(client);
+
+    const result = await stftFromChunkedReader({
+      reader,
+      client,
+      sampleRateHz,
+      fftSize,
+      hopSize,
+      window: 'hann',
+      sourceLabel: 'synthetic fixture: STFT geometry',
+    });
+
+    expect(result.stft.binCount).toBe(fftSize);
+    expect(result.stft.frameCount).toBe(expectedFrames);
+    expect(result.stft.linearPower.length).toBe(expectedFrames * fftSize);
+    // All power finite and non-negative
+    for (let i = 0; i < result.stft.linearPower.length; i++) {
+      const v = result.stft.linearPower[i]!;
+      expect(Number.isFinite(v)).toBe(true);
+      expect(v).toBeGreaterThanOrEqual(0);
     }
   });
 
