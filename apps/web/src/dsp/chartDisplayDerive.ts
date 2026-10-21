@@ -1,6 +1,8 @@
 /**
- * Derive nav envelope / aux Wave / aux PSD from main spectrogram power.
- * Display-only — not detection / demod. Wave is STFT time-envelope (not raw IQ).
+ * Derive nav envelope / aux PSD from main spectrogram power.
+ * Display-only — not detection / demod.
+ * Aux Wave no longer uses this file (see auxWaveRawIq.ts · raw IQ from sigmf_data_demo).
+ * deriveWaveInWindow remains as a spectrogram-envelope helper for tests only.
  */
 
 export type SpectrogramDisplaySource = {
@@ -11,7 +13,7 @@ export type SpectrogramDisplaySource = {
   timeSec: { min: number; max: number };
 };
 
-/** Max-across-frequency envelope per time frame → [0,1] for navigation strip. */
+/** Max-across-frequency envelope per time frame 鈫?[0,1] for navigation strip. */
 export function deriveNavEnvelope(src: SpectrogramDisplaySource): Float32Array {
   const { power, binCount, frameCount } = src;
   const out = new Float32Array(frameCount);
@@ -31,8 +33,9 @@ export function deriveNavEnvelope(src: SpectrogramDisplaySource): Float32Array {
 }
 
 /**
- * Waveform-like series for the linked time window: max-across-freq per frame
- * in [win.min, win.max], amplitude in linear power (display).
+ * Spectrogram time-envelope helper (max-across-freq per frame in window).
+ * Not used by AuxChartHost Wave path anymore — that reads raw IQ via auxWaveRawIq.
+ * Kept for unit tests / callers that still want STFT-envelope display.
  */
 export function deriveWaveInWindow(
   src: SpectrogramDisplaySource,
@@ -71,7 +74,7 @@ export function deriveWaveInWindow(
   };
 }
 
-/** PSD-like: max-across-time (optionally windowed) → dB-ish curve vs frequency. */
+/** PSD-like: max-across-time (optionally windowed) 鈫?dB-ish curve vs frequency. */
 export function derivePsdInWindow(
   src: SpectrogramDisplaySource,
   win: { min: number; max: number } | null,

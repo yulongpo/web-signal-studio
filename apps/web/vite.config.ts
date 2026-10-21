@@ -37,7 +37,13 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    fs: { allow: [path.resolve(rootDir, '../..')] },
+    fs: {
+      allow: [
+        path.resolve(rootDir, '../..'),
+        // Bot-D aux Wave: read-only chunked IQ from rebuild demo SigMF (not copied into web tree).
+        'D:/project/signal_studio_rebuild/resources/sigmf_data_demo',
+      ],
+    },
     proxy: {
       '/api': {
         target: 'http://127.0.0.1:8000',
