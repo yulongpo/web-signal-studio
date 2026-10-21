@@ -1,0 +1,9 @@
+{
+  "tip": "9256a2d47dc4602be4994566f5d29da6c19b17a5",
+  "desktop": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "replaces": "web-e8f0881",
+  "pass_claimed": false,
+  "g06_g17_claimed": false,
+  "g02_wave21_filled": true,
+  "dwell_only_source": "dwell-peak"
+}
