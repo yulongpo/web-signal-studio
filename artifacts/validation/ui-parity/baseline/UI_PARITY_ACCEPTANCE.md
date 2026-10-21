@@ -1,3 +1,13 @@
+> Bot-A `2026-10-22 00:20` Asia/Shanghai: Web **`5a0b035`** vs desktop `17471a6` — G19/G07/G02/G08 PARTIAL deepened (B wave7 edit-path empty evidence + real-caps engine slots + strip physical/Level/Display/STFT N + shell edge hit); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_5a0b035.md`. **No PASS.**
+
+| ID | Prior (`2d9e83b`) | Now (`5a0b035`) | Note |
+|----|---------------------|-------------------|------|
+| **G19** | PARTIAL 加深（wave6 light） | **PARTIAL 加深** | `5a0b035` edit-path empty/single/multi + empty hints MET；全 AnnotationPanel re-shot 残 → **未 CLOSED** |
+| **G07** | PARTIAL 加深（wave6 light） | **PARTIAL 加深** | `5a0b035` LocalCompute caps → FFSCN/SCN/model slots + honesty MET；全 Qt Worker 残 → **未 CLOSED** |
+| **G02** | PARTIAL 加深（wave6 light） | **PARTIAL 加深** | `5a0b035` physical caption + Level/Display + STFT N MET；strip 残 → **未 CLOSED** |
+| **G08** | PARTIAL 加深（wave6 light） | **PARTIAL 加深** | `5a0b035` shell-edge attrs + hit targets MET；desktop re-shot 残 → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详见 `INCREMENTAL_5a0b035.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:13` Asia/Shanghai: Web **`2d9e83b`** vs desktop `17471a6` — G11 Overlay restore + G18 UI→store→DDC PARTIAL deepened (supersedes draft aeacc5f); **no matrix PASS**. OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2d9e83b.md`.
 
 > Bot-A `2026-10-22 00:07` Asia/Shanghai: Web **`93de5db`** vs desktop `17471a6` — G11 PARTIAL deepened (C ClosedHand helpers MET; Overlay template-literal corruption BLOCKS runtime); **no matrix PASS**. OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_93de5db.md`.

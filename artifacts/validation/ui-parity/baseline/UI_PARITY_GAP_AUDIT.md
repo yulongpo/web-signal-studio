@@ -1,3 +1,4 @@
+> Bot-A `2026-10-22 00:20` Asia/Shanghai: Web tip **5a0b035**: G19/G07/G02/G08 PARTIAL deepened (B wave7); see `INCREMENTAL_5a0b035.md`. **No PASS.** matrix_pass_claimed: false. Counts OPEN 7 / PARTIAL 16 / CLOSED 2.
 > Bot-A `2026-10-22 00:13` Asia/Shanghai: Web **`2d9e83b`** vs desktop `17471a6` — G11/G18 PARTIAL deepened (B `85dab15` Overlay backticks restored; D `08b424e` store→DDC; C `4249d64` UI→store; Overlay BLOCKER + unwired residual cleared; not CLOSED); supersedes draft INCREMENTAL_aeacc5f. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2d9e83b.md`. **No PASS.**
 
 | ID | Prior (`93de5db`) | Now (`2d9e83b`) | Note |
