@@ -21,10 +21,12 @@ Owner: Bot-B (`work/bot-b-web-shell`, worktree `D:\\project\\wss-wt-b`).
 - Toolbar: `btn-workspace-wideband` / `btn-workspace-narrowband` (StatusBar `status-workspace` stays in sync).
 - Narrowband shows `workspace-narrowband-stub` banner — **stub only**, real DDC is Bot-D; never fake demod / fake IQ.
 - Switching wide ↔ narrow must not drop main chart host or detect page state (e2e `workspace.spec.ts`).
-- Evidence screenshots (optional): `docs/acceptance/evidence/bot-b/b-p3-workspace-*.png`.
+- Evidence: PNGs + companion JSON under `docs/acceptance/evidence/bot-b/` (`m05_workspace_*.png`, `m05_workspace_2026-10-21.json`, legacy `b-p3-workspace-*.png`). Index: `docs/acceptance/evidence/bot-b/BOT_B_PROBE_INDEX.md`. **QA-G owns PASS.**
 
 ## STFT worker path (Bot-D + Bot-B open chain)
 
+- DSP FFT engine default **`js`**. Opt-in `wasm-fft` via `?engine=wasm-fft` or `uiStore.dspFftEnginePreference` → `createBrowserDspWorkerClient({ engine })` + `ready()`; `fellBackToJs` treated as success. See `docs/implementation/bot-d/WASM_FFT_WIRING_FOR_BOT_B.md`.
+- Host/StatusBar expose `data-fft-engine` / `status-fft-engine`.
 - `MainChartHost` uses `useDspWorkerClient` + either:
   - **Opened IQ**: FSA (`pickAndOpenIqWav`, WAV) or `<input type=file multiple>` → `openIqFromFiles` / `openIqFromFileBlob` → `stftFromChunkedReader` / `computeFileSpectrogram`
   - **No file / clear / open fail**: `computeMainSpectrogram` synthetic two-tone fixture
@@ -51,6 +53,8 @@ Owner: Bot-B (`work/bot-b-web-shell`, worktree `D:\\project\\wss-wt-b`).
 - Primitives: `openProjectFromJsonText` / `summarizeLoadedProject` / `saveProjectToJsonText`.
 - Sample indexes: **decimal strings only**; never invent v6 fields; never silently rewrite source paths.
 - Playwright `project-io.spec.ts`: paste open → StatusBar/tree → save download → clear.
+- Evidence: `m01_project_open/saved/cleared.png`, `m01_project_export_probe.json`, `m01_project_io_2026-10-21.json` (see BOT_B_PROBE_INDEX). **QA-G owns PASS.**
+- StatusBar `status-project` mirrors loaded summary name/fileCount; clear empties project + file labels.
 
 ## Detection page (`DetectPage`)
 
@@ -63,9 +67,16 @@ Follows `services/local-compute/docs/DETECTION_PAGE_CONTRACT.md`, `REAL_MODEL_IN
 - Draw candidates **only** when `status === 'succeeded'` AND `result.verifiedForward === true` AND `engine` starts with `PYTORCH_*`.
 - `BLOCKED` / stub / missing verifiedForward → `detect-no-candidates`.
 
+### Detect ↔ open-file session
+
+- FFSCN/SCN run buttons require an opened IQ file session (`iqFileSession`) **and** capabilities.
+- Without IQ: gate shows `SOURCE_MISSING`; capabilities refresh still allowed.
+- With IQ: `createTask` sends `sourcePath` = file name / label (never invent candidates).
+- Clear IQ → clear detect task + re-disable run.
+
 ### detect data-testids
 
-`detect-page`, `detect-capabilities-banner`, `detect-ui-code`, `detect-btn-ffscn`, `detect-btn-scn`, `detect-btn-cancel`, `detect-task-status`, `detect-token-input`, `detect-refresh-caps`, `detect-gate-reason-ffscn`, `detect-gate-reason-scn`, `detect-debug-chips`, `detect-gpu-uicode`, `detect-runtime-engine`, `detect-can-invent`, `detect-no-candidates`, `detect-candidates`, `detect-candidate-item`, `detect-blocked-message`
+`detect-page`, `detect-iq-source`, `detect-capabilities-banner`, `detect-ui-code`, `detect-btn-ffscn`, `detect-btn-scn`, `detect-btn-cancel`, `detect-task-status`, `detect-token-input`, `detect-refresh-caps`, `detect-gate-reason-ffscn`, `detect-gate-reason-scn`, `detect-debug-chips`, `detect-gpu-uicode`, `detect-runtime-engine`, `detect-can-invent`, `detect-no-candidates`, `detect-candidates`, `detect-candidate-item`, `detect-blocked-message`
 
 ### workspace data-testids
 
@@ -80,6 +91,13 @@ Follows `services/local-compute/docs/DETECTION_PAGE_CONTRACT.md`, `REAL_MODEL_IN
 - A: M-01 project open/save/clear hardened + Playwright save→clear.
 - B: M-05 workspace e2e (stub + state retention) + evidence PNGs.
 - C: RAW/SigMF wired on file-input → chunked STFT; WAV unchanged.
+
+## Package B-P4
+
+- Optional wasm-fft (default js; query/store opt-in; fellBackToJs OK).
+- Project open/save ↔ StatusBar (`status-project`) / tree channel counts tighter.
+- Detect ↔ IQ file session gate + sourcePath on createTask.
+- M-01/M-05 evidence JSON+PNG for QA-G (no matrix PASS claim).
 
 ## Package
 

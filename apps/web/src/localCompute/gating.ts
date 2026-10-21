@@ -220,3 +220,34 @@ export function candidatesForDraw(
   const raw = task?.result?.candidates;
   return Array.isArray(raw) ? raw : [];
 }
+
+
+/**
+ * Client-side gate when no opened IQ file session exists.
+ * Capabilities probe / banners still allowed; detect run buttons stay off.
+ * Uses SOURCE_MISSING code (contracts) with contract-aligned copy — never invents candidates.
+ */
+export function iqSourceGateReason(
+  hasIqSource: boolean,
+  locale: DetectLocale = 'zh',
+): GateDisableReason | null {
+  if (hasIqSource) return null;
+  return {
+    code: 'SOURCE_MISSING',
+    text:
+      locale === 'zh'
+        ? '真检测需要 sourcePath，拒绝伪造候选结果。请先打开 IQ 文件。'
+        : 'sourcePath is required for real detection; refusing to invent candidates. Open an IQ file first.',
+  };
+}
+
+/** Combine capabilities gate + IQ session presence. */
+export function canRunDetectWithSource(
+  detection: LocalComputeDetectionCapabilities | null | undefined,
+  kind: 'ffscn' | 'scn',
+  online: boolean,
+  authorized: boolean,
+  hasIqSource: boolean,
+): boolean {
+  return canRunDetect(detection, kind, online, authorized) && hasIqSource;
+}

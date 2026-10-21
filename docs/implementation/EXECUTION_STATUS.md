@@ -2,28 +2,28 @@
 
 | Field | Value |
 |------|-----|
-| Phase | **P3** (B-P3-project-workspace-open) |
+| Phase | **P4** (B-P4-wasm-fft-project-detect-session) |
 | Status | **DONE** (awaiting CAO merge) |
 | Mode | ONE-SHOT FULL DELIVERY |
 | Shared tree | D:\\project\\web_signal_studio (no Bot checkout) |
-| Bot-B worktree | D:\\project\\wss-wt-b — work/bot-b-web-shell |
-| Synced main tip (base) | c0079437e1ac0ee7822e5fade1b3a2bca0f65295 |
-| Updated (Asia/Shanghai) | 2026-10-21 19:30:00 |
+| Bot-B worktree | D:\\project\\wss-wt-b · work/bot-b-web-shell |
+| Synced main tip (base) | f9f4616b5127fef84dfe73b2a590fa425efc3dd3 |
+| Updated (Asia/Shanghai) | 2026-10-21 19:45:00 |
 
-## P3 Bot-B (B-P3-project-workspace-open)
+## P4 Bot-B (B-P4)
 
-- [x] M-01: Project open/save/clear via Bot-F `ProjectSessionHookApi` / `asProjectSessionHook`
-- [x] Playwright `project-io.spec.ts`: open JSON → StatusBar/tree → save export → clear; sample indexes decimal strings
-- [x] M-05: Wide/narrow workspace e2e; narrowband **stub only** (no fake DDC/IQ); switch keeps main chart + detect
-- [x] Evidence: `docs/acceptance/evidence/bot-b/b-p3-workspace-*.png` (from Playwright)
-- [x] Open path: WAV + RAW (`openRawCi16LeIq`) + SigMF pair (`openSigmfArrayBuffer`); chip `data-iq-format`
-- [x] FSA remains WAV-only (file-io); RAW/SigMF via file input — noted in BOT_B_SHELL
+- [x] Optional wasm-fft: `resolveDspFftEngine` + `useDspWorkerClient` (`?engine=` / preference); default **js**; `fellBackToJs` = success
+- [x] Project open/save ↔ StatusBar `status-project` + tree channel counts; clear empties UI
+- [x] Detect ↔ IQ file session: gate without source; pass `sourcePath` when open; clear task on Clear IQ
+- [x] M-01 evidence: `m01_project_io_2026-10-21.json` + PNGs + export probe (QA-G owns PASS)
+- [x] M-05 evidence: `m05_workspace_2026-10-21.json` + PNGs; stub-explicit / no fake DDC asserted
+- [x] Index: `docs/acceptance/evidence/bot-b/BOT_B_PROBE_INDEX.md`
 - [x] Docs: BOT_B_SHELL.md + this file
+- [x] vitest + Playwright + typecheck green
 
-## Prior P1 (still green)
+## Prior P3 (still green)
 
-- [x] Compose shell + DetectPage gating / WEIGHT_HASH_MISMATCH / STFT chip
-- [x] Open IQ WAV → `stftFromChunkedReader`; synthetic fixture fallback
+- [x] M-01 project IO + M-05 workspace + RAW/SigMF open (landed @ b82e324 merge)
 
 ## Rules
 
@@ -32,3 +32,4 @@
 - Draw only when succeeded + `verifiedForward===true` + `PYTORCH_*` engine.
 - Sample indexes: decimal strings only.
 - Do not invent v6 project fields; never silently rewrite source paths.
+- Do **not** rewrite ACCEPTANCE_MATRIX PASS (QA-G only).

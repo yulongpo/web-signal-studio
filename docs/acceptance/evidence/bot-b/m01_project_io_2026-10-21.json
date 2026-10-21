@@ -1,0 +1,40 @@
+{
+  "id": "m01_project_io",
+  "gate": "M-01",
+  "date": "2026-10-21",
+  "matrix_pass_claimed": false,
+  "base_tip": "f9f4616",
+  "package": "B-P4",
+  "assertions": {
+    "open_shows_summary": true,
+    "status_project_reflects_name": true,
+    "status_file_reflects_active_file": true,
+    "tree_sample_count_decimal_string": "1048576",
+    "tree_shows_channel_count": true,
+    "save_export_version": 6,
+    "save_sampleCount_type": "string",
+    "save_sampleCount_value": "1048576",
+    "no_invented_ddc_field": true,
+    "clear_empties_tree_and_statusbar": true
+  },
+  "testids": [
+    "project-summary",
+    "project-tree-loaded",
+    "project-tree-empty",
+    "status-project",
+    "status-file",
+    "status-channel",
+    "btn-save-project",
+    "btn-clear-project",
+    "input-project-paste",
+    "btn-open-project-paste"
+  ],
+  "artifacts": [
+    "m01_project_open.png",
+    "m01_project_saved.png",
+    "m01_project_cleared.png",
+    "m01_project_export_probe.json",
+    "m01_project_io_2026-10-21.json"
+  ],
+  "note": "Evidence for QA-G. Bot-B does not claim ACCEPTANCE_MATRIX PASS."
+}

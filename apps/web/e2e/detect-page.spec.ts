@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -111,6 +113,7 @@ const WEIGHT_HASH_CAPS = {
   },
 };
 
+
 test.describe('detection page', () => {
   test('opens detect tab; mocked capabilities disable buttons and show zh banner', async ({
     page,
@@ -147,6 +150,7 @@ test.describe('detection page', () => {
       'STUB_NON_TENSORRT',
     );
     await expect(page.getByTestId('detect-can-invent')).toHaveAttribute('data-can-invent', 'false');
+    await expect(page.getByTestId('detect-iq-source')).toHaveAttribute('data-has-iq', 'false');
     await expect(page.getByTestId('detect-candidates')).toHaveCount(0);
     await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
   });
@@ -178,8 +182,45 @@ test.describe('detection page', () => {
     await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
   });
 
-  test('BLOCKED task with fake result keys does not render candidates', async ({ page }) => {
+  test('no IQ session gates detect even when caps allow (SOURCE_MISSING)', async ({ page }) => {
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify({
+          ...BLOCKED_CAPS,
+          detection: {
+            ffscn: true,
+            scn: true,
+            reasons: [],
+            uiMessages: [],
+          },
+        }),
+      });
+    });
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detect-iq-source')).toHaveAttribute('data-has-iq', 'false');
+    await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
+    await expect(page.getByTestId('detect-btn-scn')).toBeDisabled();
+    await expect(page.getByTestId('detect-gate-reason-ffscn')).toContainText('SOURCE_MISSING');
+    await expect(page.getByTestId('detect-refresh-caps')).toBeEnabled();
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+  });
+
+  test('with IQ open, createTask sends sourcePath; BLOCKED draws no candidates', async ({
+    page,
+  }) => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const wavPath = path.join(here, 'fixtures', 'tiny-iq.wav');
+    let postedBody: Record<string, unknown> | null = null;
     let taskGets = 0;
+
     await page.route('**/capabilities', async (route) => {
       if (route.request().method() === 'OPTIONS') {
         await route.fulfill({ status: 204, headers: CORS });
@@ -201,17 +242,18 @@ test.describe('detection page', () => {
         return;
       }
       if (route.request().method() === 'POST') {
+        postedBody = route.request().postDataJSON() as Record<string, unknown>;
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           headers: CORS,
-          body: JSON.stringify({ runId: 'run-blocked-1' }),
+          body: JSON.stringify({ runId: 'run-blocked-iq-1' }),
         });
         return;
       }
       await route.fallback();
     });
-    await page.route('**/tasks/run-blocked-1', async (route) => {
+    await page.route('**/tasks/run-blocked-iq-1', async (route) => {
       if (route.request().method() === 'OPTIONS') {
         await route.fulfill({ status: 204, headers: CORS });
         return;
@@ -222,7 +264,7 @@ test.describe('detection page', () => {
         contentType: 'application/json',
         headers: CORS,
         body: JSON.stringify({
-          runId: 'run-blocked-1',
+          runId: 'run-blocked-iq-1',
           kind: 'ffscn.detect',
           status: 'BLOCKED',
           progress: 1,
@@ -230,18 +272,17 @@ test.describe('detection page', () => {
           result: {
             candidates: [{ score: 0.99, box: [0, 0, 10, 10] }],
             detections: [{ id: 'fake' }],
-            boxes: [[0, 0, 10, 10]],
           },
           evidence: [],
-          blockReasons: ['BLOCKED: SOURCE_MISSING'],
-          message: 'sourcePath required',
-          messageZh: '真检测需要 sourcePath，拒绝伪造候选结果。',
+          blockReasons: ['BLOCKED: STUB_RUNTIME'],
+          message: 'stub',
+          messageZh: '占位运行时，拒绝伪造候选结果。',
           uiMessages: [
             {
-              code: 'SOURCE_MISSING',
+              code: 'STUB_RUNTIME',
               severity: 'error',
-              en: 'sourcePath is required for real detection; refusing to invent candidates.',
-              zh: '真检测需要 sourcePath，拒绝伪造候选结果。',
+              en: 'Local compute is in stub mode (no TensorRT). Detection will not invent results.',
+              zh: '本地计算处于占位模式（无 TensorRT），检测不会伪造结果。',
             },
           ],
           createdAt: '2026-01-01T00:00:00Z',
@@ -251,16 +292,27 @@ test.describe('detection page', () => {
     });
 
     await page.goto('/');
+    await page.getByTestId('input-iq-wav').setInputFiles(wavPath);
+    const host = page.getByTestId('main-chart-host');
+    await expect
+      .poll(async () => host.getAttribute('data-dsp-source'), { timeout: 20000 })
+      .not.toBe('loading');
+
     await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detect-iq-source')).toHaveAttribute('data-has-iq', 'true');
     await expect(page.getByTestId('detect-btn-ffscn')).toBeEnabled();
     await page.getByTestId('detect-btn-ffscn').click();
     await expect(page.getByTestId('detect-task-status')).toContainText('BLOCKED');
-    await expect(page.getByTestId('detect-blocked-message')).toContainText('sourcePath');
-    await expect(page.locator('[data-testid="detect-ui-code"][data-code="SOURCE_MISSING"]')).toBeVisible();
     await expect(page.getByTestId('detect-no-candidates')).toBeVisible();
-    await expect(page.getByTestId('detect-candidates')).toHaveCount(0);
     await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+    expect(postedBody).toBeTruthy();
+    expect(String(postedBody?.sourcePath ?? '')).toMatch(/tiny-iq\.wav/i);
     expect(taskGets).toBeGreaterThan(0);
+
+    await page.getByTestId('btn-clear-iq-wav').click();
+    await expect(page.getByTestId('detect-iq-source')).toHaveAttribute('data-has-iq', 'false');
+    await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
+    await expect(page.getByTestId('detect-task-status')).toContainText('idle');
   });
 
   test('offline capabilities keep buttons disabled', async ({ page }) => {
@@ -303,5 +355,4 @@ test.describe('detection page', () => {
     await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
     await expect(page.getByTestId('detect-gate-reason-ffscn')).toBeVisible();
   });
-
 });

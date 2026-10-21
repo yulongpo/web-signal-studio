@@ -20,6 +20,8 @@ import {
   pickUiMessageText,
   shouldDrawDetectionCandidates,
   uiMessagesForBanner,
+  iqSourceGateReason,
+  canRunDetectWithSource,
 } from './gating';
 
 /** STUB fixture MUST use contracts copy — no duplicated en/zh literals. */
@@ -251,5 +253,28 @@ describe('detection gating', () => {
       result: { candidates: [{ score: 1 }] },
     });
     expect(shouldDrawDetectionCandidates(noRuntime, null)).toBe(false);
+  });
+});
+
+describe('IQ source session gate', () => {
+  it('iqSourceGateReason returns SOURCE_MISSING when no IQ', () => {
+    const r = iqSourceGateReason(false, 'zh');
+    expect(r?.code).toBe('SOURCE_MISSING');
+    expect(r?.text).toMatch(/sourcePath/);
+  });
+
+  it('iqSourceGateReason is null when IQ present', () => {
+    expect(iqSourceGateReason(true)).toBeNull();
+  });
+
+  it('canRunDetectWithSource requires IQ even when caps allow', () => {
+    const detection = {
+      ffscn: true,
+      scn: true,
+      reasons: [],
+      uiMessages: [],
+    };
+    expect(canRunDetectWithSource(detection, 'ffscn', true, true, false)).toBe(false);
+    expect(canRunDetectWithSource(detection, 'ffscn', true, true, true)).toBe(true);
   });
 });

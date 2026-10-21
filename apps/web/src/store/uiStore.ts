@@ -91,6 +91,18 @@ export interface UiState {
   /** Main chart DSP source for StatusBar / chip (Bot-D worker path). */
   dspSource: DspSourceKind;
 
+  /**
+   * Optional DSP Worker FFT engine preference (Bot-D Package C).
+   * Default 'js'. URL ?engine=wasm-fft still wins via resolveDspFftEngine.
+   */
+  dspFftEnginePreference: 'js' | 'wasm-fft';
+  /** Last ready()/configure result mirrored for StatusBar / chip. */
+  dspFftEngineActive: {
+    requested: 'js' | 'wasm-fft';
+    active: 'js' | 'wasm-fft';
+    fellBackToJs: boolean;
+  } | null;
+
   setActiveTool: (tool: ActiveTool) => void;
   setRightPage: (page: RightPage) => void;
   toggleRightPanel: () => void;
@@ -119,6 +131,14 @@ export interface UiState {
   setDetectSampleRange: (range: { start: string; end: string }) => void;
   setDspSource: (source: DspSourceKind) => void;
   setStatusFileLabel: (label: string) => void;
+  setDspFftEnginePreference: (engine: 'js' | 'wasm-fft') => void;
+  setDspFftEngineActive: (
+    active: {
+      requested: 'js' | 'wasm-fft';
+      active: 'js' | 'wasm-fft';
+      fellBackToJs: boolean;
+    } | null,
+  ) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -150,6 +170,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   localComputeToken: envLocalComputeToken(),
 
   dspSource: 'loading',
+  dspFftEnginePreference: 'js',
+  dspFftEngineActive: null,
 
   setActiveTool: (tool) => set({ activeTool: tool }),
   setRightPage: (page) => set({ rightPage: page }),
@@ -261,7 +283,11 @@ export const useUiStore = create<UiState>((set, get) => ({
         projectSource: 'json',
         projectHasSample: false,
         statusFileLabel: activeFile?.name ?? summary.name,
-        statusChannelLabel: summary.activeChannelId ?? '—',
+        statusChannelLabel:
+          summary.activeChannelId ??
+          (activeFile
+            ? `${activeFile.channelCount} ch`
+            : `${summary.files.reduce((n, f) => n + f.channelCount, 0)} ch`),
         statusCursor: { timeLabel: '0.000 s', freqLabel: '—' },
         detectSampleRange: { start: '0', end: sampleEnd },
       });
@@ -300,6 +326,8 @@ export const useUiStore = create<UiState>((set, get) => ({
 
   setDspSource: (source) => set({ dspSource: source }),
   setStatusFileLabel: (label) => set({ statusFileLabel: label }),
+  setDspFftEnginePreference: (engine) => set({ dspFftEnginePreference: engine }),
+  setDspFftEngineActive: (active) => set({ dspFftEngineActive: active }),
 }));
 
 

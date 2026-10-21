@@ -69,7 +69,7 @@ function summaryToTree(
           kind: 'folder',
           children: files.map((f) => ({
             id: f.id,
-            label: `${f.name} (${f.sampleCount} samples)`,
+            label: `${f.name} (${f.sampleCount} samples, ${f.channelCount} ch)`,
             kind: 'file' as const,
           })),
         },
@@ -218,8 +218,9 @@ export function ProjectTree() {
             {showLoaded && projectSummary ? (
               <div className="project-summary" data-testid="project-summary">
                 <p>
-                  <strong>{projectSummary.name}</strong> · v{projectSummary.version} ·{' '}
-                  {projectSummary.fileCount} file(s)
+                  <strong>{projectSummary.name}</strong> | v{projectSummary.version} |{' '}
+                  {projectSummary.fileCount} file(s) |{' '}
+                  {projectSummary.files.reduce((n, f) => n + f.channelCount, 0)} ch
                 </p>
               </div>
             ) : null}

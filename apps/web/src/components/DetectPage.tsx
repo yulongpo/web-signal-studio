@@ -3,7 +3,7 @@
  * Follows DETECTION_PAGE_CONTRACT.md + REAL_MODEL_INTEGRATION.md.
  * Never invents FFSCN/SCN candidates. Draw only when verifiedForward + PYTORCH_*.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type {
   LocalComputeCapabilities,
   LocalComputeTaskRecord,
@@ -16,14 +16,20 @@ import {
   isTerminalStatus,
 } from '../localCompute/client';
 import {
-  canRunDetect,
+  canRunDetectWithSource,
   candidatesForDraw,
   gateDisableReason,
+  iqSourceGateReason,
   isKnownUiCode,
   pickUiMessageText,
   shouldDrawDetectionCandidates,
   uiMessagesForBanner,
 } from '../localCompute/gating';
+import {
+  getIqFileEpoch,
+  getIqFileSession,
+  subscribeIqFileSession,
+} from '../dsp/iqFileSession';
 
 const POLL_MS = 500;
 
@@ -78,6 +84,16 @@ export function DetectPage() {
   const setToken = useUiStore((s) => s.setLocalComputeToken);
   const baseUrl = useUiStore((s) => s.localComputeBaseUrl);
   const sampleRange = useUiStore((s) => s.detectSampleRange);
+
+  const iqEpoch = useSyncExternalStore(
+    subscribeIqFileSession,
+    getIqFileEpoch,
+    getIqFileEpoch,
+  );
+  const iqSession = getIqFileSession();
+  const hasIqSource = iqSession != null;
+  // Prefer concrete file name as sourcePath label; never invent a filesystem path.
+  const iqSourcePath = iqSession?.fileName ?? iqSession?.sourceLabel ?? null;
 
   const [caps, setCaps] = useState<LocalComputeCapabilities | null>(null);
   const [offlineReason, setOfflineReason] = useState<OfflineReason>('offline');
@@ -141,12 +157,40 @@ export function DetectPage() {
     return () => stopPoll();
   }, [refreshCapabilities, stopPoll]);
 
+  // Clear detect task when IQ file session drops (never keep stale result).
+  useEffect(() => {
+    if (hasIqSource) return;
+    setTask(null);
+    setBusy(false);
+    stopPoll();
+  }, [iqEpoch, hasIqSource, stopPoll]);
+
   const online = offlineReason === null;
   const authorized = offlineReason !== 'unauthorized';
-  const ffscnOk = canRunDetect(caps?.detection, 'ffscn', online, authorized);
-  const scnOk = canRunDetect(caps?.detection, 'scn', online, authorized);
-  const ffscnReason = gateDisableReason(caps?.detection, 'ffscn', online, authorized, 'zh');
-  const scnReason = gateDisableReason(caps?.detection, 'scn', online, authorized, 'zh');
+  // Prefer capabilities/auth reasons; SOURCE_MISSING only when caps would otherwise allow.
+  const ffscnCapsOk = canRunDetectWithSource(
+    caps?.detection,
+    'ffscn',
+    online,
+    authorized,
+    true,
+  );
+  const scnCapsOk = canRunDetectWithSource(
+    caps?.detection,
+    'scn',
+    online,
+    authorized,
+    true,
+  );
+  const ffscnOk = ffscnCapsOk && hasIqSource;
+  const scnOk = scnCapsOk && hasIqSource;
+  const iqGate = iqSourceGateReason(hasIqSource, 'zh');
+  const ffscnReason = ffscnCapsOk
+    ? iqGate
+    : gateDisableReason(caps?.detection, 'ffscn', online, authorized, 'zh');
+  const scnReason = scnCapsOk
+    ? iqGate
+    : gateDisableReason(caps?.detection, 'scn', online, authorized, 'zh');
 
   const bannerMessages = useMemo(
     () => uiMessagesForBanner(caps?.detection, task),
@@ -189,6 +233,8 @@ export function DetectPage() {
       const { runId } = await client.createTask({
         kind,
         params: {},
+        // Real opened IQ label/file name only — never invent a path or candidates.
+        sourcePath: iqSourcePath,
         sampleRange: {
           start: String(sampleRange.start),
           end: String(sampleRange.end),
@@ -340,7 +386,17 @@ export function DetectPage() {
         </p>
       ) : null}
 
-      <p className="detect-range muted">
+            <p
+        className="detect-iq-source muted"
+        data-testid="detect-iq-source"
+        data-has-iq={hasIqSource ? 'true' : 'false'}
+      >
+        IQ source:{' '}
+        {hasIqSource && iqSourcePath
+          ? iqSourcePath
+          : '（未打开 — 检测入口已门控，仍可刷新 capabilities）'}
+      </p>
+      <p className="detect-range muted" data-testid="detect-sample-range">
         sampleRange: [{sampleRange.start}, {sampleRange.end})（十进制字符串）
       </p>
 

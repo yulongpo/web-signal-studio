@@ -81,6 +81,7 @@ export function MainChartHost() {
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
   const setDspSourceStore = useUiStore((s) => s.setDspSource);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
+  const fftActive = useUiStore((s) => s.dspFftEngineActive);
   const client = useDspWorkerClient();
 
   const iqEpoch = useSyncExternalStore(
@@ -180,6 +181,9 @@ export function MainChartHost() {
       data-dsp-source={dspSource}
       data-dsp-label={spec?.sourceLabel ?? 'demo fallback'}
       data-iq-format={iqFormat ?? undefined}
+      data-fft-engine={fftActive?.active ?? 'js'}
+      data-fft-requested={fftActive?.requested ?? 'js'}
+      data-fft-fallback={fftActive?.fellBackToJs ? 'true' : 'false'}
     >
       <span
         className="dsp-source-chip"

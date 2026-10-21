@@ -117,9 +117,14 @@ test.describe('shell navigation', () => {
     await expect(page.getByTestId('input-iq-wav')).toBeAttached();
     await page.getByTestId('input-iq-wav').setInputFiles(wavPath);
     const host = page.getByTestId('main-chart-host');
+    // Wait until open settles (avoid racing the transient "loading" after setInputFiles).
     await expect
-      .poll(async () => host.getAttribute('data-dsp-source'), { timeout: 20000 })
-      .not.toBe('loading');
+      .poll(async () => {
+        const s = await host.getAttribute('data-dsp-source');
+        if (!s || s === 'loading') return null;
+        return s;
+      }, { timeout: 20000 })
+      .not.toBeNull();
     const source = await host.getAttribute('data-dsp-source');
     expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker']).toContain(source);
     if (source === 'file-stft-worker') {
@@ -147,8 +152,12 @@ test.describe('shell navigation', () => {
     await page.getByTestId('input-iq-wav').setInputFiles(rawPath);
     const host = page.getByTestId('main-chart-host');
     await expect
-      .poll(async () => host.getAttribute('data-dsp-source'), { timeout: 20000 })
-      .not.toBe('loading');
+      .poll(async () => {
+        const s = await host.getAttribute('data-dsp-source');
+        if (!s || s === 'loading') return null;
+        return s;
+      }, { timeout: 20000 })
+      .not.toBeNull();
     const source = await host.getAttribute('data-dsp-source');
     expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker']).toContain(source);
     if (source === 'file-stft-worker') {
