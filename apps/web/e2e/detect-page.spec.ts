@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
 
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+};
+
 const BLOCKED_CAPS = {
   protocolVersion: '0.1.0',
   serviceVersion: 'test',
@@ -18,17 +24,64 @@ const BLOCKED_CAPS = {
         en: 'Local compute is in stub mode (no TensorRT). Detection will not invent results.',
         zh: '本地计算处于占位模式（无 TensorRT），检测不会伪造结果。',
       },
+      {
+        code: 'NO_FAKE_INFERENCE',
+        severity: 'error',
+        en: 'Refusing to invent FFSCN/SCN detection candidates.',
+        zh: '拒绝伪造 FFSCN/SCN 检测候选结果。',
+      },
     ],
   },
   models: [],
+  gpu: {
+    toolchainVisible: false,
+    runtimeVerified: false,
+    name: null,
+    driverVersion: null,
+    reason: 'nvidia-smi not found',
+    uiCode: 'GPU_MISSING',
+  },
+  runtime: {
+    engine: 'STUB_NON_TENSORRT',
+    tensorrtVerified: false,
+    cudaVerified: false,
+    canInventResults: false,
+    modelSearchRoots: [],
+    ffscnPresent: false,
+    scnPresent: false,
+    ffscnReady: false,
+    scnReady: false,
+  },
   notes: [],
 };
 
-/** CORS so absolute loopback :8000 fulfill is readable from the Vite origin. */
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+const MODEL_MISSING_CAPS = {
+  ...BLOCKED_CAPS,
+  detection: {
+    ffscn: false,
+    scn: false,
+    reasons: ['BLOCKED: MODEL_MISSING_FFSCN', 'BLOCKED: MODEL_MISSING_SCN'],
+    uiMessages: [
+      {
+        code: 'MODEL_MISSING_FFSCN',
+        severity: 'error',
+        en: 'FFSCN model file is missing. Detection cannot run.',
+        zh: '缺少 FFSCN 模型文件，无法运行检测。',
+      },
+      {
+        code: 'MODEL_MISSING_SCN',
+        severity: 'error',
+        en: 'SCN model file is missing. Detection cannot run.',
+        zh: '缺少 SCN 模型文件，无法运行检测。',
+      },
+      {
+        code: 'GPU_MISSING',
+        severity: 'error',
+        en: 'No NVIDIA GPU toolchain detected. Detection (FFSCN/SCN) is unavailable.',
+        zh: '未检测到 NVIDIA GPU 工具链，检测（FFSCN/SCN）不可用。',
+      },
+    ],
+  },
 };
 
 test.describe('detection page', () => {
@@ -52,11 +105,135 @@ test.describe('detection page', () => {
     await page.getByTestId('rail-tab-detect').click();
     await expect(page.getByTestId('detect-page')).toBeVisible();
     await expect(page.getByTestId('detect-capabilities-banner')).toContainText('占位模式');
+    await expect(page.getByTestId('detect-ui-code').first()).toHaveAttribute(
+      'data-code',
+      'STUB_RUNTIME',
+    );
     await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
     await expect(page.getByTestId('detect-btn-scn')).toBeDisabled();
     await expect(page.getByTestId('detect-token-input')).toBeVisible();
     await expect(page.getByTestId('detect-refresh-caps')).toBeVisible();
     await expect(page.getByTestId('detect-task-status')).toBeVisible();
+    await expect(page.getByTestId('detect-gpu-uicode')).toHaveAttribute('data-code', 'GPU_MISSING');
+    await expect(page.getByTestId('detect-runtime-engine')).toHaveAttribute(
+      'data-engine',
+      'STUB_NON_TENSORRT',
+    );
+    await expect(page.getByTestId('detect-can-invent')).toHaveAttribute('data-can-invent', 'false');
+    await expect(page.getByTestId('detect-candidates')).toHaveCount(0);
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+  });
+
+  test('MODEL_MISSING_* shows code chips and disables detect buttons', async ({ page }) => {
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify(MODEL_MISSING_CAPS),
+      });
+    });
+
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detect-capabilities-banner')).toContainText('缺少 FFSCN');
+    await expect(page.locator('[data-testid="detect-ui-code"][data-code="MODEL_MISSING_FFSCN"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="detect-ui-code"][data-code="MODEL_MISSING_SCN"]').first()).toBeVisible();
+    await expect(page.locator('[data-testid="detect-ui-code"][data-code="GPU_MISSING"]').first()).toBeVisible();
+    await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
+    await expect(page.getByTestId('detect-btn-scn')).toBeDisabled();
+    await expect(page.getByTestId('detect-gate-reason-ffscn')).toContainText('MODEL_MISSING_FFSCN');
+    await expect(page.getByTestId('detect-gate-reason-scn')).toContainText('MODEL_MISSING_SCN');
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+  });
+
+  test('BLOCKED task with fake result keys does not render candidates', async ({ page }) => {
+    let taskGets = 0;
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify({
+          ...BLOCKED_CAPS,
+          detection: { ...BLOCKED_CAPS.detection, ffscn: true, scn: false },
+        }),
+      });
+    });
+    await page.route('**/tasks', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      if (route.request().method() === 'POST') {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          headers: CORS,
+          body: JSON.stringify({ runId: 'run-blocked-1' }),
+        });
+        return;
+      }
+      await route.fallback();
+    });
+    await page.route('**/tasks/run-blocked-1', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      taskGets += 1;
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify({
+          runId: 'run-blocked-1',
+          kind: 'ffscn.detect',
+          status: 'BLOCKED',
+          progress: 1,
+          request: {},
+          result: {
+            candidates: [{ score: 0.99, box: [0, 0, 10, 10] }],
+            detections: [{ id: 'fake' }],
+            boxes: [[0, 0, 10, 10]],
+          },
+          evidence: [],
+          blockReasons: ['BLOCKED: SOURCE_MISSING'],
+          message: 'sourcePath required',
+          messageZh: '真检测需要 sourcePath，拒绝伪造候选结果。',
+          uiMessages: [
+            {
+              code: 'SOURCE_MISSING',
+              severity: 'error',
+              en: 'sourcePath is required for real detection; refusing to invent candidates.',
+              zh: '真检测需要 sourcePath，拒绝伪造候选结果。',
+            },
+          ],
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:01Z',
+        }),
+      });
+    });
+
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    await expect(page.getByTestId('detect-btn-ffscn')).toBeEnabled();
+    await page.getByTestId('detect-btn-ffscn').click();
+    await expect(page.getByTestId('detect-task-status')).toContainText('BLOCKED');
+    await expect(page.getByTestId('detect-blocked-message')).toContainText('sourcePath');
+    await expect(page.locator('[data-testid="detect-ui-code"][data-code="SOURCE_MISSING"]')).toBeVisible();
+    await expect(page.getByTestId('detect-no-candidates')).toBeVisible();
+    await expect(page.getByTestId('detect-candidates')).toHaveCount(0);
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+    expect(taskGets).toBeGreaterThan(0);
   });
 
   test('offline capabilities keep buttons disabled', async ({ page }) => {
@@ -68,5 +245,6 @@ test.describe('detection page', () => {
     await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
     await expect(page.getByTestId('detect-btn-scn')).toBeDisabled();
     await expect(page.getByTestId('detect-capabilities-banner')).toBeVisible();
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
   });
 });

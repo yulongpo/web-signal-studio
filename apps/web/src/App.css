@@ -507,3 +507,58 @@ body,
 .status-dsp {
   font-variant-numeric: tabular-nums;
 }
+
+.detect-code-chip {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #3a2a18;
+  border: 1px solid #7a5530;
+  color: #f5d9b0;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.detect-code-chip-known {
+  border-color: #c4883a;
+}
+.detect-debug-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 10px;
+  color: #8a97a5;
+}
+.detect-debug-chips span {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #151c24;
+  border: 1px solid #2c3b4f;
+}
+.detect-gate-reason {
+  margin: 0;
+  color: #c9b28a;
+  font-size: 11px;
+}
+.detect-no-candidates {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px dashed #3a4a5c;
+  color: #8a97a5;
+  font-size: 11px;
+}
+.detect-candidates {
+  margin: 0;
+  padding: 0 0 0 16px;
+  color: #c5d0db;
+  font-size: 11px;
+}
+.workspace-stub-banner {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  background: #1a2430;
+  border-bottom: 1px dashed #3d5270;
+  color: #b8c6d6;
+  font-size: 11px;
+}

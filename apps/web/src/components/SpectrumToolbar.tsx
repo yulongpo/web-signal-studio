@@ -1,5 +1,6 @@
 /**
  * PROVISIONAL — Bot-B single-row spectrum toolbar with overflow for low-priority actions.
+ * Includes wideband / narrowband workspace mode toggle (StatusBar stays in sync via store).
  */
 import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
@@ -19,6 +20,8 @@ export function SpectrumToolbar() {
   const paletteId = useUiStore((s) => s.paletteId);
   const setPaletteId = useUiStore((s) => s.setPaletteId);
   const setActiveTool = useUiStore((s) => s.setActiveTool);
+  const workspaceMode = useUiStore((s) => s.workspaceMode);
+  const setWorkspaceMode = useUiStore((s) => s.setWorkspaceMode);
 
   const [overflowOpen, setOverflowOpen] = useState(false);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -41,6 +44,25 @@ export function SpectrumToolbar() {
   return (
     <div className="spectrum-toolbar" data-testid="spectrum-toolbar" role="toolbar">
       <div className="toolbar-primary">
+        <button
+          type="button"
+          data-testid="btn-workspace-wideband"
+          data-active={workspaceMode === 'wideband' || workspaceMode === 'linked'}
+          aria-pressed={workspaceMode === 'wideband' || workspaceMode === 'linked'}
+          onClick={() => setWorkspaceMode('wideband')}
+        >
+          Wideband
+        </button>
+        <button
+          type="button"
+          data-testid="btn-workspace-narrowband"
+          data-active={workspaceMode === 'narrowband'}
+          aria-pressed={workspaceMode === 'narrowband'}
+          onClick={() => setWorkspaceMode('narrowband')}
+        >
+          Narrowband
+        </button>
+        <span className="toolbar-sep" aria-hidden />
         <button
           type="button"
           data-testid="btn-mode-stft"
@@ -100,7 +122,7 @@ export function SpectrumToolbar() {
           aria-expanded={overflowOpen}
           onClick={() => setOverflowOpen((v) => !v)}
         >
-          More ▾
+          More …
         </button>
         {overflowOpen ? (
           <div className="overflow-menu" data-testid="toolbar-overflow-menu" role="menu">

@@ -1,12 +1,13 @@
 /**
  * PROVISIONAL — Bot-B detection page (RightRail detect tab).
- * Follows DETECTION_PAGE_CONTRACT.md. Never invents FFSCN/SCN candidates.
- * Uses Bot-E-aligned LocalComputeClient (class API).
+ * Follows DETECTION_PAGE_CONTRACT.md + REAL_MODEL_INTEGRATION.md.
+ * Never invents FFSCN/SCN candidates. Draw only when verifiedForward + PYTORCH_*.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type {
   LocalComputeCapabilities,
   LocalComputeTaskRecord,
+  LocalComputeUiMessage,
 } from '@wss/contracts';
 import { useUiStore } from '../store/uiStore';
 import {
@@ -15,13 +16,62 @@ import {
   isTerminalStatus,
 } from '../localCompute/client';
 import {
-  bannerTextsFromCapabilities,
   canRunDetect,
+  candidatesForDraw,
+  gateDisableReason,
+  isKnownUiCode,
+  pickUiMessageText,
+  shouldDrawDetectionCandidates,
+  uiMessagesForBanner,
 } from '../localCompute/gating';
 
 const POLL_MS = 500;
 
 type OfflineReason = 'offline' | 'unauthorized' | null;
+
+function UiCodeChip({ code }: { code: string }) {
+  const known = isKnownUiCode(code);
+  return (
+    <span
+      className={`detect-code-chip${known ? ' detect-code-chip-known' : ''}`}
+      data-testid="detect-ui-code"
+      data-code={code}
+      data-known={known ? 'true' : 'false'}
+    >
+      {code}
+    </span>
+  );
+}
+
+function BannerMessages({
+  messages,
+  fallbackLines,
+}: {
+  messages: LocalComputeUiMessage[];
+  fallbackLines: string[];
+}) {
+  if (messages.length) {
+    return (
+      <>
+        {messages.map((m, i) => (
+          <p key={`${m.code}-${i}`} data-testid="detect-banner-line" data-code={m.code}>
+            <UiCodeChip code={m.code} />{' '}
+            <span>{pickUiMessageText(m, 'zh')}</span>
+          </p>
+        ))}
+      </>
+    );
+  }
+  return (
+    <>
+      {fallbackLines.map((line, i) => (
+        <p key={i} data-testid="detect-banner-line">
+          {line}
+        </p>
+      ))}
+    </>
+  );
+}
 
 export function DetectPage() {
   const token = useUiStore((s) => s.localComputeToken);
@@ -31,7 +81,7 @@ export function DetectPage() {
 
   const [caps, setCaps] = useState<LocalComputeCapabilities | null>(null);
   const [offlineReason, setOfflineReason] = useState<OfflineReason>('offline');
-  const [bannerLines, setBannerLines] = useState<string[]>([
+  const [bannerFallback, setBannerFallback] = useState<string[]>([
     '未连接本地计算服务（loopback）。',
   ]);
   const [task, setTask] = useState<LocalComputeTaskRecord | null>(null);
@@ -56,14 +106,14 @@ export function DetectPage() {
     setTask(null);
     if (err instanceof LocalComputeClientError && err.status === 401) {
       setOfflineReason('unauthorized');
-      setBannerLines(['鉴权失败（401）。请填写正确的 Bearer token。']);
+      setBannerFallback(['鉴权失败（401）。请填写正确的 Bearer token。']);
     } else if (err instanceof LocalComputeClientError && err.status === 0) {
       setOfflineReason('offline');
-      setBannerLines(['本地计算服务不可达（offline）。']);
+      setBannerFallback(['本地计算服务不可达（offline）。']);
     } else {
       setOfflineReason('offline');
       const msg = err instanceof Error ? err.message : String(err);
-      setBannerLines([`Capabilities 失败：${msg}`]);
+      setBannerFallback([`Capabilities 失败：${msg}`]);
     }
   }, []);
 
@@ -74,14 +124,13 @@ export function DetectPage() {
       const next = await client.getCapabilities();
       setCaps(next);
       setOfflineReason(null);
-      const lines = bannerTextsFromCapabilities(next.detection, 'zh');
-      setBannerLines(
-        lines.length
-          ? lines
-          : [
-              `协议 ${next.protocolVersion} · 服务 ${next.serviceVersion} · FFSCN=${String(next.detection.ffscn)} SCN=${String(next.detection.scn)}`,
-            ],
-      );
+      if (!next.detection.uiMessages?.length) {
+        setBannerFallback([
+          `协议 ${next.protocolVersion} · 服务 ${next.serviceVersion} · FFSCN=${String(next.detection.ffscn)} SCN=${String(next.detection.scn)}`,
+        ]);
+      } else {
+        setBannerFallback([]);
+      }
     } catch (err) {
       applyCapsFailure(err);
     }
@@ -96,6 +145,13 @@ export function DetectPage() {
   const authorized = offlineReason !== 'unauthorized';
   const ffscnOk = canRunDetect(caps?.detection, 'ffscn', online, authorized);
   const scnOk = canRunDetect(caps?.detection, 'scn', online, authorized);
+  const ffscnReason = gateDisableReason(caps?.detection, 'ffscn', online, authorized, 'zh');
+  const scnReason = gateDisableReason(caps?.detection, 'scn', online, authorized, 'zh');
+
+  const bannerMessages = useMemo(
+    () => uiMessagesForBanner(caps?.detection, task),
+    [caps?.detection, task],
+  );
 
   const pollUntilDone = useCallback(
     async (runId: string) => {
@@ -107,19 +163,6 @@ export function DetectPage() {
           setTask(rec);
           if (isTerminalStatus(rec.status)) {
             setBusy(false);
-            if (rec.status === 'BLOCKED') {
-              const blockedLines = bannerTextsFromCapabilities(
-                {
-                  ffscn: false,
-                  scn: false,
-                  reasons: rec.blockReasons ?? [],
-                  uiMessages: rec.uiMessages ?? [],
-                },
-                'zh',
-              );
-              if (blockedLines.length) setBannerLines(blockedLines);
-              else if (rec.messageZh) setBannerLines([rec.messageZh]);
-            }
             // Hard rule: never draw invented candidates from result when blocked/stub.
             return;
           }
@@ -193,6 +236,10 @@ export function DetectPage() {
     return `${task.status}${progress}${msg ? ` — ${msg}` : ''}`;
   })();
 
+  const runtime = caps?.runtime ?? null;
+  const drawOk = shouldDrawDetectionCandidates(task, runtime);
+  const drawCandidates = candidatesForDraw(task, runtime);
+
   return (
     <div className="detect-page" data-testid="detect-page">
       <div
@@ -200,10 +247,34 @@ export function DetectPage() {
         data-testid="detect-capabilities-banner"
         data-offline={offlineReason ?? 'online'}
       >
-        {bannerLines.map((line, i) => (
-          <p key={i}>{line}</p>
-        ))}
+        <BannerMessages messages={bannerMessages} fallbackLines={bannerFallback} />
+        {task?.status === 'BLOCKED' && task.messageZh ? (
+          <p data-testid="detect-blocked-message">{task.messageZh}</p>
+        ) : null}
       </div>
+
+      {(caps?.gpu?.uiCode || caps?.runtime) && (
+        <div className="detect-debug-chips" data-testid="detect-debug-chips">
+          {caps?.gpu?.uiCode ? (
+            <span data-testid="detect-gpu-uicode" data-code={caps.gpu.uiCode}>
+              gpu:{caps.gpu.uiCode}
+            </span>
+          ) : null}
+          {caps?.runtime?.engine ? (
+            <span data-testid="detect-runtime-engine" data-engine={caps.runtime.engine}>
+              engine:{caps.runtime.engine}
+            </span>
+          ) : null}
+          {caps?.runtime && 'canInventResults' in caps.runtime ? (
+            <span
+              data-testid="detect-can-invent"
+              data-can-invent={String(caps.runtime.canInventResults)}
+            >
+              invent:{String(caps.runtime.canInventResults)}
+            </span>
+          ) : null}
+        </div>
+      )}
 
       <label className="detect-field">
         <span>Bearer token</span>
@@ -230,6 +301,8 @@ export function DetectPage() {
           type="button"
           data-testid="detect-btn-ffscn"
           disabled={!ffscnOk || busy}
+          title={ffscnReason?.text}
+          aria-description={ffscnReason?.text}
           onClick={() => void runDetect('ffscn.detect')}
         >
           FFSCN 检测
@@ -238,6 +311,8 @@ export function DetectPage() {
           type="button"
           data-testid="detect-btn-scn"
           disabled={!scnOk || busy}
+          title={scnReason?.text}
+          aria-description={scnReason?.text}
           onClick={() => void runDetect('scn.detect')}
         >
           SCN 检测
@@ -251,6 +326,19 @@ export function DetectPage() {
           取消
         </button>
       </div>
+
+      {!ffscnOk && ffscnReason ? (
+        <p className="detect-gate-reason" data-testid="detect-gate-reason-ffscn">
+          {ffscnReason.code ? <UiCodeChip code={ffscnReason.code} /> : null}{' '}
+          <span>FFSCN：{ffscnReason.text}</span>
+        </p>
+      ) : null}
+      {!scnOk && scnReason ? (
+        <p className="detect-gate-reason" data-testid="detect-gate-reason-scn">
+          {scnReason.code ? <UiCodeChip code={scnReason.code} /> : null}{' '}
+          <span>SCN：{scnReason.text}</span>
+        </p>
+      ) : null}
 
       <p className="detect-range muted">
         sampleRange: [{sampleRange.start}, {sampleRange.end})（十进制字符串）
@@ -266,8 +354,26 @@ export function DetectPage() {
         </p>
       ) : null}
 
-      {/* Never render candidate boxes from client invention. */}
-      {task?.status === 'BLOCKED' || task?.result == null ? null : null}
+      {/* Never render candidate boxes from client invention or BLOCKED/stub results. */}
+      {task == null ? null : drawOk ? (
+        <ul className="detect-candidates" data-testid="detect-candidates">
+          {drawCandidates.map((c, i) => (
+            <li key={i} data-testid="detect-candidate-item">
+              {typeof c === 'object' && c != null ? JSON.stringify(c) : String(c)}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div
+          className="detect-no-candidates"
+          data-testid="detect-no-candidates"
+          data-blocked={task.status === 'BLOCKED' ? 'true' : 'false'}
+        >
+          {task.status === 'BLOCKED'
+            ? '任务 BLOCKED：不绘制候选框（无伪造结果）。'
+            : '无已核验前向结果，不绘制候选。'}
+        </div>
+      )}
     </div>
   );
 }

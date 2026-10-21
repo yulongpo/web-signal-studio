@@ -83,4 +83,25 @@ test.describe('shell navigation', () => {
       await expect(host).toHaveAttribute('data-dsp-source', 'synthetic-stft-worker');
     }
   });
+
+  test('toggles wideband / narrowband workspace and shows stub banner', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('btn-workspace-wideband')).toBeVisible();
+    await expect(page.getByTestId('btn-workspace-narrowband')).toBeVisible();
+    await expect(page.getByTestId('status-workspace')).toHaveText('wideband');
+    await expect(page.getByTestId('workspace-narrowband-stub')).toHaveCount(0);
+
+    await page.getByTestId('btn-workspace-narrowband').click();
+    await expect(page.getByTestId('btn-workspace-narrowband')).toHaveAttribute('data-active', 'true');
+    await expect(page.getByTestId('status-workspace')).toHaveText('narrowband');
+    await expect(page.getByTestId('workspace')).toHaveAttribute('data-workspace-mode', 'narrowband');
+    await expect(page.getByTestId('workspace-narrowband-stub')).toContainText('stub');
+    await expect(page.getByTestId('workspace-narrowband-stub')).toContainText('Bot-D');
+
+    await page.getByTestId('btn-workspace-wideband').click();
+    await expect(page.getByTestId('btn-workspace-wideband')).toHaveAttribute('data-active', 'true');
+    await expect(page.getByTestId('status-workspace')).toHaveText('wideband');
+    await expect(page.getByTestId('workspace-narrowband-stub')).toHaveCount(0);
+  });
+
 });
