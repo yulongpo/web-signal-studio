@@ -6,6 +6,9 @@ import tailwindcss from '@tailwindcss/vite'
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url))
 const chartsSrc = path.resolve(rootDir, '../../packages/charts/src')
+const dspWasmSrc = path.resolve(rootDir, '../../packages/dsp-wasm/src')
+const fileIoSrc = path.resolve(rootDir, '../../packages/file-io/src')
+const contractsSrc = path.resolve(rootDir, '../../packages/contracts/src')
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -16,7 +19,16 @@ export default defineConfig({
       '@wss/charts/lut/colormaps': path.resolve(chartsSrc, 'lut/colormaps.ts'),
       '@wss/charts/react': path.resolve(chartsSrc, 'react'),
       '@wss/charts': chartsSrc,
+      '@wss/dsp-wasm': path.resolve(dspWasmSrc, 'index.ts'),
+      '@wss/file-io': path.resolve(fileIoSrc, 'index.ts'),
+      '@wss/contracts': path.resolve(contractsSrc, 'index.ts'),
     },
+  },
+  worker: {
+    format: 'es',
+  },
+  optimizeDeps: {
+    exclude: ['@wss/dsp-wasm', '@wss/file-io', '@wss/contracts'],
   },
   server: {
     port: 5173,
