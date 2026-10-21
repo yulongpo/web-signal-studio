@@ -1,3 +1,15 @@
+> Bot-A `2026-10-22 00:05` Asia/Shanghai: Web **`91ae551`** vs desktop `17471a6` — G18/G17/G19/G07/G02/G08 PARTIAL deepened (D `0b6a113` PSD series; `1c7643d` adaptiveValue; B wave5 column matrix + detectRunFeed + chrome + collapse); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_91ae551.md` (supersedes draft INCREMENTAL_1c7643d). **No PASS.**
+
+| ID | Prior (`ee42717`) | Now (`91ae551`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL 加深（series → D） | **PARTIAL 加深** | `0b6a113` frame/statistical series MET；UI→DDC `psdMode` 未接线 + pinned dwell 残 → **未 CLOSED** |
+| **G17** | PARTIAL 加深（recognition BLOCKED） | **PARTIAL 加深** | `1c7643d` adaptiveValue 模板修复 MET；recognition BLOCKED → **未 CLOSED** |
+| **G19** | PARTIAL 加深（全表残） | **PARTIAL 加深** | `91ae551` Qt 全列矩阵 MET；edit/re-shot 残 → **未 CLOSED** |
+| **G07** | PARTIAL 加深（live Detect 残） | **PARTIAL 加深** | `91ae551` detectRunFeed LocalCompute MET；全 Qt Worker 残 → **未 CLOSED** |
+| **G02** | PARTIAL 加深（chrome 残） | **PARTIAL 加深** | `91ae551` mode/workspace/overflow/aux QLabel MET；更广 chrome 残 → **未 CLOSED** |
+| **G08** | PARTIAL 加深（collapse 未验） | **PARTIAL 加深** | `91ae551` bottom 29px + left 8px collapse+persist MET；right-rail/re-shot 残 → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_91ae551.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-21 23:54` Asia/Shanghai: Web **`ee42717`** vs desktop `17471a6` — G11/G18/G17 PARTIAL deepened (C `4611be6` mark-edge 8 handles + PSD mode UI; E `3d3f3e5` active-segment + visible↔navWindow; recognition still BLOCKED); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ee42717.md` (supersedes planned INCREMENTAL_4611be6). **No PASS.**
 
 | ID | Prior (`f5171fc`) | Now (`ee42717`) | Note |
