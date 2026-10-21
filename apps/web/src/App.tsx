@@ -36,30 +36,36 @@ const RIGHT_MIN = 320;
 const RIGHT_MAX = 650;
 
 const LEFT_COLLAPSE_MIN = 8;
+const RIGHT_COLLAPSE_MIN = 8;
 
-type ShellColumns = { left: number; right: number; leftCollapsed: boolean };
+type ShellColumns = { left: number; right: number; leftCollapsed: boolean; rightCollapsed: boolean };
 
 function readShellColumns(): ShellColumns {
   try {
     const raw = localStorage.getItem(SHELL_COL_KEY);
-    if (!raw) return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT, leftCollapsed: false };
-    const parsed = JSON.parse(raw) as { left?: number; right?: number; leftCollapsed?: boolean };
+    if (!raw) return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT, leftCollapsed: false, rightCollapsed: false };
+    const parsed = JSON.parse(raw) as { left?: number; right?: number; leftCollapsed?: boolean; rightCollapsed?: boolean };
     const leftCollapsed = Boolean(parsed.leftCollapsed);
+    const rightCollapsed = Boolean(parsed.rightCollapsed);
     return {
       left: leftCollapsed
         ? LEFT_COLLAPSE_MIN
         : Math.min(LEFT_MAX, Math.max(LEFT_MIN, Number(parsed.left) || LEFT_DEFAULT)),
-      right: Math.min(RIGHT_MAX, Math.max(RIGHT_MIN, Number(parsed.right) || RIGHT_DEFAULT)),
+      right: rightCollapsed
+        ? RIGHT_COLLAPSE_MIN
+        : Math.min(RIGHT_MAX, Math.max(RIGHT_MIN, Number(parsed.right) || RIGHT_DEFAULT)),
       leftCollapsed,
+      rightCollapsed,
     };
   } catch {
-    return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT, leftCollapsed: false };
+    return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT, leftCollapsed: false, rightCollapsed: false };
   }
 }
 
 export default function App() {
   const [shellCols, setShellCols] = useState(readShellColumns);
   const leftColPx = shellCols.leftCollapsed ? LEFT_COLLAPSE_MIN : shellCols.left;
+  const rightColPx = shellCols.rightCollapsed ? RIGHT_COLLAPSE_MIN : shellCols.right;
   useEffect(() => {
     try {
       localStorage.setItem(SHELL_COL_KEY, JSON.stringify(shellCols));
@@ -72,7 +78,7 @@ export default function App() {
 
   const startResize = (side: 'left' | 'right', clientX0: number) => {
     const startLeft = shellCols.leftCollapsed ? LEFT_DEFAULT : shellCols.left;
-    const startRight = shellCols.right;
+    const startRight = shellCols.rightCollapsed ? RIGHT_DEFAULT : shellCols.right;
     const onMove = (e: PointerEvent) => {
       const dx = e.clientX - clientX0;
       if (side === 'left') {
@@ -80,7 +86,7 @@ export default function App() {
         setShellCols((c) => ({ ...c, left: next, leftCollapsed: false }));
       } else {
         const next = Math.min(RIGHT_MAX, Math.max(RIGHT_MIN, startRight - dx));
-        setShellCols((c) => ({ ...c, right: next }));
+        setShellCols((c) => ({ ...c, right: next, rightCollapsed: false }));
       }
     };
     const onUp = () => {
@@ -93,6 +99,7 @@ export default function App() {
 
 
   const collapsed = useUiStore((s) => s.rightPanelCollapsed);
+  const setRightPanelCollapsed = useUiStore((s) => s.setRightPanelCollapsed);
   const workspaceMode = useUiStore((s) => s.workspaceMode);
   const navPaneHeightPx = useUiStore((s) => s.navPaneHeightPx);
   const auxPaneHeightPx = useUiStore((s) => s.auxPaneHeightPx);
@@ -124,14 +131,16 @@ export default function App() {
       <div
         className="app-shell-body"
         data-testid="app-shell-body"
-        data-shell-columns={`${leftColPx}-${shellCols.right}`}
+        data-shell-columns={`${leftColPx}-${rightColPx}`}
         data-shell-left-collapsed={shellCols.leftCollapsed ? 'true' : 'false'}
         data-shell-collapse-min={String(LEFT_COLLAPSE_MIN)}
+        data-shell-right-collapsed={shellCols.rightCollapsed ? 'true' : 'false'}
+        data-shell-right-collapse-min={String(RIGHT_COLLAPSE_MIN)}
         data-shell-resizable="true"
         style={{
           gridTemplateColumns: collapsed
             ? `${leftColPx}px 6px 1fr 48px`
-            : `${leftColPx}px 6px 1fr 6px ${shellCols.right}px`,
+            : `${leftColPx}px 6px 1fr 6px ${rightColPx}px`,
         }}
       >
       <ProjectTree />
@@ -222,6 +231,23 @@ defaultPx={auxDefaultPx}
             e.preventDefault();
             startResize('right', e.clientX);
           }}
+          onDoubleClick={(e) => {
+            e.preventDefault();
+            setShellCols((c) => {
+              if (c.rightCollapsed) {
+                setRightPanelCollapsed(false);
+                return {
+                  ...c,
+                  rightCollapsed: false,
+                  right: Math.max(RIGHT_MIN, c.right === RIGHT_COLLAPSE_MIN ? RIGHT_DEFAULT : c.right),
+                };
+              }
+              setRightPanelCollapsed(true);
+              return { ...c, rightCollapsed: true, right: RIGHT_COLLAPSE_MIN };
+            });
+          }}
+          title="Drag resize; double-click collapse-to-min (8px) + rail fold"
+          data-collapse-min="true"
         />
         <RightRail />
       <TempLayers />

@@ -56,6 +56,9 @@ export function BottomPanel() {
   const [qualityFilter, setQualityFilter] = useState<QualityFilter>('all');
   const [page, setPage] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editNote, setEditNote] = useState('');
   const resizeStart = useRef<{ y: number; h: number } | null>(null);
 
   useEffect(() => {
@@ -243,6 +246,33 @@ export function BottomPanel() {
     }
   };
 
+  const beginEditMark = (id: string) => {
+    const hookNow = window.__wssM06;
+    if (!hookNow) return;
+    const ann = hookNow.session.annotations.annotations.find((a) => a.id === id);
+    if (!ann) return;
+    setEditingId(id);
+    setEditName(ann.name || id);
+    setEditNote(typeof ann.note === 'string' ? ann.note : '');
+  };
+  const commitEditMark = () => {
+    const hookNow = window.__wssM06;
+    if (!hookNow || !editingId) return;
+    const current = hookNow.session.annotations.annotations.find((a) => a.id === editingId);
+    if (!current) {
+      setEditingId(null);
+      return;
+    }
+    hookNow.session.replaceMark({
+      ...current,
+      name: editName.trim() || current.name || current.id,
+      note: editNote,
+    });
+    appendShellLog(`G19 edit mark ${editingId.slice(0, 8)} via replaceMark`);
+    setEditingId(null);
+    setM06Tick((t) => t + 1);
+  };
+
   const selectionSummary = `匹配 ${liveFiltered.length} / 总数 ${marks.length} / 已选 ${selectedIds.length} · 页 ${safePage + 1}/${totalPages}`;
 
   return (
@@ -329,6 +359,7 @@ export function BottomPanel() {
               data-testid="bottom-pane-marks"
               data-host="annotation-panel"
               data-panel-shell="annotation-panel"
+              data-annotation-edit="inline-replaceMark"
             >
               <p className="bottom-summary" data-testid="bottom-marks-summary">
                 {marksSummary}
@@ -395,6 +426,14 @@ export function BottomPanel() {
                 >
                   待判断
                 </button>
+                  <button
+                    type="button"
+                    data-testid="bottom-edit-mark"
+                    disabled={selectedIds.length !== 1}
+                    onClick={() => beginEditMark(selectedIds[0])}
+                  >
+                    编辑
+                  </button>
               </div>
               <div className="bottom-layer-chips" data-testid="bottom-annotation-layers">
                 <span className="bottom-layer-chip">
@@ -457,7 +496,37 @@ export function BottomPanel() {
                   全选可见（筛选）
                 </label>
               </div>
-              <div className="annotation-table-chrome" data-testid="bottom-annotation-table">
+                            {editingId ? (
+                <div className="annotation-edit-form" data-testid="bottom-edit-form" data-editing-id={editingId}>
+                  <label>
+                    <span>名字</span>
+                    <input
+                      data-testid="bottom-edit-name"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') commitEditMark();
+                        if (e.key === 'Escape') setEditingId(null);
+                      }}
+                    />
+                  </label>
+                  <label>
+                    <span>备注</span>
+                    <input
+                      data-testid="bottom-edit-note"
+                      value={editNote}
+                      onChange={(e) => setEditNote(e.target.value)}
+                    />
+                  </label>
+                  <button type="button" data-testid="bottom-edit-commit" onClick={commitEditMark}>
+                    保存
+                  </button>
+                  <button type="button" data-testid="bottom-edit-cancel" onClick={() => setEditingId(null)}>
+                    取消
+                  </button>
+                </div>
+              ) : null}
+<div className="annotation-table-chrome" data-testid="bottom-annotation-table">
                                 <div
                   className="annotation-table-header annotation-table-header-full"
                   data-testid="bottom-annotation-table-header"
@@ -514,6 +583,7 @@ export function BottomPanel() {
                           onMouseLeave={() =>
                             setHoveredId((id) => (id === m.id ? null : id))
                           }
+                          onDoubleClick={() => beginEditMark(m.id)}
                           onClick={(e: MouseEvent<HTMLLIElement>) => {
                             const additive = e.metaKey || e.ctrlKey || e.shiftKey;
                             const prev = selectedIds;
@@ -608,6 +678,7 @@ export function BottomPanel() {
                     <option value="running">运行中</option>
                     <option value="done">已完成</option>
                     <option value="failed">失败</option>
+                    <option value="cancelled">已取消</option>
                   </select>
                 </label>
                 <span className="bottom-hint muted">Detection 坞：不自动跑检测、不发明 run 列表</span>
@@ -645,9 +716,11 @@ export function BottomPanel() {
                     >
                       <span>时间</span>
                       <span>状态</span>
-                      <span>模型</span>
-                      <span>候选</span>
-                    </div>
+                      <span>kind</span>
+                      <span>%</span>
+                      <span>runId</span>
+                      <span>选中</span>
+</div>
                     <ul className="bottom-detect-list" data-testid="bottom-detect-run-list" data-live-feed="local-compute">
                       {filteredDetectRuns.length === 0 ? (
                         <li data-testid="bottom-detect-run-empty">
@@ -667,8 +740,12 @@ export function BottomPanel() {
                               onClick={() => selectDetectRun(run.runId)}
                             >
                               <span>{run.updatedAt || run.createdAt || '—'}</span>
-                              <span>{run.status}</span>
+                              <span data-testid={`bottom-detect-status-${run.runId}`}>{run.status}</span>
                               <span>{run.kind}</span>
+                              <span data-testid={`bottom-detect-progress-${run.runId}`}>
+                                {typeof run.progress === 'number' ? `${Math.round(run.progress * 100)}%` : '—'}
+                              </span>
+                              <span title={run.runId}>{run.runId.slice(0, 8)}</span>
                               <span>{selected ? '●' : ''}</span>
                             </li>
                           );
@@ -678,18 +755,60 @@ export function BottomPanel() {
                   </div>
                   <div className="bottom-detect-col" data-testid="bottom-detect-col-detail">
                     <h4 className="bottom-detect-col-title">运行详情</h4>
-                    <dl className="bottom-detect-inspector" data-testid="bottom-detect-inspector">
+                                        <dl className="bottom-detect-inspector" data-testid="bottom-detect-inspector" data-worker-chrome="qt-residual">
                       <div>
-                        <dt>引擎</dt>
+                        <dt>kind</dt>
                         <dd data-testid="bottom-detect-inspector-engine">{selectedDetectRun?.kind ?? '—'}</dd>
                       </div>
                       <div>
-                        <dt>阶段</dt>
+                        <dt>状态</dt>
                         <dd data-testid="bottom-detect-inspector-stage">{selectedDetectRun?.status ?? '—'}</dd>
                       </div>
                       <div>
+                        <dt>进度</dt>
+                        <dd data-testid="bottom-detect-inspector-progress">
+                          {selectedDetectRun && typeof selectedDetectRun.progress === 'number'
+                            ? `${Math.round(selectedDetectRun.progress * 100)}%`
+                            : '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>runId</dt>
+                        <dd data-testid="bottom-detect-inspector-runid">
+                          {selectedDetectRun?.runId ?? '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>历史</dt>
+                        <dd data-testid="bottom-detect-inspector-history">
+                          {selectedDetectRun?.statusHistory?.join(' → ') || '—'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>阻塞</dt>
+                        <dd data-testid="bottom-detect-inspector-blocks">
+                          {selectedDetectRun?.blockReasons?.length
+                            ? selectedDetectRun.blockReasons.join('; ')
+                            : '—'}
+                        </dd>
+                      </div>
+                      <div>
                         <dt>参数摘要</dt>
-                        <dd data-testid="bottom-detect-inspector-params">{selectedDetectRun ? `${selectedDetectRun.runId.slice(0, 8)} · p=${Math.round((selectedDetectRun.progress || 0) * 100)}%` : '选中真实 run 后显示'}</dd>
+                        <dd data-testid="bottom-detect-inspector-params">
+                          {selectedDetectRun
+                            ? `${selectedDetectRun.runId.slice(0, 8)} · p=${Math.round((selectedDetectRun.progress || 0) * 100)}%`
+                            : '选中真实 run 后显示'}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt>result</dt>
+                        <dd data-testid="bottom-detect-inspector-result">
+                          {selectedDetectRun
+                            ? selectedDetectRun.result == null
+                              ? 'null (honest)'
+                              : 'present'
+                            : '—'}
+                        </dd>
                       </div>
                     </dl>
                     {!selectedDetectRun ? (
