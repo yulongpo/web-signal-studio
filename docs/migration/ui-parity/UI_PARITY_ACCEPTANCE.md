@@ -1,5 +1,7 @@
 > Evidence tip `2d12522` / `qa/web-3d7ab59`; audit subject `3d7ab59`; no PASS.
 
+> Bot-A `2026-10-21 22:37` Asia/Shanghai: Web **`0e31e6d`** vs desktop `17471a6` — G06 goldens + BLOCKED assess; **G06 PARTIAL** unchanged. OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_0e31e6d.md`. **No PASS.**
+
 # UI 瀵圭瓑鍙墽琛岄獙鏀剁煩闃碉紙Bot-A 澧為噺 @ 17471a6锛?
 > Bot-A `2026-10-21 22:08:00`: Web `3d7ab59` vs desktop `17471a6` 鈥?**G01 鏃犲洖褰?*锛?*G02/G11鈥揋15 PARTIAL 鍔犳繁**锛圙14 杩戦€€鍑轰笉 CLOSED锛夈€係ee `INCREMENTAL_3d7ab59.md`. **No PASS.**
 

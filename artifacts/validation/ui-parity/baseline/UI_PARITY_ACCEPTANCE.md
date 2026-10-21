@@ -1,5 +1,7 @@
 > Bot-A `2026-10-21 22:20` Asia/Shanghai: Web **`23c38d0`** vs desktop `17471a6` -- short G01 delta (`06911b3`): BrandV2/window-controls + View fit/restore + File depth **MET**; **G01 stays PARTIAL** (not CLOSED). Full reopen NOT needed. Counts unchanged OPEN 9 / PARTIAL 13 / CLOSED 1. See `INCREMENTAL_23c38d0.md`. **No PASS.**
 
+> Bot-A `2026-10-21 22:37` Asia/Shanghai: Web **`0e31e6d`** vs desktop `17471a6` — G06 goldens + BLOCKED assess; **G06 PARTIAL** unchanged. OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_0e31e6d.md`. **No PASS.**
+
 > Evidence tip `2d12522` / `qa/web-3d7ab59`; audit subject `3d7ab59`; no PASS.
 
 # UI 瀵圭瓑鍙墽琛岄獙鏀剁煩闃碉紙Bot-A 澧為噺 @ 17471a6锛?
@@ -49,25 +51,25 @@
 | ID | Sev | 閻樿埖鈧?| 鐟欏倸鐧傞悙?/ testid | 閸欘垱澧界悰?PASS 閺夆€叉閿涘牆绻€妞よ鍙忛柈銊﹀姬鐡掔绱?| 婢惰精瑙︽穱鈥冲娇 / PARTIAL 闁偓閸?|
 |----|-----|------|-----------------|----------------------------------|-------------------------|
 | G01 | P0 | **PARTIAL**閿涘潉360aba7`/`ffeff52` rename+history閿?| `menubar` / `command-bar` | 閳?~34px閿涙稈鎲?閸忣厾绮嶉懣婊冨礋閿涙稈鎲?Open IQ閿涙稈鎳€ Edit undo/redo/delete/**rename**閿涙稈鎳?Analysis Detect/ROI閿涙稈鎳?View **back/forward**閿涙稈妲?闁倸绨查崗銊╁劥/閹垹顦叉妯款吇閿涙稈妲?corner min/max/close閿涙稈妲?File recent/閺傛澘缂撳ǎ鍗炲 | **PARTIAL 闁偓閸?*閿涙ename+history MET閿涙矞orner/fit/File 閺堫亝寮ч敍姹t-B **NOT PASS** |
-| G02 | P0 | PARTIAL | `chart-strip-nav/aux/main` | 閳?**娑撳秴鐡ㄩ崷?*婢剁懓婀?aux閳攷ain 閻ㄥ嫬鍙忕仦鈧敮鎼佲敆 SpectrumToolbar閿涙稈鎲?娑撳娴橀崥鍕殰閸ユ儳銇旈張澶嬆佸?鐠佸墽鐤嗛敍娑掓喛 **閹貉傛閺冧焦婀?caption 閺嶅洨顒?*閿涘牊鍨ㄩ幐澶愭尦閼奉亜鐢崣顖濐潌閺傚洦婀伴敍澶涚幢閳?overflow閵嗗本娲挎径姘モ偓宥嗗ⅵ瀵偓閸氬海绱潏鎴滆厬閻ㄥ嫬鐡у▓鍏哥瑝鐞氼偄宓忔潪鎴掓丢婢惰京鍔嶉悙鐧哥礄鐎?`f9f05bb`閿? | 閸ユ儳銇斿鍙夊瘯閺夆€茬稻 caption/`f9f05bb` overflow 閻掞妇鍋ｉ張顏呭姬閿涙硟estid spectrum-toolbar 娴犲秴婀崶鎯с仈 · **deepened @ba868e4**: strip + physical captions; f9f05bb overflow residual; no PASS |
+| G02 | P0 | PARTIAL | `chart-strip-nav/aux/main` | 閳?**娑撳秴鐡ㄩ崷?*婢剁懓婀?aux閳攷ain 閻ㄥ嫬鍙忕仦鈧敮鎼佲敆 SpectrumToolbar閿涙稈鎲?娑撳娴橀崥鍕殰閸ユ儳銇旈張澶嬆佸?鐠佸墽鐤嗛敍娑掓喛 **閹貉傛閺冧焦婀?caption 閺嶅洨顒?*閿涘牊鍨ㄩ幐澶愭尦閼奉亜鐢崣顖濐潌閺傚洦婀伴敍澶涚幢閳?overflow閵嗗本娲挎径姘モ偓宥嗗ⅵ瀵偓閸氬海绱潏鎴滆厬閻ㄥ嫬鐡у▓鍏哥瑝鐞氼偄宓忔潪鎴掓丢婢惰京鍔嶉悙鐧哥礄鐎?`f9f05bb`閿? | 閸ユ儳銇斿鍙夊瘯閺夆€茬稻 caption/`f9f05bb` overflow 閻掞妇鍋ｉ張顏呭姬閿涙硟estid spectrum-toolbar 娴犲秴婀崶鎯с仈 · **deepened @ba868e4; **@0e31e6d** goldens+BLOCKED assess (still PARTIAL, no PASS)**: strip + physical captions; f9f05bb overflow residual; no PASS |
 | G03 | P0 | PARTIAL | `global-nav` / `navigation-chart` | 閳?闂?placeholder閿涙稈鎲?閹锋牗瀚跨€佃壈鍩呯粣妤嬬幢閳?娑撹娴?timeSec 鐠虹喖娈㈤敍娑掓噣閿涘湗ULL閿涘绮存潪顔芥暭缁愭顔旈敍娑掓噥閿涘湗ULL閿涘顕遍懜顏勬禈婢剁顔曠純?chrome | **PARTIAL 闁偓閸?*閿涙碍婀?NavigationChart+NavChrome閿涙稐绮涚紓鐑樼泊鏉烆喗鏁肩粣妤€顔?|
 | G04 | P0 | PARTIAL | `chart-aux` / `WaveformChart` | 閳?Wave/PSD 閸欘垵顫嗘稉鏂垮讲閸掑洦宕查敍娑掓喗 閸掑洦宕查弨纭呴叡鐠囶厺绠熼敍娑掓喛閿涘湗ULL閿涘ave 娑?raw IQ 閺勫墽銇氱捄顖氱窞閿涘牓娼禒?STFT envelope閿?| **PARTIAL 闁偓閸?*閿涙瓙ave raw IQ 娴狅絿鐖滅捄顖氱窞瀹稿弶绔婚敍娑樼窡 QA 鐟欏棜顫?`/@fs` |
 | G05 | P0 | CLOSED | `splitter-nav-aux` / `splitter-aux-main` | 閳?閸欘垱瀚嬮敍娑掓喗 閸欏苯鍤径宥勭秴閿涙稈鎲块敍鍦楿LL閿涘绮拋銈夌彯鎼达腹澧楀宀勬桨 82/205閿涘煪?0%閿?| 姒涙顓?82/205 + 閹?+ 閸欏苯鍤鍙夊姬鐡掔绱遍惌顓犵崶闂冨牆鈧?900閳?50 鏉烆垰妯?|
-| G06 | P0 | **PARTIAL** | `workspace-narrowband-*` / `nb-chart-waveform` / `nb-observe-pipeline` | PASS-if: no stub; four tabs; no fake demod; STFT N/grid/freq persist across page+overflow; **observe-page real DDC Wave/PSD/STFT** (MET @a145d21/ef2713a); mod/DL/demod chrome; title workbench; channel-linked interactive STFT | **PARTIAL exit**: DDC sub MET; item not CLOSED; no PASS · **deepened @ba868e4**: B chrome + D DDC hooks; BLOCKED recognition; STFT interact residual; no PASS |
+| G06 | P0 | **PARTIAL** | `workspace-narrowband-*` / `nb-chart-waveform` / `nb-observe-pipeline` | PASS-if: no stub; four tabs; no fake demod; STFT N/grid/freq persist across page+overflow; **observe-page real DDC Wave/PSD/STFT** (MET @a145d21/ef2713a); mod/DL/demod chrome; title workbench; channel-linked interactive STFT | **PARTIAL exit**: DDC sub MET; item not CLOSED; no PASS · **deepened @ba868e4; **@0e31e6d** goldens+BLOCKED assess (still PARTIAL, no PASS)**: B chrome + D DDC hooks; BLOCKED recognition; STFT interact residual; no PASS |
 
 | G07 | P0 | **PARTIAL** | `bottom-panel` | 閳?娑撳鐖ｇ粵鎾呯幢閳?閺€鎯版崳閳?9鍗? / 鐏炴洖绱戦埉?50鍗?0閿涙稈鎲?娴犺濮熼崚妤勩€冪€圭懓娅掗崣顖溾敄 | 閺冪姴绨抽弽? · **PARTIAL @ba868e4** (`15022b5`): BottomPanel chrome MET; full dock hosts residual; no PASS |
 | G08 | P1 | OPEN | 瀹革箑褰搁弽?| 閳?瀹?270閳?86 / 閸?382閳?98閿涙稈鎲?閺€鎯版崳閳?8鍗?閿涙稈鎲?閸欘垱瀚嬬€?| 闁夸焦顒?220/280 |
 | G09 | P1 | OPEN | `main-plot-footer` | 閳?閳?2px閿涙稈鎲?濞撳憡鐖?閼煎啫娲块敍娑掓喛 閸╄桨绨弽鍥唶閸掓稑缂撻柅姘朵壕閸欘垳鍋ｆ稉鏂剧瑝閼奉亜濮?DDC | 閺冪姴绨抽弶?|
 | G10 | P1 | OPEN | maximize / Esc | 閳?閺堚偓婢堆冨閿涙稈鎲?閹垹顦查敍娑掓喛 Esc 娴兼ê鍘涢崣鏍ㄧХ閸掓稑缂?| Esc 鐞涘奔璐熸０鐘测偓?|
-| G11 | P0 | PARTIAL | 娑撹娴橀幍瀣◢ | 閳?navigate 閹焦瀚嬪鍡忓⒑8px 閳?**鐟欏棗娴橀弨鎯с亣閸掓媽顕氶惌鈺佽埌**閿涙稈鎲?鏉炲鍎归崠鐑樼泊鏉烆喖褰х紓鈺勵嚉鏉炶揪绱檇esktop-axis閿涘绱遍埗?鐎佃壈鍩呴崡鏇炲毊楠炲磭些娑?span 娑撳秴褰? | **PARTIAL 闁偓閸?*閿涙矮绮庨張?desktop-axis+box 娴?box 閸欘亜鍟撻弽鍥唶/ROI閵嗕椒绗夐弨鎯с亣鐟欏棗娴? · **deepened @ba868e4**: navigate→zoom-box MET; axis/middle pan residual; no PASS |
+| G11 | P0 | PARTIAL | 娑撹娴橀幍瀣◢ | 閳?navigate 閹焦瀚嬪鍡忓⒑8px 閳?**鐟欏棗娴橀弨鎯с亣閸掓媽顕氶惌鈺佽埌**閿涙稈鎲?鏉炲鍎归崠鐑樼泊鏉烆喖褰х紓鈺勵嚉鏉炶揪绱檇esktop-axis閿涘绱遍埗?鐎佃壈鍩呴崡鏇炲毊楠炲磭些娑?span 娑撳秴褰? | **PARTIAL 闁偓閸?*閿涙矮绮庨張?desktop-axis+box 娴?box 閸欘亜鍟撻弽鍥唶/ROI閵嗕椒绗夐弨鎯с亣鐟欏棗娴? · **deepened @ba868e4; **@0e31e6d** goldens+BLOCKED assess (still PARTIAL, no PASS)**: navigate→zoom-box MET; axis/middle pan residual; no PASS |
 | G12 | P0 | PARTIAL锛堝彸閿姞娣憋級 | `chart-context-menu` | 閳?閸欐娊鏁懣婊冨礋閿涙稈鎲?閹镐胶鐢婚崚娑樼紦閿涙稈鎲?back/forward/fit/reset閿涙稈鎳€ 闁插秴褰旈弽鍥唶閸掓銆?| **PARTIAL 闁偓閸?*閿涙矮绮庨張澶庡綅閸楁洖锛?闁劌鍨庢い?|
-| G13 | P0 | PARTIAL | 閸ユ儳鍞撮弽鍥唶 + `m06-panel` | 閳?閹镐胶鐢婚崚娑樼紦閹锋牗瀚块悽鐔稿灇閿涙稈鎲?閳? 閹貉冨煑閻愮懓褰查弨鐧哥幢閳?Ctrl/Shift 婢舵岸鈧绱遍埗?undo/redo 娑撯偓閼? | **PARTIAL 闁偓閸?*閿涙矮绮?box 娑撯偓濞嗏剝鈧冨晸閸忋儲妫ら幒褍鍩楅悙? · **deepened @ba868e4**: 4 handles + continuous-create; no PASS |
+| G13 | P0 | PARTIAL | 閸ユ儳鍞撮弽鍥唶 + `m06-panel` | 閳?閹镐胶鐢婚崚娑樼紦閹锋牗瀚块悽鐔稿灇閿涙稈鎲?閳? 閹貉冨煑閻愮懓褰查弨鐧哥幢閳?Ctrl/Shift 婢舵岸鈧绱遍埗?undo/redo 娑撯偓閼? | **PARTIAL 闁偓閸?*閿涙矮绮?box 娑撯偓濞嗏剝鈧冨晸閸忋儲妫ら幒褍鍩楅悙? · **deepened @ba868e4; **@0e31e6d** goldens+BLOCKED assess (still PARTIAL, no PASS)**: 4 handles + continuous-create; no PASS |
 | G14 | P0 | **CLOSED** | 濡偓濞?ROI + 绾喛顓婚弶? | 閳?閻欘剛鐝涢妴灞绢梾濞?ROI閵嗗秴鍙嗛崣锝忕幢閳?绾喛顓婚弶鈽呯幢閳?Enter 閸愭瑥鍙嗛獮鎯颁粵閻掞附顥呭ù瀣€夐敍娑掓噣 Esc 閸欐牗绉烽敍娑掓噥 娑撳孩妞傞梻瀵哥摜閻?ROI 娑撳秵璐? | **PARTIAL 闁偓閸?*閿涙矮绮?select 瀹搞儱鍙?闁款喚娲忛懓灞炬￥绾喛顓婚弶?閻欘剛鐝涢崗銉ュ經 · **CLOSED @ba868e4** (`c650273`): header ROI + select retired as ROI writer; ≠ matrix PASS |
 | G15 | P1 | **PARTIAL**閿涘潉360aba7`閿?| 鐟欏棗娴橀崢鍡楀蕉 | back/forward閿涙稑宕熼弬鍥︽閳?0 | 閺冪姴宸婚崣?|
 | G16 | P1 | OPEN | 濡€崇础鏉?| STFT閳摱aterfall / Wave閳摨SD 鏉炲瓨顒滅涵?| 鏉炲瓨鏋冨鍫ユ晩閹?placeholder |
 | G17 | P0 | **PARTIAL** | 濡偓濞村銆夌€涙顔? | 濡€崇€?鐠嬪崬鐎?閼煎啫娲?缁涙牜鏆?閸掑棙鏁?妤傛楠?妫板嫭顥?disabled閿涙稒膩閸ㄥ娈?`.engine` | 娴?token 娑撱倖瀵滈柦? · **PARTIAL @ba868e4**: REAL_RUNTIME/TRT honesty MET; DetectionCard/picker open; no PASS |
 | G18 | P1 | OPEN閿涘牆濮炴稉銉礆 | display / channel | 閳?閺勫墽銇氭い闈涙儓缂冩垶鐗?閼规煡妯?妫版垹宸奸崸鎰垼閿涙稈鎲?鐠嬪彉鍙婄拋?Welch/Bartlett閿涙稈鎲?闁岸浜鹃棃鐐插礋閸欍儱宕版担宥忕幢閳?閹芥顩﹂崣顖濐潌 **閵嗗苯寮懓鍐︹偓?* 娑?**閵嗗苯濮╅幀浣碘偓?*閿涘牆顕?`696ce12`閿涘绱濈粋浣稿礋閻欘兙鈧瞼鏁搁獮鐐解偓宥嗚穿缁夐瀵岄弬鍥攳 | 閸楃姳缍呴敍娑楃矝閸愭瑣鈧瞼鏁搁獮?x / y dB閵嗗秳璐熸稉?|
-| G19 | P1 | PARTIAL | 瀹搞儳鈻奸弽? | 閳?濞ｈ濮?IQ 閸氭垵顕遍敍娑掓喗 鐎规矮缍呴敍娑掓喛 闁插秴鎳￠崥?閸掔娀娅庣涵顔款吇 | **PARTIAL 闁偓閸?*閿涙矮绮庨張?project-io API / sample 閺? · **deepened @ba868e4**: ProjectTree engineering-tree UI wire; desktop presentation residual; no PASS |
+| G19 | P1 | PARTIAL | 瀹搞儳鈻奸弽? | 閳?濞ｈ濮?IQ 閸氭垵顕遍敍娑掓喗 鐎规矮缍呴敍娑掓喛 闁插秴鎳￠崥?閸掔娀娅庣涵顔款吇 | **PARTIAL 闁偓閸?*閿涙矮绮庨張?project-io API / sample 閺? · **deepened @ba868e4; **@0e31e6d** goldens+BLOCKED assess (still PARTIAL, no PASS)**: ProjectTree engineering-tree UI wire; desktop presentation residual; no PASS |
 | G20 | P1 | PARTIAL | 閹垫挸绱?IQ | 閳?閼挎粌宕?閸涙垝鎶ら弽蹇撳弳閸欙綇绱遍埗?SigMF 閸忓啯鏆熼幑顕€顣╃憴鍫幢閳?姒涙顓?閹恒劏宕?`sigmf_data_demo` | **PARTIAL 闁偓閸?*閿涙矮绮庡銉ュ徔閺嶅繑瀵滈柦顔藉灗娴犲懎鎮楃粩顖涚ウ |
 | G21 | P2 | OPEN | 閺嶅嘲绱?| `#0b1422`/`#121f32`閿涙稐鑵戦弬?12px閿涙稓鐡戠€硅棄娼楅弽?| `#0f1419`+system-ui 娑撹桨瀵?|
 | G22 | P2 | OPEN | 閸戠姳缍?| inset 88/22/12/34鍗?閿涙稖澹婇梼璺哄礁 70鍗? | 閺勫孩妯夐崑蹇曨瀲 |
