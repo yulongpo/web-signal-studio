@@ -657,6 +657,26 @@ body,
   font-size: 11px;
   margin: 0;
 }
+
+.detection-calculation-details {
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+.detection-calculation-details pre {
+  white-space: pre-wrap;
+  margin: 4px 0 0;
+  font-family: inherit;
+}
+.detect-field input[data-invalid="true"] {
+  border-color: #e98b95;
+}
+.detect-field input[data-parameter-draft="true"] {
+  outline: 1px dashed #86a4ba;
+}
+.detect-range-card [data-object-name="selectDetectionRoi"] {
+  margin-top: 6px;
+}
+
 .detection-split-bursts {
   display: inline-flex;
   gap: 4px;
