@@ -3,6 +3,7 @@
 | Field | Value |
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
+| Tip | `3f2fb2bed55591f14cb62b1774b80424bf47474a` (3f2fb2b)
 | Base | `b3bda2505226baa744b8b469068e7b7fa14696b6` (`merge(A): INCREMENTAL_ab82146`) |
 | Branch | `work/bot-b-ui` |
 | Desktop rebuild | `17471a6` |
@@ -70,3 +71,4 @@
 - `apps/web/src/components/BottomPanel.tsx`
 - `apps/web/src/components/browserSaveFile.ts`
 - `artifacts/validation/ui-parity/bot-b/BOT_B_WAVE33_*.md` (this file)
+
