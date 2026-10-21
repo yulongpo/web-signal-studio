@@ -1,5 +1,7 @@
 # UI 鐎靛湱鐡戝顔跨獩鐎孤ゎ吀閿涘湐ot-A 婢х偤鍣烘径宥嗙壋 @ 17471a6閿?
 
+> Bot-A `2026-10-21 22:30` Asia/Shanghai: Web **`ba868e4`** vs desktop `17471a6` — **G14 CLOSED**; G17 OPEN→**PARTIAL**; G07 OPEN→**PARTIAL**; G06/G02/G11/G13/G19 PARTIAL deepened. Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_ba868e4.md`. Unpushed cf1b3f8 draft abandoned. **No PASS.**
+
 > Bot-A `2026-10-21 22:20` Asia/Shanghai: Web **`23c38d0`** vs desktop `17471a6` -- short G01 delta (`06911b3`): BrandV2/window-controls + View fit/restore + File depth **MET**; **G01 stays PARTIAL** (not CLOSED). Full reopen NOT needed. Counts unchanged OPEN 9 / PARTIAL 13 / CLOSED 1. See `INCREMENTAL_23c38d0.md`. **No PASS.**
 
 
@@ -19,6 +21,24 @@
 ---
 
 
+
+## INCREMENTAL @ `ba868e4`（相对 `c63f1de` / `23c38d0`；含 cf1b3f8）
+
+| ID | 先前 | @ba868e4 | 证据 |
+|----|------|----------|------|
+| **G14** | PARTIAL 近退出 | **CLOSED** | `c650273` header ROI + select 不再写 ROI；确认条保留；≠矩阵 PASS |
+| **G17** | OPEN | **PARTIAL** | `a61046d` REAL_RUNTIME/TRT + chips；DetectionCard/picker 仍缺 |
+| **G07** | OPEN | **PARTIAL** | `15022b5` BottomPanel 29/150；完整 dock hosts 仍缺 |
+| **G06** | PARTIAL | **PARTIAL 加深** | B chrome + D DDC hooks；recognition BLOCKED；STFT 交互残 |
+| **G02** | PARTIAL | **PARTIAL 加深** | strip captions + physical caption；overflow 残 |
+| **G11** | PARTIAL | **PARTIAL 加深** | navigate→zoom-box；axis/middle pan 残 |
+| **G13** | PARTIAL | **PARTIAL 加深** | 四角 handles + continuous-create |
+| **G19** | PARTIAL | **PARTIAL 加深** | ProjectTree 接 engineering-tree；桌面呈现残 |
+| 其余 | 同前 | **不变** | 截图不升格 |
+
+计数：**OPEN 9 · PARTIAL 14 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_ba868e4.md`。**无矩阵 PASS**。
+
+---
 ## INCREMENTAL @ `3d7ab59`锛堢浉瀵?`360aba7` / `23baf0d`锛?
 | ID | 鍏堝墠 | @3d7ab59 | 璇佹嵁 |
 |----|------|----------|------|
