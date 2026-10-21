@@ -17,7 +17,7 @@ export interface StftEngine {
   analyze(request: StftRequest, iqInterleaved: Float32Array): Promise<StftResult>;
 }
 
-/** DDC + FIR + rational resample — still deferred. */
+/** DDC + FIR + rational resample — reference implementation in ddc.ts. */
 export interface DdcEngine {
   process(request: DdcRequest, iqInterleaved: Float32Array): Promise<DdcResult>;
 }
@@ -40,10 +40,14 @@ export class NotImplementedStftEngine implements StftEngine {
   }
 }
 
+/**
+ * @deprecated Prefer ReferenceDdcEngine from './ddc.js'.
+ * Kept as a loud stub so old imports fail closed.
+ */
 export class NotImplementedDdcEngine implements DdcEngine {
   async process(): Promise<DdcResult> {
     throw new Error(
-      'DdcEngine not implemented yet (Bot-D P2+); CAO asked PSD/STFT first',
+      'NotImplementedDdcEngine: use ReferenceDdcEngine from @wss/dsp-wasm (ddc.ts)',
     );
   }
 }
