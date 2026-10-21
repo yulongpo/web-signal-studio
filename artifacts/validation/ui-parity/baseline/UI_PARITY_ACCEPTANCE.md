@@ -1,3 +1,4 @@
+> Bot-A `2026-10-22 07:49` Asia/Shanghai: Web **`ab82146`** — G18 written BLOCKED + ACTIONABLE landed. ①②③ B no tip; ⑥ D BLOCKED; wait B⑤. G06/G17 BLOCKED. See `INCREMENTAL_ab82146/MATRIX.md`. **No PASS.**
 > Bot-A `2026-10-22 07:46` Asia/Shanghai: Web **`113f6b8`** — ACTIONABLE B/D/C checklist. G02 PARTIAL not CLOSED. G06/G17 BLOCKED. See `INCREMENTAL_113f6b8_ACTIONABLE/ACTIONABLE.md`. **No PASS.**
 > Bot-A `2026-10-22 02:50` Asia/Shanghai: Web **`1ec1eca`** vs desktop `17471a6` — G qa/web-4db4208 evidence. G02/G08 PARTIAL not CLOSED. G06/G17 BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_1ec1eca/MATRIX.md`. **No PASS.**
 > Bot-A `2026-10-22 02:47` Asia/Shanghai: Web **`4db4208`** vs desktop `17471a6` — post-merge refresh. G02 PARTIAL not CLOSED. G06/G17 BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4db4208/MATRIX.md`. **No PASS.**
