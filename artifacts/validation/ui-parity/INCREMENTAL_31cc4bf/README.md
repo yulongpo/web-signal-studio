@@ -76,10 +76,19 @@ Bot notes: `qa/web-762b876/notes.json` + `COMPARISON_NOTES.md` + `QA_CHECKLIST.m
 2. **G06 residual** — eye/bitstream **BLOCKED**
 3. **G19 residual** — **true native QFileDialog** (`=false`)
 4. **G18 residual** — recognition STFT panes
-5. **G07 residual** — full Qt Detect Worker beyond LocalCompute
-6. **G02 residual** — Multitaper/Burg compute; non-PoT; full STFT DDC/decimate; full Qt SpectralSettings
+5. **G07 residual** — full Qt Detect Worker beyond LocalCompute6. **G02 residual** — Multitaper/Burg **BLOCKED**; **non-PoT BLOCKED** (D formal); **STFT-DDC/decimate BLOCKED** (D formal); full Qt SpectralSettings
 7. **G08 residual** — desktop Qt pixel / full `buildMenus` parity
 8. **G11 residual** — PlotWidget paint *(or G09/G16 OPEN)*
+
+
+## CAO FYI (injected) — D formally BLOCKED residuals
+
+D formally marks **non-PoT window length** and **full STFT-DDC / decimate pipeline** as **BLOCKED** (no separate tip). Audit honesty for this tip:
+
+- Treat those residuals as **BLOCKED / honest PARTIAL** on **G02** — not deferred soft TODOs that could be waved away by UI evidence.
+- **Do NOT CLOSED G02** merely because UI already wires auto-N + removeMean (PoT path).
+- Keep **Multitaper / Burg BLOCKED** (throw; greyed).
+- Keep **G02 PARTIAL** while only UI + PoT auto-N / removeMean are **MET**; non-PoT + STFT-DDC remain **BLOCKED**.
 
 ## Explicit
 

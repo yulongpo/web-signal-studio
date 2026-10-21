@@ -25,4 +25,7 @@
 
 ## Conclusion
 
-Tip `31cc4bf` is **evidence-only** (G `4389fb7` / `qa/web-762b876`). Captures corroborate INCREMENTAL_762b876 G02 UI wire (auto-N on/off with segment_ms=0 + dsp-auto-nb, removeMean stamp, blocked methods grey, Kaiser gate). **No status flip** — G02 stays PARTIAL **not CLOSED**. Soft G08 OK. G06/G17 remain **BLOCKED**. **matrix_pass_claimed / ui_parity_pass_claimed / pass_claimed: false**. No PASS.
+**CAO FYI:** D formally **BLOCKED** non-PoT + STFT-DDC — G02 stays PARTIAL; do not CLOSED on UI wire alone.
+
+
+Tip `31cc4bf` is **evidence-only** (G `4389fb7` / `qa/web-762b876`). Captures corroborate INCREMENTAL_762b876 G02 UI wire (auto-N on/off with segment_ms=0 + dsp-auto-nb, removeMean stamp, blocked methods grey, Kaiser gate). **No status flip** — G02 stays PARTIAL **not CLOSED** (UI+PoT MET only; non-PoT + STFT-DDC **BLOCKED** per D/CAO). Soft G08 OK. G06/G17 remain **BLOCKED**. **matrix_pass_claimed / ui_parity_pass_claimed / pass_claimed: false**. No PASS.

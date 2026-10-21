@@ -1,3 +1,4 @@
+> Bot-A CAO FYI `2026-10-22 02:43` Asia/Shanghai (on `INCREMENTAL_31cc4bf`): D formally **BLOCKED** non-PoT + STFT-DDC. G02 **PARTIAL** not CLOSED. Multitaper/Burg BLOCKED. **No PASS.**
 > Bot-A `2026-10-22 02:43` Asia/Shanghai: Web **`31cc4bf`** vs desktop `17471a6` — evidence-only G web-762b876. G02 PARTIAL corroborated (not CLOSED). Soft G08 OK. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_31cc4bf/`. **No PASS.**
 
 | ID | Prior (`762b876`) | Now (`31cc4bf`) | Note |

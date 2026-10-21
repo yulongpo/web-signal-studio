@@ -1,3 +1,4 @@
+> Bot-A CAO FYI `2026-10-22 02:43` Asia/Shanghai (on `INCREMENTAL_31cc4bf`): D formally **BLOCKED** **non-PoT** + **STFT-DDC/decimate** (no separate tip). G02 remains **PARTIAL** — UI+PoT auto-N/removeMean MET only; Multitaper/Burg **BLOCKED**; **do not CLOSED**. See `INCREMENTAL_31cc4bf/`. **No PASS.** matrix_pass_claimed: false.
 > Bot-A `2026-10-22 02:43` Asia/Shanghai: Web tip **`31cc4bf`** vs desktop `17471a6` — **evidence-only** G `4389fb7` (`qa/web-762b876`). G02 PARTIAL corroborated (auto-N on/off + segment_ms=0 + removeMean + blocked grey + kaiser); **not CLOSED**. Soft G08 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_31cc4bf/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`762b876`) | Now (`31cc4bf`) | Note |
