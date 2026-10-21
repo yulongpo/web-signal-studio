@@ -28,3 +28,9 @@
 - No matrix PASS
 
 See `g17_residual_summary_2026-10-21.json`.
+
+## Verification
+
+- local-compute pytest degrade: **64 passed**
+- e2e: engine inventory + cancel idle disabled
+- matrix_pass_claimed: false

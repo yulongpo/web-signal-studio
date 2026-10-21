@@ -24,6 +24,13 @@
     "matrix PASS not claimed by Bot-E"
   ],
   "verification": {
+    "pytest_degrade": "64 passed (LOCAL_COMPUTE_DISABLE_TORCH=1, DISABLE_TENSORRT=1)",
+    "e2e_added": [
+      "engine inventory + ENGINE_MISSING",
+      "cancel disabled without active run"
+    ],
     "matrix_pass_claimed": false
-  }
+  },
+  "tip": "59f982031845acf5a3a9f70255084e8c7b25a9ec",
+  "tip_short": "59f9820"
 }
