@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:32` Asia/Shanghai: Web **`ab32f6e`** vs desktop `17471a6` — evidence-only G web-62fc184 G08 full-shell. G08 PARTIAL deepened (not CLOSED). Soft G02/G18 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ab32f6e/`. **No PASS.**
+
+| ID | Prior (`1f2bcee`) | Now (`ab32f6e`) | Note |
+|----|---------------------|-------------------|------|
+| **G08** | PARTIAL | **PARTIAL 加深** | six-menu + File·Edit·View accels；desktop 残 |
+| **G02** / **G18** | PARTIAL | **unchanged PARTIAL** | soft 无回归 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_ab32f6e/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:25` Asia/Shanghai: Web **`1f2bcee`** vs desktop `17471a6` — evidence-only G web-ca28052. G02 PARTIAL corroborated (not CLOSED). G08/G18 soft no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_1f2bcee/`. **No PASS.**
 
 | ID | Prior (`ca28052`) | Now (`1f2bcee`) | Note |
