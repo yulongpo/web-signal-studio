@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:00` Asia/Shanghai: Web tip **`d4f0943`** vs desktop `17471a6` — evidence-only G `c27d634` (web-d69fc93 SpectralSettings wave22 + G18). No apps/packages delta. Statuses unchanged. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d4f0943.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`d69fc93`) | Now (`d4f0943`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** / **G18** / **G19** | PARTIAL | **unchanged PARTIAL** | G corroborates；residuals 仍在 → **未 CLOSED** |
+| **G06** / **G17** | PARTIAL | **unchanged — BLOCKED** | 未发明路径 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_d4f0943.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:56` Asia/Shanghai: Web tip **`d69fc93`** vs desktop `17471a6` — G02 PARTIAL deepened (B `72d4759`/`8d6148f` stftN/window/overlap prefs→STFT + overflow SpectralSettings). G18 still PARTIAL (mod/recog panes). G19 native QFileDialog false. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d69fc93.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`2f8162b`) | Now (`d69fc93`) | Note |
