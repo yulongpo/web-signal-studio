@@ -1,3 +1,10 @@
+> Bot-A `2026-10-22 02:00` Asia/Shanghai: Web **`d4f0943`** vs desktop `17471a6` — evidence-only G web-d69fc93. No status flips. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d4f0943.md`. **No PASS.**
+
+| ID | Prior (`d69fc93`) | Now (`d4f0943`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** / **G18** / **G19** | PARTIAL | **unchanged PARTIAL** | evidence corroborates；not CLOSED |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_d4f0943.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:56` Asia/Shanghai: Web **`d69fc93`** vs desktop `17471a6` — G02 PARTIAL deepened (B wave22 prefs→STFT). G18/G19 still PARTIAL. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d69fc93.md`. **No PASS.**
 
 | ID | Prior (`2f8162b`) | Now (`d69fc93`) | Note |
