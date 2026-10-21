@@ -97,7 +97,7 @@ export function formatAdaptiveValue(value: number, kind: UnitKind): string {
     Math.floor(value) === value
       ? scaled.toFixed(precision)
       : String(scaled);
-  return ${trimTrailingZeros(numeric)} ;
+  return `${trimTrailingZeros(numeric)} ${unit}`;
 }
 
 /** Physical-times / Fs notes for DetectionCard (Qt detectionPhysicalTimes). */
@@ -123,13 +123,13 @@ export function formatDetectionPhysicalTimes(args: {
   const hopMs = (Math.floor(fs * hopSeconds) / fs) * 1000;
   const contextMs = fftMs + (args.modelFrames - 1) * hopMs;
   const slideMs = args.modelHopFrames * hopMs;
-  const summary = \u8bf7\u6c42\u89c2\u6d4b  ms \u00b7 \u6ed1\u52a8  ms;
+  const summary = `\u8bf7\u6c42\u89c2\u6d4b ${fmtNum(contextMs)} ms \u00b7 \u6ed1\u52a8 ${fmtNum(slideMs)} ms`;
   const details = [
-    FFT \u7a97  ms \u00b7 \u8c31\u6b65\u957f  ms,
-    \u6a21\u578b\u4e0a\u4e0b\u6587\uff08\u8bf7\u6c42\uff09 \u5e27 /  ms,
-    \u7a97\u53e3\u6ed1\u52a8  \u5e27 /  ms,
-    \u4e0a\u4e0b\u6587\u6807\u79f0  ms\uff0c\u89c2\u6d4b\u652f\u6301\u542b FFT \u7a97\u3002,
-    hop \u662f\u76f8\u90bb\u8c31\u5e27\u95f4\u9694\uff0c\u4e0d\u662f\u72ec\u7acb\u65f6\u95f4\u5206\u8fa8\u7387\u3002Fs= Hz\u3002,
+    `FFT \u7a97 ${fmtNum(fftMs)} ms \u00b7 \u8c31\u6b65\u957f ${fmtNum(hopMs)} ms`,
+    `\u6a21\u578b\u4e0a\u4e0b\u6587\uff08\u8bf7\u6c42\uff09 ${args.modelFrames} \u5e27 / ${fmtNum(contextMs)} ms`,
+    `\u7a97\u53e3\u6ed1\u52a8 ${args.modelHopFrames} \u5e27 / ${fmtNum(slideMs)} ms`,
+    `\u4e0a\u4e0b\u6587\u6807\u79f0 ${fmtNum(contextMs)} ms\uff0c\u89c2\u6d4b\u652f\u6301\u542b FFT \u7a97\u3002`,
+    `hop \u662f\u76f8\u90bb\u8c31\u5e27\u95f4\u9694\uff0c\u4e0d\u662f\u72ec\u7acb\u65f6\u95f4\u5206\u8fa8\u7387\u3002Fs=${fmtNum(fs)} Hz\u3002`,
   ].join('\n');
   return { summary, details, hasFs: true };
 }
