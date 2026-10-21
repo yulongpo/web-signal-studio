@@ -1,0 +1,12 @@
+﻿{
+    "branch":  "rebuild/a143-native",
+    "web_commit":  null,
+    "repo":  "yulongpo/signal_studio",
+    "source_diff_range":  "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af..0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
+    "open_deltas":  [
+
+                    ],
+    "parity_status":  "AUDIT_IN_PROGRESS",
+    "source_head":  "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
+    "checked_at":  "2026-10-21 17:48:09 +08:00"
+}
