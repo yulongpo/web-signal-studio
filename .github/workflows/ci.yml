@@ -28,13 +28,23 @@ jobs:
       # - rolldown: vitest failed on 682721a (run 39584103562)
       # - lightningcss (nested under @tailwindcss/node): vitest failed on
       #   b66413b (run 39584274930) and tip 585d9d1 (run 39584380863)
+      # - LCV via require.resolve('@tailwindcss/node/package.json') crashed on
+      #   eba42f4 (run 39584927890): ERR_PACKAGE_PATH_NOT_EXPORTED under Node 22
       - name: ensure linux native bindings
         working-directory: apps/web
         run: |
           OXV="$(node -p "require('oxlint/package.json').version")"
           RDV="$(node -p "require('rolldown/package.json').version")"
-          # Prefer nested lightningcss used by @tailwindcss/node (CI stack), else top-level
-          LCV="$(node -e "const path=require('path'); const tw=path.dirname(require.resolve('@tailwindcss/node/package.json')); try { console.log(require(path.join(tw,'node_modules/lightningcss/package.json')).version) } catch { console.log(require('lightningcss/package.json').version) }")"
+          # Resolve lightningcss version via filesystem only (Node 22 blocks
+          # require.resolve('@tailwindcss/node/package.json') -- package exports)
+          LCV=""
+          if [ -f node_modules/@tailwindcss/node/node_modules/lightningcss/package.json ]; then
+            LCV="$(node -p "require('./node_modules/@tailwindcss/node/node_modules/lightningcss/package.json').version")"
+          elif [ -f node_modules/lightningcss/package.json ]; then
+            LCV="$(node -p "require('./node_modules/lightningcss/package.json').version")"
+          else
+            echo "lightningcss package.json not found"; exit 1
+          fi
           npm install --no-save \
             "@oxlint/binding-linux-x64-gnu@${OXV}" \
             "@rolldown/binding-linux-x64-gnu@${RDV}" \
@@ -65,7 +75,14 @@ jobs:
         run: |
           OXV="$(node -p "require('oxlint/package.json').version")"
           RDV="$(node -p "require('rolldown/package.json').version")"
-          LCV="$(node -e "const path=require('path'); const tw=path.dirname(require.resolve('@tailwindcss/node/package.json')); try { console.log(require(path.join(tw,'node_modules/lightningcss/package.json')).version) } catch { console.log(require('lightningcss/package.json').version) }")"
+          LCV=""
+          if [ -f node_modules/@tailwindcss/node/node_modules/lightningcss/package.json ]; then
+            LCV="$(node -p "require('./node_modules/@tailwindcss/node/node_modules/lightningcss/package.json').version")"
+          elif [ -f node_modules/lightningcss/package.json ]; then
+            LCV="$(node -p "require('./node_modules/lightningcss/package.json').version")"
+          else
+            echo "lightningcss package.json not found"; exit 1
+          fi
           npm install --no-save \
             "@oxlint/binding-linux-x64-gnu@${OXV}" \
             "@rolldown/binding-linux-x64-gnu@${RDV}" \
