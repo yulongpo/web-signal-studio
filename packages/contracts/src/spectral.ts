@@ -59,6 +59,113 @@ export function segmentMillisecondsFromFft(
   return (fftSize / sampleRateHz) * 1000;
 }
 
+
+/** Result of desktop-equivalent analysis-length resolution (auto N/B or fixed ms). */
+export interface AnalysisSamplesPlan {
+  /** Window length in analysis-rate samples (desktop analysisSamples). */
+  analysisSamples: number;
+  /** Rate after optional power-of-two decimation (desktop analysisRateHz). */
+  analysisRateHz: number;
+  /** Product of ×2 stages while analysisRate/2 >= 2*bandwidth (desktop decimation). */
+  decimation: number;
+  decimationStages: number;
+  /** bandwidthHz / points (desktop binHz). */
+  binHz: number;
+  /** True when segmentMilliseconds === 0 (desktop auto N/B). */
+  autoNb: boolean;
+}
+
+/**
+ * Desktop `makeSpectralAnalysisPlan` sample-count core (17471a6 spectral_analysis.cpp):
+ * - binHz = bandwidthHz / points
+ * - if segmentMilliseconds > 0: count = ceil(analysisRate * segmentMs / 1000)
+ * - if segmentMilliseconds === 0 (auto N/B): count = ceil(analysisRate / binHz)
+ * - optional decimation: while analysisRate/2 >= 2*bandwidth, halve rate / ×2 decimation
+ *
+ * Does not invent Multitaper/Burg. Pure sizing — callers still need a compute path.
+ */
+export function resolveAnalysisSamples(options: {
+  sampleRateHz: number;
+  bandwidthHz: number;
+  /** Display / analysis bin count (desktop `points`); must be power of two in [32, 65536]. */
+  points: number;
+  /** 0 = auto N/B (desktop). */
+  segmentMilliseconds: number;
+}): AnalysisSamplesPlan {
+  const { sampleRateHz, bandwidthHz, points, segmentMilliseconds } = options;
+  if (!(sampleRateHz > 0) || !Number.isFinite(sampleRateHz)) {
+    throw new RangeError(`resolveAnalysisSamples: invalid sampleRateHz ${sampleRateHz}`);
+  }
+  if (!(bandwidthHz > 0) || !Number.isFinite(bandwidthHz)) {
+    throw new RangeError(`resolveAnalysisSamples: invalid bandwidthHz ${bandwidthHz}`);
+  }
+  if (
+    !Number.isInteger(points) ||
+    points < 32 ||
+    points > 65536 ||
+    (points & (points - 1)) !== 0
+  ) {
+    throw new RangeError(
+      `resolveAnalysisSamples: points must be power of two in [32, 65536], got ${points}`,
+    );
+  }
+  if (!Number.isFinite(segmentMilliseconds) || segmentMilliseconds < 0) {
+    throw new RangeError(
+      `resolveAnalysisSamples: invalid segmentMilliseconds ${segmentMilliseconds}`,
+    );
+  }
+
+  let analysisRateHz = sampleRateHz;
+  let decimation = 1;
+  let decimationStages = 0;
+  while (analysisRateHz / 2 >= 2 * bandwidthHz && decimationStages < 40) {
+    analysisRateHz /= 2;
+    decimation *= 2;
+    decimationStages += 1;
+  }
+  const binHz = bandwidthHz / points;
+  const autoNb = segmentMilliseconds === 0;
+  const count = Math.ceil(
+    autoNb
+      ? analysisRateHz / binHz
+      : (analysisRateHz * segmentMilliseconds) / 1000,
+  );
+  if (!Number.isFinite(count) || count < 1 || count > 262144) {
+    throw new RangeError(
+      `resolveAnalysisSamples: analysisSamples out of budget (${count}); shorten segment or widen band`,
+    );
+  }
+  return {
+    analysisSamples: count,
+    analysisRateHz,
+    decimation,
+    decimationStages,
+    binHz,
+    autoNb,
+  };
+}
+
+/**
+ * Web FFT engines require power-of-two fftSize. Map desktop analysisSamples →
+ * next power of two in [32, 65536]. Honest adaptation — not bit-identical to desktop
+ * non-PoT window length.
+ */
+export function webFftSizeFromAnalysisSamples(analysisSamples: number): number {
+  if (!(analysisSamples >= 1) || !Number.isFinite(analysisSamples)) {
+    throw new RangeError(`webFftSizeFromAnalysisSamples: invalid ${analysisSamples}`);
+  }
+  let n = 1;
+  const target = Math.ceil(analysisSamples);
+  while (n < target) n *= 2;
+  if (n < 32) n = 32;
+  if (n > 65536) {
+    throw new RangeError(
+      `webFftSizeFromAnalysisSamples: ${analysisSamples} rounds above 65536`,
+    );
+  }
+  return n;
+}
+
 export function isStftSupportedMethod(
   method: string | null | undefined,
 ): method is StftSupportedMethod {
@@ -98,15 +205,34 @@ export interface StftRequest {
   method?: StftSupportedMethod;
   /**
    * Observation segment length in ms (desktop `segmentMilliseconds`).
-   * Web sizes the segment by `fftSize` samples; desktop auto N/B (0) is not implemented.
-   * When omitted, derive via {@link segmentMillisecondsFromFft}.
+   * - omitted / >0: framing uses `fftSize` samples; ms is publish metadata
+   *   (when omitted, derive via {@link segmentMillisecondsFromFft}).
+   * - === 0: desktop auto N/B — requires `bandwidthHz` + `analysisPoints`;
+   *   compute path resolves analysisSamples via {@link resolveAnalysisSamples}
+   *   and adapts fftSize via {@link webFftSizeFromAnalysisSamples}.
+   *   Without those fields, compute throws (no silent fake auto).
    */
   segmentMilliseconds?: number;
+  /**
+   * Display bandwidth Hz for auto N/B (desktop frequency.upper-lower).
+   * Required when `segmentMilliseconds === 0`.
+   */
+  bandwidthHz?: number;
+  /**
+   * Display/analysis bin count for auto N/B (desktop `points`, power of two).
+   * Required when `segmentMilliseconds === 0`.
+   */
+  analysisPoints?: number;
   /**
    * Kaiser β when `window === 'kaiser'`. Default {@link DEFAULT_KAISER_BETA}.
    * Ignored for non-Kaiser windows.
    */
   kaiserBeta?: number;
+  /**
+   * Desktop `removeMean`: subtract complex mean of each frame's valid samples
+   * before windowing. Default false.
+   */
+  removeMean?: boolean;
   signal?: AbortSignal;
 }
 

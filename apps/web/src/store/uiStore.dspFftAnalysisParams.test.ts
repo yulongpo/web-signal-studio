@@ -17,6 +17,8 @@ describe('G02 dspFft / spectral contract store', () => {
     expect(s.dspSegmentMs).toBeNull();
     expect(s.dspSpectrumStatistic).toBeNull();
     expect(s.dspKaiserBeta).toBeNull();
+    expect(s.dspRemoveMean).toBeNull();
+    expect(s.dspAutoNb).toBeNull();
   });
 
   it('setDspFftAnalysisParams publishes window/overlap + method/segmentMs; statistic stays null', () => {
@@ -29,6 +31,8 @@ describe('G02 dspFft / spectral contract store', () => {
       segmentMs: 0.256,
       spectrumStatistic: null,
       kaiserBeta: null,
+      removeMean: false,
+      autoNb: false,
     });
     const s = useUiStore.getState();
     expect(s.dspFftWindow).toBe('hann');
@@ -39,6 +43,8 @@ describe('G02 dspFft / spectral contract store', () => {
     expect(s.dspSegmentMs).toBeCloseTo(0.256, 10);
     expect(s.dspSpectrumStatistic).toBeNull();
     expect(s.dspKaiserBeta).toBeNull();
+    expect(s.dspRemoveMean).toBe(false);
+    expect(s.dspAutoNb).toBe(false);
   });
 
   it('publishes kaiserBeta when window is kaiser', () => {
@@ -88,5 +94,22 @@ describe('G02 dspFft / spectral contract store', () => {
     });
     expect(useUiStore.getState().dspFftOverlap).toBeLessThan(1);
     expect(useUiStore.getState().dspFftOverlap).toBeGreaterThanOrEqual(0);
+  });
+
+  it('publishes removeMean and autoNb when provided', () => {
+    useUiStore.getState().setDspFftAnalysisParams({
+      window: 'hann',
+      overlap: 0.5,
+      hopSize: 128,
+      fftSize: 256,
+      method: 'welch',
+      segmentMs: 0,
+      spectrumStatistic: null,
+      kaiserBeta: null,
+      removeMean: true,
+      autoNb: true,
+    });
+    expect(useUiStore.getState().dspRemoveMean).toBe(true);
+    expect(useUiStore.getState().dspAutoNb).toBe(true);
   });
 });

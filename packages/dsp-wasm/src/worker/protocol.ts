@@ -31,10 +31,17 @@ export interface StftParamsWire {
   sampleRateHz: number;
   /** Only 'welch' is implemented; omit = welch. */
   method?: 'welch';
-  /** Informational; framing uses fftSize. */
+  /**
+   * 0 = auto N/B (requires bandwidthHz + analysisPoints).
+   * >0 / omit: framing uses fftSize; ms is metadata.
+   */
   segmentMilliseconds?: number;
+  bandwidthHz?: number;
+  analysisPoints?: number;
   /** Used when window === 'kaiser'. */
   kaiserBeta?: number;
+  /** Desktop removeMean; default false. */
+  removeMean?: boolean;
 }
 
 export interface DdcParamsWire {

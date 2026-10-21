@@ -6,6 +6,8 @@ import type { SpectralWindowName, StftSupportedMethod } from '@wss/contracts';
 import {
   DEFAULT_KAISER_BETA,
   segmentMillisecondsFromFft,
+  resolveAnalysisSamples,
+  webFftSizeFromAnalysisSamples,
 } from '@wss/contracts';
 import type { DspWorkerClient } from '@wss/dsp-wasm';
 import { createDspWorkerClient, InProcessAsyncBackend } from '@wss/dsp-wasm';
@@ -49,8 +51,12 @@ export interface MainSpectrogramResult {
   segmentMilliseconds: number;
   /** Kaiser β used when window is kaiser; else null. */
   kaiserBeta: number | null;
+  /** Desktop removeMean applied. */
+  removeMean: boolean;
+  /** True when auto N/B resolved fftSize. */
+  autoNb: boolean;
   /**
-   * SpectrumStatistic is PSD-only on desktop STFT path → always null here.
+   * SpectrumStatistic is PSD-only on desktop STFT path — always null here.
    * Strip should show NA / — until a real PSD statistic path exists.
    */
   spectrumStatistic: null;
@@ -65,6 +71,14 @@ export interface ComputeMainSpectrogramOptions {
   window?: SpectralWindowName;
   method?: StftSupportedMethod;
   kaiserBeta?: number;
+  removeMean?: boolean;
+  /**
+   * Desktop segmentMilliseconds. Omit → derive from fftSize.
+   * Pass 0 for auto N/B (requires bandwidthHz + analysisPoints).
+   */
+  segmentMilliseconds?: number;
+  bandwidthHz?: number;
+  analysisPoints?: number;
   sampleRateHz?: number;
   /** Tone frequencies in Hz (baseband). */
   toneHz?: [number, number];
@@ -121,16 +135,48 @@ export function normalizePower01(power: Float32Array): Float32Array {
 export async function computeMainSpectrogram(
   options: ComputeMainSpectrogramOptions = {},
 ): Promise<MainSpectrogramResult> {
-  const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
-  const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
+  let fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
+  let hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
   const window: SpectralWindowName = options.window ?? MAIN_STFT_DEFAULTS.window;
   const method: StftSupportedMethod = options.method ?? MAIN_STFT_DEFAULTS.method;
   const kaiserBeta =
     options.kaiserBeta != null && Number.isFinite(options.kaiserBeta)
       ? options.kaiserBeta
       : MAIN_STFT_DEFAULTS.kaiserBeta;
+  const removeMean = options.removeMean === true;
   const sampleRateHz = options.sampleRateHz ?? 1_000_000;
   const toneHz = options.toneHz ?? ([150_000, -220_000] as [number, number]);
+
+  let autoNb = false;
+  let segmentMilliseconds: number;
+  if (options.segmentMilliseconds === 0) {
+    if (
+      options.bandwidthHz == null ||
+      !(options.bandwidthHz > 0) ||
+      options.analysisPoints == null
+    ) {
+      throw new RangeError(
+        'computeMainSpectrogram auto N/B requires bandwidthHz and analysisPoints',
+      );
+    }
+    const plan = resolveAnalysisSamples({
+      sampleRateHz,
+      bandwidthHz: options.bandwidthHz,
+      points: options.analysisPoints,
+      segmentMilliseconds: 0,
+    });
+    const resolved = webFftSizeFromAnalysisSamples(plan.analysisSamples);
+    const overlap = hopSize > 0 && fftSize > 0 ? 1 - hopSize / fftSize : 0.75;
+    fftSize = resolved;
+    hopSize = Math.max(1, Math.floor(fftSize * (1 - Math.min(Math.max(overlap, 0), 0.999999))));
+    segmentMilliseconds = 0;
+    autoNb = true;
+  } else if (options.segmentMilliseconds != null && options.segmentMilliseconds > 0) {
+    segmentMilliseconds = options.segmentMilliseconds;
+  } else {
+    segmentMilliseconds = segmentMillisecondsFromFft(fftSize, sampleRateHz);
+  }
+
   const frameTarget = 128;
   const sampleCount = fftSize + (frameTarget - 1) * hopSize;
 
@@ -141,7 +187,6 @@ export async function computeMainSpectrogram(
 
   try {
     const iq = synthesizeTwoToneIq({ sampleCount, sampleRateHz, toneHz });
-    const segmentMilliseconds = segmentMillisecondsFromFft(fftSize, sampleRateHz);
     const stft = await client.analyzeStft(
       {
         begin: 0n,
@@ -152,7 +197,10 @@ export async function computeMainSpectrogram(
         sampleRateHz,
         method,
         segmentMilliseconds,
+        bandwidthHz: autoNb ? options.bandwidthHz : undefined,
+        analysisPoints: autoNb ? options.analysisPoints : undefined,
         kaiserBeta: window === 'kaiser' ? kaiserBeta : undefined,
+        removeMean,
       },
       iq,
       options.signal,
@@ -182,6 +230,8 @@ export async function computeMainSpectrogram(
       method,
       segmentMilliseconds,
       kaiserBeta: window === 'kaiser' ? kaiserBeta : null,
+      removeMean,
+      autoNb,
       spectrumStatistic: null,
     };
   } finally {

@@ -5,6 +5,8 @@ import type { SpectralWindowName, StftSupportedMethod } from '@wss/contracts';
 import {
   DEFAULT_KAISER_BETA,
   segmentMillisecondsFromFft,
+  resolveAnalysisSamples,
+  webFftSizeFromAnalysisSamples,
 } from '@wss/contracts';
 import type { DspWorkerClient } from '@wss/dsp-wasm';
 import type { ChunkedReader } from '@wss/file-io';
@@ -33,6 +35,8 @@ export interface FileSpectrogramResult {
   method: StftSupportedMethod;
   segmentMilliseconds: number;
   kaiserBeta: number | null;
+  removeMean: boolean;
+  autoNb: boolean;
   spectrumStatistic: null;
 }
 
@@ -47,6 +51,10 @@ export interface ComputeFileSpectrogramOptions {
   window?: SpectralWindowName;
   method?: StftSupportedMethod;
   kaiserBeta?: number;
+  removeMean?: boolean;
+  segmentMilliseconds?: number;
+  bandwidthHz?: number;
+  analysisPoints?: number;
   /** Cap samples for first paint (default: enough for ~128 frames). */
   maxSamples?: bigint;
 }
@@ -54,14 +62,49 @@ export interface ComputeFileSpectrogramOptions {
 export async function computeFileSpectrogram(
   options: ComputeFileSpectrogramOptions,
 ): Promise<FileSpectrogramResult> {
-  const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
-  const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
+  let fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
+  let hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
   const window: SpectralWindowName = options.window ?? MAIN_STFT_DEFAULTS.window;
   const method: StftSupportedMethod = options.method ?? MAIN_STFT_DEFAULTS.method;
   const kaiserBeta =
     options.kaiserBeta != null && Number.isFinite(options.kaiserBeta)
       ? options.kaiserBeta
       : DEFAULT_KAISER_BETA;
+  const removeMean = options.removeMean === true;
+
+  let autoNb = false;
+  let segmentMilliseconds: number;
+  if (options.segmentMilliseconds === 0) {
+    if (
+      options.bandwidthHz == null ||
+      !(options.bandwidthHz > 0) ||
+      options.analysisPoints == null
+    ) {
+      throw new RangeError(
+        'computeFileSpectrogram auto N/B requires bandwidthHz and analysisPoints',
+      );
+    }
+    const plan = resolveAnalysisSamples({
+      sampleRateHz: options.sampleRateHz,
+      bandwidthHz: options.bandwidthHz,
+      points: options.analysisPoints,
+      segmentMilliseconds: 0,
+    });
+    const resolved = webFftSizeFromAnalysisSamples(plan.analysisSamples);
+    const overlap = hopSize > 0 && fftSize > 0 ? 1 - hopSize / fftSize : 0.75;
+    fftSize = resolved;
+    hopSize = Math.max(
+      1,
+      Math.floor(fftSize * (1 - Math.min(Math.max(overlap, 0), 0.999999))),
+    );
+    segmentMilliseconds = 0;
+    autoNb = true;
+  } else if (options.segmentMilliseconds != null && options.segmentMilliseconds > 0) {
+    segmentMilliseconds = options.segmentMilliseconds;
+  } else {
+    segmentMilliseconds = segmentMillisecondsFromFft(fftSize, options.sampleRateHz);
+  }
+
   const frameTarget = 128;
   const defaultMax = BigInt(fftSize + (frameTarget - 1) * hopSize);
   const maxSamples = options.maxSamples ?? defaultMax;
@@ -82,6 +125,10 @@ export async function computeFileSpectrogram(
     window,
     method,
     kaiserBeta,
+    removeMean,
+    segmentMilliseconds,
+    bandwidthHz: autoNb ? options.bandwidthHz : undefined,
+    analysisPoints: autoNb ? options.analysisPoints : undefined,
     signal: options.signal,
   });
 
@@ -111,8 +158,10 @@ export async function computeFileSpectrogram(
     window,
     overlap: overlapFromHop(fftSize, hopSize),
     method,
-    segmentMilliseconds: segmentMillisecondsFromFft(fftSize, sampleRateHz),
+    segmentMilliseconds,
     kaiserBeta: window === 'kaiser' ? kaiserBeta : null,
+    removeMean,
+    autoNb,
     spectrumStatistic: null,
   };
 }
