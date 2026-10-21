@@ -2,17 +2,31 @@
 
 | 字段 | 值 |
 |------|-----|
-P26-10-21 21:55:00+（rebase `ef2713a` G06 DDC） |
-| 复核方 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
-| **Web tip（origin/main）** | **`ef2713a735cc96407ff2dcf7156f08fffb74a6a3`**（`d8297d1` = G06 `95e24d0`/`6c17a53` + G01 MenuBar） |
+| 时间（Asia/Shanghai） | 2026-10-21 21:58:00（rebase `62d3b70` G01 menus + G shots） |
+| 复核者 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
+| **Web tip（origin/main）** | **`62d3b70cae428e9161535e2cf908a27cf2bc82d4`**（B `e76ba97` 菜单 + G `c718171` 截图 + A `593948d`） |
 | **桌面上游 tip** | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`rebuild/a143-native`） |
-| 先验 Bot-A 文档 | `866e699` / G01–G26（对照 Web 当时 `be885f2`、上游 `0f108d0`，本地路径证据 `696ce12`） |
-| 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6`（fetch 后与远端一致） |
+| 先验 Bot-A 文档 | `INCREMENTAL_ef2713a.md` / `593948d`；本轮 `INCREMENTAL_62d3b70.md` |
+| 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6` |
 | 远端 | https://github.com/yulongpo/signal_studio/tree/rebuild/a143-native |
 | 范围 | 只读对照；**未改** `apps/`/`packages/`/`services/` 实现；未在共享树 `git checkout`；不 push `signal_studio` |
 | 验收约束 | **IQ 仅** `resources\sigmf_data_demo`；**模型仅** rebuild 树内 TensorRT `*.engine` |
 
 > 可执行 PASS 矩阵见同目录 `UI_PARITY_ACCEPTANCE.md`。镜像：`docs/migration/ui-parity/`。
+> **Explicit: Bot-A 不自报矩阵 PASS。**
+
+---
+
+## INCREMENTAL @ `62d3b70`（相对 `ef2713a`）
+
+| ID | 先前 | @62d3b70 | 证据 |
+|----|------|----------|------|
+| **G01** | PARTIAL（仅 File+View） | **PARTIAL 加深** | `e76ba97`：Edit/Analysis/Tools/Help 组+testid；corner/rename/File 深度仍缺；Bot-B WIP **no PASS** |
+| **G06** | PARTIAL（observe DDC MET） | **PARTIAL 不变** | `c718171`/`qa/web-905cdad` 强化非空 DDC；截图不 CLOSED；mod/DL/demod 仍壳 |
+| G20 | PARTIAL | PARTIAL（加深） | 菜单 Open IQ 已有；元数据预览仍缺 |
+| 其余 | 同前 | **不变** | 本 tip 无对应实现 diff；截图不升格 |
+
+计数：**OPEN 10 · PARTIAL 12 · CLOSED 1（G05）· DOCS 1（G25）**。详表：`INCREMENTAL_62d3b70.md`。
 
 ---
 
@@ -32,7 +46,11 @@ P26-10-21 21:55:00+（rebase `ef2713a` G06 DDC） |
 
 **未新增独立 G27**：上述全部折叠进既有 G02/G06/G18/G19 的加严 PASS，避免 ID 漂移。
 
-### B0. Web `main@ef2713a`（G01+G06；相对 `fb2e020`）（G06 壳 `6c17a53` + 截图；相对 `fb2e020`）
+### B0. Web `main@62d3b70`（G01 menus + G shots；相对 `ef2713a`）
+
+> 完整增量：`INCREMENTAL_62d3b70.md`。G01 PARTIAL 加深；G06 PARTIAL 不变；**no PASS**。
+
+### B0z. Web `main@ef2713a`（历史）（G01+G06；相对 `fb2e020`）（G06 壳 `6c17a53` + 截图；相对 `fb2e020`）
 
 > 完整增量：`INCREMENTAL_ef2713a.md（相对 d8297d1；观察页 DDC MET） / 历史 `INCREMENTAL_d8297d1.md``。截图包 `qa/web-6c17a53/`（stub=false，**no PASS**）。**G06 = PARTIAL（非 CLOSED）**。
 
@@ -113,7 +131,7 @@ P26-10-21 21:55:00+（rebase `ef2713a` G06 DDC） |
 
 | ID | 类别 | 差距 | 桌面证据 | Web 证据 | 严重度 | 状态 | PASS 摘要 |
 |----|------|------|----------|----------|--------|------|-----------|
-| G01 | 布局 | 顶栏菜单/命令栏 | `buildMenus()` height 34；文件/编辑/视图/分析/帮助 | `MenuBar.tsx` @`d8297d1`：34px + 文件/视图 + `menu-open-iq`；缺编辑/分析/帮助 | **P0** | **PARTIAL** | 补齐完整菜单树；不依赖 strip 作为唯一 Open IQ |
+| G01 | 布局 | 顶栏菜单/命令栏 | `buildMenus()` height 34；文件/编辑/视图/分析/帮助 | `MenuBar.tsx` @`d8297d1`：34px + 文件/视图 + `menu-open-iq`；缺编辑/分析/帮助 | **P0** | **PARTIAL**（`62d3b70`/`e76ba97`：六组菜单；corner/rename 仍缺）| 补齐完整菜单树；不依赖 strip 作为唯一 Open IQ |
 | G02 | 布局 | 常驻 Toolbar 取代图头；缺标签分离 | `ChartControlStrip`+`f9f05bb` | `AuxParamStrip`/`SpecParamStrip`；无 aux↔main 常驻条 @`17937bb` | **P0** | **PARTIAL**（**加严**残留） | 无全局常驻条；补 caption+overflow 焦点（`f9f05bb`） |
 | G03 | 布局 | 全局时间导航（已嵌入 NavigationChart） | `navigationPlot` | `NavChrome`+`NavigationChart` @`17937bb` | **P0** | **PARTIAL** | 真实时间窗+拖窗+chrome；补滚轮改窗宽 |
 | G04 | 布局 | 辅助图 Wave/PSD（派生曲线） | `auxPlot` | `auxWaveRawIq`/`sigmf_data_demo` IqRms @`17937bb` | **P0** | **PARTIAL** | Wave/PSD 切换；Wave=raw IQ 代码已落地；待 QA 视觉 |

@@ -1,13 +1,13 @@
 # UI 对等可执行验收矩阵（Bot-A 增量 @ 17471a6）
 
-> Bot-A `2026-10-21 21:55:00`: Web `ef2713a` vs desktop `17471a6` — **G01+G06 PARTIAL**; observe-page DDC criterion **MET** (item not CLOSED). See `INCREMENTAL_ef2713a.md`. **No PASS.**
+> Bot-A `2026-10-21 21:58:00`: Web `62d3b70` vs desktop `17471a6` — **G01+G06 PARTIAL**（G01 菜单树加深；G06 截图强化、状态不变）. See `INCREMENTAL_62d3b70.md`. **No PASS.**
 
 
 | 字段 | 值 |
 |------|-----|
 | 时间（Asia/Shanghai） | 2026-10-21 21:33:00+（rebase `fb2e020`） |
 | 对应差距清单 | `UI_PARITY_GAP_AUDIT.md`（G01–G26 + INCREMENTAL DIFF） |
-| **Web tip** | **`fb2e020`**（`fb2e02052323127b33d665a03eb3400d8565b492`；实现 `17937bb` + Bot-G `qa/COMPARISON_NOTES.md`） |
+| **Web tip** | **`62d3b70`**（`fb2e02052323127b33d665a03eb3400d8565b492`；实现 `17937bb` + Bot-G `qa/COMPARISON_NOTES.md`） |
 | **桌面锚点** | **`17471a6`**（`rebuild/a143-native`） |
 | 先验矩阵 | `866e699`（对照 Web `be885f2` / 上游 `0f108d0`） |
 | **IQ 约束** | 仅 `D:\project\signal_studio_rebuild\resources\sigmf_data_demo\` |
@@ -39,12 +39,12 @@
 
 | ID | Sev | 状态 | 观察点 / testid | 可执行 PASS 条件（必须全部满足） | 失败信号 / PARTIAL 退出 |
 |----|-----|------|-----------------|----------------------------------|-------------------------|
-| G01 | P0 | **PARTIAL**（`d8297d1` MenuBar） | `menubar` / `command-bar` | ☑ ~34px（±2）；☑ 文件+视图组；☑ `menu-open-iq` 可达；☐ 编辑/分析/帮助全组；☐ 桌面 corner 控件完整对等 | **PARTIAL 退出**：仅 File+View 接线；完整菜单树未齐；Bot-B WIP |
+| G01 | P0 | **PARTIAL**（`62d3b70`/`e76ba97` 六组菜单） | `menubar` / `command-bar` | ① ~34px（±2）；② 文件/编辑/视图/分析/工具/帮助组可见；③ `menu-open-iq` 可达；④ Edit undo/redo/delete（M06）+ Analysis Detect/ROI + Help 对话框；☐ 重命名已接线；☐ TopRight corner min/max/close + BrandV2 对等；☐ File recent/新建深度 | **PARTIAL 退出**：六组已齐；corner/rename/File 深度未满；Bot-B WIP **no PASS** |
 | G02 | P0 | PARTIAL（加严残留） | `chart-strip-nav/aux/main` | ① **不存在**夹在 aux↔main 的全局常驻 SpectrumToolbar；② 三图各自图头有模式/设置；③ **控件旁有 caption 标签**（或按钮自带可见文本）；④ overflow「更多」打开后编辑中的字段不被卸载丢失焦点（对 `f9f05bb`） | 图头已挂条但 caption/`f9f05bb` overflow 焦点未满；testid spectrum-toolbar 仍在图头 |
 | G03 | P0 | PARTIAL | `global-nav` / `navigation-chart` | ① 非 placeholder；② 拖拽导航窗；③ 主图 timeSec 跟随；④（FULL）滚轮改窗宽；⑤（FULL）导航图头设置/chrome | **PARTIAL 退出**：有 NavigationChart+NavChrome；仍缺滚轮改窗宽 |
 | G04 | P0 | PARTIAL | `chart-aux` / `WaveformChart` | ① Wave/PSD 可见且可切换；② 切换改轴语义；③（FULL）Wave 为 raw IQ 显示路径（非仅 STFT envelope） | **PARTIAL 退出**：Wave raw IQ 代码路径已清；待 QA 视觉/`/@fs` |
 | G05 | P0 | CLOSED | `splitter-nav-aux` / `splitter-aux-main` | ① 可拖；② 双击复位；③（FULL）默认高度≈桌面 82/205（±10%） | 默认 82/205 + 拖 + 双击已满足；短窗阈值 900≠850 软差 |
-| G06 | P0 | **PARTIAL** (`ef2713a` observe DDC) | `workspace-narrowband-*` / `nb-chart-waveform` / `nb-observe-pipeline` | PASS-if: no stub; four tabs; no fake demod; STFT N/grid/freq persist across page+overflow; **observe-page real DDC Wave/PSD/STFT** (MET @a145d21/ef2713a); mod/DL/demod chrome; title workbench; channel-linked interactive STFT | **PARTIAL exit**: DDC sub MET; item not CLOSED; no PASS |
+| G06 | P0 | **PARTIAL** (`62d3b70`; DDC MET; G shots) | `workspace-narrowband-*` / `nb-chart-waveform` / `nb-observe-pipeline` | PASS-if: no stub; four tabs; no fake demod; STFT N/grid/freq persist across page+overflow; **observe-page real DDC Wave/PSD/STFT** (MET @a145d21/ef2713a); mod/DL/demod chrome; title workbench; channel-linked interactive STFT | **PARTIAL exit**: DDC sub MET; item not CLOSED; no PASS |
 
 | G07 | P0 | OPEN | `bottom-panel` | ① 三标签；② 收起≈29±6 / 展开≈150±20；③ 任务列表容器可空 | 无底栏 |
 | G08 | P1 | OPEN | 左右栏 | ① 左 270–286 / 右 382–398；② 收起≈38±4；③ 可拖宽 | 锁死 220/280 |
