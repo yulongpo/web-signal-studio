@@ -1,0 +1,7 @@
+{
+  "matrix_pass_claimed": false,
+  "cancel": "test_cancel_status.py: cancel exact runId -> cancelled; cancel wins over late BLOCKED; result always null",
+  "precheck": "test_precheck_status.py: gpu/runtime fields present; canInventResults=false; stub engine when TRT disabled",
+  "honesty": "test_g17_real_runtime_honesty.py: REAL_RUNTIME mentions both TensorRT and PyTorch",
+  "pytest_degrade": "64 passed"
+}

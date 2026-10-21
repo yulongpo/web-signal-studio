@@ -148,8 +148,8 @@ UI_COPY: dict[str, tuple[str, str, str]] = {
     ),
     "REAL_RUNTIME": (
         "info",
-        "Verified PyTorch detection runtime is ready for this family.",
-        "该检测族别的 PyTorch 真推理运行时已就绪。",
+        "Verified real detection runtime is ready for this family (TensorRT or PyTorch).",
+        "该检测族别的真推理运行时已就绪（TensorRT 或 PyTorch）。",
     ),
     "NO_FAKE_INFERENCE": (
         "error",
@@ -577,6 +577,8 @@ def probe_detection_readiness() -> DetectionReadiness:
 
     if ffscn_ready or scn_ready:
         ui_codes.append("REAL_RUNTIME")
+        if tensorrt_verified:
+            ui_codes.append("TENSORRT_OK")
         # Drop stub-only codes when at least one family is ready
         ui_codes = [c for c in ui_codes if c not in {"STUB_RUNTIME"}]
         # Keep NO_FAKE as policy reminder only when the other family is blocked
@@ -677,8 +679,12 @@ def detection_ui_messages_for_kind(kind: str) -> list[UiMessage]:
     kind_l = kind.strip().lower()
     if kind_l.startswith("ffscn") and ready.ffscn_ready:
         codes = ["REAL_RUNTIME"]
+        if ready.runtime.tensorrtVerified:
+            codes.append("TENSORRT_OK")
     elif kind_l.startswith("scn") and ready.scn_ready:
         codes = ["REAL_RUNTIME"]
+        if ready.runtime.tensorrtVerified:
+            codes.append("TENSORRT_OK")
     else:
         if kind_l.startswith("ffscn") and not ready.ffscn_present:
             codes.insert(0, "MODEL_MISSING_FFSCN")

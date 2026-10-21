@@ -41,7 +41,7 @@ Sample indices are **decimal strings**. For real FFSCN/SCN, pass a real `sourceP
 ### `GET /tasks/{runId}`
 
 Terminal statuses: `succeeded` | `failed` | `cancelled` | `BLOCKED`.  
-Detection `result` is non-null only when `verifiedForward=true` from a real engine (`PYTORCH_CUDA` / `PYTORCH_CPU`).
+Detection `result` is non-null only when `verifiedForward=true` from a real engine (`TENSORRT_CUDA` / `PYTORCH_CUDA` / `PYTORCH_CPU`).
 
 ### `POST /tasks/{runId}/cancel`
 
@@ -68,12 +68,19 @@ Bound to exact `runId`; cancel is terminal.
 | SOURCE_MISSING | `error` | sourcePath is required for real detection; refusing to invent candidates. | 真检测需要 sourcePath，拒绝伪造候选结果。 |
 | INFERENCE_FAILED | `error` | Real detection inference failed. No fabricated candidates were returned. | 真检测推理失败，未返回任何伪造候选。 |
 | STUB_RUNTIME | `error` | Local compute is in stub mode (no TensorRT). Detection will not invent results. | 本地计算处于占位模式（无 TensorRT），检测不会伪造结果。 |
-| REAL_RUNTIME | `info` | Verified PyTorch detection runtime is ready for this family. | 该检测族别的 PyTorch 真推理运行时已就绪。 |
+| REAL_RUNTIME | `info` | Verified real detection runtime is ready for this family (TensorRT or PyTorch). | 该检测族别的真推理运行时已就绪（TensorRT 或 PyTorch）。 |
 | NO_FAKE_INFERENCE | `error` | Refusing to invent FFSCN/SCN detection candidates. | 拒绝伪造 FFSCN/SCN 检测候选结果。 |
+| TENSORRT_RUNTIME_MISSING | `error` | TensorRT runtime missing/unusable; .engine detection stays blocked (no invented candidates). | TensorRT 运行时不可用，.engine 检测保持阻断（拒绝伪造候选）。 |
+| ENGINE_MISSING | `error` | Canonical TensorRT .engine not found under signal_studio_rebuild detection-models. | 未在 signal_studio_rebuild detection-models 下找到规定 TensorRT .engine。 |
+| ENGINE_LOAD_FAILED | `error` | TensorRT .engine deserialize/load failed; detection stays blocked. | TensorRT .engine 反序列化/加载失败，检测保持阻断。 |
+| TENSORRT_OK | `info` | TensorRT runtime importable. | TensorRT 运行时可导入。 |
 | TENSORRT_NA | `error` | TensorRT .engine weights are N/A (no TensorRT runtime). Detection stays blocked. | TensorRT .engine 权重不可用（未接入 TensorRT 运行时），检测保持阻断。 |
 | ONNX_NA | `error` | ONNX weights are N/A (no ONNX runtime). Detection stays blocked. | ONNX 权重不可用（未接入 ONNX 运行时），检测保持阻断。 |
 
 **Hard rule:** service stays up under degradation; DSP stub (`dsp.fft`) may remain true; detection stays unavailable until verified; **no fake forward results**.
+
+
+**REAL_RUNTIME honesty (G17):** banner `REAL_RUNTIME` is engine-agnostic. When TensorRT `.engine` smoke passes, also emit `TENSORRT_OK` and set `runtime.engine=TENSORRT_CUDA` / `tensorrtVerified=true`. Detect page debug chips must show the real `runtime.engine` — never imply PyTorch when TRT is the path. Detection `result` is non-null only when `verifiedForward=true` from a real engine (`TENSORRT_CUDA` / `PYTORCH_CUDA` / `PYTORCH_CPU`).
 
 ## Structured precheck (`gpu` / `runtime`)
 

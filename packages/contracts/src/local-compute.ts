@@ -168,6 +168,13 @@ export const LOCAL_COMPUTE_STUB_RUNTIME_COPY = {
 } as const;
 
 /** Stub engine label until real TensorRT/PyTorch runtime is verified. */
+export const LOCAL_COMPUTE_REAL_RUNTIME_COPY = {
+  code: 'REAL_RUNTIME',
+  severity: 'info',
+  en: 'Verified real detection runtime is ready for this family (TensorRT or PyTorch).',
+  zh: '该检测族别的真推理运行时已就绪（TensorRT 或 PyTorch）。',
+} as const;
+
 export const LOCAL_COMPUTE_STUB_ENGINE = 'STUB_NON_TENSORRT' as const;
 
 /**
