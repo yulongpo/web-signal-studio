@@ -1,0 +1,37 @@
+{
+    "tipSha":  "19313983fa535325dacf8f1317a9c8aa9bc18c91",
+    "gate":  "Q-01",
+    "obsoleteFail":  {
+                         "run":  39583728389,
+                         "reason":  "npm ci Missing @wss/web",
+                         "sha":  "a904334"
+                     },
+    "jobsSkipped":  [
+                        "e2e non-charts (still disabled; charts covered by charts-playwright)"
+                    ],
+    "matrix_pass_claimed":  true,
+    "tipShort":  "1931398",
+    "timezone":  "Asia/Shanghai",
+    "ci":  [
+               {
+                   "branch":  "main",
+                   "conclusion":  "success",
+                   "url":  "https://github.com/yulongpo/web-signal-studio/actions/runs/39593427109",
+                   "runId":  39593427109
+               },
+               {
+                   "branch":  "work/bot-g-qa",
+                   "conclusion":  "success",
+                   "url":  "https://github.com/yulongpo/web-signal-studio/actions/runs/39593321257",
+                   "runId":  39593321257
+               }
+           ],
+    "jobsGreen":  [
+                      "@wss/web lint typecheck unit build",
+                      "@wss/charts typecheck unit",
+                      "charts-playwright (M-04 QA evidence)"
+                  ],
+    "status":  "PASS",
+    "reviewer":  "Bot-G / WSS-QA-G",
+    "timestamp":  "2026-10-21T19:41:00+08:00"
+}
