@@ -25,7 +25,7 @@ When no real model/GPU path is present, `detection.ffscn` / `detection.scn` are 
 ## Install (Windows)
 
 ```powershell
-cd D:\project\web_signal_studio\services\local-compute
+cd <repo>/services/local-compute
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
@@ -47,3 +47,4 @@ Or: `python -m app.main`
 .\.venv\Scripts\Activate.ps1
 pytest -q
 ```
+
