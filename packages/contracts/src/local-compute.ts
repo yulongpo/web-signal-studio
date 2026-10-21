@@ -126,21 +126,43 @@ export interface LocalComputeTaskCancelResponse {
   messageZh?: string | null;
 }
 
-/** Stable uiMessage codes documented in DETECTION_PAGE_CONTRACT.md */
+/** Stable uiMessage codes documented in DETECTION_PAGE_CONTRACT.md (aligned with Bot-B DetectPage). */
 export const LOCAL_COMPUTE_UI_CODES = [
   'GPU_MISSING',
   'GPU_UNVERIFIED',
   'GPU_PROBE_ERROR',
+  'TORCH_MISSING',
+  'TORCH_CPU_ONLY',
+  'TORCH_CUDA_OK',
   'MODEL_MISSING_FFSCN',
   'MODEL_MISSING_SCN',
   'MODEL_PATH_MISSING',
+  'MODEL_HOME_MISSING',
   'MODEL_HASH_MISMATCH',
   'MODEL_HASH_UNAVAILABLE',
+  'MODEL_LOAD_FAILED',
+  'SOURCE_MISSING',
+  'INFERENCE_FAILED',
   'STUB_RUNTIME',
+  'REAL_RUNTIME',
   'NO_FAKE_INFERENCE',
 ] as const;
 
 export type LocalComputeUiCode = (typeof LOCAL_COMPUTE_UI_CODES)[number];
 
-/** Stub engine label until real TensorRT is verified. */
+/**
+ * STUB_RUNTIME bilingual copy — MUST match services/local-compute UI_COPY and
+ * apps/web/src/localCompute/gating.test.ts fixture (Bot-B banner gating).
+ */
+export const LOCAL_COMPUTE_STUB_RUNTIME_COPY = {
+  code: 'STUB_RUNTIME',
+  severity: 'error',
+  en: 'Local compute is in stub mode (no TensorRT). Detection will not invent results.',
+  zh: '本地计算处于占位模式（无 TensorRT），检测不会伪造结果。',
+} as const;
+
+/** Stub engine label until real TensorRT/PyTorch runtime is verified. */
 export const LOCAL_COMPUTE_STUB_ENGINE = 'STUB_NON_TENSORRT' as const;
+
+/** Real engines reported when verifiedForward=true (never invent these). */
+export const LOCAL_COMPUTE_REAL_ENGINES = ['PYTORCH_CUDA', 'PYTORCH_CPU'] as const;

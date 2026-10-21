@@ -75,3 +75,10 @@ $env:LOCAL_COMPUTE_SCN_PATH   = 'D:\project\train_SCN\SCN_pretrained\epoch_105.p
 ```
 
 Contract tests still run in the lightweight `.venv` **without** torch and must stay green without inventing detection.
+
+## FFSCN full-file E2E
+
+- Pytest: `tests/test_ffscn_e2e.py` (skip-if-missing for CUDA/weights).
+- Fixture: `tests/fixtures/synthetic_iq_stereo.wav` (16-bit stereo I/Q).
+- `STUB_RUNTIME` copy must stay aligned with Bot-B `gating.test.ts` / `LOCAL_COMPUTE_STUB_RUNTIME_COPY`.
+- Never fabricate candidates to pass; live success requires `verifiedForward=true`.
