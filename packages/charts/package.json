@@ -36,5 +36,8 @@
     "src",
     "demo",
     "README.md"
-  ]
+  ],
+  "dependencies": {
+    "@wss/dsp-wasm": "*"
+  }
 }

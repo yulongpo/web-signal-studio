@@ -136,3 +136,30 @@ export interface WaveformSeriesStub {
   xMax: number;
   kind: "waveform" | "psd";
 }
+
+export {
+  createSpectrogramTileSource,
+  SpectrogramRingBuffer,
+  physicalRangeToSourceWindow,
+  viewToSourceWindow,
+  type SpectrogramOrientation,
+  type FreqTimeExtent,
+  type SpectrogramGridSnapshot,
+  type SpectrogramGrid,
+  type SpectrogramTileRequest,
+  type SpectrogramTileSource,
+  type CreateSpectrogramTileSourceOptions,
+} from "./tile/spectrogramGrid.js";
+
+export {
+  collectGpuWebglProbe,
+  collectGpuWebglProbeFromEnvironment,
+  type GpuWebglProbeFields,
+  type CollectGpuWebglProbeOptions,
+} from "./probe/gpuWebglProbe.js";
+
+export {
+  runContextRestoreProbe,
+  type ContextRestoreProbePayload,
+  type ContextRestoreTransition,
+} from "./probe/contextRestoreProbe.js";

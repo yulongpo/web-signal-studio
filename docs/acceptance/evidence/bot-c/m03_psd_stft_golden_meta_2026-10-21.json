@@ -1,0 +1,22 @@
+{
+  "bot": "bot-c",
+  "gate": "M-03",
+  "writtenAt": "2026-10-21T12:00:00.000Z",
+  "status": "WIP",
+  "numericalGolden": {
+    "testFile": "packages/charts/src/dsp/psdStftGolden.test.ts",
+    "fixture": "@wss/dsp-wasm ReferencePsdEngine / ReferenceStftEngine synthetic two-tone",
+    "psdExpectedBins": [
+      50,
+      120
+    ],
+    "stftExpectedBins": [
+      40,
+      80
+    ],
+    "toleranceBins": 1
+  },
+  "screenshot": "m03_spectrum_chart.png",
+  "screenshotAlt": "m03_chart_main.png",
+  "note": "Screenshot produced by apps/web e2e charts-qa-evidence.spec.ts; PASS only by QA-G"
+}

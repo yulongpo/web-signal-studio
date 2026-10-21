@@ -1,0 +1,28 @@
+{
+  "bot": "bot-c",
+  "gate": "C-03",
+  "writtenAt": "2026-10-21T10:52:04.219Z",
+  "before": {
+    "cssW": 780,
+    "cssH": 439,
+    "bufferWidth": 780,
+    "bufferHeight": 439,
+    "dpr": 1,
+    "dataDpr": "1",
+    "dataBufferWidth": "780",
+    "dataBufferHeight": "439"
+  },
+  "after": {
+    "cssW": 475,
+    "cssH": 319,
+    "bufferWidth": 780,
+    "bufferHeight": 439,
+    "dpr": 1,
+    "dataDpr": "1",
+    "dataBufferWidth": "780",
+    "dataBufferHeight": "439"
+  },
+  "screenshot": "c03_resize_chart.png",
+  "status": "WIP",
+  "note": "Playwright viewport resize; canvas backing store reflects DPR"
+}

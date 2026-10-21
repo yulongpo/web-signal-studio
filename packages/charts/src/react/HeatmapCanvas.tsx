@@ -263,6 +263,9 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       cssHeight: cssH,
       devicePixelRatio: dpr,
     });
+    wrap.setAttribute("data-dpr", String(glSize.dpr));
+    wrap.setAttribute("data-buffer-width", String(glSize.bufferWidth));
+    wrap.setAttribute("data-buffer-height", String(glSize.bufferHeight));
     applyCanvasDpr(axisCanvas, {
       cssWidth: cssW,
       cssHeight: cssH,
@@ -513,6 +516,9 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       data-testid={testId}
       data-interaction-mode={interactionMode}
       data-webgl-state={webglState}
+      data-dpr="1"
+      data-buffer-width="0"
+      data-buffer-height="0"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endDrag}
