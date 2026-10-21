@@ -13,7 +13,7 @@ import threading
 import time
 from typing import Callable
 
-from .models import TaskStatus
+from .models import TaskStatus, UiMessage
 
 log = logging.getLogger("local-compute.worker")
 
@@ -81,6 +81,7 @@ def start_stub_worker(
     is_detection: bool,
     block_reasons: list[str],
     apply_update: Callable[..., None],
+    ui_messages: list[UiMessage] | None = None,
 ) -> RunHandle:
     """Start a NON-TensorRT stub thread for this exact runId.
 
@@ -95,6 +96,8 @@ def start_stub_worker(
             old.request_cancel()
         _handles[run_id] = handle
 
+    ui_msgs = list(ui_messages or [])
+
     def _run() -> None:
         steps = stub_steps()
         delay = stub_step_ms() / 1000.0
@@ -104,6 +107,7 @@ def start_stub_worker(
                 status=TaskStatus.RUNNING,
                 progress=0.0,
                 message=f"{STUB_ENGINE_LABEL}: worker started (kind={kind})",
+                message_zh=f"{STUB_ENGINE_LABEL}: \u5de5\u4f5c\u7ebf\u7a0b\u5df2\u542f\u52a8 (kind={kind})",
                 evidence_notes=f"engine={STUB_ENGINE_LABEL}",
             )
             for i in range(steps):
@@ -113,6 +117,7 @@ def start_stub_worker(
                         status=TaskStatus.CANCELLED,
                         progress=(i / steps),
                         message="Cancelled by client (exact runId)",
+                        message_zh="\u5df2\u7531\u5ba2\u6237\u7aef\u53d6\u6d88\uff08\u7cbe\u786e runId\uff09",
                         clear_result=True,
                     )
                     return
@@ -122,6 +127,7 @@ def start_stub_worker(
                     status=TaskStatus.RUNNING,
                     progress=min(0.99, (i + 1) / steps),
                     message=f"{STUB_ENGINE_LABEL}: step {i + 1}/{steps}",
+                    message_zh=f"{STUB_ENGINE_LABEL}: \u6b65\u9aa4 {i + 1}/{steps}",
                 )
 
             if handle.cancel_event.is_set():
@@ -130,6 +136,7 @@ def start_stub_worker(
                     status=TaskStatus.CANCELLED,
                     progress=1.0,
                     message="Cancelled by client (exact runId)",
+                    message_zh="\u5df2\u7531\u5ba2\u6237\u7aef\u53d6\u6d88\uff08\u7cbe\u786e runId\uff09",
                     clear_result=True,
                 )
                 return
@@ -140,15 +147,25 @@ def start_stub_worker(
                 ]
                 if not any("BLOCKED" in r for r in reasons):
                     reasons.insert(0, "BLOCKED: no real detection forward path")
+                primary_en = (
+                    f"{STUB_ENGINE_LABEL}: detection refused — "
+                    "no fabricated FFSCN/SCN results"
+                )
+                primary_zh = (
+                    f"{STUB_ENGINE_LABEL}: \u68c0\u6d4b\u5df2\u62d2\u7edd\u2014\u2014"
+                    "\u4e0d\u4f2a\u9020 FFSCN/SCN \u7ed3\u679c"
+                )
+                if ui_msgs:
+                    primary_en = ui_msgs[0].en
+                    primary_zh = ui_msgs[0].zh
                 apply_update(
                     run_id,
                     status=TaskStatus.BLOCKED,
                     progress=1.0,
-                    message=(
-                        f"{STUB_ENGINE_LABEL}: detection refused — "
-                        "no fabricated FFSCN/SCN results"
-                    ),
+                    message=primary_en,
+                    message_zh=primary_zh,
                     block_reasons=reasons,
+                    ui_messages=ui_msgs,
                     clear_result=True,
                     evidence_notes=(
                         f"engine={STUB_ENGINE_LABEL}; "
@@ -161,6 +178,7 @@ def start_stub_worker(
                     status=TaskStatus.SUCCEEDED,
                     progress=1.0,
                     message=f"{STUB_ENGINE_LABEL}: non-detection stub completed",
+                    message_zh=f"{STUB_ENGINE_LABEL}: \u975e\u68c0\u6d4b\u5360\u4f4d\u4efb\u52a1\u5df2\u5b8c\u6210",
                     result={
                         "stub": True,
                         "engine": STUB_ENGINE_LABEL,
@@ -175,6 +193,7 @@ def start_stub_worker(
                 run_id,
                 status=TaskStatus.FAILED,
                 message=f"{STUB_ENGINE_LABEL}: worker error: {exc}",
+                message_zh=f"{STUB_ENGINE_LABEL}: \u5de5\u4f5c\u7ebf\u7a0b\u9519\u8bef: {exc}",
                 clear_result=True,
             )
         finally:
