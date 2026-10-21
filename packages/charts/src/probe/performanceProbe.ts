@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Performance probe writer for Bot-C validation evidence.
  * Writes JSON under artifacts/validation/bot-c/ when a filesystem is available
  * (Node / tests). In pure browser, returns the payload for the host to persist.
@@ -43,6 +43,15 @@ export interface ProbeWriteOptions {
   mkdirp?: (absDir: string) => void | Promise<void>;
 }
 
+export interface MsPercentiles {
+  count: number;
+  min: number;
+  max: number;
+  mean: number;
+  p50: number;
+  p95: number;
+}
+
 export interface ProbePayload {
   bot: "bot-c";
   writtenAt: string;
@@ -53,6 +62,10 @@ export interface ProbePayload {
     totalDurationMs: number;
     modes: string[];
     dpr?: number | null;
+    /** Aggregated frameMs from sample.meta.frameMs when present. */
+    frameMs?: MsPercentiles | null;
+    /** Aggregated extractMs from sample.meta.extractMs when present. */
+    extractMs?: MsPercentiles | null;
   };
 }
 
@@ -61,6 +74,46 @@ export interface ProbeWriteResult {
   path: string | null;
   payload: ProbePayload;
   reason?: string;
+}
+
+/** Linear-interpolation percentile on a copy-sorted array. p in [0,100]. */
+export function percentile(values: number[], p: number): number {
+  if (values.length === 0) return NaN;
+  const sorted = [...values].sort((a, b) => a - b);
+  if (sorted.length === 1) return sorted[0]!;
+  const clamped = Math.min(100, Math.max(0, p));
+  const idx = (clamped / 100) * (sorted.length - 1);
+  const lo = Math.floor(idx);
+  const hi = Math.ceil(idx);
+  if (lo === hi) return sorted[lo]!;
+  const t = idx - lo;
+  return sorted[lo]! * (1 - t) + sorted[hi]! * t;
+}
+
+export function aggregateMsStats(values: number[]): MsPercentiles | null {
+  const nums = values.filter((v) => typeof v === "number" && Number.isFinite(v));
+  if (nums.length === 0) return null;
+  const sum = nums.reduce((a, b) => a + b, 0);
+  return {
+    count: nums.length,
+    min: Math.min(...nums),
+    max: Math.max(...nums),
+    mean: sum / nums.length,
+    p50: percentile(nums, 50),
+    p95: percentile(nums, 95),
+  };
+}
+
+function collectMetaNumbers(
+  samples: ProbeSample[],
+  key: "frameMs" | "extractMs",
+): number[] {
+  const out: number[] = [];
+  for (const s of samples) {
+    const v = s.meta?.[key];
+    if (typeof v === "number" && Number.isFinite(v)) out.push(v);
+  }
+  return out;
 }
 
 function defaultFileName(prefix = "probe"): string {
@@ -111,6 +164,8 @@ function buildPayload(samples: ProbeSample[]): ProbePayload {
       totalDurationMs: normalized.reduce((a, s) => a + s.durationMs, 0),
       modes,
       dpr: dprSample ? (dprSample.meta!.dpr as number) : null,
+      frameMs: aggregateMsStats(collectMetaNumbers(normalized, "frameMs")),
+      extractMs: aggregateMsStats(collectMetaNumbers(normalized, "extractMs")),
     },
   };
 }
@@ -227,6 +282,17 @@ export class PerformanceProbeSession {
     return this.samples;
   }
 
+  /** Current P50/P95 aggregates without writing. */
+  getPercentiles(): {
+    frameMs: MsPercentiles | null;
+    extractMs: MsPercentiles | null;
+  } {
+    return {
+      frameMs: aggregateMsStats(collectMetaNumbers(this.samples, "frameMs")),
+      extractMs: aggregateMsStats(collectMetaNumbers(this.samples, "extractMs")),
+    };
+  }
+
   async flush(options?: ProbeWriteOptions): Promise<ProbeWriteResult> {
     return writePerformanceProbe(this.samples, options);
   }
@@ -235,3 +301,160 @@ export class PerformanceProbeSession {
     this.samples = [];
   }
 }
+
+export interface SyntheticInteractionLoopOptions {
+  /** Number of pan/zoom preview frames. Default 40. */
+  previewFrames?: number;
+  /** Number of idle refine frames after settle. Default 10. */
+  refineFrames?: number;
+  sourceWidth?: number;
+  sourceHeight?: number;
+  plotCssWidth?: number;
+  plotCssHeight?: number;
+  dpr?: number;
+  repoRoot?: string;
+  fileName?: string;
+}
+
+/**
+ * CPU-only synthetic interaction loop: preview extracts while "dragging",
+ * then refine extracts. Writes P50/P95 probe JSON under artifacts/validation/bot-c.
+ */
+export async function runSyntheticInteractionProbe(
+  options: SyntheticInteractionLoopOptions = {},
+): Promise<ProbeWriteResult> {
+  const {
+    previewFrames = 40,
+    refineFrames = 10,
+    sourceWidth = 512,
+    sourceHeight = 256,
+    plotCssWidth = 800,
+    plotCssHeight = 400,
+    dpr = 2,
+    repoRoot,
+    fileName = "charts_probe_interaction_p95_2026-10-21.json",
+  } = options;
+
+  const { extractDisplayGrid, suggestExtractOutSize } = await import(
+    "../tile/displayExtract.js"
+  );
+  const { PreviewRefineController } = await import(
+    "../interaction/previewRefine.js"
+  );
+  const { panView, zoomViewAt, wheelDeltaToZoomFactor } = await import(
+    "../interaction/viewTransform.js"
+  );
+
+  const source = new Float32Array(sourceWidth * sourceHeight);
+  for (let i = 0; i < source.length; i++) {
+    source[i] = Math.sin(i * 0.01) * 0.5 + 0.5;
+  }
+
+  const session = new PerformanceProbeSession();
+  let mode: ProbeMode = "idle";
+  const ctrl = new PreviewRefineController(
+    {
+      onPreview: () => {
+        mode = "preview";
+      },
+      onRefine: () => {
+        mode = "refine";
+      },
+      onIdle: () => {
+        mode = "idle";
+      },
+    },
+    { idleSettleMs: 1_000_000 }, // manual refine in this loop
+  );
+
+  let view: import("../interaction/viewTransform.js").ViewState = {
+    xDomain: { min: 0, max: 1, unit: "s", label: "Time" },
+    yDomain: { min: -0.5, max: 0.5, unit: "Hz", label: "Frequency" },
+  };
+  const xSpan = { pixelMin: 52, pixelMax: 52 + plotCssWidth };
+  const ySpan = { pixelMin: 10, pixelMax: 10 + plotCssHeight };
+
+  for (let i = 0; i < previewFrames; i++) {
+    ctrl.noteInteraction();
+    view = panView(view, 4, -2, xSpan, ySpan);
+    if (i % 5 === 0) {
+      const factor = wheelDeltaToZoomFactor(i % 10 === 0 ? -100 : 100);
+      view = zoomViewAt(view, 200, 150, factor, xSpan, ySpan);
+    }
+    const outSize = suggestExtractOutSize({
+      sourceWidth,
+      sourceHeight,
+      plotCssWidth,
+      plotCssHeight,
+      mode: "preview",
+    });
+    const extracted = extractDisplayGrid({
+      source,
+      sourceWidth,
+      sourceHeight,
+      srcX: 0,
+      srcY: 0,
+      srcW: sourceWidth,
+      srcH: sourceHeight,
+      outW: outSize.outW,
+      outH: outSize.outH,
+      reduce: "nearest",
+    });
+    // Synthetic frame cost ~ extract + tiny constant (no GPU in Node).
+    const frameMs = extracted.extractMs + 0.15 + (i % 7) * 0.02;
+    session.markCharts(`preview-frame-${i}`, {
+      frameMs,
+      extractMs: extracted.extractMs,
+      dpr,
+      mode,
+      outW: extracted.width,
+      outH: extracted.height,
+      bufferWidth: Math.round(plotCssWidth * dpr),
+      bufferHeight: Math.round(plotCssHeight * dpr),
+      note: "synthetic-interaction-preview",
+    });
+  }
+
+  ctrl.requestRefine();
+  for (let i = 0; i < refineFrames; i++) {
+    const outSize = suggestExtractOutSize({
+      sourceWidth,
+      sourceHeight,
+      plotCssWidth,
+      plotCssHeight,
+      mode: "refine",
+    });
+    const extracted = extractDisplayGrid({
+      source,
+      sourceWidth,
+      sourceHeight,
+      srcX: 0,
+      srcY: 0,
+      srcW: sourceWidth,
+      srcH: sourceHeight,
+      outW: outSize.outW,
+      outH: outSize.outH,
+      reduce: "peak",
+    });
+    const frameMs = extracted.extractMs + 0.35 + (i % 5) * 0.03;
+    session.markCharts(`refine-frame-${i}`, {
+      frameMs,
+      extractMs: extracted.extractMs,
+      dpr,
+      mode,
+      outW: extracted.width,
+      outH: extracted.height,
+      bufferWidth: Math.round(plotCssWidth * dpr),
+      bufferHeight: Math.round(plotCssHeight * dpr),
+      note: "synthetic-interaction-refine",
+    });
+  }
+
+  ctrl.dispose();
+
+  return session.flush({
+    repoRoot,
+    fileName,
+  });
+}
+

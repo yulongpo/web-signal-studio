@@ -1,10 +1,13 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import {
   writePerformanceProbe,
   writeChartsValidationProbe,
   PerformanceProbeSession,
+  percentile,
+  aggregateMsStats,
+  runSyntheticInteractionProbe,
 } from "./performanceProbe.js";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -74,6 +77,65 @@ describe("performanceProbe", () => {
       expect(json.samples[0].meta.mode).toBe("preview");
     } finally {
       rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("percentile and aggregateMsStats compute p50/p95", () => {
+    expect(percentile([1, 2, 3, 4, 5], 50)).toBe(3);
+    expect(percentile([1, 2, 3, 4, 5], 95)).toBeCloseTo(4.8, 5);
+    const stats = aggregateMsStats([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(stats).not.toBeNull();
+    expect(stats!.p50).toBeCloseTo(5.5, 5);
+    expect(stats!.p95).toBeCloseTo(9.55, 5);
+    expect(stats!.count).toBe(10);
+  });
+
+  it("flush summary includes frameMs/extractMs percentiles", async () => {
+    const root = mkdtempSync(join(tmpdir(), "wss-probe-"));
+    try {
+      const session = new PerformanceProbeSession();
+      for (let i = 1; i <= 20; i++) {
+        session.markCharts(`f${i}`, {
+          frameMs: i,
+          extractMs: i * 0.5,
+          dpr: 2,
+          mode: i < 15 ? "preview" : "refine",
+        });
+      }
+      const result = await session.flush({ repoRoot: root, fileName: "pct.json" });
+      expect(result.payload.summary?.frameMs?.p50).toBeDefined();
+      expect(result.payload.summary?.frameMs?.p95).toBeDefined();
+      expect(result.payload.summary?.extractMs?.p50).toBeDefined();
+      expect(result.payload.summary?.extractMs?.p95).toBeDefined();
+      expect(result.payload.summary!.frameMs!.count).toBe(20);
+      const live = session.getPercentiles();
+      expect(live.frameMs?.p95).toBe(result.payload.summary!.frameMs!.p95);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("runSyntheticInteractionProbe writes real P95 probe under repo artifacts", async () => {
+    const repoRoot = join(tmpdir(), `wss-synth-${Date.now()}`);
+    // also write into the real worktree artifacts when WSS_PROBE_REPO is set
+    const targetRoot = process.env.WSS_PROBE_REPO ?? repoRoot;
+    const result = await runSyntheticInteractionProbe({
+      previewFrames: 24,
+      refineFrames: 8,
+      repoRoot: targetRoot,
+      fileName: "charts_probe_interaction_p95_2026-10-21.json",
+    });
+    expect(result.ok).toBe(true);
+    expect(result.path).toBeTruthy();
+    expect(existsSync(result.path!)).toBe(true);
+    const json = JSON.parse(readFileSync(result.path!, "utf8"));
+    expect(json.summary.frameMs.p50).toBeGreaterThan(0);
+    expect(json.summary.frameMs.p95).toBeGreaterThanOrEqual(json.summary.frameMs.p50);
+    expect(json.summary.extractMs.p95).toBeGreaterThan(0);
+    expect(json.summary.modes.length).toBeGreaterThan(0);
+    expect(json.samples.length).toBe(24 + 8);
+    if (targetRoot === repoRoot) {
+      rmSync(repoRoot, { recursive: true, force: true });
     }
   });
 });

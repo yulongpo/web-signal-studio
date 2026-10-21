@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @wss/charts — Bot-C public surface
  * Custom WebGL2 charts; no third-party chart library as primary path.
  */
@@ -8,6 +8,16 @@ export {
   type WebGL2ContextHandle,
   type WebGL2ContextOptions,
 } from "./webgl/context.js";
+
+export {
+  nextWebGlUiState,
+  planHeatmapContextRestore,
+  attachWebGlContextLifecycle,
+  type WebGlUiState,
+  type WebGlUiEvent,
+  type HeatmapRestorePlan,
+  type ContextLifecycleCallbacks,
+} from "./webgl/contextRestore.js";
 
 export {
   HeatmapRenderer,
@@ -60,6 +70,20 @@ export {
 } from "./interaction/previewRefine.js";
 
 export {
+  panDomain,
+  zoomDomain,
+  panView,
+  zoomViewAt,
+  wheelDeltaToZoomFactor,
+  clampZoomSpan,
+  domainsEqual,
+  domainSpan,
+  type ViewDomain,
+  type ViewState,
+  type PixelSpan,
+} from "./interaction/viewTransform.js";
+
+export {
   sizeCanvasForDpr,
   applyCanvasDpr,
   resolveDevicePixelRatio,
@@ -86,12 +110,17 @@ export {
   writePerformanceProbe,
   writeChartsValidationProbe,
   PerformanceProbeSession,
+  runSyntheticInteractionProbe,
+  percentile,
+  aggregateMsStats,
   type ProbeSample,
   type ProbeWriteResult,
   type ProbeWriteOptions,
   type ProbePayload,
   type ChartsProbeFields,
   type ProbeMode,
+  type MsPercentiles,
+  type SyntheticInteractionLoopOptions,
 } from "./probe/performanceProbe.js";
 
 export { HeatmapCanvas, type HeatmapCanvasProps } from "./react/HeatmapCanvas.js";
