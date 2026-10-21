@@ -1,45 +1,35 @@
 {
   "bot": "bot-c",
-  "writtenAt": "2026-10-21T10:51:11.906Z",
+  "writtenAt": "2026-10-21T11:06:14.519Z",
   "package": "@wss/charts",
   "gate": "C-04",
-  "gpu": false,
-  "gpuAvailable": false,
-  "note": "simulated context restore (gpu:false / headless); interaction P95 is CPU synthetic",
+  "gpu": true,
+  "gpuAvailable": true,
+  "source": "playwright-WEBGL_lose_context",
   "transitions": [
-    {
-      "from": "ok",
-      "event": "init-ok",
-      "to": "ok"
-    },
     {
       "from": "ok",
       "event": "lost",
       "to": "lost",
-      "plan": {
-        "disposeRenderer": false,
-        "createRenderer": false,
-        "reuploadTextures": false,
-        "uiState": "lost"
-      }
+      "via": "WEBGL_lose_context.loseContext"
     },
     {
       "from": "lost",
       "event": "restored",
-      "to": "restored",
-      "plan": {
-        "disposeRenderer": true,
-        "createRenderer": true,
-        "reuploadTextures": true,
-        "uiState": "restored"
-      }
-    },
-    {
-      "from": "restored",
-      "event": "init-ok",
-      "to": "ok"
+      "to": "ok",
+      "via": "WEBGL_lose_context.restoreContext"
     }
   ],
   "finalState": "ok",
-  "relatedInteractionProbe": "docs/acceptance/evidence/bot-c/charts_probe_interaction_p95_2026-10-21.json"
+  "loseResult": {
+    "ok": true,
+    "reason": "lost-requested"
+  },
+  "restoreResult": {
+    "ok": true,
+    "reason": "restore-requested"
+  },
+  "relatedInteractionProbe": "docs/acceptance/evidence/bot-c/charts_probe_interaction_p95_2026-10-21.json",
+  "note": "Live browser context-restore (not Node-simulated). Interaction P95 remains CPU synthetic.",
+  "status": "WIP"
 }

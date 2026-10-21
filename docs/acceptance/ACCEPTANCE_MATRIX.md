@@ -23,7 +23,7 @@
 |----|------------------------|----------|----------|------|------|
 | M-01 | 工程打开 / 最近文件 | `packages/project-io` + `apps/web` | 单元 + E2E | TODO | |
 | M-02 | RAW / SigMF / WAV 分块读 | `packages/file-io` | 单测 + fixtures | TODO | |
-| M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | WIP | `docs/acceptance/evidence/bot-c/`（WebGL2 热图/LUT 探针；`@wss/charts` 38 单测；commits `7b21dff`/`694dc10`；**非 PASS，待 QA**） |
+| M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | WIP | `docs/acceptance/evidence/bot-c/`（WebGL2 热图/LUT 探针；`@wss/charts` 52 单测；commits `7b21dff`/`694dc10`；**非 PASS，待 QA**） |
 | M-04 | 物理轴 / DPR / 交互预览 | `packages/charts` + `apps/web` | Playwright | WIP | `docs/acceptance/evidence/bot-c/BOT_C_PROBE_INDEX.md` + interaction P95；DPR/preview-refine；**非 PASS，待 QA** |
 | M-05 | 宽窄带工作区布局 | `apps/web` | E2E + 对照截图 | TODO | |
 | M-06 | 标记 / 通道快照 / 撤销重做 | `packages/domain` + `project-io` | 单测 + E2E | TODO | |
@@ -74,4 +74,5 @@
 | 2026-10-21 | WSS-QA-G | Q-01 remote CI fail 诊断 + oxlint linux binding CI 修复；Q-03 license 证据 |
 | 2026-10-21 | Bot-C | evidence package: M-03/M-04→WIP + C-01..C-04；`docs/acceptance/evidence/bot-c/`（**不宣称 PASS**；commits `7b21dff`/`694dc10`，tip `610a79c`） |
 
+| 2026-10-21 | Bot-C | QA-G re-review: healthy WebGL screenshots + live GPU/DPR/context-restore probes (**仍 WIP，不自报 PASS**); vitest **52**; ANGLE/SwiftShader Playwright |
 | 2026-10-21 | Bot-C | QA-G evidence gaps M-03/M-04 + C-01..C-04 under `docs/acceptance/evidence/bot-c/` (**仍 WIP，不自报 PASS**); golden+Playwright+GPU/LUT/displayOnly/resize/restore probes |
