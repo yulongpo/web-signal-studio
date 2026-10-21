@@ -71,11 +71,16 @@ export type NarrowbandSimpleDemodResult = {
 // BLOCKED: eye diagram (needs symbol timing recovery — not in-tree for Bot-D)
 // ---------------------------------------------------------------------------
 
-/** BLOCKED: eye diagram needs Gardner/Mueller timing sync — not in Bot-D tree. */
+/**
+ * BLOCKED: eye diagram needs Gardner/Mueller (or equivalent) timing sync — not in Bot-D tree.
+ * sigmf_data_demo annotations carry modulation labels + freq edges but **no** symbol_rate / SPS;
+ * UI `nbSymbolRate` is chrome only and must not be treated as verified timing.
+ * Do not draw an eye from a guessed SPS — that would be a fake trace.
+ */
 export type NarrowbandEyeDiagramRequest = {
   tuning: NarrowbandDdcTuning;
   source: NarrowbandIqSourceRef;
-  /** Samples per symbol guess (unknown without timing recovery). */
+  /** Samples per symbol — unknown without timing recovery or annotated baud. */
   samplesPerSymbol?: number;
   traces?: number;
 };
@@ -93,7 +98,7 @@ export const NARROWBAND_EYE_BLOCKED: NarrowbandEyeDiagramResult = {
   reasonZh:
     '眼图需要符号定时同步（Gardner/Mueller 等），Bot-D 树内无此引擎；不绘制伪眼图。',
   reasonEn:
-    'Eye diagram needs symbol timing recovery (Gardner/Mueller); not in Bot-D tree. No fake eye.',
+    'Eye diagram needs symbol timing recovery (Gardner/Mueller) or annotated SPS; neither in Bot-D / sigmf_data_demo. No fake eye.',
 };
 
 /** Stub: always BLOCKED until timing-sync DSP lands. */
