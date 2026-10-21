@@ -1,6 +1,6 @@
 /**
  * Write Bot-B acceptance evidence under docs/acceptance/evidence/bot-b/.
- * Companion JSON + screenshots for M-01 / M-05. Does NOT claim matrix PASS (QA-G only).
+ * Companion JSON + screenshots for M-01 / M-02 / M-05. Does NOT claim matrix PASS (QA-G only).
  */
 import fs from 'node:fs';
 import path from 'node:path';

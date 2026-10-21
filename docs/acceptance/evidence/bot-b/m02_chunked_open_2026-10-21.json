@@ -1,0 +1,109 @@
+{
+  "id": "m02_chunked_open",
+  "gate": "M-02",
+  "date": "2026-10-21",
+  "matrix_pass_claimed": false,
+  "base_tip": "19313983fa535325dacf8f1317a9c8aa9bc18c91",
+  "package": "B-M02-evidence-assist",
+  "open_path": "file-input (multiple) -> openIqFromFiles -> @wss/file-io readers -> stftFromChunkedReader / computeFileSpectrogram",
+  "chunked_reader_labels": {
+    "wav": "user-picked IQ WAV (file input): ...",
+    "raw": "user-picked IQ RAW (file input): ...",
+    "sigmf": "user-picked IQ SigMF (file input): ..."
+  },
+  "formats": [
+    {
+      "format": "wav",
+      "fixture_relative_paths": [
+        "apps/web/e2e/fixtures/tiny-iq.wav"
+      ],
+      "sample_count_decimal": "256",
+      "opened_file_stft_worker": true,
+      "dsp_source": "file-stft-worker",
+      "data_iq_format": "wav",
+      "chip_data_iq_format": "wav",
+      "dsp_label": "user-picked IQ WAV (file input): tiny-iq.wav",
+      "status_file": "tiny-iq.wav",
+      "assertions": {
+        "dsp_source_allowed": "true",
+        "sample_count_decimal_string": "256",
+        "data_iq_format": true,
+        "chip_iq_format": true,
+        "status_file_matches": true,
+        "label_not_synthetic": true,
+        "chunked_reader_path": "file-stft-worker"
+      }
+    },
+    {
+      "format": "raw",
+      "fixture_relative_paths": [
+        "apps/web/e2e/fixtures/tiny-iq.raw"
+      ],
+      "sample_count_decimal": "256",
+      "opened_file_stft_worker": true,
+      "dsp_source": "file-stft-worker",
+      "data_iq_format": "raw",
+      "chip_data_iq_format": "raw",
+      "dsp_label": "user-picked IQ RAW (file input): tiny-iq.raw",
+      "status_file": "tiny-iq.raw",
+      "assertions": {
+        "dsp_source_allowed": "true",
+        "sample_count_decimal_string": "256",
+        "data_iq_format": true,
+        "chip_iq_format": true,
+        "status_file_matches": true,
+        "label_not_synthetic": true,
+        "chunked_reader_path": "file-stft-worker"
+      }
+    },
+    {
+      "format": "sigmf",
+      "fixture_relative_paths": [
+        "apps/web/e2e/fixtures/tiny.sigmf-meta",
+        "apps/web/e2e/fixtures/tiny.sigmf-data"
+      ],
+      "sample_count_decimal": "128",
+      "opened_file_stft_worker": true,
+      "dsp_source": "file-stft-worker",
+      "data_iq_format": "sigmf",
+      "chip_data_iq_format": "sigmf",
+      "dsp_label": "user-picked IQ SigMF (file input): tiny",
+      "status_file": "tiny",
+      "assertions": {
+        "dsp_source_allowed": "true",
+        "sample_count_decimal_string": "128",
+        "data_iq_format": true,
+        "chip_iq_format": true,
+        "status_file_matches": true,
+        "label_not_synthetic": true,
+        "chunked_reader_path": "file-stft-worker"
+      }
+    }
+  ],
+  "file_io_alignment": {
+    "package": "packages/file-io",
+    "unit_tests": [
+      "packages/file-io/src/wav-iq.test.ts",
+      "packages/file-io/src/raw-sigmf.test.ts",
+      "packages/file-io/src/chunked-reader.test.ts"
+    ],
+    "bot_b_dispatch_tests": "apps/web/src/dsp/computeFileSpectrogram.test.ts (openIq RAW / SigMF dispatch + e2e fixture open)",
+    "note": "Parsers owned by Bot-D / @wss/file-io; Bot-B only wires open path + evidence."
+  },
+  "testids": [
+    "input-iq-wav",
+    "btn-open-iq-wav",
+    "btn-clear-iq-wav",
+    "main-chart-host",
+    "dsp-source-chip",
+    "status-file",
+    "iq-open-error"
+  ],
+  "artifacts": [
+    "m02_chunked_open_2026-10-21.json",
+    "m02_chunked_open_wav.png",
+    "m02_chunked_open_raw.png",
+    "m02_chunked_open_sigmf.png"
+  ],
+  "note": "Evidence for QA-G M-02. Bot-B does not claim ACCEPTANCE_MATRIX PASS."
+}

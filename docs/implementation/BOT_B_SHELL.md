@@ -10,7 +10,7 @@ Owner: Bot-B (`work/bot-b-web-shell`, worktree `D:\\project\\wss-wt-b`).
 | Top of workspace | Global time nav strip | Placeholder |
 | Aux chart | `data-chart-slot="aux"` | ChartPlaceholder; Bot-C fills |
 | Toolbar | `SpectrumToolbar` | Primary + overflow + **wide/narrow workspace toggle** + Open IQ |
-| Main chart | `data-chart-slot="main"` | MainChartHost — `@wss/charts` SpectrumChart + Bot-D STFT worker |
+| Main chart | `data-chart-slot="main"` | MainChartHost 鈥?`@wss/charts` SpectrumChart + Bot-D STFT worker |
 | Bottom | `StatusBar` | Workspace / tool / cursor / **dsp source** / file / channel |
 | Right | `RightRail` | display / **detect** / marker / channel |
 | Overlay | `TempLayers` | Level + Display |
@@ -19,21 +19,21 @@ Owner: Bot-B (`work/bot-b-web-shell`, worktree `D:\\project\\wss-wt-b`).
 
 - Store: `workspaceMode` (`wideband` | `narrowband` | `linked`).
 - Toolbar: `btn-workspace-wideband` / `btn-workspace-narrowband` (StatusBar `status-workspace` stays in sync).
-- Narrowband shows `workspace-narrowband-stub` banner — **stub only**, real DDC is Bot-D; never fake demod / fake IQ.
-- Switching wide ↔ narrow must not drop main chart host or detect page state (e2e `workspace.spec.ts`).
+- Narrowband shows `workspace-narrowband-stub` banner 鈥?**stub only**, real DDC is Bot-D; never fake demod / fake IQ.
+- Switching wide 鈫?narrow must not drop main chart host or detect page state (e2e `workspace.spec.ts`).
 - Evidence: PNGs + companion JSON under `docs/acceptance/evidence/bot-b/` (`m05_workspace_*.png`, `m05_workspace_2026-10-21.json`, legacy `b-p3-workspace-*.png`). Index: `docs/acceptance/evidence/bot-b/BOT_B_PROBE_INDEX.md`. **QA-G owns PASS.**
 
 ## STFT worker path (Bot-D + Bot-B open chain)
 
-- DSP FFT engine default **`js`**. Opt-in `wasm-fft` via `?engine=wasm-fft` or `uiStore.dspFftEnginePreference` → `createBrowserDspWorkerClient({ engine })` + `ready()`; `fellBackToJs` treated as success. See `docs/implementation/bot-d/WASM_FFT_WIRING_FOR_BOT_B.md`.
+- DSP FFT engine default **`js`**. Opt-in `wasm-fft` via `?engine=wasm-fft` or `uiStore.dspFftEnginePreference` 鈫?`createBrowserDspWorkerClient({ engine })` + `ready()`; `fellBackToJs` treated as success. See `docs/implementation/bot-d/WASM_FFT_WIRING_FOR_BOT_B.md`.
 - Host/StatusBar expose `data-fft-engine` / `status-fft-engine`.
 - `MainChartHost` uses `useDspWorkerClient` + either:
-  - **Opened IQ**: FSA (`pickAndOpenIqWav`, WAV) or `<input type=file multiple>` → `openIqFromFiles` / `openIqFromFileBlob` → `stftFromChunkedReader` / `computeFileSpectrogram`
+  - **Opened IQ**: FSA (`pickAndOpenIqWav`, WAV) or `<input type=file multiple>` 鈫?`openIqFromFiles` / `openIqFromFileBlob` 鈫?`stftFromChunkedReader` / `computeFileSpectrogram`
   - **No file / clear / open fail**: `computeMainSpectrogram` synthetic two-tone fixture
 - Formats via `@wss/file-io` (no parser rewrite):
-  - **wav** — `openIqWavFromBlob` / FSA `pickAndOpenIqWav`
-  - **raw** — `.iq` / `.raw` / `.ci16` → `openRawCi16LeIq` (default sample rate `DEFAULT_RAW_SAMPLE_RATE_HZ` = 1e6 when no sidecar)
-  - **sigmf** — select **both** `.sigmf-meta` + `.sigmf-data` → `openSigmfArrayBuffer`
+  - **wav** 鈥?`openIqWavFromBlob` / FSA `pickAndOpenIqWav`
+  - **raw** 鈥?`.iq` / `.raw` / `.ci16` 鈫?`openRawCi16LeIq` (default sample rate `DEFAULT_RAW_SAMPLE_RATE_HZ` = 1e6 when no sidecar)
+  - **sigmf** 鈥?select **both** `.sigmf-meta` + `.sigmf-data` 鈫?`openSigmfArrayBuffer`
 - Session: `iqFileSession` carries `format: 'wav' | 'raw' | 'sigmf'`; chip/host expose `data-iq-format`.
 - Host attribute `data-dsp-source`: `loading` | `synthetic-stft-worker` | `file-stft-worker` | `fsa-wav-stft` | `demo-fallback`.
 - Explicit `sourceLabel` distinguishes WAV/RAW/SigMF; synthetic never claimed as live/capture.
@@ -49,10 +49,10 @@ Owner: Bot-B (`work/bot-b-web-shell`, worktree `D:\\project\\wss-wt-b`).
 
 - Contract: `docs/implementation/BOT_F_WEB_SESSION_CONTRACT.md`.
 - Thin adapter: `apps/web/src/projectIo/sessionHook.ts` + `asProjectSessionHook` in `uiStore`.
-- ProjectTree open/save/clear call `sessionHook()` → `ProjectSessionHookApi`.
+- ProjectTree open/save/clear call `sessionHook()` 鈫?`ProjectSessionHookApi`.
 - Primitives: `openProjectFromJsonText` / `summarizeLoadedProject` / `saveProjectToJsonText`.
 - Sample indexes: **decimal strings only**; never invent v6 fields; never silently rewrite source paths.
-- Playwright `project-io.spec.ts`: paste open → StatusBar/tree → save download → clear.
+- Playwright `project-io.spec.ts`: paste open 鈫?StatusBar/tree 鈫?save download 鈫?clear.
 - Evidence: `m01_project_open/saved/cleared.png`, `m01_project_export_probe.json`, `m01_project_io_2026-10-21.json` (see BOT_B_PROBE_INDEX). **QA-G owns PASS.**
 - StatusBar `status-project` mirrors loaded summary name/fileCount; clear empties project + file labels.
 
@@ -63,16 +63,16 @@ Follows `services/local-compute/docs/DETECTION_PAGE_CONTRACT.md`, `REAL_MODEL_IN
 - Client: `LocalComputeClient` **class** in `apps/web/src/localCompute/client.ts`.
 - Loopback assert; default base URL `http://127.0.0.1:8000`; override `VITE_LOCAL_COMPUTE_URL`.
 - `GET /capabilities` gates FFSCN/SCN on `detection.ffscn` / `.scn === true`.
-- Banner prefers `detection.uiMessages` (zh) + **code chips** (`detect-ui-code`); unknown codes still render server zh/en — **never invent copy client-side**.
+- Banner prefers `detection.uiMessages` (zh) + **code chips** (`detect-ui-code`); unknown codes still render server zh/en 鈥?**never invent copy client-side**.
 - Draw candidates **only** when `status === 'succeeded'` AND `result.verifiedForward === true` AND `engine` starts with `PYTORCH_*`.
-- `BLOCKED` / stub / missing verifiedForward → `detect-no-candidates`.
+- `BLOCKED` / stub / missing verifiedForward 鈫?`detect-no-candidates`.
 
-### Detect ↔ open-file session
+### Detect 鈫?open-file session
 
 - FFSCN/SCN run buttons require an opened IQ file session (`iqFileSession`) **and** capabilities.
 - Without IQ: gate shows `SOURCE_MISSING`; capabilities refresh still allowed.
 - With IQ: `createTask` sends `sourcePath` = file name / label (never invent candidates).
-- Clear IQ → clear detect task + re-disable run.
+- Clear IQ 鈫?clear detect task + re-disable run.
 
 ### detect data-testids
 
@@ -88,17 +88,24 @@ Follows `services/local-compute/docs/DETECTION_PAGE_CONTRACT.md`, `REAL_MODEL_IN
 
 ## Package B-P3-project-workspace-open
 
-- A: M-01 project open/save/clear hardened + Playwright save→clear.
+- A: M-01 project open/save/clear hardened + Playwright save鈫抍lear.
 - B: M-05 workspace e2e (stub + state retention) + evidence PNGs.
-- C: RAW/SigMF wired on file-input → chunked STFT; WAV unchanged.
+- C: RAW/SigMF wired on file-input 鈫?chunked STFT; WAV unchanged.
 
 ## Package B-P4
 
 - Optional wasm-fft (default js; query/store opt-in; fellBackToJs OK).
-- Project open/save ↔ StatusBar (`status-project`) / tree channel counts tighter.
-- Detect ↔ IQ file session gate + sourcePath on createTask.
+- Project open/save 鈫?StatusBar (`status-project`) / tree channel counts tighter.
+- Detect 鈫?IQ file session gate + sourcePath on createTask.
 - M-01/M-05 evidence JSON+PNG for QA-G (no matrix PASS claim).
 
 ## Package
 
 `@wss/web` deps: `@wss/charts`, `@wss/project-io`, `@wss/contracts`, `@wss/dsp-wasm`, `@wss/file-io`. Worktree only.
+
+## Package B-M02-evidence-assist
+
+- Playwright e2e/m02-chunked-open.spec.ts: opens 	iny-iq.wav / 	iny-iq.raw / 	iny.sigmf-meta+	iny.sigmf-data via file-input → chunked STFT.
+- Evidence: docs/acceptance/evidence/bot-b/m02_chunked_open_2026-10-21.json (+ optional PNGs). Index updated.
+- Vitest: pps/web/src/dsp/m02E2eFixturesOpen.test.ts asserts format + sampleIndexToDecimal(totalSamples) for the same fixtures.
+- Parsers remain @wss/file-io (Bot-D); Bot-B wires open path only. **QA-G owns M-02 matrix PASS.**
