@@ -2,9 +2,9 @@
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:30:33+（rebase `17937bb`） |
+| 时间（Asia/Shanghai） | 2026-10-21 21:33:00+（rebase `fb2e020` + Bot-G screenshots） |
 | 复核方 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
-| **Web tip（origin/main）** | **`17937bb3a735d0df7058a3714aa353a88abb0e23`**（`17937bb`；相对 `2000c1e`/`196db21` 已前进） |
+| **Web tip（origin/main）** | **`fb2e02052323127b33d665a03eb3400d8565b492`**（`fb2e020`；实现基线 `17937bb` + Bot-G 截图） |
 | **桌面上游 tip** | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`rebuild/a143-native`） |
 | 先验 Bot-A 文档 | `866e699` / G01–G26（对照 Web 当时 `be885f2`、上游 `0f108d0`，本地路径证据 `696ce12`） |
 | 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6`（fetch 后与远端一致） |
@@ -32,16 +32,21 @@
 
 **未新增独立 G27**：上述全部折叠进既有 G02/G06/G18/G19 的加严 PASS，避免 ID 漂移。
 
-### B0. Web `main@17937bb` 相对 `196db21` / Bot-A `2000c1e`（本轮）
+### B0. Web `main@fb2e020` 相对 `17937bb` / Bot-A `1be860d`（本轮截图 rebase）
 
-| ID | 新状态 | 证据 | 仍缺（阻止 FULL PASS） |
-|----|--------|------|------------------------|
-| G02 | **PARTIAL**（自 OPEN） | `App.tsx` 不再 import `SpectrumToolbar`；`AuxParamStrip`/`SpecParamStrip` 挂 aux/main 图头；`NavChrome`；e2e `bot-b-host-wiring` | `f9f05bb` caption 标签分离未满；`data-testid="spectrum-toolbar"` 仍在图头；overflow 焦点未证 |
-| G03 | PARTIAL | `NavChrome` zoom/pause/segments；条高默认 82 | `NavigationChart` **无 onWheel** 改窗宽 |
-| G04 | PARTIAL | `auxWaveRawIq.ts` + `AuxChartHost` Wave=`sigmf_data_demo` IqRms；非 STFT envelope | Bot-A 未跑 e2e 视觉；`/@fs` 路径依赖；PSD 仍谱图派生 |
-| G05 | **CLOSED**（自 PARTIAL） | `uiStore` 82/205；`VerticalSplitter` 拖+双击；e2e `navH===82` `auxH∈{205,176}`；对齐 `enforceLayout` | 短窗阈值 Web=900 vs 桌面=850（软差，不阻 CLOSED） |
+| ID | 状态 | 代码（`17937bb`） | 截图 / COMPARISON_NOTES |
+|----|------|-------------------|-------------------------|
+| G01 | OPEN | 无 menubar | 截图无法闭合 |
+| G02 | PARTIAL | Toolbar demoted | COMPARISON_NOTES #3：截图不闭 chrome |
+| G03 | PARTIAL | NavChrome+NavigationChart | `02-tri-chart-hosts`；滚轮仍缺 |
+| G04 | PARTIAL | raw IQ 代码路径 | `05-aux-wave-or-psd`；Bot-G 未 PASS |
+| G05 | **CLOSED** | 82/205+拖+双击 | hosts/splitters 可见；CLOSED 仍以代码为准 |
+| G06 | OPEN | stub | **`06-narrowband` stub 可见（强化）** |
+| G17 | OPEN | Detect 精简 | `08-rail-detect` 页级；engine picker 未验 |
+| G25 | DOCS | StatusBar | ~28px+文件名；无 gesture-hint |
+| G26 | PARTIAL | demo IQ | 捕获加载 `0000000`；Detect `.engine` 列表未验 |
 
-详表：`artifacts/validation/ui-parity/INCREMENTAL_17937bb.md`。
+详表：`INCREMENTAL_fb2e020.md`；证据：`qa/COMPARISON_NOTES.md`。
 
 ### B. Web `main@563458a` 相对 `866e699` 基线已闭合 / 部分闭合
 
@@ -84,7 +89,7 @@
 | 检测 | `DetectionCard` + 树内 `.engine` | `ui/detection/detection_card.h` |
 | 底部 | result/task/log | `bottomContent_` |
 
-## Web 现状（17937bb 只读）
+## Web 现状（`fb2e020` 只读；实现 `17937bb`）
 
 | 区域 | Web 事实 | 关键证据 |
 |------|----------|----------|
@@ -109,7 +114,7 @@
 | G03 | 布局 | 全局时间导航（已嵌入 NavigationChart） | `navigationPlot` | `NavChrome`+`NavigationChart` @`17937bb` | **P0** | **PARTIAL** | 真实时间窗+拖窗+chrome；补滚轮改窗宽 |
 | G04 | 布局 | 辅助图 Wave/PSD（派生曲线） | `auxPlot` | `auxWaveRawIq`/`sigmf_data_demo` IqRms @`17937bb` | **P0** | **PARTIAL** | Wave/PSD 切换；Wave=raw IQ 代码已落地；待 QA 视觉 |
 | G05 | 布局 | 垂直 splitter（默认已对齐 82/205） | `graphSplitter` 82/205 | `VerticalSplitter` 默认 **82/205** @`17937bb` | **P0** | **CLOSED** | 可拖+双击复位；默认对齐 82/205 |
-| G06 | 布局 | 窄带 stub；设置须跨页保留 | `NarrowbandWorkspace`+`a64117e` | stub | **P0** | OPEN（**加严**） | 非 stub；换页/overflow 后 STFT N·网格·频率保留；无伪解调 |
+| G06 | 布局 | 窄带 stub；设置须跨页保留 | `NarrowbandWorkspace`+`a64117e` | stub；**`06-narrowband.png` 可见** | **P0** | OPEN（**加严**+截图确认） | 非 stub；换页/overflow 后 STFT N·网格·频率保留；无伪解调 |
 | G07 | 布局 | 缺底栏 | `bottomContent_` | 无 | **P0** | OPEN | 三标签；~29/150 |
 | G08 | 布局 | 栏宽不一致 | 278/390 | 220/280 | **P1** | OPEN | 左~278 右~390；收起~38 |
 | G09 | 布局 | 缺主图底条 | UI-28 | MISSING | **P1** | OPEN | 游标/范围/基于标记创建通道 |
@@ -158,4 +163,4 @@ G21–G25。
 
 ## 结论
 
-上游仍锚定 **`17471a6`**。Web **`17937bb`** 本轮：**G02 OPEN→PARTIAL**（Bot-B 降级常驻 Toolbar）；**G05 PARTIAL→CLOSED**（Bot-C 默认 82/205）；G04 Wave raw IQ 代码落地仍标 PARTIAL（待 QA）；G03 chrome 残差清除但仍缺滚轮。未改实现代码。详见 `INCREMENTAL_17937bb.md`。
+桌面仍 **`17471a6`**。Web tip **`fb2e020`** = 实现 `17937bb` + Bot-G 截图包。状态相对 `1be860d` **不变**（OPEN 12 / PARTIAL 10 / DOCS 1 / CLOSED 1=G05）。COMPARISON_NOTES 强化：**G06 stub 可见**；G01/G02/检测 UI **不因截图 CLOSED**；**无矩阵 PASS**。详见 `INCREMENTAL_fb2e020.md`。

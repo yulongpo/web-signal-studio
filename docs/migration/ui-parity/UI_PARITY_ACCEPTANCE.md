@@ -2,9 +2,9 @@
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:30:33+（rebase `17937bb`） |
+| 时间（Asia/Shanghai） | 2026-10-21 21:33:00+（rebase `fb2e020`） |
 | 对应差距清单 | `UI_PARITY_GAP_AUDIT.md`（G01–G26 + INCREMENTAL DIFF） |
-| **Web tip** | **`17937bb`**（`origin/main`=`17937bb3a735d0df7058a3714aa353a88abb0e23`；rebase 自对 `196db21` 的 `2000c1e` 审计） |
+| **Web tip** | **`fb2e020`**（`fb2e02052323127b33d665a03eb3400d8565b492`；实现 `17937bb` + Bot-G `qa/COMPARISON_NOTES.md`） |
 | **桌面锚点** | **`17471a6`**（`rebuild/a143-native`） |
 | 先验矩阵 | `866e699`（对照 Web `be885f2` / 上游 `0f108d0`） |
 | **IQ 约束** | 仅 `D:\project\signal_studio_rebuild\resources\sigmf_data_demo\` |
@@ -41,7 +41,7 @@
 | G03 | P0 | PARTIAL | `global-nav` / `navigation-chart` | ① 非 placeholder；② 拖拽导航窗；③ 主图 timeSec 跟随；④（FULL）滚轮改窗宽；⑤（FULL）导航图头设置/chrome | **PARTIAL 退出**：有 NavigationChart+NavChrome；仍缺滚轮改窗宽 |
 | G04 | P0 | PARTIAL | `chart-aux` / `WaveformChart` | ① Wave/PSD 可见且可切换；② 切换改轴语义；③（FULL）Wave 为 raw IQ 显示路径（非仅 STFT envelope） | **PARTIAL 退出**：Wave raw IQ 代码路径已清；待 QA 视觉/`/@fs` |
 | G05 | P0 | CLOSED | `splitter-nav-aux` / `splitter-aux-main` | ① 可拖；② 双击复位；③（FULL）默认高度≈桌面 82/205（±10%） | 默认 82/205 + 拖 + 双击已满足；短窗阈值 900≠850 软差 |
-| G06 | P0 | OPEN（加严） | `workspace-narrowband-*` | ① 无 `workspace-narrowband-stub`；② 多页/多图布局；③ 无伪解调文案；④ 改 STFT N/网格/频率后切换窄带页再返回，值保留（对 `a64117e`）；⑤ overflow 折叠后再展开，值保留 | stub；换页丢设置 |
+| G06 | P0 | OPEN（加严） | `workspace-narrowband-*` | ① 无 `workspace-narrowband-stub`；② 多页/多图布局；③ 无伪解调文案；④ 改 STFT N/网格/频率后切换窄带页再返回，值保留（对 `a64117e`）；⑤ overflow 折叠后再展开，值保留 | stub；**截图 `06-narrowband.png` 仍可见 stub**（COMPARISON_NOTES） |
 | G07 | P0 | OPEN | `bottom-panel` | ① 三标签；② 收起≈29±6 / 展开≈150±20；③ 任务列表容器可空 | 无底栏 |
 | G08 | P1 | OPEN | 左右栏 | ① 左 270–286 / 右 382–398；② 收起≈38±4；③ 可拖宽 | 锁死 220/280 |
 | G09 | P1 | OPEN | `main-plot-footer` | ① ≈32px；② 游标+范围；③ 基于标记创建通道可点且不自动 DDC | 无底条 |

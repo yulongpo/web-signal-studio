@@ -90,3 +90,14 @@ Bot-C 证据：`NavigationChart` / `WaveformChart` / `VerticalSplitter`；e2e `g
 | 本地 rebuild | fetch 后仍 `17471a6`；**未写源码、未 push signal_studio** |
 | 共享树 | **未** `git checkout`；写入仅 `_wt_bot_a_audit` / `work/bot-a-audit` |
 
+## 2026-10-21 21:33:00+08 Bot-A UI 增量复核 @ Web `fb2e020`（截图 rebase）
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`17471a6`）— **未变** |
+| Web `origin/main` | **`fb2e02052323127b33d665a03eb3400d8565b492`**（`fb2e020` = Bot-G screenshots over `17937bb`） |
+| 先验 Bot-A | `1be860d` / `INCREMENTAL_17937bb.md` |
+| 本轮交付 | `INCREMENTAL_fb2e020.md`；并入 `qa/COMPARISON_NOTES.md`；状态计数不变 |
+| 关键点 | G06 stub 视觉确认；G01/G02/G17 截图不升格；**无 PASS** |
+| 共享树 | **未** checkout；仅 `_wt_bot_a_audit` |
+
