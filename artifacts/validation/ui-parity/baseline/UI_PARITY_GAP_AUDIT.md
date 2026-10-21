@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 02:10` Asia/Shanghai: Web tip **`bb9b1ef`** vs desktop `17471a6` — **evidence-only** G `2df3892` (web-2091dc0). G08 PARTIAL corroborated (`data-g08-shortcuts=wave23` + File/Edit/View accel captures); full shell re-shot residual → **not CLOSED**. No apps/packages delta. G18/G02 fold soft. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_bb9b1ef/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`663b522`) | Now (`bb9b1ef`) | Note |
+|----|---------------------|-------------------|------|
+| **G08** | PARTIAL（shortcuts MET） | **PARTIAL（G 佐证；未 CLOSED）** | wave23 stamps + accel PNGs；shell re-shot 残 |
+| **G18** / **G02** / **G19** | PARTIAL | **unchanged PARTIAL** | fold / residuals |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未发明 / 未抬升 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_bb9b1ef/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:07` Asia/Shanghai: **CAO retarget** Web tip **`663b522`** (supersedes d7e6973) vs desktop `17471a6` — G08 PARTIAL deepened (B `498b2ac` MenuBar QKeySequence / useMenuBarShortcuts). G `f88c440` web-42265bf corroborates G18 mod STFT + G02 soft (no elevate). Full shell re-shot residual. G18 recog STFT panes residual; G17 not elevated. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_663b522/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`42265bf`) | Now (`663b522`) | Note |

@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:10` Asia/Shanghai: Web **`bb9b1ef`** vs desktop `17471a6` — evidence-only G web-2091dc0. G08 PARTIAL corroborated (not CLOSED). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_bb9b1ef/`. **No PASS.**
+
+| ID | Prior (`663b522`) | Now (`bb9b1ef`) | Note |
+|----|---------------------|-------------------|------|
+| **G08** | PARTIAL | **PARTIAL（G 佐证；未 CLOSED）** | `data-g08-shortcuts=wave23` |
+| **G18** / **G02** | PARTIAL | **unchanged PARTIAL** | fold soft |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_bb9b1ef/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:07` Asia/Shanghai: **CAO retarget** Web **`663b522`** (supersedes d7e6973) vs desktop `17471a6` — G08 PARTIAL deepened (B wave23 MenuBar shortcuts). G web-42265bf evidence-only (no elevate). Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_663b522/`. **No PASS.**
 
 | ID | Prior (`42265bf`) | Now (`663b522`) | Note |
