@@ -46,3 +46,9 @@ export {
   type SaveProjectOptions,
   type ProjectSessionSummary,
 } from './project-session.js';
+
+/**
+ * Type-only store/hook surface. Bot-B uiStore should implement ProjectSessionHookApi
+ * by calling the project-session primitives above.
+ */
+export type { ProjectSessionHookApi } from './session-hook-contract.js';

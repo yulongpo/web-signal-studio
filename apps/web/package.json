@@ -22,7 +22,9 @@
     "react-router-dom": "^7.18.4",
     "uplot": "^1.6.32",
     "zod": "^4.6.7",
-    "zustand": "^5.0.15"
+    "zustand": "^5.0.15",
+    "@wss/project-io": "*",
+    "@wss/contracts": "*"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
