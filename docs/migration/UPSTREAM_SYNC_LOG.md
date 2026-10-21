@@ -144,3 +144,17 @@ ebuild/a143-native @ 17471a6488383b456281d12cb1a6d3d80290205d
 | PASS | **无**（Bot-A 不自报矩阵 PASS） |
 | 约束 | 未 checkout 共享树；未改实现；rebuild 只读 |
 
+
+## 2026-10-21 22:00+08 Bot-A INCREMENTAL_360aba7（ffeff52 rename + view history）
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6`**（unchanged） |
+| Web tip | **`360aba7`**（`ffeff52` over `62d3b70`） |
+| 主交付 | `artifacts/validation/ui-parity/INCREMENTAL_360aba7.md` |
+| G01 | **PARTIAL 再加深**：rename + view back/forward MET；corner/适应全部/恢复默认/File 深度仍缺 |
+| G15 | **OPEN → PARTIAL**（viewHistory ≤40 + 菜单） |
+| G06 | **PARTIAL 不变** |
+| 计数 | OPEN 9 · PARTIAL 13 · CLOSED 1（G05）· DOCS 1（G25） |
+| PASS | **无** |
+

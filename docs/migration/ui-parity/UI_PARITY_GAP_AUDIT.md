@@ -2,18 +2,29 @@
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:58:00（rebase `62d3b70` G01 menus + G shots） |
+| 时间（Asia/Shanghai） | 2026-10-21 22:00:00（rebase `360aba7` = `62d3b70` + `ffeff52`） |
 | 复核者 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
-| **Web tip（origin/main）** | **`62d3b70cae428e9161535e2cf908a27cf2bc82d4`**（B `e76ba97` 菜单 + G `c718171` 截图 + A `593948d`） |
+| **Web tip（origin/main）** | **`360aba7`**（B `ffeff52` rename + view history over `62d3b70`） |
 | **桌面上游 tip** | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`rebuild/a143-native`） |
-| 先验 Bot-A 文档 | `INCREMENTAL_ef2713a.md` / `593948d`；本轮 `INCREMENTAL_62d3b70.md` |
+| 先验 Bot-A 文档 | `INCREMENTAL_62d3b70.md`；本轮 **`INCREMENTAL_360aba7.md`** |
 | 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6` |
-| 远端 | https://github.com/yulongpo/signal_studio/tree/rebuild/a143-native |
-| 范围 | 只读对照；**未改** `apps/`/`packages/`/`services/` 实现；未在共享树 `git checkout`；不 push `signal_studio` |
-| 验收约束 | **IQ 仅** `resources\sigmf_data_demo`；**模型仅** rebuild 树内 TensorRT `*.engine` |
+| 范围 | 只读；**未改**实现；未共享树 checkout；不 push `signal_studio` |
+| 验收约束 | IQ 仅 `resources\sigmf_data_demo`；模型仅 rebuild `*.engine` |
 
-> 可执行 PASS 矩阵见同目录 `UI_PARITY_ACCEPTANCE.md`。镜像：`docs/migration/ui-parity/`。
 > **Explicit: Bot-A 不自报矩阵 PASS。**
+
+---
+
+## INCREMENTAL @ `360aba7`（相对 `62d3b70`）
+
+| ID | 先前 | @360aba7 | 证据 |
+|----|------|----------|------|
+| **G01** | PARTIAL（六组菜单） | **PARTIAL 再加深** | `ffeff52`：rename dialog + replaceMark；view back/forward；corner/fit/reset/File 深度仍缺；Bot-B **NOT PASS** |
+| **G15** | OPEN | G07–G10, G16–G18, G21–G24 |
+| **G06** | PARTIAL | **G01**, G02–G04, **G06**, G11–G14, **G15**, G19–G20, G26 |
+| 其余 | 同前 | **不变** | 截图不升格 |
+
+计数：**OPEN 9 · PARTIAL 13 · CLOSED 1（G05）· DOCS 1（G25）**。详表：`INCREMENTAL_360aba7.md`。
 
 ---
 
@@ -145,7 +156,7 @@
 | G12 | 交互 | 右键菜单不完整 | UI-16/23/33 | 简易 context menu | **P0** | **PARTIAL** | 持续创建/历史/fit/reset/重叠列表 |
 | G13 | 交互 | 标记控制点/多选不足 | AnnotationPanel | box→addManualMark | **P0** | **PARTIAL** | 控制点；Ctrl/Shift 多选；列表一致 |
 | G14 | 交互 | 检测 ROI 未分名确认条 | `detectionRoiTool_` | select→ROI+Enter | **P0** | **PARTIAL** | 独立入口+确认条；Enter/Esc |
-| G15 | 交互 | 无视图历史 | UI-17/18 | MISSING | **P1** | OPEN | back/forward；≤40 |
+| G15 | 交互 | 无视图历史 | UI-17/18 | MISSING | **P1** | **PARTIAL**（`360aba7` viewHistory） | back/forward；≤40 |
 | G16 | 交互 | 模式轴规则 | UI-09/10 | aux placeholder | **P1** | OPEN | Wave/PSD/STFT/Waterfall 轴正确 |
 | G17 | 功能 | DetectPage ≠ DetectionCard | `detection_card.h` | 精简闸门 | **P0** | OPEN | 字段级对等；仅 `.engine` |
 | G18 | 功能 | 显示/通道占位；摘要语义 | `696ce12` 参考/动态 | 占位文案 | **P1** | OPEN（**加严**） | 显示页填实；摘要含「参考」「动态」 |
