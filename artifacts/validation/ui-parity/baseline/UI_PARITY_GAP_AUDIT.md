@@ -1,3 +1,4 @@
+> Bot-A `2026-10-21 22:45` Asia/Shanghai: Web **`8783b55`** vs desktop `17471a6` — short G19 (F `bb58265` / `e134bb6` tree API: title/tooltip/relation/unread/detectionRuns). **G19 stays PARTIAL** (API MET; ProjectTree still `title={node.detail||label}`, no tooltip wire). Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_8783b55.md`. **No PASS.**
 # UI 鐎靛湱鐡戝顔跨獩鐎孤ゎ吀閿涘湐ot-A 婢х偤鍣烘径宥嗙壋 @ 17471a6閿?
 
 > Bot-A `2026-10-21 22:37` Asia/Shanghai: Web **`0e31e6d`** vs desktop `17471a6` — G06 golden tighten + recognition BLOCKED assess; **G06 stays PARTIAL** (no flip). Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_0e31e6d.md`. Next main tip `e134bb6` (G19) noted only — not this audit subject. **No PASS.**
@@ -23,6 +24,17 @@
 ---
 
 
+
+## INCREMENTAL @ `8783b55`（相对 `0e31e6d`；短 G19）
+
+| ID | 先前 | @8783b55 | 证据 |
+|----|------|----------|------|
+| **G19** | PARTIAL 加深 | **PARTIAL（API 呈现加深）** | `bb58265`/`e134bb6`: title/tooltip/sourceTooltip、relation detail、unread、detectionRuns + re-exports；`ProjectTree.tsx` 仍 `title={node.detail\|\|label}`，未接 `node.tooltip`/`title`；**不 CLOSED** |
+| 其余 | 同 `0e31e6d` | **不变** | tip 无其它产品实现 |
+
+计数：**OPEN 9 · PARTIAL 14 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_8783b55.md`。**无矩阵 PASS**。
+
+---
 
 ## INCREMENTAL @ `0e31e6d`（相对 `ba868e4`；G06 golden）
 

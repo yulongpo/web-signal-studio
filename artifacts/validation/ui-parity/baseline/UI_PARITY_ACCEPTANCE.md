@@ -1,3 +1,4 @@
+> Bot-A `2026-10-21 22:45` Asia/Shanghai: Web **`8783b55`** vs desktop `17471a6` — short G19 tree API deepen; **G19 PARTIAL** (API MET; UI tooltip wire residual). OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_8783b55.md`. **No PASS.**
 > Bot-A `2026-10-21 22:20` Asia/Shanghai: Web **`23c38d0`** vs desktop `17471a6` -- short G01 delta (`06911b3`): BrandV2/window-controls + View fit/restore + File depth **MET**; **G01 stays PARTIAL** (not CLOSED). Full reopen NOT needed. Counts unchanged OPEN 9 / PARTIAL 13 / CLOSED 1. See `INCREMENTAL_23c38d0.md`. **No PASS.**
 
 > Bot-A `2026-10-21 22:37` Asia/Shanghai: Web **`0e31e6d`** vs desktop `17471a6` — G06 goldens + BLOCKED assess; **G06 PARTIAL** unchanged. OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_0e31e6d.md`. **No PASS.**
@@ -69,7 +70,7 @@
 | G16 | P1 | OPEN | 濡€崇础鏉?| STFT閳摱aterfall / Wave閳摨SD 鏉炲瓨顒滅涵?| 鏉炲瓨鏋冨鍫ユ晩閹?placeholder |
 | G17 | P0 | **PARTIAL** | 濡偓濞村銆夌€涙顔? | 濡€崇€?鐠嬪崬鐎?閼煎啫娲?缁涙牜鏆?閸掑棙鏁?妤傛楠?妫板嫭顥?disabled閿涙稒膩閸ㄥ娈?`.engine` | 娴?token 娑撱倖瀵滈柦? · **PARTIAL @ba868e4**: REAL_RUNTIME/TRT honesty MET; DetectionCard/picker open; no PASS |
 | G18 | P1 | OPEN閿涘牆濮炴稉銉礆 | display / channel | 閳?閺勫墽銇氭い闈涙儓缂冩垶鐗?閼规煡妯?妫版垹宸奸崸鎰垼閿涙稈鎲?鐠嬪彉鍙婄拋?Welch/Bartlett閿涙稈鎲?闁岸浜鹃棃鐐插礋閸欍儱宕版担宥忕幢閳?閹芥顩﹂崣顖濐潌 **閵嗗苯寮懓鍐︹偓?* 娑?**閵嗗苯濮╅幀浣碘偓?*閿涘牆顕?`696ce12`閿涘绱濈粋浣稿礋閻欘兙鈧瞼鏁搁獮鐐解偓宥嗚穿缁夐瀵岄弬鍥攳 | 閸楃姳缍呴敍娑楃矝閸愭瑣鈧瞼鏁搁獮?x / y dB閵嗗秳璐熸稉?|
-| G19 | P1 | PARTIAL | 瀹搞儳鈻奸弽? | 閳?濞ｈ濮?IQ 閸氭垵顕遍敍娑掓喗 鐎规矮缍呴敍娑掓喛 闁插秴鎳￠崥?閸掔娀娅庣涵顔款吇 | **PARTIAL 闁偓閸?*閿涙矮绮庨張?project-io API / sample 閺? · **deepened @ba868e4; **@0e31e6d** goldens+BLOCKED assess (still PARTIAL, no PASS)**: ProjectTree engineering-tree UI wire; desktop presentation residual; no PASS |
+| G19 | P1 | PARTIAL | 瀹搞儳鈻奸弽? | 閳?濞ｈ濮?IQ 閸氭垵顕遍敍娑掓喗 鐎规矮缍呴敍娑掓喛 闁插秴鎳￠崥?閸掔娀娅庣涵顔款吇 | **PARTIAL 闁偓閸?*閿涙矮绮庨張?project-io API / sample 閺? · **deepened @ba868e4; **@0e31e6d** goldens+BLOCKED assess (still PARTIAL, no PASS)**: ProjectTree engineering-tree UI wire; desktop presentation residual; no PASS | · **@8783b55** API title/tooltip/relation/unread/detectionRuns MET; ProjectTree tooltip wire NOT MET; still PARTIAL, no PASS
 | G20 | P1 | PARTIAL | 閹垫挸绱?IQ | 閳?閼挎粌宕?閸涙垝鎶ら弽蹇撳弳閸欙綇绱遍埗?SigMF 閸忓啯鏆熼幑顕€顣╃憴鍫幢閳?姒涙顓?閹恒劏宕?`sigmf_data_demo` | **PARTIAL 闁偓閸?*閿涙矮绮庡銉ュ徔閺嶅繑瀵滈柦顔藉灗娴犲懎鎮楃粩顖涚ウ |
 | G21 | P2 | OPEN | 閺嶅嘲绱?| `#0b1422`/`#121f32`閿涙稐鑵戦弬?12px閿涙稓鐡戠€硅棄娼楅弽?| `#0f1419`+system-ui 娑撹桨瀵?|
 | G22 | P2 | OPEN | 閸戠姳缍?| inset 88/22/12/34鍗?閿涙稖澹婇梼璺哄礁 70鍗? | 閺勫孩妯夐崑蹇曨瀲 |
