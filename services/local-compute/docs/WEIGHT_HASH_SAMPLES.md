@@ -1,34 +1,26 @@
-# Expected weight SHA-256 samples (local reference trees)
+# Engine identity hashes (desktop package, not a live load)
 
-**Do not commit `.pth` / `.engine` binaries.** This file only records hashes measured on the operator machine for optional `WEIGHT_HASH` gates.
+Do not commit `.engine` binaries. Local-compute does **not** load these files
+(`TENSORRT_NA` / `BLOCKED`) until a TensorRT runtime exists.
 
-Measured: 2026-10-21 (Asia/Shanghai) on HH-laptop reference paths. TensorRT `.engine`: **N/A** (not present in these trees).
+Hashes below are the identities published in the desktop rebuild tree
+`docs/implementation/wideband-detection/R6/MODEL_DEPLOYMENT.md`. This workspace
+did not re-hash the blobs.
 
-## Recommended pins (common release weights)
+| Role | Path under `D:\project\signal_studio_rebuild` | sha256 |
+|------|-----------------------------------------------|--------|
+| FFSCN | `out\vs2026-qt611-release_bin\detection-models\ffscn-gui-iq-v1\ffscn_epoch1200_dynamic_fp32.engine` | `4e14e422e7966eb6f554e322c2d390534650e1b8dd0cee6e04f2ed4305cefc03` |
+| SCN | `out\vs2026-qt611-release_bin\detection-models\scn-max-psd-v1\scn_model.engine` | `ae89d04332758d466846b71afc849c446500a82a8bd74fd8c671927247746627` |
 
-| Role | Local path (example) | bytes | sha256 |
-|------|----------------------|------:|--------|
-| SCN | `D:\project\train_SCN\SCN_pretrained\epoch_105.pth` | 29554583 | `9453eb47576606b062ad7d1d3afb6ad4d8680312a71e02e90f440ff1f99b9da0` |
-| FFSCN | `D:\project\FFSCN_train2\weights\model_epoch_0210.pth` | 11079751 | `b6cd6aaf28e695b4bcae94db25dd527d2b717269b1562cf47e0840d09d8a253a` |
+IQ smoke pair (no weight hash): `resources\sigmf_data_demo\0000000.sigmf-data`
+plus `.sigmf-meta` / `.json`.
 
-Same FFSCN hash also seen at:
-- `...\deliverables\ffscn_release_20260908\FFSCN_60MHz_package\weights\model_epoch_0210.pth`
-- `...\runs\sync_ubuntu_train_epoch210_20260909\train\weights\model_epoch_0210.pth`
-
-## Example `weights.sha256.json` (copy next to MODEL_DIR; edit keys to match your loader)
-
-```json
-{
-  "scn": "9453eb47576606b062ad7d1d3afb6ad4d8680312a71e02e90f440ff1f99b9da0",
-  "ffscn": "b6cd6aaf28e695b4bcae94db25dd527d2b717269b1562cf47e0840d09d8a253a"
-}
-```
-
-## Example env
+Optional pin once a runtime exists (today a matching hash still does not enable detect):
 
 ```text
-LOCAL_COMPUTE_SCN_WEIGHT_SHA256=9453eb47576606b062ad7d1d3afb6ad4d8680312a71e02e90f440ff1f99b9da0
-LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256=b6cd6aaf28e695b4bcae94db25dd527d2b717269b1562cf47e0840d09d8a253a
+LOCAL_COMPUTE_MODEL_DIR=D:\project\signal_studio_rebuild\out\vs2026-qt611-release_bin\detection-models
+LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256=4e14e422e7966eb6f554e322c2d390534650e1b8dd0cee6e04f2ed4305cefc03
+LOCAL_COMPUTE_SCN_WEIGHT_SHA256=ae89d04332758d466846b71afc849c446500a82a8bd74fd8c671927247746627
 ```
 
-Mismatch → capabilities `BLOCKED` with `WEIGHT_HASH_MISMATCH`; never fabricate inference.
+Mismatch → `WEIGHT_HASH_MISMATCH` and `BLOCKED`. Never fabricate inference.

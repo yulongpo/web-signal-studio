@@ -4,28 +4,25 @@ Primary env: LOCAL_COMPUTE_MODEL_DIR (single root).
 Also accepted: LOCAL_COMPUTE_MODEL_DIRS (;-separated), plus
 LOCAL_COMPUTE_FFSCN_PATH / LOCAL_COMPUTE_SCN_PATH for explicit files.
 
-Expected layout under MODEL_DIR (any subset is fine):
+Canonical local assets live only under the desktop rebuild tree
+(yulongpo/signal_studio @ rebuild/a143-native). Do not probe any other
+weight or IQ tree.
 
-  <MODEL_DIR>/
-    # Current reference trees ship **PyTorch .pth only**.
-    # TensorRT .engine / ONNX are **N/A** for surveyed trees — do not stub fake engines.
-    # Discovery still accepts .engine/.onnx if an operator later provides real artifacts.
-    ffscn.pth | model_epoch_*.pth | epoch_*.pth
-    scn.pth   | epoch_*.pth
-    ffscn/ ...
-    scn/ ...
-    weights.sha256.json   # optional expected-hash manifest (see expected_weight_sha)
+  LOCAL_COMPUTE_MODEL_DIR=
+    D:\\project\\signal_studio_rebuild\\out\\vs2026-qt611-release_bin\\detection-models
+  LOCAL_COMPUTE_FFSCN_PATH=
+    ...\\detection-models\\ffscn-gui-iq-v1\\ffscn_epoch1200_dynamic_fp32.engine
+  LOCAL_COMPUTE_SCN_PATH=
+    ...\\detection-models\\scn-max-psd-v1\\scn_model.engine
 
-Reference trees (read-only on this workstation):
-  D:\\project\\FFSCN_train2\\weights\\model_epoch_0210.pth
-  D:\\project\\FFSCN_train2\\FFSCN_TEST_GUI\\config\\epoch_1200.pth
-  D:\\project\\train_SCN\\SCN_pretrained\\epoch_105.pth
+IQ smoke input (not a weight):
+  D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-data
+  (+ 0000000.sigmf-meta / .json)
 
-Point LOCAL_COMPUTE_MODEL_DIR at a folder that contains (or is) those
-weights, or set LOCAL_COMPUTE_FFSCN_PATH / LOCAL_COMPUTE_SCN_PATH directly.
-Source trees for architecture imports:
-  LOCAL_COMPUTE_FFSCN_HOME  (default probe: D:\\project\\FFSCN_train2\\FFSCN_TEST_GUI)
-  LOCAL_COMPUTE_SCN_HOME    (default probe: D:\\project\\train_SCN)
+.engine files are discovered and then reported TENSORRT_NA / BLOCKED until a
+TensorRT runtime is wired. This module does not load them and does not invent
+candidates. LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME are optional and
+have no default path outside signal_studio_rebuild.
 
 Optional expected SHA-256 (any one source wins, first match):
   LOCAL_COMPUTE_FFSCN_SHA256 / LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256
@@ -46,27 +43,24 @@ from pathlib import Path
 log = logging.getLogger("local-compute.model_layout")
 
 FFSCN_FILE_NAMES = (
+    "ffscn_epoch1200_dynamic_fp32.engine",
+    "ffscn.engine",
+    "FFSCN.engine",
     "ffscn.pth",
     "FFSCN.pth",
-    "model_epoch_0210.pth",
-    "epoch_1200.pth",
-    # Legacy discovery names (not present in current reference trees):
-    "ffscn.engine",
     "ffscn.onnx",
-    "FFSCN.engine",
 )
 SCN_FILE_NAMES = (
+    "scn_model.engine",
+    "scn.engine",
+    "SCN.engine",
     "scn.pth",
     "SCN.pth",
-    "epoch_105.pth",
-    # Legacy discovery names (N/A for current reference trees):
-    "scn.engine",
     "scn.onnx",
-    "SCN.engine",
 )
 
-FFSCN_GLOBS = ("ffscn*.pth", "FFSCN*.pth", "model_epoch_*.pth", "epoch_*.pth")
-SCN_GLOBS = ("scn*.pth", "SCN*.pth", "epoch_*.pth")
+FFSCN_GLOBS = ("ffscn*.engine", "ffscn*.pth", "FFSCN*.pth", "ffscn*.onnx")
+SCN_GLOBS = ("scn*.engine", "scn*.pth", "SCN*.pth", "scn*.onnx")
 
 MANIFEST_BASENAMES = (
     "weights.sha256.json",
@@ -262,11 +256,11 @@ def _collect_named(roots: list[Path], names: tuple[str, ...]) -> list[Path]:
         for name in names:
             for candidate in (
                 root / name,
+                root / "ffscn-gui-iq-v1" / name,
+                root / "scn-max-psd-v1" / name,
                 root / "ffscn" / name,
                 root / "scn" / name,
                 root / "weights" / name,
-                root / "SCN_pretrained" / name,
-                root / "config" / name,
             ):
                 key = str(candidate.resolve()) if candidate.exists() else str(candidate)
                 if key in seen:
@@ -279,7 +273,7 @@ def _collect_named(roots: list[Path], names: tuple[str, ...]) -> list[Path]:
 def _collect_globs(roots: list[Path], patterns: tuple[str, ...], family: str) -> list[Path]:
     out: list[Path] = []
     seen: set[str] = set()
-    subdirs = ("", "ffscn", "scn", "weights", "SCN_pretrained", "config")
+    subdirs = ("", "ffscn-gui-iq-v1", "scn-max-psd-v1", "ffscn", "scn", "weights")
     for root in roots:
         if not root.exists():
             continue
@@ -353,22 +347,12 @@ def source_home(family: str) -> Path | None:
     family = family.upper()
     env_key = "LOCAL_COMPUTE_FFSCN_HOME" if family == "FFSCN" else "LOCAL_COMPUTE_SCN_HOME"
     raw = (os.environ.get(env_key) or "").strip().strip('"').strip("'")
-    defaults = (
-        [
-            Path(r"D:\project\FFSCN_train2\FFSCN_TEST_GUI"),
-            Path(r"D:\project\FFSCN_train2"),
-        ]
-        if family == "FFSCN"
-        else [
-            Path(r"D:\project\train_SCN"),
-        ]
-    )
-    candidates = [Path(raw)] if raw else []
-    candidates.extend(defaults)
-    for p in candidates:
-        if p.is_dir():
-            return p
-    return None
+    # No default outside signal_studio_rebuild. Operators set HOME only when
+    # a runtime inside that tree actually needs it. .engine stays TENSORRT_NA.
+    if not raw:
+        return None
+    path = Path(raw)
+    return path if path.is_dir() else None
 
 
 def model_search_root_strings() -> list[str]:
