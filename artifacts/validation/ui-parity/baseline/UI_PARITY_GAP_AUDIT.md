@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 00:13` Asia/Shanghai: Web **`2d9e83b`** vs desktop `17471a6` — G11/G18 PARTIAL deepened (B `85dab15` Overlay backticks restored; D `08b424e` store→DDC; C `4249d64` UI→store; Overlay BLOCKER + unwired residual cleared; not CLOSED); supersedes draft INCREMENTAL_aeacc5f. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_2d9e83b.md`. **No PASS.**
+
+| ID | Prior (`93de5db`) | Now (`2d9e83b`) | Note |
+|----|---------------------|-----------------|------|
+| **G11** | PARTIAL 加深（Overlay 0-backtick BLOCKER） | **PARTIAL 加深** | `85dab15` backticks 10 恢复；ClosedHand body-drag 路径 MET；bounds/unselected 残 → **未 CLOSED** |
+| **G18** | PARTIAL 加深（psdMode 未接线） | **PARTIAL 加深** | UI→store (`4249d64`) + store→DDC (`08b424e`) MET；更广 PSD chrome 残 → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_2d9e83b.md`。**无矩阵 PASS**。
+
 > Bot-A `2026-10-22 00:07` Asia/Shanghai: Web **`93de5db`** vs desktop `17471a6` — G11 PARTIAL deepened (C `612c8a1` body-drag ClosedHand helpers/CSS MET; **ChartMarkOverlay.tsx template-literal corruption BLOCKS runtime** → not CLOSED); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_93de5db.md`. **No PASS.**
 
 | ID | Prior (`91ae551`) | Now (`93de5db`) | Note |
