@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 01:31` Asia/Shanghai: Web **`5c569c2`** vs desktop `17471a6` — G18/G02 PARTIAL deepened (C NB PSD freq vline; B wave19 DSP stamps). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_5c569c2.md`. **No PASS.**
+
+| ID | Prior (`088f322`) | Now (`5c569c2`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（NB PSD freq 残） | **PARTIAL 加深** | freq vline MET；dwell-only → **未 CLOSED** |
+| **G02** | PARTIAL | **PARTIAL 加深** | DSP/FFT/feed stamps MET；window/overlap → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_5c569c2.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:26` Asia/Shanghai: Web **`088f322`** vs desktop `17471a6` — evidence-only G web-14cc45f. No status flips. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_088f322.md`. **No PASS.**
 
 | ID | Prior (`14cc45f`) | Now (`088f322`) | Note |

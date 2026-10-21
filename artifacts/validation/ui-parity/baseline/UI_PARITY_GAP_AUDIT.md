@@ -1,3 +1,14 @@
+> Bot-A `2026-10-22 01:31` Asia/Shanghai: Web tip **`5c569c2`** vs desktop `17471a6` — G18/G02 PARTIAL deepened (C `0a604d1` NB PSD freq vline; B `f7a4b13` wave19 DSP/FFT/detectRunFeed stamps). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_5c569c2.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`088f322`) | Now (`5c569c2`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（NB PSD freq 残） | **PARTIAL 加深** | `0a604d1` freq vline + Esc clears linked MET；dwell-only historic → **未 CLOSED** |
+| **G02** | PARTIAL（live DSP 残） | **PARTIAL 加深** | `f7a4b13` DSP/FFT/feed stamps MET；window/overlap `—` → **未 CLOSED** |
+| **G19** | PARTIAL | **unchanged** | `data-native-qfiledialog=false`；true native 仍残 |
+| **G06** | PARTIAL | **unchanged — eye/bitstream BLOCKED** | 未发明路径 |
+| **G17** | PARTIAL | **unchanged — recognition BLOCKED** | 未发明路径 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_5c569c2.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:26` Asia/Shanghai: Web tip **`088f322`** vs desktop `17471a6` — evidence-only G `950a1d0` (web-14cc45f Esc/NB + soft wave17). No apps/packages delta. G18 PARTIAL unchanged (NB PSD freq residual). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_088f322.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`14cc45f`) | Now (`088f322`) | Note |
