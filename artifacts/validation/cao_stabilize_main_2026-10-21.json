@@ -1,0 +1,50 @@
+{
+  "tipSha": "aebec0286b17442485f31f321ba7c10e107a19b2",
+  "branch": "main",
+  "tests": {
+    "command": "npm test",
+    "ok": true,
+    "filesPassed": 4,
+    "testsPassed": 12,
+    "testsFailed": 0,
+    "suites": [
+      "packages/contracts/src/sample-index.test.ts",
+      "packages/dsp-wasm/src/fft.two-tone.test.ts",
+      "packages/file-io/src/chunked-reader.test.ts",
+      "packages/project-io/src/project-io.test.ts"
+    ],
+    "exclusions": []
+  },
+  "buildOk": true,
+  "buildCommand": "npm --prefix apps/web run build",
+  "packagesUnified": [
+    "@wss/contracts",
+    "@wss/domain",
+    "@wss/file-io",
+    "@wss/dsp-wasm",
+    "@wss/charts",
+    "@wss/project-io"
+  ],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "merged": {
+    "branch": "work/bot-g-qa",
+    "tip": "d96012fa89b89e0890a0c70cfd9d6abc169b5caf",
+    "conflicts": false
+  },
+  "stash": "stash@{0}: On work/bot-g-qa: cao-stabilize-2",
+  "notes": [
+    "contracts index re-exports formats+chunk+sample-index+project-v6+annotation",
+    "sample-index test fixed Number precision assertion (BigInt(Math.trunc(Number(text))))",
+    "project-io included and green (not excluded)",
+    "file-io already @wss/file-io on tip before commit",
+    "QA merge clean (ci.yml, playwright, VALIDATION, shellRail test)",
+    "no push performed"
+  ],
+  "priorTip": "5f41395e04be8b5d0f398717e78ff24be0485085",
+  "stabilizeCommit": "1e5df57",
+  "date": "2026-10-21",
+  "zone": "Asia/Shanghai"
+}
