@@ -75,5 +75,5 @@ See [docs/HTTP_CLIENT_EXAMPLES.md](docs/HTTP_CLIENT_EXAMPLES.md) and [examples/d
 
 - Inventory: `docs/MODEL_INVENTORY.md`
 - Bot-B / operator notes: `docs/REAL_MODEL_INTEGRATION.md`
-- Prefer `LOCAL_COMPUTE_MODEL_DIR` or explicit `LOCAL_COMPUTE_*_PATH` + algorithm HOMEs.
-- Detection becomes ready only after verified PyTorch load+forward; never invents candidates.
+- Canonical smoke paths (desktop rebuild tree only): `LOCAL_COMPUTE_MODEL_DIR` = `D:\project\signal_studio_rebuild\out\vs2026-qt611-release_bin\detection-models`, with `ffscn_epoch1200_dynamic_fp32.engine` and `scn_model.engine`. IQ: `resources\sigmf_data_demo\0000000.sigmf-data` (+ meta/json).
+- Those `.engine` files stay `TENSORRT_NA` / `BLOCKED` until a TensorRT runtime is wired. Do not claim live detection. Never invent candidates.

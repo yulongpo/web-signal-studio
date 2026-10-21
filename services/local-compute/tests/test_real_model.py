@@ -3,21 +3,20 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
 
 from app.model_layout import first_present, model_dir_roots
-from app.torch_runtime import REAL_ENGINE_LABELS, clear_torch_cache, probe_torch
-from app.capabilities import UI_COPY, probe_detection_readiness
+from app.torch_runtime import clear_torch_cache
+from app.capabilities import UI_COPY
 
 
-FFSCN_REF = Path(r"D:\project\FFSCN_train2\weights\model_epoch_0210.pth")
-SCN_REF = Path(r"D:\project\train_SCN\SCN_pretrained\epoch_105.pth")
-FFSCN_HOME = Path(r"D:\project\FFSCN_train2\FFSCN_TEST_GUI")
-SCN_HOME = Path(r"D:\project\train_SCN")
-SCN_SAMPLE = Path(r"D:\project\train_SCN\datas\val\1_0000_000.ptpsd")
+REBUILD = Path(r"D:\project\signal_studio_rebuild")
+MODEL_DIR = REBUILD / "out" / "vs2026-qt611-release_bin" / "detection-models"
+FFSCN_REF = MODEL_DIR / "ffscn-gui-iq-v1" / "ffscn_epoch1200_dynamic_fp32.engine"
+SCN_REF = MODEL_DIR / "scn-max-psd-v1" / "scn_model.engine"
+IQ_DATA = REBUILD / "resources" / "sigmf_data_demo" / "0000000.sigmf-data"
 
 
 def test_model_dir_env_is_primary(tmp_path, monkeypatch):
@@ -129,59 +128,29 @@ def test_verified_result_keys_allowed_through_apply_update():
     clear_tasks()
 
 
-@pytest.mark.skipif(not SCN_REF.is_file(), reason="SCN reference weight missing")
-@pytest.mark.skipif(not SCN_HOME.is_dir(), reason="SCN home missing")
-def test_live_scn_smoke_load_skip_if_missing():
-    """Live smoke: only runs when torch+weights exist; never fakes PASS."""
-    os.environ.pop("LOCAL_COMPUTE_DISABLE_TORCH", None)
+@pytest.mark.skipif(not SCN_REF.is_file(), reason="desktop SCN engine not on this machine")
+def test_scn_engine_is_tensorrt_na(client, auth_headers, monkeypatch):
+    """Canonical .engine is discovered and stays blocked. Not a live detect."""
+    monkeypatch.setenv("LOCAL_COMPUTE_DISABLE_TORCH", "1")
+    monkeypatch.setenv("LOCAL_COMPUTE_SCN_PATH", str(SCN_REF))
     clear_torch_cache()
-    probe = probe_torch(force=True)
-    if not probe.available:
-        pytest.skip("torch not installed in this interpreter")
-    from app.torch_runtime import smoke_load_scn
-
-    device = probe.device
-    smoke = smoke_load_scn(SCN_REF, SCN_HOME, device)
-    assert smoke.ok, smoke.detail
-    assert smoke.engine in REAL_ENGINE_LABELS
+    data = client.get("/capabilities", headers=auth_headers).json()
+    assert data["detection"]["scn"] is False
+    assert data["runtime"]["canInventResults"] is False
+    codes = {m["code"] for m in data["detection"]["uiMessages"]}
+    assert "TENSORRT_NA" in codes
+    assert IQ_DATA.name == "0000000.sigmf-data"
 
 
-@pytest.mark.skipif(not FFSCN_REF.is_file(), reason="FFSCN reference weight missing")
-@pytest.mark.skipif(not FFSCN_HOME.is_dir(), reason="FFSCN home missing")
-def test_live_ffscn_smoke_load_skip_if_missing():
-    os.environ.pop("LOCAL_COMPUTE_DISABLE_TORCH", None)
+@pytest.mark.skipif(not FFSCN_REF.is_file(), reason="desktop FFSCN engine not on this machine")
+def test_ffscn_engine_is_tensorrt_na(client, auth_headers, monkeypatch):
+    monkeypatch.setenv("LOCAL_COMPUTE_DISABLE_TORCH", "1")
+    monkeypatch.setenv("LOCAL_COMPUTE_FFSCN_PATH", str(FFSCN_REF))
     clear_torch_cache()
-    probe = probe_torch(force=True)
-    if not probe.available:
-        pytest.skip("torch not installed in this interpreter")
-    from app.torch_runtime import smoke_load_ffscn
-
-    smoke = smoke_load_ffscn(FFSCN_REF, FFSCN_HOME, probe.device)
-    assert smoke.ok, smoke.detail
-    assert smoke.engine in REAL_ENGINE_LABELS
-
-
-@pytest.mark.skipif(not SCN_REF.is_file() or not SCN_SAMPLE.is_file(), reason="SCN assets missing")
-def test_live_scn_infer_ptpsd_skip_if_missing():
-    os.environ.pop("LOCAL_COMPUTE_DISABLE_TORCH", None)
-    clear_torch_cache()
-    probe = probe_torch(force=True)
-    if not probe.available or not probe.cuda_available:
-        pytest.skip("CUDA torch required for live SCN infer smoke")
-    from app.inference.scn import run_scn
-
-    result = run_scn(
-        weights=SCN_REF,
-        home=SCN_HOME,
-        source_path=SCN_SAMPLE,
-        device=probe.device,
-    )
-    assert result["verifiedForward"] is True
-    assert result["engine"] in REAL_ENGINE_LABELS
-    assert "candidates" in result
-    assert isinstance(result["candidates"], list)
-    # Real forward may legitimately return zero carriers — that is NOT a fake green.
-    assert result["candidateCount"] == len(result["candidates"])
+    data = client.get("/capabilities", headers=auth_headers).json()
+    assert data["detection"]["ffscn"] is False
+    codes = {m["code"] for m in data["detection"]["uiMessages"]}
+    assert "TENSORRT_NA" in codes
 
 
 def test_ui_copy_has_new_real_model_codes():

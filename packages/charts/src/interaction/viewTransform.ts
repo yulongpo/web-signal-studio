@@ -113,17 +113,29 @@ export function zoomViewAt(
   xSpan: PixelSpan,
   ySpan: PixelSpan,
   clamp?: { minSpanX?: number; maxSpanX?: number; minSpanY?: number; maxSpanY?: number },
+  /**
+   * Which physical axes receive the zoom.
+   * Desktop Signal Studio zooms X on the plot/bottom axis and Y on the left axis.
+   * Omit to zoom both (historical uniform wheel).
+   */
+  axes?: { x?: boolean; y?: boolean },
 ): ViewState {
+  const zoomX = axes?.x !== false;
+  const zoomY = axes?.y !== false;
   return {
-    xDomain: zoomDomain(view.xDomain, anchorXCss, factor, xSpan, {
-      minSpan: clamp?.minSpanX,
-      maxSpan: clamp?.maxSpanX,
-    }),
-    yDomain: zoomDomain(view.yDomain, anchorYCss, factor, ySpan, {
-      invertPixel: true,
-      minSpan: clamp?.minSpanY,
-      maxSpan: clamp?.maxSpanY,
-    }),
+    xDomain: zoomX
+      ? zoomDomain(view.xDomain, anchorXCss, factor, xSpan, {
+          minSpan: clamp?.minSpanX,
+          maxSpan: clamp?.maxSpanX,
+        })
+      : view.xDomain,
+    yDomain: zoomY
+      ? zoomDomain(view.yDomain, anchorYCss, factor, ySpan, {
+          invertPixel: true,
+          minSpan: clamp?.minSpanY,
+          maxSpan: clamp?.maxSpanY,
+        })
+      : view.yDomain,
   };
 }
 
