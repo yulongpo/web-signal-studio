@@ -1,28 +1,50 @@
 /**
- * Open IQ WAV for the main chart: FSA picker when available, else <input type=file> Blob path.
+ * Open IQ for the main chart: FSA picker when available, else <input type=file>.
+ * Formats: WAV (existing), RAW CI16 LE (.iq/.raw/.ci16), SigMF meta+data pair.
+ * Uses @wss/file-io readers only — does not rewrite parsers.
  * Never labels a user file as synthetic; never invents capture/live claims.
  */
 import {
   detectFsaCapabilities,
   pickAndOpenIqWav,
   openIqWavFromBlob,
+  openRawCi16LeIq,
+  openSigmfArrayBuffer,
   FsaUnsupportedError,
   type IqWavOpenResult,
+  type ChunkedReader,
 } from '@wss/file-io';
 import {
   clearIqFileSession,
   setIqFileSession,
   type IqOpenVia,
+  type IqFileFormat,
 } from './iqFileSession';
 
+/** Default sample rate when RAW has no sidecar meta (explicit UI default). */
+export const DEFAULT_RAW_SAMPLE_RATE_HZ = 1_000_000;
+
 export type OpenIqOutcome =
-  | { ok: true; via: IqOpenVia; fileName: string; sourceLabel: string; sampleRateHz: number }
+  | {
+      ok: true;
+      via: IqOpenVia;
+      fileName: string;
+      sourceLabel: string;
+      sampleRateHz: number;
+      format: IqFileFormat;
+    }
   | { ok: false; reason: 'cancelled' | 'unsupported' | 'error'; message: string };
 
-function fileSourceLabel(fileName: string, via: IqOpenVia): string {
-  return via === 'fsa'
-    ? 'user-picked IQ WAV (FSA): ' + fileName
-    : 'user-picked IQ WAV (file input): ' + fileName;
+function fileSourceLabel(fileName: string, via: IqOpenVia, format: IqFileFormat): string {
+  const viaBit = via === 'fsa' ? 'FSA' : 'file input';
+  switch (format) {
+    case 'raw':
+      return `user-picked IQ RAW (${viaBit}): ${fileName}`;
+    case 'sigmf':
+      return `user-picked IQ SigMF (${viaBit}): ${fileName}`;
+    default:
+      return `user-picked IQ WAV (${viaBit}): ${fileName}`;
+  }
 }
 
 function guessFileName(opened: IqWavOpenResult): string {
@@ -36,25 +58,71 @@ function guessFileName(opened: IqWavOpenResult): string {
   return 'iq.wav';
 }
 
-function publish(opened: IqWavOpenResult, fileName: string, via: IqOpenVia) {
-  const sourceLabel = fileSourceLabel(fileName, via);
+function publish(input: {
+  reader: ChunkedReader;
+  sampleRateHz: number;
+  fileName: string;
+  via: IqOpenVia;
+  format: IqFileFormat;
+}) {
+  const sourceLabel = fileSourceLabel(input.fileName, input.via, input.format);
   setIqFileSession({
-    reader: opened.reader,
-    sampleRateHz: opened.descriptor.sampleRateHz,
+    reader: input.reader,
+    sampleRateHz: input.sampleRateHz,
     sourceLabel,
-    fileName,
-    via,
+    fileName: input.fileName,
+    via: input.via,
+    format: input.format,
   });
   return {
     ok: true as const,
-    via,
-    fileName,
+    via: input.via,
+    fileName: input.fileName,
     sourceLabel,
-    sampleRateHz: opened.descriptor.sampleRateHz,
+    sampleRateHz: input.sampleRateHz,
+    format: input.format,
   };
 }
 
-/** Prefer FSA; on unsupported return so UI can fall back to <input type=file>. */
+function extOf(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.endsWith('.sigmf-meta')) return '.sigmf-meta';
+  if (lower.endsWith('.sigmf-data')) return '.sigmf-data';
+  const i = lower.lastIndexOf('.');
+  return i >= 0 ? lower.slice(i) : '';
+}
+
+export function classifyIqFileName(fileName: string): IqFileFormat | 'sigmf-meta' | 'sigmf-data' | 'unknown' {
+  const ext = extOf(fileName);
+  if (ext === '.wav') return 'wav';
+  if (ext === '.iq' || ext === '.raw' || ext === '.ci16') return 'raw';
+  if (ext === '.sigmf-meta') return 'sigmf-meta';
+  if (ext === '.sigmf-data') return 'sigmf-data';
+  return 'unknown';
+}
+
+async function blobToArrayBuffer(blob: Blob, signal?: AbortSignal): Promise<ArrayBuffer> {
+  if (signal?.aborted) {
+    throw signal.reason instanceof Error
+      ? signal.reason
+      : new DOMException('Aborted', 'AbortError');
+  }
+  return blob.arrayBuffer();
+}
+
+function abortMessage(err: unknown): OpenIqOutcome | null {
+  if (err instanceof DOMException && err.name === 'AbortError') {
+    return { ok: false, reason: 'cancelled', message: 'Aborted' };
+  }
+  const name = err instanceof Error ? err.name : '';
+  const msg = err instanceof Error ? err.message : String(err);
+  if (name === 'AbortError' || /abort|cancel/i.test(msg)) {
+    return { ok: false, reason: 'cancelled', message: msg || 'Cancelled' };
+  }
+  return null;
+}
+
+/** Prefer FSA WAV picker; on unsupported return so UI can fall back to <input type=file>. */
 export async function openIqViaFsa(options: {
   signal?: AbortSignal;
 } = {}): Promise<OpenIqOutcome> {
@@ -65,24 +133,163 @@ export async function openIqViaFsa(options: {
   try {
     const opened = await pickAndOpenIqWav({ signal: options.signal });
     const fileName = guessFileName(opened);
-    return publish(opened, fileName, 'fsa');
+    return publish({
+      reader: opened.reader,
+      sampleRateHz: opened.descriptor.sampleRateHz,
+      fileName,
+      via: 'fsa',
+      format: 'wav',
+    });
   } catch (err: unknown) {
     if (err instanceof FsaUnsupportedError) {
       return { ok: false, reason: 'unsupported', message: err.message };
     }
-    if (err instanceof DOMException && err.name === 'AbortError') {
-      return { ok: false, reason: 'cancelled', message: 'Aborted' };
-    }
-    const name = err instanceof Error ? err.name : '';
+    const cancelled = abortMessage(err);
+    if (cancelled) return cancelled;
     const msg = err instanceof Error ? err.message : String(err);
-    if (name === 'AbortError' || /abort|cancel/i.test(msg)) {
-      return { ok: false, reason: 'cancelled', message: msg || 'Cancelled' };
-    }
     return { ok: false, reason: 'error', message: msg || 'Open failed' };
   }
 }
 
-/** Open from a File / Blob chosen via <input type=file> (or tests). */
+async function openRawFromBlob(
+  file: File | Blob,
+  fileName: string,
+  via: IqOpenVia,
+  signal?: AbortSignal,
+): Promise<OpenIqOutcome> {
+  const buffer = await blobToArrayBuffer(file, signal);
+  const reader = openRawCi16LeIq({
+    id: `${via}:${fileName}`,
+    buffer,
+    label: `user-picked file: ${fileName}`,
+    sampleRateHz: DEFAULT_RAW_SAMPLE_RATE_HZ,
+  });
+  return publish({
+    reader,
+    sampleRateHz: DEFAULT_RAW_SAMPLE_RATE_HZ,
+    fileName,
+    via,
+    format: 'raw',
+  });
+}
+
+async function openSigmfFromPair(
+  metaFile: File | Blob,
+  dataFile: File | Blob,
+  displayName: string,
+  via: IqOpenVia,
+  signal?: AbortSignal,
+): Promise<OpenIqOutcome> {
+  const metaText = await metaFile.text();
+  const data = await blobToArrayBuffer(dataFile, signal);
+  const handle = openSigmfArrayBuffer({
+    id: `${via}:${displayName}`,
+    meta: metaText,
+    data,
+    label: `user-picked file: ${displayName}`,
+    dataPathStub:
+      dataFile instanceof File && dataFile.name
+        ? dataFile.name
+        : undefined,
+  });
+  const sampleRateHz = handle.meta.sampleRateHz ?? DEFAULT_RAW_SAMPLE_RATE_HZ;
+  return publish({
+    reader: handle.reader,
+    sampleRateHz,
+    fileName: displayName,
+    via,
+    format: 'sigmf',
+  });
+}
+
+/**
+ * Open from one or more File / Blob entries (file input / tests).
+ * SigMF requires both .sigmf-meta and .sigmf-data in the list.
+ */
+export type NamedIqBlob = { file: File | Blob; name: string };
+
+/** Normalize FileList / File[] / explicit {file,name} entries. */
+export function toNamedIqBlobs(
+  files: Array<File | Blob | NamedIqBlob>,
+): NamedIqBlob[] {
+  return files.map((f, i) => {
+    if (f && typeof f === 'object' && 'file' in f && 'name' in f) {
+      return { file: f.file, name: f.name };
+    }
+    const blob = f as File | Blob;
+    const name =
+      blob instanceof File && blob.name
+        ? blob.name
+        : typeof (blob as { name?: string }).name === 'string'
+          ? (blob as { name: string }).name
+          : `file-${i}`;
+    return { file: blob, name };
+  });
+}
+
+export async function openIqFromFiles(
+  files: Array<File | Blob | NamedIqBlob>,
+  options: { signal?: AbortSignal; via?: IqOpenVia } = {},
+): Promise<OpenIqOutcome> {
+  const via = options.via ?? 'input';
+  if (!files.length) {
+    return { ok: false, reason: 'error', message: 'No file selected' };
+  }
+
+  try {
+    const named = toNamedIqBlobs(files);
+
+    const meta = named.find((n) => classifyIqFileName(n.name) === 'sigmf-meta');
+    const data = named.find((n) => classifyIqFileName(n.name) === 'sigmf-data');
+    if (meta || data) {
+      if (!meta || !data) {
+        return {
+          ok: false,
+          reason: 'error',
+          message:
+            'SigMF open needs both .sigmf-meta and .sigmf-data (select both files)',
+        };
+      }
+      const displayName = meta.name.replace(/\.sigmf-meta$/i, '');
+      return await openSigmfFromPair(meta.file, data.file, displayName || meta.name, via, options.signal);
+    }
+
+    const first = named[0]!;
+    const kind = classifyIqFileName(first.name);
+    if (kind === 'raw') {
+      return await openRawFromBlob(first.file, first.name, via, options.signal);
+    }
+    if (kind === 'wav' || kind === 'unknown') {
+      // Unknown: try WAV parse; UI falls back to synthetic on failure.
+      const opened = await openIqWavFromBlob({
+        id: `${via}:${first.name}`,
+        blob: first.file,
+        label: `user-picked file: ${first.name}`,
+        signal: options.signal,
+      });
+      return publish({
+        reader: opened.reader,
+        sampleRateHz: opened.descriptor.sampleRateHz,
+        fileName: first.name,
+        via,
+        format: 'wav',
+      });
+    }
+
+    return {
+      ok: false,
+      reason: 'error',
+      message: `Unsupported IQ file type: ${first.name}`,
+    };
+  } catch (err: unknown) {
+    const cancelled = abortMessage(err);
+    if (cancelled) return cancelled;
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, reason: 'error', message: msg || 'Open failed' };
+  }
+}
+
+/** Open from a single File / Blob chosen via <input type=file> (or tests). */
 export async function openIqFromFileBlob(
   file: File | Blob,
   options: { fileName?: string; signal?: AbortSignal } = {},
@@ -90,21 +297,10 @@ export async function openIqFromFileBlob(
   const fileName =
     options.fileName ??
     (file instanceof File && file.name ? file.name : 'iq.wav');
-  try {
-    const opened = await openIqWavFromBlob({
-      id: 'input:' + fileName,
-      blob: file,
-      label: 'user-picked file: ' + fileName,
-      signal: options.signal,
-    });
-    return publish(opened, fileName, 'input');
-  } catch (err: unknown) {
-    if (err instanceof DOMException && err.name === 'AbortError') {
-      return { ok: false, reason: 'cancelled', message: 'Aborted' };
-    }
-    const msg = err instanceof Error ? err.message : String(err);
-    return { ok: false, reason: 'error', message: msg || 'Open failed' };
-  }
+  return openIqFromFiles([{ file, name: fileName }], {
+    signal: options.signal,
+    via: 'input',
+  });
 }
 
 export function clearOpenedIq(): void {

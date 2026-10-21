@@ -1,0 +1,17 @@
+{
+  "global": {
+    "core:datatype": "ci16_le",
+    "core:sample_rate": 1000000,
+    "core:version": "1.0.0",
+    "core:description": "synthetic fixture for Bot-B e2e — not a real capture",
+    "core:offset": 0,
+    "core:trailing_bytes": 0
+  },
+  "captures": [
+    {
+      "core:sample_start": 0,
+      "core:frequency": 915000000
+    }
+  ],
+  "annotations": []
+}

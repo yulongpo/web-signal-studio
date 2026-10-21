@@ -136,4 +136,29 @@ test.describe('shell navigation', () => {
     expect(['synthetic-stft-worker', 'demo-fallback']).toContain(after);
   });
 
+
+  test('Open RAW IQ via file input sets data-iq-format=raw (or synthetic on fail)', async ({
+    page,
+  }) => {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const rawPath = path.join(here, 'fixtures', 'tiny-iq.raw');
+    await page.goto('/');
+    await expect(page.getByTestId('input-iq-wav')).toBeAttached();
+    await page.getByTestId('input-iq-wav').setInputFiles(rawPath);
+    const host = page.getByTestId('main-chart-host');
+    await expect
+      .poll(async () => host.getAttribute('data-dsp-source'), { timeout: 20000 })
+      .not.toBe('loading');
+    const source = await host.getAttribute('data-dsp-source');
+    expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker']).toContain(source);
+    if (source === 'file-stft-worker') {
+      await expect(host).toHaveAttribute('data-iq-format', 'raw');
+      await expect(page.getByTestId('dsp-source-chip')).toHaveAttribute('data-iq-format', 'raw');
+      await expect(page.getByTestId('status-file')).toContainText('tiny-iq.raw');
+      const label = await host.getAttribute('data-dsp-label');
+      expect(label?.toLowerCase()).toContain('raw');
+      expect(label?.toLowerCase()).not.toContain('synthetic');
+    }
+  });
+
 });
