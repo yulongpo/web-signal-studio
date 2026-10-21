@@ -1,3 +1,10 @@
+> Bot-A `2026-10-21 23:47` Asia/Shanghai: Web **`f5171fc`** vs desktop `17471a6` — G17 PARTIAL deepened (E `72f208c` AdaptiveValueEdit / Fs notes / rangeOrigin+ROI chrome; recognition still BLOCKED); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f5171fc.md`. **No PASS.**
+
+| ID | Prior (`647978c`) | Now (`f5171fc`) | Note |
+|----|-------------------|-----------------|------|
+| **G17** | PARTIAL 加深（Adaptive/Fs/ROI 残 + recognition BLOCKED） | **PARTIAL 加深** | `72f208c` AdaptiveValueEdit + Fs-gated physical times + rangeOrigin/ROI chrome MET；active-segment list + visible-region align 残；recognition BLOCKED → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_f5171fc.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-21 23:41` Asia/Shanghai: Web **`647978c`** vs desktop `17471a6` — G19/G07/G02/G08/G11 PARTIAL deepened (B `d7d44c1` table/paging/quality+G07/G02/G08+G18 shell; C `2ac1f9b` overview OpenHand; G `635d07a` evidence); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_647978c.md`. **No PASS.**
 
 | ID | Prior (`9248453`) | Now (`647978c`) | Note |
