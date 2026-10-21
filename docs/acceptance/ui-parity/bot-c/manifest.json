@@ -1,0 +1,16 @@
+{
+  "bot": "bot-c",
+  "scope": [
+    "G03",
+    "G04",
+    "G05"
+  ],
+  "baseSha": "fa5a72032f02ff33dc9cdfa9f6ec2ad4755470d3",
+  "selfPass": false,
+  "screenshots": [
+    "g03-global-nav.png",
+    "g04-aux-wave.png",
+    "g04-aux-psd.png",
+    "g05-splitters.png"
+  ]
+}

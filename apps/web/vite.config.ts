@@ -17,6 +17,9 @@ export default defineConfig({
     alias: {
       '@wss/charts/SpectrumChart': path.resolve(chartsSrc, 'react/SpectrumChart.tsx'),
       '@wss/charts/HeatmapCanvas': path.resolve(chartsSrc, 'react/HeatmapCanvas.tsx'),
+      '@wss/charts/WaveformChart': path.resolve(chartsSrc, 'react/WaveformChart.tsx'),
+      '@wss/charts/NavigationChart': path.resolve(chartsSrc, 'react/NavigationChart.tsx'),
+      '@wss/charts/VerticalSplitter': path.resolve(chartsSrc, 'react/VerticalSplitter.tsx'),
       '@wss/charts/lut/colormaps': path.resolve(chartsSrc, 'lut/colormaps.ts'),
       '@wss/charts/react': path.resolve(chartsSrc, 'react'),
       '@wss/charts': chartsSrc,
