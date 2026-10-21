@@ -47,3 +47,21 @@
 ```text
 cd apps/web && npx playwright test e2e/bot-g-g01-nb-observe-capture.spec.ts
 ```
+
+## Gesture / ROI / Level @ 3d7ab59 (Bot-G, NOT PASS)
+
+| Field | Value |
+|-------|--------|
+| Web tip | `3d7ab591a0e4ee09b6a03286b528f32c3196a45d` |
+| Desktop ref | `17471a6` baseline (no fresh desktop re-capture) |
+| Pack | `qa/web-3d7ab59/` |
+| **ui_parity_pass_claimed** | **false** |
+
+| Theme | Web evidence | Desktop note |
+|-------|--------------|--------------|
+| zoom-box | `01-zoom-box-drag.png`, `01b-zoom-box-applied.png` | desktop-axis box zoom on rebuild; archival only |
+| view back | `02-view-back-menu.png`, `02b-view-back-restored.png` | context back/forward on desktop |
+| ROI → Detect range | `03-roi-confirmation.png`, `03b-detect-range-from-roi.png`, `03c-…-crop.png` | G14 confirm → detect range |
+| Level ref/dynamic | `04-level-popover.png`, `04b-crop`, `04c-applied` | baseline `web-temp-layer-level.png` archival |
+
+Gaps: no PASS; desktop interactive not re-shot; G01 File corner parallel Bot-B.
