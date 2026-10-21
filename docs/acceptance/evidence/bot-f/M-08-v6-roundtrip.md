@@ -5,6 +5,7 @@
 - branch: `work/bot-f-project-io`
 - base tip (`origin/main` at sync): `19313983fa535325dacf8f1317a9c8aa9bc18c91`
 - HEAD at evidence capture (pre-commit): `19313983fa535325dacf8f1317a9c8aa9bc18c91`
+- M-08 commit: `2277ec5a600395432cd6852d3d0febe503c0dfd3`
 - owner: Bot-F (project-io fixtures + roundtrip). **QA / Bot-G owns ACCEPTANCE_MATRIX PASS** — this doc does **not** flip M-08 to PASS.
 
 ## What was delivered

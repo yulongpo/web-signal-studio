@@ -21,5 +21,7 @@
   ],
   "tests": [
     "packages/project-io/src/m08-v6-roundtrip.fixture.test.ts"
-  ]
+  ],
+  "commit_sha": "2277ec5a600395432cd6852d3d0febe503c0dfd3",
+  "head_after_commit": "2277ec5a600395432cd6852d3d0febe503c0dfd3"
 }
