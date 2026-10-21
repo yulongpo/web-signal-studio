@@ -17,6 +17,10 @@ import {
   PLOT_MARGIN,
 } from './chartGesture';
 import { resolveNbPsdLinkedFreqHz } from './nbPsdFreqFromDwell';
+import {
+  resolveNbStftLinkedCursor,
+  resolveNbWaveLinkedTimeSec,
+} from './nbMultiViewLinked';
 
 function PanelShell({
   title,
@@ -271,6 +275,20 @@ export function NarrowbandObserveCharts() {
   );
   const psdLinkedFreqHz = psdFreqResolved.freqHz;
 
+  // G18 multi-view polish: wave prefers pinned store time (desktop Curve);
+  // STFT gets full linked crosshair (desktop stft_->setLinkedCursor).
+  const waveLinkedX = resolveNbWaveLinkedTimeSec({
+    linkedPinned: linkedCursor.pinned,
+    linkedTimeSec: linkedCursor.timeSec,
+    dwellTimeSec,
+  });
+  const stftLinkedCursor = resolveNbStftLinkedCursor({
+    linkedPinned: linkedCursor.pinned,
+    linkedTimeSec: linkedCursor.timeSec,
+    linkedFrequencyHz: linkedCursor.frequencyHz,
+    dwellTimeSec,
+    resolvedFreqHz: psdLinkedFreqHz,
+  });
 
   return (
     <>
@@ -296,8 +314,8 @@ export function NarrowbandObserveCharts() {
           extraAttrs={{
             'data-nb-wave-source': 'sigmf_data_demo-ddc',
             'data-nb-wave-mode': waveformMode,
-            'data-g18-nb-multi-view': dwellTimeSec == null ? 'false' : 'true',
-            'data-g18-linked-cursor': dwellTimeSec == null ? 'false' : 'true',
+            'data-g18-nb-multi-view': waveLinkedX == null ? 'false' : 'true',
+            'data-g18-linked-cursor': waveLinkedX == null ? 'false' : 'true',
           }}
         >
           {result ? (
@@ -308,7 +326,22 @@ export function NarrowbandObserveCharts() {
               height="100%"
               testId="nb-chart-waveform"
               windowX={null}
-              linkedX={dwellTimeSec}
+              linkedX={waveLinkedX}
+              onPinX={(timeSec) => {
+                const centerFreq = psdXDomain
+                  ? (psdXDomain.min + psdXDomain.max) / 2
+                  : stftFreq
+                    ? (stftFreq.min + stftFreq.max) / 2
+                    : undefined;
+                pinLinkedCursor({
+                  source: 'wave',
+                  timeSec,
+                  centerTimeSec:
+                    (result.waveform.xDomain.min + result.waveform.xDomain.max) / 2,
+                  centerFrequencyHz: centerFreq,
+                  selectedFrame: pinnedDwellIndex,
+                });
+              }}
             />
           ) : (
             <Waiting text={statusText ?? '等待真实 DDC 波形'} />
@@ -369,6 +402,9 @@ export function NarrowbandObserveCharts() {
           'data-nb-stft-source': 'sigmf_data_demo-ddc',
           'data-nb-stft-pin': 'true',
           'data-nb-pinned-dwell': pinnedDwellIndex ?? undefined,
+          'data-g18-nb-stft-linked-cursor':
+            stftLinkedCursor == null ? 'false' : 'true',
+          'data-g18-linked-cursor': stftLinkedCursor == null ? 'false' : 'true',
         }}
       >
                 {result &&
@@ -440,6 +476,7 @@ export function NarrowbandObserveCharts() {
               height="100%"
               testId="nb-chart-stft"
               interactionEnabled={false}
+              linkedCursor={stftLinkedCursor}
             />
             {pinnedDwellIndex != null ? (
               <StftDwellScrubber

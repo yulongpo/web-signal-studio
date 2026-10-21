@@ -1,44 +1,43 @@
-﻿# Bot-C short tip — dwell-only NB PSD freq + scrubber sync (no PASS)
+# Bot-C short tip — G18 NB multi-view STFT/wave linked polish (no PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-22 01:37 |
-| Base tip | 1f52465 |
+| Asia/Shanghai | 2026-10-22 01:50 |
+| Base tip | 1a7afff |
 | Branch | work/bot-c-charts |
-| Desktop ref | 17471a6 pinCursor / updateLinkedCursors |
-| Self-check | ChartMarkOverlay untouched; HeatmapCanvas backticks=30 |
+| Desktop ref | 17471a6 NarrowbandWorkspace::updateLinkedCursors (waveform_/psd_/stft_ setLinkedCursor) |
+| Self-check | ChartMarkOverlay untouched (backticks=16, dollar-brace=9); HeatmapCanvas backticks=30 |
 | matrix_pass_claimed | false |
 
 ## Landed
 
 | ID | Landed | Note |
 |----|--------|------|
-| G18 dwell-only historic freq | resolveNbPsdLinkedFreqHz | peak→xDomain else band center; stamp data-g18-nb-psd-freq-source |
-| STFT scrubber → linkedCursor | pinLinkedCursor on scrub | preserve freq or band center; selectedFrame+timeSec |
-| G11 PlotWidget | none | no clear C-owned evidence-backed gap this tip |
-| typecheck | clean | 2 B-merge NB/Esc errors not reproduced |
+| G18 STFT linked crosshair | resolveNbStftLinkedCursor + SpectrumChart linkedCursor | desktop stft_->setLinkedCursor; stamp data-g18-nb-stft-linked-cursor |
+| G18 wave linkedX from store | resolveNbWaveLinkedTimeSec | prefer pinned timeSec else dwell map; wave onPinX |
+| G11 PlotWidget | none | rechecked vs 17471a6; no clear C-owned paint gap beyond prior MET |
+| typecheck | clean | NB rfOffset / Esc roi not reproduced on 1a7afff |
 
 ## Deferred / gaps
 
 | Item | Status |
 |------|--------|
-| Full desktop multi-view polish beyond PSD vline | still PARTIAL at matrix; not CLOSED |
-| Dedicated NB pin-frequency D field | not needed — reuse linkedCursor + derive |
+| Full desktop multi-view (modulation/recognition STFT panes) | still PARTIAL; NB observe path only |
 | rail-dwell-scrubber twin | Bot-B — untouched |
-| G11 residual paint nuances | still PARTIAL at matrix; nothing concrete for C |
+| G11 residual paint nuances (matrix) | still PARTIAL; nothing concrete for C |
 
 ## Owner split
 
 | Item | Owner |
 |------|-------|
-| NB PSD freq chrome / dwell-only recovery | **Bot-C** (this tip) |
-| DSP series / new pin store fields | **Bot-D** (no new field) |
-| Right-rail scrubber | **Bot-B** (untouched) |
+| NB observe linked chrome (wave/PSD/STFT) | **Bot-C** (this tip) |
+| Right-rail scrubber twin | **Bot-B** (untouched) |
+| DSP series / pin store fields | **Bot-D** (untouched) |
 
 ## Evidence
 
-- apps/web/src/components/nbPsdFreqFromDwell.ts
-- apps/web/src/components/nbPsdFreqFromDwell.test.ts
+- apps/web/src/components/nbMultiViewLinked.ts
+- apps/web/src/components/nbMultiViewLinked.test.ts
 - apps/web/src/components/NarrowbandObserveCharts.tsx
 
 **matrix_pass_claimed: false. No PASS.**
