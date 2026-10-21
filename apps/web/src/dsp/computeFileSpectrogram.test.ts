@@ -19,7 +19,14 @@ import {
   setIqFileSession,
   subscribeIqFileSession,
 } from './iqFileSession';
-import { clearOpenedIq, openIqFromFileBlob } from './openIqForMainChart';
+import {
+  clearOpenedIq,
+  openIqFromFileBlob,
+  openIqFromFiles,
+  classifyIqFileName,
+  DEFAULT_RAW_SAMPLE_RATE_HZ,
+} from './openIqForMainChart';
+import { makeSyntheticSigmfMeta } from '@wss/file-io';
 
 function makeFixtureToneWav(sampleCount: number, sampleRateHz: number, fHz: number): ArrayBuffer {
   const iq = new Int16Array(sampleCount * 2);
@@ -109,9 +116,75 @@ describe('openIqForMainChart / iqFileSession', () => {
       sourceLabel: 'user-picked IQ WAV (file input): e.wav',
       fileName: 'e.wav',
       via: 'input',
+      format: 'wav',
     });
     expect(getIqFileEpoch()).toBe(before + 1);
     expect(notified).toBe(1);
     unsub();
+  });
+});
+
+describe('openIq RAW / SigMF dispatch', () => {
+  it('classifies extensions', () => {
+    expect(classifyIqFileName('a.wav')).toBe('wav');
+    expect(classifyIqFileName('x.iq')).toBe('raw');
+    expect(classifyIqFileName('x.raw')).toBe('raw');
+    expect(classifyIqFileName('x.ci16')).toBe('raw');
+    expect(classifyIqFileName('x.sigmf-meta')).toBe('sigmf-meta');
+    expect(classifyIqFileName('x.sigmf-data')).toBe('sigmf-data');
+  });
+
+  it('opens RAW CI16 blob with explicit raw format label', async () => {
+    const sampleCount = 64;
+    const buf = new ArrayBuffer(sampleCount * 4);
+    const view = new DataView(buf);
+    for (let s = 0; s < sampleCount; s++) {
+      view.setInt16(s * 4, 100, true);
+      view.setInt16(s * 4 + 2, -50, true);
+    }
+    const blob = new Blob([buf]);
+    const outcome = await openIqFromFileBlob(blob, { fileName: 'tone.iq' });
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.format).toBe('raw');
+    expect(outcome.sampleRateHz).toBe(DEFAULT_RAW_SAMPLE_RATE_HZ);
+    expect(outcome.sourceLabel).toContain('RAW');
+    expect(outcome.sourceLabel.toLowerCase()).not.toContain('synthetic');
+    expect(getIqFileSession()?.format).toBe('raw');
+  });
+
+  it('opens SigMF meta+data pair', async () => {
+    const sampleCount = 32;
+    const data = new ArrayBuffer(sampleCount * 4);
+    const view = new DataView(data);
+    for (let s = 0; s < sampleCount; s++) {
+      view.setInt16(s * 4, s, true);
+      view.setInt16(s * 4 + 2, -s, true);
+    }
+    const metaDoc = makeSyntheticSigmfMeta({
+      datatype: 'ci16_le',
+      sampleRateHz: 2_000_000,
+      frequencyHz: 100e6,
+    });
+    const metaBlob = new Blob([JSON.stringify(metaDoc)], { type: 'application/json' });
+    const dataBlob = new Blob([data]);
+    const outcome = await openIqFromFiles([
+      { file: metaBlob, name: 'pair.sigmf-meta' },
+      { file: dataBlob, name: 'pair.sigmf-data' },
+    ]);
+    expect(outcome.ok).toBe(true);
+    if (!outcome.ok) return;
+    expect(outcome.format).toBe('sigmf');
+    expect(outcome.sampleRateHz).toBe(2_000_000);
+    expect(outcome.sourceLabel).toContain('SigMF');
+    expect(getIqFileSession()?.format).toBe('sigmf');
+  });
+
+  it('rejects SigMF meta without data', async () => {
+    const metaBlob = new Blob(['{}'], { type: 'application/json' });
+    const outcome = await openIqFromFiles([{ file: metaBlob, name: 'only.sigmf-meta' }]);
+    expect(outcome.ok).toBe(false);
+    if (outcome.ok) return;
+    expect(outcome.message).toMatch(/sigmf-meta and .sigmf-data/i);
   });
 });

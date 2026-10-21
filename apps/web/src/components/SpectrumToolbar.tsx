@@ -1,14 +1,14 @@
 /**
  * PROVISIONAL — Bot-B single-row spectrum toolbar with overflow for low-priority actions.
  * Includes wideband / narrowband workspace mode toggle (StatusBar stays in sync via store).
- * Open IQ: FSA pickAndOpenIqWav when available, else <input type=file> + openIqWavFromBlob.
+ * Open IQ: FSA WAV when available, else <input type=file> WAV/RAW/SigMF via @wss/file-io.
  */
 import { useEffect, useRef, useState } from 'react';
 import { useUiStore } from '../store/uiStore';
 import {
   clearOpenedIq,
   detectFsaCapabilities,
-  openIqFromFileBlob,
+  openIqFromFiles,
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
 
@@ -67,10 +67,11 @@ export function SpectrumToolbar() {
     iqInputRef.current?.click();
   };
 
-  const onIqFilePicked = async (file: File | undefined) => {
-    if (!file) return;
+  const onIqFilesPicked = async (list: FileList | null) => {
+    if (!list || list.length === 0) return;
     setIqOpenError(null);
-    const outcome = await openIqFromFileBlob(file, { fileName: file.name });
+    const files = Array.from(list);
+    const outcome = await openIqFromFiles(files);
     if (!outcome.ok && outcome.reason !== 'cancelled') {
       setIqOpenError(outcome.message);
     }
@@ -141,7 +142,7 @@ export function SpectrumToolbar() {
           type="button"
           data-testid="btn-open-iq-wav"
           onClick={() => void onOpenIqWav()}
-          title="Open IQ WAV (FSA when available, else file picker)"
+          title="Open IQ (WAV / RAW / SigMF; FSA WAV when available)"
         >
           Open IQ
         </button>
@@ -156,11 +157,12 @@ export function SpectrumToolbar() {
         <input
           ref={iqInputRef}
           type="file"
-          accept=".wav,audio/wav,audio/x-wav"
+          accept=".wav,.iq,.raw,.ci16,.sigmf-meta,.sigmf-data,audio/wav,audio/x-wav,application/json"
+          multiple
           hidden
           data-testid="input-iq-wav"
           onChange={(e) => {
-            void onIqFilePicked(e.target.files?.[0]);
+            void onIqFilesPicked(e.target.files);
             e.target.value = '';
           }}
         />

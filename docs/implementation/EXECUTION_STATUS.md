@@ -2,33 +2,28 @@
 
 | Field | Value |
 |------|-----|
-| Phase | **P1** (Bot-B detection polish + wide/narrow workspace e2e) |
+| Phase | **P3** (B-P3-project-workspace-open) |
 | Status | **DONE** (awaiting CAO merge) |
 | Mode | ONE-SHOT FULL DELIVERY |
-| Shared tree | D:\project\web_signal_studio (no Bot checkout) |
-| Bot-B worktree | D:\project\wss-wt-b → work/bot-b-web-shell |
-| Synced main tip | 70347e14765116989055bbf942c41f91c5fb658b |
-| Updated (Asia/Shanghai) | 2026-10-21 19:15:00 |
+| Shared tree | D:\\project\\web_signal_studio (no Bot checkout) |
+| Bot-B worktree | D:\\project\\wss-wt-b — work/bot-b-web-shell |
+| Synced main tip (base) | c0079437e1ac0ee7822e5fade1b3a2bca0f65295 |
+| Updated (Asia/Shanghai) | 2026-10-21 19:30:00 |
 
-## P1 Bot-B
+## P3 Bot-B (B-P3-project-workspace-open)
 
-- [x] Compose ProjectTree / StatusBar / ChartPlaceholder / SpectrumToolbar / TempLayers / RightRail
-- [x] Main chart: SpectrumChart via MainChartHost
-- [x] Aux chart placeholder slot
-- [x] Right rail four pages including DetectPage
-- [x] Temp layers Esc / outside / Enter-Tab
-- [x] Toolbar overflow
-- [x] @wss/charts + @wss/project-io + @wss/contracts
-- [x] Project open/save/summarize via Bot-F `ProjectSessionHookApi` / `asProjectSessionHook`
-- [x] Detect page: Bot-E `LocalComputeClient` class (loopback, :8000), capabilities gate, no fake candidates
-- [x] Detection polish: uiMessages code chips, MODEL_MISSING_*/GPU_*/SOURCE_MISSING (server copy), BLOCKED no-draw, verifiedForward-only draw
-- [x] Wide/narrow workspace toggle + narrowband stub banner (Bot-D DDC later)
-- [x] STFT UX: `dsp-source-chip` + StatusBar dsp mirror; Playwright leaves `loading`
-- [x] Open IQ (FSA or file input) → `stftFromChunkedReader`; synthetic fixture parallel fallback
-- [x] WEIGHT_HASH_MISMATCH detect fixture/e2e via server `uiMessages` (no fake candidates)
-- [x] Playwright: shell + detect + project-io + STFT + workspace toggle (12 passed)
-- [x] Vitest: 20 passed
-- [x] npm run build pass
+- [x] M-01: Project open/save/clear via Bot-F `ProjectSessionHookApi` / `asProjectSessionHook`
+- [x] Playwright `project-io.spec.ts`: open JSON → StatusBar/tree → save export → clear; sample indexes decimal strings
+- [x] M-05: Wide/narrow workspace e2e; narrowband **stub only** (no fake DDC/IQ); switch keeps main chart + detect
+- [x] Evidence: `docs/acceptance/evidence/bot-b/b-p3-workspace-*.png` (from Playwright)
+- [x] Open path: WAV + RAW (`openRawCi16LeIq`) + SigMF pair (`openSigmfArrayBuffer`); chip `data-iq-format`
+- [x] FSA remains WAV-only (file-io); RAW/SigMF via file input — noted in BOT_B_SHELL
+- [x] Docs: BOT_B_SHELL.md + this file
+
+## Prior P1 (still green)
+
+- [x] Compose shell + DetectPage gating / WEIGHT_HASH_MISMATCH / STFT chip
+- [x] Open IQ WAV → `stftFromChunkedReader`; synthetic fixture fallback
 
 ## Rules
 
@@ -36,3 +31,4 @@
 - Never invent FFSCN/SCN detection candidates client-side.
 - Draw only when succeeded + `verifiedForward===true` + `PYTORCH_*` engine.
 - Sample indexes: decimal strings only.
+- Do not invent v6 project fields; never silently rewrite source paths.

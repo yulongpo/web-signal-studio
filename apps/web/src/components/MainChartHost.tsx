@@ -22,6 +22,7 @@ import {
   getIqFileSession,
   subscribeIqFileSession,
 } from '../dsp/iqFileSession';
+import type { IqFileFormat } from '../dsp/iqFileSession';
 import type { DspSourceKind } from '../types/provisional';
 
 /** Demo-only procedural frames (loading / error fallback). Not DSP output. */
@@ -54,14 +55,14 @@ type ChartSpec = {
   sourceLabel: string;
 };
 
-function chipLabelFor(kind: DspSourceKind): string {
+function chipLabelFor(kind: DspSourceKind, format?: IqFileFormat | null): string {
   switch (kind) {
     case 'synthetic-stft-worker':
       return 'DSP: STFT worker (synthetic)';
     case 'file-stft-worker':
-      return 'DSP: file STFT';
+      return format ? 'DSP: file STFT (' + format + ')' : 'DSP: file STFT';
     case 'fsa-wav-stft':
-      return 'DSP: FSA WAV STFT';
+      return format ? 'DSP: FSA STFT (' + format + ')' : 'DSP: FSA WAV STFT';
     case 'demo-fallback':
       return 'DSP: demo fallback';
     default:
@@ -90,6 +91,7 @@ export function MainChartHost() {
 
   const [spec, setSpec] = useState<ChartSpec | null>(null);
   const [dspSource, setDspSource] = useState<DspSourceKind>('loading');
+  const [iqFormat, setIqFormat] = useState<IqFileFormat | null>(null);
 
   const fallbackPower = useMemo(
     () => synthPower(FALLBACK_BINS, FALLBACK_FRAMES),
@@ -101,6 +103,7 @@ export function MainChartHost() {
     const ac = new AbortController();
     setDspSource('loading');
     setDspSourceStore('loading');
+    setIqFormat(null);
 
     const session = getIqFileSession();
 
@@ -125,6 +128,7 @@ export function MainChartHost() {
         });
         setDspSource(kind);
         setDspSourceStore(kind);
+        setIqFormat(session.format);
         setStatusFileLabel(session.fileName);
         return;
       }
@@ -137,6 +141,7 @@ export function MainChartHost() {
       setSpec(result);
       setDspSource('synthetic-stft-worker');
       setDspSourceStore('synthetic-stft-worker');
+      setIqFormat(null);
       setStatusFileLabel('No file (synthetic fixture)');
     };
 
@@ -147,6 +152,7 @@ export function MainChartHost() {
       setSpec(null);
       setDspSource('demo-fallback');
       setDspSourceStore('demo-fallback');
+      setIqFormat(null);
     });
 
     return () => ac.abort();
@@ -173,14 +179,16 @@ export function MainChartHost() {
       data-testid="main-chart-host"
       data-dsp-source={dspSource}
       data-dsp-label={spec?.sourceLabel ?? 'demo fallback'}
+      data-iq-format={iqFormat ?? undefined}
     >
       <span
         className="dsp-source-chip"
         data-testid="dsp-source-chip"
         data-dsp-source={dspSource}
+        data-iq-format={iqFormat ?? undefined}
         title={spec?.sourceLabel ?? dspSource}
       >
-        {chipLabelFor(dspSource)}
+        {chipLabelFor(dspSource, iqFormat)}
       </span>
       <SpectrumChart
         power={power}

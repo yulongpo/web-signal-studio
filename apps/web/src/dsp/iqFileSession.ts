@@ -1,10 +1,13 @@
 /**
- * In-memory opened IQ WAV session for the main chart.
+ * In-memory opened IQ session for the main chart (WAV / RAW / SigMF).
  * ChunkedReader lives here (not in Zustand). UI store only mirrors metadata + epoch.
  */
 import type { ChunkedReader } from '@wss/file-io';
 
 export type IqOpenVia = 'fsa' | 'input';
+
+/** Distinguishes open path for chip / StatusBar (never invent capture claims). */
+export type IqFileFormat = 'wav' | 'raw' | 'sigmf';
 
 export interface IqFileSession {
   reader: ChunkedReader;
@@ -13,6 +16,7 @@ export interface IqFileSession {
   sourceLabel: string;
   fileName: string;
   via: IqOpenVia;
+  format: IqFileFormat;
   epoch: number;
 }
 
@@ -46,6 +50,7 @@ export function setIqFileSession(input: {
   sourceLabel: string;
   fileName: string;
   via: IqOpenVia;
+  format: IqFileFormat;
 }): IqFileSession {
   epoch += 1;
   current = {
@@ -54,6 +59,7 @@ export function setIqFileSession(input: {
     sourceLabel: input.sourceLabel,
     fileName: input.fileName,
     via: input.via,
+    format: input.format,
     epoch,
   };
   notify();
