@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:43` Asia/Shanghai: Web **`31cc4bf`** vs desktop `17471a6` — evidence-only G web-762b876. G02 PARTIAL corroborated (not CLOSED). Soft G08 OK. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_31cc4bf/`. **No PASS.**
+
+| ID | Prior (`762b876`) | Now (`31cc4bf`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL | **PARTIAL（G 佐证；未 CLOSED）** | auto-N/removeMean 对齐 |
+| **G08** | PARTIAL | **unchanged PARTIAL** | soft 无回归 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_31cc4bf/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:37` Asia/Shanghai: Web **`762b876`** vs desktop `17471a6` — G02 PARTIAL deepened (B wave29 UI wire). Multitaper/Burg BLOCKED. Not CLOSED. Soft G08 OK. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_762b876/`. **No PASS.**
 
 | ID | Prior (`ab48064`) | Now (`762b876`) | Note |
