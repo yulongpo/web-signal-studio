@@ -11,9 +11,15 @@ import { buildLutRgba8, type ColormapName } from "../lut/colormaps.js";
 import { PhysicalAxis } from "../axis/physicalAxis.js";
 import { AxisOverlay } from "../overlay/axisOverlay.js";
 import { CursorOverlay, type CursorOverlayState } from "../overlay/cursorOverlay.js";
-import { applyCanvasDpr } from "../dpi/canvasSizing.js";
-import { PreviewRefineController } from "../interaction/previewRefine.js";
-import { extractDisplayGrid } from "../tile/displayExtract.js";
+import { applyCanvasDpr, resolveDevicePixelRatio } from "../dpi/canvasSizing.js";
+import {
+  PreviewRefineController,
+  type PreviewRefineMode,
+} from "../interaction/previewRefine.js";
+import {
+  extractDisplayGrid,
+  suggestExtractOutSize,
+} from "../tile/displayExtract.js";
 
 export interface HeatmapCanvasProps {
   /** Row-major scalar intensities. */
@@ -78,6 +84,8 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     yCss: null,
   });
   const [error, setError] = useState<string | null>(null);
+  const [interactionMode, setInteractionMode] = useState<PreviewRefineMode>("idle");
+  const lastExtractMs = useRef(0);
 
   const levels =
     levelsProp ??
@@ -116,12 +124,10 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       setError(e instanceof Error ? e.message : String(e));
     }
     preview.current = new PreviewRefineController({
-      onPreview: () => {
-        /* Bot-B / host can swap to coarser extract */
-      },
-      onRefine: () => {
-        /* full-res path */
-      },
+      onPreview: () => setInteractionMode("preview"),
+      onRefine: () => setInteractionMode("refine"),
+      onIdle: () => setInteractionMode("idle"),
+      onModeChange: (mode) => setInteractionMode(mode),
     });
     return () => {
       preview.current?.dispose();
@@ -149,7 +155,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       typeof height === "number"
         ? height
         : Math.max(1, wrap.clientHeight || 280);
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = resolveDevicePixelRatio(window.devicePixelRatio);
 
     const glSize = applyCanvasDpr(glCanvas, {
       cssWidth: cssW,
@@ -170,7 +176,14 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     const plotW = Math.max(1, cssW - MARGIN.left - MARGIN.right);
     const plotH = Math.max(1, cssH - MARGIN.top - MARGIN.bottom);
 
-    // Display extract for CSS plot size (preview path); full scalar still owned by caller
+    // Display-only extract: preview = coarse, refine/idle = denser. Never attaches Hz/markers.
+    const outSize = suggestExtractOutSize({
+      sourceWidth: widthBins,
+      sourceHeight: heightBins,
+      plotCssWidth: plotW,
+      plotCssHeight: plotH,
+      mode: interactionMode === "preview" ? "preview" : "refine",
+    });
     const extracted = extractDisplayGrid({
       source: scalar,
       sourceWidth: widthBins,
@@ -179,10 +192,11 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       srcY: 0,
       srcW: widthBins,
       srcH: heightBins,
-      outW: Math.min(widthBins, Math.max(32, Math.round(plotW))),
-      outH: Math.min(heightBins, Math.max(32, Math.round(plotH))),
-      reduce: "peak",
+      outW: outSize.outW,
+      outH: outSize.outH,
+      reduce: interactionMode === "preview" ? "nearest" : "peak",
     });
+    lastExtractMs.current = extracted.extractMs;
 
     const t0 = performance.now();
     renderer.uploadScalar({
@@ -268,6 +282,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     height,
     cursor,
     showCursor,
+    interactionMode,
     axisOverlay,
     cursorOverlay,
   ]);
@@ -317,6 +332,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       ref={wrapRef}
       className={className}
       data-testid={testId}
+      data-interaction-mode={interactionMode}
       onPointerMove={onPointerMove}
       onPointerLeave={onPointerLeave}
       style={{
