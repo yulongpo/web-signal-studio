@@ -1,4 +1,4 @@
-import { useMemo, type CSSProperties } from "react";
+﻿import { useMemo, type CSSProperties } from "react";
 import { HeatmapCanvas, type HeatmapCanvasProps } from "./HeatmapCanvas.js";
 import type { HeatmapOrientation } from "../webgl/heatmapRenderer.js";
 
@@ -19,11 +19,17 @@ export interface SpectrumChartProps
   timeSec?: { min: number; max: number };
   className?: string;
   style?: CSSProperties;
+  /**
+   * Optional pan/zoom view callback (passed through to HeatmapCanvas).
+   * MainChartHost may adopt later; existing onCursor is unchanged.
+   */
+  // onViewChange / interactionEnabled / onCursor inherited from HeatmapCanvasProps
 }
 
 /**
  * Embeddable spectrum / waterfall chart for Bot-B.
  * Maps physical freq/time domains onto HeatmapCanvas.
+ * Supports pointer pan + wheel zoom via HeatmapCanvas when interactionEnabled (default true).
  */
 export function SpectrumChart(props: SpectrumChartProps) {
   const {
