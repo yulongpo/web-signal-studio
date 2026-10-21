@@ -109,3 +109,9 @@ Contract tests still run in the lightweight `.venv` **without** torch and must s
 - Fixture: `tests/fixtures/synthetic_iq_stereo.wav` (16-bit stereo I/Q).
 - `STUB_RUNTIME` copy must stay aligned with Bot-B `gating.test.ts` / `LOCAL_COMPUTE_STUB_RUNTIME_COPY`.
 - Never fabricate candidates to pass; live success requires `verifiedForward=true`.
+
+
+## Expected-hash samples
+
+See [WEIGHT_HASH_SAMPLES.md](./WEIGHT_HASH_SAMPLES.md) and [weights.sha256.example.json](./weights.sha256.example.json) (hashes only; no weight binaries).
+
