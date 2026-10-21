@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 01:39` Asia/Shanghai: Web tip **`e8f0881`** vs desktop `17471a6` — G18 PARTIAL deepened (C dwell-only historic `resolveNbPsdLinkedFreqHz` + scrubber sync). Not CLOSED (full multi-view polish residual). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_e8f0881.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`4937422`) | Now (`e8f0881`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（dwell-only historic 残） | **PARTIAL 加深** | dwell-peak/center + scrubber MET；full multi-view polish → **未 CLOSED** |
+| **G06** / **G17** | PARTIAL | **unchanged — BLOCKED** | 未发明路径 |
+| **G19** | PARTIAL | **unchanged** | `data-native-qfiledialog=false` |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_e8f0881.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:36` Asia/Shanghai: Web tip **`4937422`** vs desktop `17471a6` — evidence-only G `d731897` (web-5c569c2 G02 DSP + G18 NB PSD vline). No apps/packages delta. Statuses unchanged. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4937422.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`5c569c2`) | Now (`4937422`) | Note |

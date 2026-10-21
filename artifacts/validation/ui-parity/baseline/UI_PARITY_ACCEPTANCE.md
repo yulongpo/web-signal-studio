@@ -1,3 +1,10 @@
+> Bot-A `2026-10-22 01:39` Asia/Shanghai: Web **`e8f0881`** vs desktop `17471a6` — G18 PARTIAL deepened (C dwell-only historic freq). Not CLOSED. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_e8f0881.md`. **No PASS.**
+
+| ID | Prior (`4937422`) | Now (`e8f0881`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** | PARTIAL（dwell-only 残） | **PARTIAL 加深** | resolveNbPsdLinkedFreqHz MET；full polish → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_e8f0881.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:36` Asia/Shanghai: Web **`4937422`** vs desktop `17471a6` — evidence-only G web-5c569c2. No status flips. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4937422.md`. **No PASS.**
 
 | ID | Prior (`5c569c2`) | Now (`4937422`) | Note |
