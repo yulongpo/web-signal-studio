@@ -1,0 +1,15 @@
+﻿{
+    "rebuildDirtyObserved":  true,
+    "wssWriteRoot":  "D:\\project\\web_signal_studio",
+    "delivered":  [
+                      ".github/workflows/ci.yml",
+                      "docs/acceptance/ACCEPTANCE_MATRIX.md",
+                      "AGENTS.md"
+                  ],
+    "rebuildDirtyClassification":  "pre-existing or parallel desktop UX work (wideband-ux-optimization docs, ui/tests); not web_signal_studio paths",
+    "task":  "P0-G",
+    "verifier":  "WSS-QA-G",
+    "wssWroteToRebuild":  false,
+    "checkedAtAsiaShanghai":  "2026-10-21 17:49:40",
+    "rebuildPath":  "D:\\project\\signal_studio_rebuild"
+}

@@ -1,0 +1,16 @@
+﻿html, body, #root { height: 100%; margin: 0; }
+.app-shell { display: grid; grid-template-columns: 220px 1fr 280px; height: 100%; background: #0f1419; color: #e7ecf1; font: 13px/1.4 system-ui, sans-serif; }
+.project-tree, .right-rail { background: #151b22; border-right: 1px solid #243041; padding: 8px; overflow: auto; }
+.right-rail { border-right: none; border-left: 1px solid #243041; display: flex; flex-direction: column; }
+.workspace { display: grid; grid-template-rows: 36px 180px 1fr 28px; min-width: 0; }
+.pane-title { font-weight: 600; margin-bottom: 8px; }
+.global-nav, .status-bar, .chart-toolbar { display: flex; align-items: center; gap: 8px; padding: 0 10px; background: #121820; border-bottom: 1px solid #243041; }
+.status-bar { border-bottom: none; border-top: 1px solid #243041; color: #9aa7b5; font-size: 12px; }
+.aux-chart, .main-chart { display: flex; flex-direction: column; min-height: 0; border-bottom: 1px solid #243041; }
+.chart-canvas { flex: 1; display: grid; place-items: center; background: #0b1015; }
+.chart-toolbar button, .rail-tabs button { background: #1c2633; color: inherit; border: 1px solid #2c3b4f; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+.chart-toolbar button[data-active='true'], .rail-tabs button[data-active='true'] { background: #2a6bed; border-color: #2a6bed; }
+.rail-tabs { display: flex; gap: 4px; padding-bottom: 8px; }
+.rail-body { flex: 1; overflow: auto; }
+.muted { color: #9aa7b5; }
+ul { padding-left: 18px; margin: 0; }
