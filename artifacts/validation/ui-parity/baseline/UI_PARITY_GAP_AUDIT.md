@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 02:25` Asia/Shanghai: Web tip **`1f2bcee`** vs desktop `17471a6` — **evidence-only** G `91aa309` (`qa/web-ca28052`). G02 PARTIAL corroborated (`data-auto-n=na` / BLOCKED methods / Kaiser gate match prior honesty); **not CLOSED**. G08/G18 soft no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_1f2bcee/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`ca28052`) | Now (`1f2bcee`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL（auto-N 诚实） | **PARTIAL（G 佐证；未 CLOSED）** | DOM/PNG 对齐 NA/BLOCKED |
+| **G08** / **G18** | PARTIAL | **unchanged PARTIAL** | soft 无回归 |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未发明 / 未抬升 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_1f2bcee/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:22` Asia/Shanghai: Web tip **`ca28052`** vs desktop `17471a6` — G02 PARTIAL honesty deepen (B `cd204ef` wave26: `data-auto-n=na` + NA copy; method disabled welch-only copy; Kaiser disabled-until-kaiser; blocked methods still grey). Real auto N/B still BLOCKED → **not CLOSED**. G08/G18 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ca28052/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`f72184c`) | Now (`ca28052`) | Note |
