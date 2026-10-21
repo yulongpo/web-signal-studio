@@ -111,7 +111,7 @@ function DisplayPage() {
       </pre>
       <div
         className="rail-dwell-pin"
-        data-testid="rail-dwell-pin"
+        data-testid="rail-dwell-pin" data-rail-stack="wave12"
         data-pinned={pinnedDwellIndex == null ? 'false' : 'true'}
       >
         <label className="rail-dwell-pin-field">
@@ -230,7 +230,7 @@ export function RightRail() {
     <aside
       className={`right-rail${collapsed ? ' right-rail-collapsed' : ''}`}
       aria-label="context-rail"
-      data-testid="context-rail"
+      data-testid="context-rail" data-rail-stack="wave12"
       data-collapsed={collapsed}
     >
       <div className="rail-chrome">

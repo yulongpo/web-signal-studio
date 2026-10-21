@@ -2662,3 +2662,43 @@ span[data-editable-col] {
 span[data-editable-col]:hover {
   outline: 1px dashed #2a4058;
 }
+
+
+/* wave12 G18: rail pin/scrubber above workspace canvas hit layer (Bot-G QA gap) */
+.app-shell-body > .workspace,
+.app-shell-body > .workspace.workspace-split {
+  position: relative;
+  z-index: 0;
+  overflow: hidden; /* keep chart/canvas inside workspace column */
+  min-width: 0;
+}
+.app-shell-body > .right-rail,
+.right-rail {
+  position: relative;
+  z-index: 6; /* above workspace (0) and shell-col-resize (3); below temp-layer (30) */
+  pointer-events: auto;
+  isolation: isolate;
+}
+.right-rail .rail-body,
+.right-rail .rail-dwell-pin,
+.right-rail .rail-dwell-scrubber {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+.right-rail .rail-dwell-pin button,
+.right-rail .rail-dwell-pin input,
+.right-rail .rail-dwell-scrubber input {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+/* Resize hit strip must not steal clicks from rail chrome */
+.app-shell-body > .shell-col-resize-right {
+  z-index: 4;
+}
+.app-shell-body > .shell-col-resize-right::after {
+  /* keep widened hit, but clip extension into rail via smaller right overhang */
+  right: 0;
+  left: -4px;
+}
