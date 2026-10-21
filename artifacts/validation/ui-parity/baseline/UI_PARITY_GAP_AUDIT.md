@@ -1,3 +1,13 @@
+> Bot-A CAO FYI `2026-10-22 02:43` Asia/Shanghai (on `INCREMENTAL_31cc4bf`): D formally **BLOCKED** **non-PoT** + **STFT-DDC/decimate** (no separate tip). G02 remains **PARTIAL** — UI+PoT auto-N/removeMean MET only; Multitaper/Burg **BLOCKED**; **do not CLOSED**. See `INCREMENTAL_31cc4bf/`. **No PASS.** matrix_pass_claimed: false.
+> Bot-A `2026-10-22 02:43` Asia/Shanghai: Web tip **`31cc4bf`** vs desktop `17471a6` — **evidence-only** G `4389fb7` (`qa/web-762b876`). G02 PARTIAL corroborated (auto-N on/off + segment_ms=0 + removeMean + blocked grey + kaiser); **not CLOSED**. Soft G08 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_31cc4bf/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`762b876`) | Now (`31cc4bf`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL（UI wire） | **PARTIAL（G 佐证；未 CLOSED）** | DOM/PNG 对齐 on/off / removeMean |
+| **G08** | PARTIAL | **unchanged PARTIAL** | soft 无回归 |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未发明 / 未抬升 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_31cc4bf/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:37` Asia/Shanghai: Web tip **`762b876`** vs desktop `17471a6` — G02 PARTIAL deepened (B `d88dad7` wave29: SpecParamStrip auto-N/removeMean → D `resolveAnalysisSamples` / `StftRequest.removeMean`; settle `dspAutoNb`/`dspRemoveMean`). Strip `data-auto-n=on|off` (no longer NA-only). Multitaper/Burg still **BLOCKED**. Soft G08 no regression. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_762b876/`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`ab48064`) | Now (`762b876`) | Note |
