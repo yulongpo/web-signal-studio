@@ -2,9 +2,9 @@
 
 | 字段 | 值 |
 |------|-----|
-| 时间（Asia/Shanghai） | 2026-10-21 21:28:00+（rebase `196db21`） |
+| 时间（Asia/Shanghai） | 2026-10-21 21:30:33+（rebase `17937bb`） |
 | 复核方 | Bot-A（WSS-审计A）`work/bot-a-audit` worktree |
-| **Web tip（origin/main）** | **`196db218cee37d2e212a6c3a20a409138e33d52a`**（`196db21`；相对 `16abb2a` 审计之 `563458a` 已前进） |
+| **Web tip（origin/main）** | **`17937bb3a735d0df7058a3714aa353a88abb0e23`**（`17937bb`；相对 `2000c1e`/`196db21` 已前进） |
 | **桌面上游 tip** | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`rebuild/a143-native`） |
 | 先验 Bot-A 文档 | `866e699` / G01–G26（对照 Web 当时 `be885f2`、上游 `0f108d0`，本地路径证据 `696ce12`） |
 | 本地 rebuild（只读） | `D:\project\signal_studio_rebuild` @ `17471a6`（fetch 后与远端一致） |
@@ -32,15 +32,16 @@
 
 **未新增独立 G27**：上述全部折叠进既有 G02/G06/G18/G19 的加严 PASS，避免 ID 漂移。
 
-### B0. Web `main@196db21` 相对 `563458a` / Bot-A `16abb2a`（本轮）
+### B0. Web `main@17937bb` 相对 `196db21` / Bot-A `2000c1e`（本轮）
 
 | ID | 新状态 | 证据 | 仍缺（阻止 FULL PASS） |
 |----|--------|------|------------------------|
-| G03 | **PARTIAL** | `NavigationChart` in `global-nav`；无 placeholder；窗↔主图 timeSec；e2e | 导航图头 chrome / `f9f05bb` 设置分离（Bot-B）；条高 36 |
-| G04 | **PARTIAL** | `WaveformChart` Wave/PSD；无 ChartPlaceholder | Wave=STFT envelope≠raw IQ |
-| G05 | **PARTIAL** | `VerticalSplitter` 拖拽+双击复位；`splitter-nav-aux`/`splitter-aux-main` | 默认 36/160 ≠ 桌面 82/205 |
+| G02 | **PARTIAL**（自 OPEN） | `App.tsx` 不再 import `SpectrumToolbar`；`AuxParamStrip`/`SpecParamStrip` 挂 aux/main 图头；`NavChrome`；e2e `bot-b-host-wiring` | `f9f05bb` caption 标签分离未满；`data-testid="spectrum-toolbar"` 仍在图头；overflow 焦点未证 |
+| G03 | PARTIAL | `NavChrome` zoom/pause/segments；条高默认 82 | `NavigationChart` **无 onWheel** 改窗宽 |
+| G04 | PARTIAL | `auxWaveRawIq.ts` + `AuxChartHost` Wave=`sigmf_data_demo` IqRms；非 STFT envelope | Bot-A 未跑 e2e 视觉；`/@fs` 路径依赖；PSD 仍谱图派生 |
+| G05 | **CLOSED**（自 PARTIAL） | `uiStore` 82/205；`VerticalSplitter` 拖+双击；e2e `navH===82` `auxH∈{205,176}`；对齐 `enforceLayout` | 短窗阈值 Web=900 vs 桌面=850（软差，不阻 CLOSED） |
 
-详表：`artifacts/validation/ui-parity/INCREMENTAL_196db21.md`。
+详表：`artifacts/validation/ui-parity/INCREMENTAL_17937bb.md`。
 
 ### B. Web `main@563458a` 相对 `866e699` 基线已闭合 / 部分闭合
 
@@ -61,10 +62,10 @@
 
 | 状态 | IDs |
 |------|-----|
-| OPEN | G01–G02, G06–G10, G15–G18, G21–G24 |
-| PARTIAL | **G03–G05**, G11–G14, G19–G20, G26 |
+| OPEN | G01, G06–G10, G15–G18, G21–G24 |
+| PARTIAL | **G02–G04**, G11–G14, G19–G20, G26 |
 | DOCS-only / 实现仍偏 | G25 |
-| CLOSED | （无完整 CLOSED） |
+| CLOSED | **G05** |
 
 总数仍 **26**；P0 仍 14 条 ID，但 G11–G14/G26 可分波验收「PARTIAL 退出条件」见 ACCEPTANCE。
 
@@ -83,12 +84,12 @@
 | 检测 | `DetectionCard` + 树内 `.engine` | `ui/detection/detection_card.h` |
 | 底部 | result/task/log | `bottomContent_` |
 
-## Web 现状（196db21 只读）
+## Web 现状（17937bb 只读）
 
 | 区域 | Web 事实 | 关键证据 |
 |------|----------|----------|
 | 顶栏 | 无菜单栏；`SpectrumToolbar` 常驻 | `App.tsx` |
-| 中央 | `NavigationChart` + `WaveformChart` + `VerticalSplitter`；主图 STFT + desktop-axis/box；**SpectrumToolbar 仍常驻** | `App.tsx`；`NavChartHost`/`AuxChartHost`；Bot-C |
+| 中央 | `NavChrome`+`NavigationChart` + `AuxParamStrip`+raw-IQ `WaveformChart` + `VerticalSplitter`(82/205) + `SpecParamStrip`；**无 aux↔main 常驻 SpectrumToolbar** | `App.tsx`；`NavChartHost`/`AuxChartHost`；Bot-C |
 | 右侧 | 四页壳；Detect 精简闸门 | `RightRail` / `DetectPage` |
 | 底部 | 缺失 | `App.tsx` |
 | 窄带 | stub banner | `workspace-narrowband-stub` |
@@ -104,10 +105,10 @@
 | ID | 类别 | 差距 | 桌面证据 | Web 证据 | 严重度 | 状态 | PASS 摘要 |
 |----|------|------|----------|----------|--------|------|-----------|
 | G01 | 布局 | 无顶部菜单栏 | `buildMenus()` | 无 menubar | **P0** | OPEN | 五组菜单/命令栏；Open IQ 从菜单可达 |
-| G02 | 布局 | 常驻 Toolbar 取代图头；缺标签分离 | `ChartControlStrip`+`f9f05bb` | `SpectrumToolbar` 常驻 | **P0** | OPEN（**加严**） | 无全局常驻条；三图图头含 caption+控件；overflow 不丢编辑 |
-| G03 | 布局 | 全局时间导航（已嵌入 NavigationChart） | `navigationPlot` | `NavChartHost`/`navigation-chart` @`196db21` | **P0** | **PARTIAL** | 真实时间窗+拖窗；补齐图头 chrome；滚轮改窗宽验收 |
-| G04 | 布局 | 辅助图 Wave/PSD（派生曲线） | `auxPlot` | `AuxChartHost`/`WaveformChart` @`196db21` | **P0** | **PARTIAL** | Wave/PSD 切换；补 raw IQ Wave（Bot-D） |
-| G05 | 布局 | 垂直 splitter（默认未对齐桌面） | `graphSplitter` 82/205 | `VerticalSplitter` 36/160 @`196db21` | **P0** | **PARTIAL** | 可拖+双击复位；默认对齐 82/205 |
+| G02 | 布局 | 常驻 Toolbar 取代图头；缺标签分离 | `ChartControlStrip`+`f9f05bb` | `AuxParamStrip`/`SpecParamStrip`；无 aux↔main 常驻条 @`17937bb` | **P0** | **PARTIAL**（**加严**残留） | 无全局常驻条；补 caption+overflow 焦点（`f9f05bb`） |
+| G03 | 布局 | 全局时间导航（已嵌入 NavigationChart） | `navigationPlot` | `NavChrome`+`NavigationChart` @`17937bb` | **P0** | **PARTIAL** | 真实时间窗+拖窗+chrome；补滚轮改窗宽 |
+| G04 | 布局 | 辅助图 Wave/PSD（派生曲线） | `auxPlot` | `auxWaveRawIq`/`sigmf_data_demo` IqRms @`17937bb` | **P0** | **PARTIAL** | Wave/PSD 切换；Wave=raw IQ 代码已落地；待 QA 视觉 |
+| G05 | 布局 | 垂直 splitter（默认已对齐 82/205） | `graphSplitter` 82/205 | `VerticalSplitter` 默认 **82/205** @`17937bb` | **P0** | **CLOSED** | 可拖+双击复位；默认对齐 82/205 |
 | G06 | 布局 | 窄带 stub；设置须跨页保留 | `NarrowbandWorkspace`+`a64117e` | stub | **P0** | OPEN（**加严**） | 非 stub；换页/overflow 后 STFT N·网格·频率保留；无伪解调 |
 | G07 | 布局 | 缺底栏 | `bottomContent_` | 无 | **P0** | OPEN | 三标签；~29/150 |
 | G08 | 布局 | 栏宽不一致 | 278/390 | 220/280 | **P1** | OPEN | 左~278 右~390；收起~38 |
@@ -157,4 +158,4 @@ G21–G25。
 
 ## 结论
 
-上游已推进至 **`17471a6`**。桌面增量主要**加严 G02/G06/G18**。Web **`196db21`** 将 **G03–G05** 提升为 **PARTIAL**（Bot-C）；G01–G02/G06–G07 壳层仍 OPEN。未改实现代码。
+上游仍锚定 **`17471a6`**。Web **`17937bb`** 本轮：**G02 OPEN→PARTIAL**（Bot-B 降级常驻 Toolbar）；**G05 PARTIAL→CLOSED**（Bot-C 默认 82/205）；G04 Wave raw IQ 代码落地仍标 PARTIAL（待 QA）；G03 chrome 残差清除但仍缺滚轮。未改实现代码。详见 `INCREMENTAL_17937bb.md`。

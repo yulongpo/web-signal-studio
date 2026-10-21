@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "recordedAtAsiaShanghai": "2026-10-21 21:25:00",
-  "lastVerifiedAtAsiaShanghai": "2026-10-21 21:28:00",
+  "lastVerifiedAtAsiaShanghai": "2026-10-21 21:30:33",
   "verifiedBy": "bot-a-audit",
-  "parityStatus": "UI_INCREMENTAL_REFRESH_196db21",
+  "parityStatus": "UI_INCREMENTAL_REFRESH_17937bb",
   "upstreamDrift": true,
   "workspaceRoot": "D:/project/web_signal_studio",
   "worktreePath": "D:/project/_wt_bot_a_audit",
@@ -23,8 +23,8 @@
   "localRebuildPath": "D:/project/signal_studio_rebuild",
   "localRebuildHeadObserved": "17471a6488383b456281d12cb1a6d3d80290205d",
   "localRebuildNote": "Read-only reference; git fetch OK; HEAD matches remote tip 17471a6 after fetch; never write source; never push yulongpo/signal_studio",
-  "webMainTipObserved": "196db218cee37d2e212a6c3a20a409138e33d52a",
-  "webMainTipNote": "origin/main verified 196db21 (merge bot-c G03-G05 nav/aux/VerticalSplitter); prior incremental was vs 563458a; Bot-A did not checkout shared tree",
+  "webMainTipObserved": "17937bb3a735d0df7058a3714aa353a88abb0e23",
+  "webMainTipNote": "origin/main verified 17937bb (merge bot-d Aux Wave raw IQ; includes bot-b chrome/G02 + bot-c splitter 82/205); prior incremental was vs 196db21; Bot-A did not checkout shared tree",
   "target": {
     "defaultBranch": "main",
     "remote": "https://github.com/yulongpo/web-signal-studio"
@@ -33,9 +33,8 @@
   "a143ProductDeliveryNote": "Cited by a143-native DELIVERY/EXECUTION_STATUS as W6 product source; current remote branch HEAD is 17471a6 (docs archive + UI fixes after 0f108d0).",
   "openDeltas": [
     "Upstream tip remains 17471a6 (unchanged this patch)",
-    "Web main advanced 563458a -> 196db21: G03-G05 PARTIAL (Bot-C NavigationChart/WaveformChart/VerticalSplitter); defaults 36/160 not desktop 82/205; Wave=STFT envelope not raw IQ",
-    "Shell G01-G02/G06-G07 still OPEN; G11-G14/G19-G20/G26 remain PARTIAL as of prior 16abb2a audit",
-    "G02 still OPEN (SpectrumToolbar still between aux↔main on 196db21)",
+    "Web main advanced 196db21 -> 17937bb: G02 PARTIAL (toolbar demoted); G05 CLOSED (82/205); G04 Wave raw IQ code path; G03 chrome cleared, wheel still missing",
+    "G01/G06-G07 still OPEN; G11-G14/G19-G20/G26 remain PARTIAL",
     "model_layout may still enumerate .pth/.onnx — G26 UI picker must not expose as PASS options"
   ],
   "iqConstraint": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo",

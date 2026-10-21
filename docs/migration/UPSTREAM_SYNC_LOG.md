@@ -79,3 +79,14 @@ c1f2cce feat(project-tree): clarify current signals and compact source informati
 
 Bot-C 证据：`NavigationChart` / `WaveformChart` / `VerticalSplitter`；e2e `g03-g05-tri-chart.spec.ts`；STATUS 自报 No self-PASS。已知残留：splitter 默认 36/160≠桌面 82/205；Wave=STFT envelope 非 raw IQ；SpectrumToolbar 仍常驻（G02）。
 
+## 2026-10-21 21:30:33+08 Bot-A UI 增量复核 @ Web `17937bb`
+
+| 字段 | 值 |
+|------|-----|
+| 桌面 tip | **`17471a6488383b456281d12cb1a6d3d80290205d`**（`17471a6`）— **未变** |
+| Web `origin/main` | **`17937bb3a735d0df7058a3714aa353a88abb0e23`**（`17937bb` merge bot-d raw IQ；含 B chrome/G02、C 82/205） |
+| 先验增量 | `INCREMENTAL_196db21.md` / tip `2000c1e` |
+| 本轮交付 | `INCREMENTAL_17937bb.md`；刷新 GAP/ACCEPTANCE；**G05 CLOSED**；**G02 PARTIAL** |
+| 本地 rebuild | fetch 后仍 `17471a6`；**未写源码、未 push signal_studio** |
+| 共享树 | **未** `git checkout`；写入仅 `_wt_bot_a_audit` / `work/bot-a-audit` |
+
