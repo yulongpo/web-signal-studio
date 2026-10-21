@@ -11,6 +11,7 @@ import { getIqFileSession } from '../dsp/iqFileSession';
 import {
   QUALITY_LABEL_CN,
   annotationToTableRow,
+  ANNOTATION_TABLE_HEADERS,
 } from './annotationTableMatrix';
 import { LocalComputeClient } from '../localCompute/client';
 
@@ -60,6 +61,10 @@ export function BottomPanel() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editNote, setEditNote] = useState('');
+  const [editStartMs, setEditStartMs] = useState('');
+  const [editEndMs, setEditEndMs] = useState('');
+  const [editLowerMhz, setEditLowerMhz] = useState('');
+  const [editUpperMhz, setEditUpperMhz] = useState('');
   const resizeStart = useRef<{ y: number; h: number } | null>(null);
 
   useEffect(() => {
@@ -255,6 +260,34 @@ export function BottomPanel() {
     setEditingId(id);
     setEditName(ann.name || id);
     setEditNote(typeof ann.note === 'string' ? ann.note : '');
+    const segs = ann.segments ?? [];
+    const seg =
+      (ann.activeSegmentId && segs.find((s) => s.id === ann.activeSegmentId)) ||
+      segs[0] ||
+      null;
+    const startSample = seg?.start ?? ann.start;
+    const endSample = seg?.end ?? ann.end;
+    const lowerHz = seg?.lowerHz ?? ann.lowerHz;
+    const upperHz = seg?.upperHz ?? ann.upperHz;
+    const sr = getIqFileSession()?.sampleRateHz ?? null;
+    const toMs = (sample: string | undefined) => {
+      if (sample == null || sample === '' || !sr || !(sr > 0)) return '';
+      const n = Number(sample);
+      if (!Number.isFinite(n)) return '';
+      return String(Number(((n / sr) * 1000).toPrecision(10)));
+    };
+    setEditStartMs(toMs(startSample));
+    setEditEndMs(toMs(endSample));
+    setEditLowerMhz(
+      typeof lowerHz === 'number' && Number.isFinite(lowerHz)
+        ? String(Number((lowerHz / 1e6).toPrecision(10)))
+        : '',
+    );
+    setEditUpperMhz(
+      typeof upperHz === 'number' && Number.isFinite(upperHz)
+        ? String(Number((upperHz / 1e6).toPrecision(10)))
+        : '',
+    );
   };
   const commitEditMark = () => {
     const hookNow = window.__wssM06;
@@ -264,12 +297,48 @@ export function BottomPanel() {
       setEditingId(null);
       return;
     }
+    const sr = getIqFileSession()?.sampleRateHz ?? null;
+    const msToSample = (ms: string): string | undefined => {
+      if (!ms.trim() || !sr || !(sr > 0)) return undefined;
+      const n = Number(ms);
+      if (!Number.isFinite(n)) return undefined;
+      return String(Math.round((n / 1000) * sr));
+    };
+    const mhzToHz = (mhz: string): number | undefined => {
+      if (!mhz.trim()) return undefined;
+      const n = Number(mhz);
+      if (!Number.isFinite(n)) return undefined;
+      return n * 1e6;
+    };
+    const nextStart = msToSample(editStartMs);
+    const nextEnd = msToSample(editEndMs);
+    const nextLower = mhzToHz(editLowerMhz);
+    const nextUpper = mhzToHz(editUpperMhz);
+    const segs = current.segments ? [...current.segments] : [];
+    let nextSegments = segs;
+    if (segs.length > 0) {
+      const idx = Math.max(
+        0,
+        segs.findIndex((s) => s.id === current.activeSegmentId),
+      );
+      const target = { ...segs[idx < 0 ? 0 : idx] };
+      if (nextStart != null) target.start = nextStart;
+      if (nextEnd != null) target.end = nextEnd;
+      if (nextLower != null) target.lowerHz = nextLower;
+      if (nextUpper != null) target.upperHz = nextUpper;
+      nextSegments = segs.map((s, i) => (i === (idx < 0 ? 0 : idx) ? target : s));
+    }
     hookNow.session.replaceMark({
       ...current,
       name: editName.trim() || current.name || current.id,
       note: editNote,
+      ...(nextStart != null ? { start: nextStart } : {}),
+      ...(nextEnd != null ? { end: nextEnd } : {}),
+      ...(nextLower != null ? { lowerHz: nextLower } : {}),
+      ...(nextUpper != null ? { upperHz: nextUpper } : {}),
+      ...(nextSegments.length ? { segments: nextSegments } : {}),
     });
-    appendShellLog(`G19 edit mark ${editingId.slice(0, 8)} via replaceMark`);
+    appendShellLog(`G19 edit mark ${editingId.slice(0, 8)} via replaceMark (range+note)`);
     setEditingId(null);
     setM06Tick((t) => t + 1);
   };
@@ -291,7 +360,7 @@ export function BottomPanel() {
       <div
         className="bottom-panel-resize"
         data-testid="bottom-panel-resize"
-        data-shell-edge="bottom"
+        data-shell-edge="bottom" data-shell-reshot="wave8" data-edge-side="bottom"
         data-hit-min-px="29"
         data-collapse-min="true"
         role="separator"
@@ -366,6 +435,7 @@ export function BottomPanel() {
               data-annotation-edit="inline-replaceMark"
               data-edit-selection={selectedIds.length === 1 ? 'single' : selectedIds.length === 0 ? 'empty' : 'multi'}
               data-edit-path="replaceMark"
+              data-qt-reshot="wave8-annotation-panel"
             >
               <p className="bottom-summary" data-testid="bottom-marks-summary">
                 {marksSummary}
@@ -510,7 +580,7 @@ export function BottomPanel() {
                             {editingId ? (
                 <div className="annotation-edit-form" data-testid="bottom-edit-form" data-editing-id={editingId}>
                   <label>
-                    <span>名字</span>
+                    <span>名称</span>
                     <input
                       data-testid="bottom-edit-name"
                       value={editName}
@@ -529,6 +599,44 @@ export function BottomPanel() {
                       onChange={(e) => setEditNote(e.target.value)}
                     />
                   </label>
+                  <div
+                    className="annotation-edit-range"
+                    data-testid="bottom-edit-range"
+                    data-qt-inspector="start-end-lower-upper"
+                  >
+                    <label>
+                      <span>起始 / ms</span>
+                      <input
+                        data-testid="bottom-edit-start-ms"
+                        value={editStartMs}
+                        onChange={(e) => setEditStartMs(e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>结束 / ms</span>
+                      <input
+                        data-testid="bottom-edit-end-ms"
+                        value={editEndMs}
+                        onChange={(e) => setEditEndMs(e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>下边频 / MHz</span>
+                      <input
+                        data-testid="bottom-edit-lower-mhz"
+                        value={editLowerMhz}
+                        onChange={(e) => setEditLowerMhz(e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      <span>上边频 / MHz</span>
+                      <input
+                        data-testid="bottom-edit-upper-mhz"
+                        value={editUpperMhz}
+                        onChange={(e) => setEditUpperMhz(e.target.value)}
+                      />
+                    </label>
+                  </div>
                   <button type="button" data-testid="bottom-edit-commit" onClick={commitEditMark}>
                     保存
                   </button>
@@ -543,17 +651,11 @@ export function BottomPanel() {
                   data-testid="bottom-annotation-table-header"
                   data-column-matrix="qt-full"
                 >
-                  <span className="col-h col-h-0" data-col="0"></span>
-                  <span className="col-h col-h-1" data-col="1">名字 / annotationId</span>
-                  <span className="col-h col-h-2" data-col="2">来源</span>
-                  <span className="col-h col-h-3" data-col="3">当前段</span>
-                  <span className="col-h col-h-4" data-col="4">开始 / ms</span>
-                  <span className="col-h col-h-5" data-col="5">结束 / ms</span>
-                  <span className="col-h col-h-6" data-col="6">中心 / MHz</span>
-                  <span className="col-h col-h-7" data-col="7">带宽 / kHz</span>
-                  <span className="col-h col-h-8" data-col="8">mean</span>
-                  <span className="col-h col-h-9" data-col="9">质量</span>
-                  <span className="col-h col-h-10" data-col="10">通道</span>
+                  {ANNOTATION_TABLE_HEADERS.map((label, col) => (
+                    <span key={col} className={`col-h col-h-${col}`} data-col={String(col)} data-qt-header={label || 'check'}>
+                      {label}
+                    </span>
+                  ))}
                 </div>
                 <ul
                   className="bottom-mark-list annotation-mark-table"

@@ -137,6 +137,8 @@ export default function App() {
         data-shell-right-collapsed={shellCols.rightCollapsed ? 'true' : 'false'}
         data-shell-right-collapse-min={String(RIGHT_COLLAPSE_MIN)}
         data-shell-resizable="true"
+        data-shell-edge-pair="lr"
+        data-shell-reshot="wave8"
         style={{
           gridTemplateColumns: collapsed
             ? `${leftColPx}px 6px 1fr 48px`
@@ -148,7 +150,9 @@ export default function App() {
           className="shell-col-resize shell-col-resize-left"
           data-testid="shell-col-resize-left"
           data-shell-edge="left"
+          data-edge-side="left"
           data-hit-min-px="8"
+          data-shell-reshot="wave8"
           role="separator"
           aria-orientation="vertical"
           aria-label="调整工程树宽度"
@@ -227,7 +231,9 @@ defaultPx={auxDefaultPx}
           className="shell-col-resize shell-col-resize-right"
           data-testid="shell-col-resize-right"
           data-shell-edge="right"
+          data-edge-side="right"
           data-hit-min-px="8"
+          data-shell-reshot="wave8"
           role="separator"
           aria-orientation="vertical"
           aria-label="调整右栏宽度"

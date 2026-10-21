@@ -50,6 +50,8 @@ export function NarrowbandWorkspace() {
   const setPsdFft = useUiStore((s) => s.setNarrowbandPsdFft);
   const psdMode = useUiStore((s) => s.narrowbandPsdMode);
   const setPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
+  const pinnedDwellIndex = useUiStore((s) => s.narrowbandPinnedDwellIndex);
+  const setPinnedDwellIndex = useUiStore((s) => s.setNarrowbandPinnedDwellIndex);
   const stftFft = useUiStore((s) => s.narrowbandStftFft);
   const setStftFft = useUiStore((s) => s.setNarrowbandStftFft);
   const freqMode = useUiStore((s) => s.narrowbandFreqMode);
@@ -99,6 +101,7 @@ export function NarrowbandWorkspace() {
       data-nb-page={page}
       data-nb-psd-fft={psdFft}
       data-nb-psd-mode={psdMode}
+      data-nb-pinned-dwell={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
       data-nb-stft-fft={stftFft}
       data-nb-freq-mode={freqMode}
       data-nb-grid={grid ? 'true' : 'false'}
@@ -170,6 +173,53 @@ export function NarrowbandWorkspace() {
             <option value="statistical">统计谱</option>
           </select>
         </label>
+        <div
+          className="nb-field nb-dwell-pin"
+          data-testid="nb-dwell-pin"
+          data-pinned={pinnedDwellIndex == null ? 'false' : 'true'}
+        >
+          <span>驻留钉住</span>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            data-testid="nb-dwell-index-input"
+            value={pinnedDwellIndex == null ? '' : String(pinnedDwellIndex)}
+            placeholder="帧#"
+            onChange={(e) => {
+              const raw = e.target.value;
+              if (raw === '') {
+                setPinnedDwellIndex(null);
+                return;
+              }
+              const n = Number(raw);
+              if (!Number.isFinite(n)) return;
+              setPinnedDwellIndex(Math.max(0, Math.floor(n)));
+              setPsdMode('frame');
+            }}
+          />
+          <button
+            type="button"
+            data-testid="nb-dwell-pin-btn"
+            title="钉住当前索引并切到驻留帧谱"
+            onClick={() => {
+              const idx = pinnedDwellIndex == null ? 0 : pinnedDwellIndex;
+              setPinnedDwellIndex(idx);
+              setPsdMode('frame');
+            }}
+          >
+            钉住
+          </button>
+          <button
+            type="button"
+            data-testid="nb-dwell-clear-btn"
+            disabled={pinnedDwellIndex == null}
+            title="清除钉住"
+            onClick={() => setPinnedDwellIndex(null)}
+          >
+            清除
+          </button>
+        </div>
         <label className="nb-field">
           <span>STFT N</span>
           <select
