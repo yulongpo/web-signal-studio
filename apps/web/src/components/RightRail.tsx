@@ -5,10 +5,10 @@ import { useUiStore } from '../store/uiStore';
 import type { RightPage } from '../types/provisional';
 import { SHELL_RAIL_PAGES } from '../shellRail';
 import { DetectPage } from './DetectPage';
+import { M06MarksPanel } from './M06MarksPanel';
 
-const PAGE_BODY: Record<Exclude<RightPage, 'detect'>, string> = {
+const PAGE_BODY: Record<Exclude<RightPage, 'detect' | 'marker'>, string> = {
   display: '显示参数（临时设置层对话后入库）',
-  marker: '三来源标记列表（占位）',
   channel: '窄带通道（真实 DDC 后续）',
 };
 
@@ -57,6 +57,8 @@ export function RightRail() {
         <div className="rail-body" data-testid={`rail-page-${rightPage}`}>
           {rightPage === 'detect' ? (
             <DetectPage />
+          ) : rightPage === 'marker' ? (
+            <M06MarksPanel />
           ) : (
             <p>{PAGE_BODY[rightPage]}</p>
           )}

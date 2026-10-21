@@ -2,30 +2,34 @@
 
 | Field | Value |
 |------|-------|
-| Phase | **P4+** (B-M02-evidence-assist) |
+| Phase | **P4+** (B-M06-playwright-e2e) |
 | Status | **DONE** (awaiting CAO merge) |
 | Mode | ONE-SHOT FULL DELIVERY |
-| Shared tree | D:\\project\\web_signal_studio (no Bot checkout) |
-| Bot-B worktree | D:\\project\\wss-wt-b · work/bot-b-web-shell |
-| Synced main tip (base) | 19313983fa535325dacf8f1317a9c8aa9bc18c91 |
-| Updated (Asia/Shanghai) | 2026-10-21 19:55:00 |
+| Shared tree | D:\project\web_signal_studio (no Bot checkout) |
+| Bot-B worktree | D:\project\wss-wt-b · work/bot-b-web-shell |
+| Synced main tip (base) | 9cb46b8886cfe6411db99e383221c06e66696886 |
+| Updated (Asia/Shanghai) | 2026-10-21 20:15:00 |
 
-## P4+ Bot-B (B-M02-evidence-assist)
+## P4+ Bot-B (B-M06-playwright-e2e)
 
-- [x] Playwright M-02: WAV / RAW / SigMF chunked open + evidence JSON/PNG
-- [x] Vitest: e2e fixtures open via `openIqFromFiles` (decimal sample counts)
-- [x] Index: `docs/acceptance/evidence/bot-b/BOT_B_PROBE_INDEX.md` M-02 section
-- [x] Docs: BOT_B_SHELL.md + this file (no ACCEPTANCE_MATRIX edits)
-- [x] file-io alignment pointers (Bot-D unit tests + our e2e fixtures)
-- [x] vitest + Playwright + typecheck green
+- [x] `installM06E2eHook(window)` always-on in main.tsx
+- [x] M06MarksPanel on marker rail + testids
+- [x] Playwright `e2e/m06-marks.spec.ts` (marks / snapshot / undo-redo)
+- [x] Evidence `m06_marks_undo_2026-10-21.json` + `m06_marks_panel.png`
+- [x] Index + BOT_B_SHELL (no ACCEPTANCE_MATRIX edits)
+- [x] typecheck + Playwright m06 green
+
+## Prior P4+ (still green)
+
+- [x] B-M02-evidence-assist (merged @ 8f09dbc; QA M-02 PASS @ a701126)
 
 ## Prior P4 (still green)
 
-- [x] Optional wasm-fft; project/detect session; M-01/M-05 evidence (merged @ 01d121e / QA PASS @ 1931398)
+- [x] Optional wasm-fft; project/detect session; M-01/M-05 evidence (QA PASS)
 
 ## Prior P3 (still green)
 
-- [x] M-01 project IO + M-05 workspace + RAW/SigMF open (landed @ b82e324 merge)
+- [x] M-01 project IO + M-05 workspace + RAW/SigMF open
 
 ## Rules
 

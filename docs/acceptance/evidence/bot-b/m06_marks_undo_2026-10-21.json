@@ -1,0 +1,59 @@
+{
+  "id": "m06_marks_undo",
+  "gate": "M-06",
+  "date": "2026-10-21",
+  "zone": "Asia/Shanghai",
+  "matrix_pass_claimed": false,
+  "base_tip": "9cb46b8886cfe6411db99e383221c06e66696886",
+  "package": "B-M06-playwright-e2e",
+  "hook": "window.__wssM06 (installM06E2eHook)",
+  "sample_indexes_decimal": {
+    "past_begin": "9007199254741091",
+    "past_end": "9007199254741191",
+    "note": "Past Number.MAX_SAFE_INTEGER; never Number()"
+  },
+  "assertions": {
+    "hook_ready": true,
+    "add_manual_mark": true,
+    "mark_item_data_start_decimal": "9007199254741091",
+    "mark_item_data_end_decimal": "9007199254741191",
+    "channel_snapshot_attached": true,
+    "remove_mark": true,
+    "undo_btn_enabled": true,
+    "redo_btn_enabled": true,
+    "undo_redo_via_hook": true,
+    "snapshot_undo_redo_via_hook": true,
+    "export_json_preserves_decimal": true,
+    "final_annotation_count": 1,
+    "final_can_undo": true,
+    "final_can_redo": true
+  },
+  "hook_api_calls": [
+    "getState",
+    "addManualMark",
+    "attachChannelSnapshot",
+    "setSelection",
+    "removeMark",
+    "undo",
+    "redo",
+    "exportJson",
+    "session.readChannelSnapshot"
+  ],
+  "testids": [
+    "rail-tab-marker",
+    "rail-page-marker",
+    "m06-panel",
+    "m06-hook-status",
+    "m06-mark-count",
+    "m06-mark-list",
+    "m06-mark-item-m1",
+    "m06-snapshot-status",
+    "m06-btn-undo",
+    "m06-btn-redo"
+  ],
+  "artifacts": [
+    "m06_marks_undo_2026-10-21.json",
+    "m06_marks_panel.png"
+  ],
+  "note": "Playwright UI E2E over Bot-F M06MarkSession hook. Undo/redo driven via hook; panel buttons asserted enabled (chart overlay intercepts rail pointer). Evidence for QA-G; no matrix PASS claim."
+}

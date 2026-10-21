@@ -109,3 +109,10 @@ Follows `services/local-compute/docs/DETECTION_PAGE_CONTRACT.md`, `REAL_MODEL_IN
 - Evidence: docs/acceptance/evidence/bot-b/m02_chunked_open_2026-10-21.json (+ optional PNGs). Index updated.
 - Vitest: pps/web/src/dsp/m02E2eFixturesOpen.test.ts asserts format + sampleIndexToDecimal(totalSamples) for the same fixtures.
 - Parsers remain @wss/file-io (Bot-D); Bot-B wires open path only. **QA-G owns M-02 matrix PASS.**
+
+## Package B-M06-playwright-e2e
+
+- Always-on `installM06E2eHook(window)` in `apps/web/src/main.tsx` -> `window.__wssM06` (Bot-F).
+- Marker rail page hosts `M06MarksPanel` testids: `m06-panel`, `m06-mark-count`, `m06-mark-list`, `m06-mark-item-*`, `m06-snapshot-status`, `m06-btn-undo`, `m06-btn-redo`.
+- Playwright: `apps/web/e2e/m06-marks.spec.ts` (add/remove, channel snapshot, undo/redo; past-safe decimal sample indexes).
+- Evidence: `docs/acceptance/evidence/bot-b/m06_marks_undo_2026-10-21.json` + `m06_marks_panel.png`. **QA-G owns M-06 matrix PASS.**
