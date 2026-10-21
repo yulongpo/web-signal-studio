@@ -3,38 +3,38 @@
   "gate": "M-05",
   "date": "2026-10-21",
   "matrix_pass_claimed": false,
-  "base_tip": "f9f4616",
-  "package": "B-P4",
+  "base_tip": "58ac64c",
+  "package": "B-G06",
   "assertions": {
     "initial_status_workspace": "wideband",
     "narrowband_status_workspace": "narrowband",
     "restored_status_workspace": "wideband",
-    "stub_banner_visible_in_narrowband": true,
+    "stub_banner_visible_in_narrowband": false,
+    "stacked_workspace_visible": true,
     "stub_explicit_no_fake_ddc": true,
-    "stub_text_contains_stub": true,
-    "main_chart_retained_after_narrow": true,
+    "settings_persist_across_pages": true,
+    "main_chart_hidden_in_narrowband": true,
     "main_chart_retained_after_wide": true,
     "detect_page_retained": true,
     "dsp_source_before": "synthetic-stft-worker",
-    "dsp_source_after_narrow": "synthetic-stft-worker",
+    "dsp_source_after_narrow": null,
     "dsp_source_after_wide": "synthetic-stft-worker"
   },
   "testids": [
     "btn-workspace-wideband",
     "btn-workspace-narrowband",
-    "workspace-narrowband-stub",
+    "workspace-narrowband",
     "status-workspace",
     "main-chart-host",
-    "dsp-source-chip",
     "detect-page",
     "rail-page-detect"
   ],
   "artifacts": [
     "b-p3-workspace-wideband.png",
-    "b-p3-workspace-narrowband-stub.png",
+    "b-p3-workspace-narrowband.png",
     "m05_workspace_wideband.png",
-    "m05_workspace_narrowband_stub.png",
+    "m05_workspace_narrowband.png",
     "m05_workspace_2026-10-21.json"
   ],
-  "note": "Narrowband is stub-only until Bot-D DDC. Evidence for QA-G; no matrix PASS claim."
+  "note": "G06 stacked narrowband shell (WIP). Settings persist in uiStore. No fake demod. No matrix PASS claim."
 }

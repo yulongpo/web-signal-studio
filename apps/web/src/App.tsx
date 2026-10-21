@@ -15,6 +15,7 @@ import { NavChartHost } from './components/NavChartHost';
 import { AuxChartHost } from './components/AuxChartHost';
 import { NavChrome } from './components/NavChrome';
 import { AuxParamStrip, SpecParamStrip } from './components/ChartParamStrip';
+import { NarrowbandWorkspace } from './components/NarrowbandWorkspace';
 import { VerticalSplitter } from '@wss/charts/VerticalSplitter';
 import { useUiStore } from './store/uiStore';
 
@@ -98,15 +99,10 @@ defaultPx={auxDefaultPx}
         <section className="main-chart" aria-label="main-chart" data-testid="main-chart">
           <SpecParamStrip />
           {workspaceMode === 'narrowband' ? (
-            <div
-              className="workspace-stub-banner"
-              data-testid="workspace-narrowband-stub"
-              role="status"
-            >
-              窄带工作区占位（stub）— 真 DDC/解调由 Bot-D 提供；此处不伪解调。
-            </div>
-          ) : null}
-          <MainChartHost />
+            <NarrowbandWorkspace />
+          ) : (
+            <MainChartHost />
+          )}
         </section>
 
         <StatusBar />

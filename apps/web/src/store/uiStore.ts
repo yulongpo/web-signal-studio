@@ -22,6 +22,9 @@ import type {
   TempLayerId,
   WorkspaceMode,
   DspSourceKind,
+  NarrowbandPageId,
+  NarrowbandWaveformMode,
+  NarrowbandFreqMode,
 } from '../types/provisional';
 import {
   DEFAULT_DETECT_SAMPLE_RANGE,
@@ -121,7 +124,21 @@ export interface UiState {
     fellBackToJs: boolean;
   } | null;
 
+  /** G06 narrowband page + display settings (persist across page/overflow). */
+  narrowbandPage: NarrowbandPageId;
+  narrowbandPsdFft: number;
+  narrowbandStftFft: number;
+  narrowbandFreqMode: NarrowbandFreqMode;
+  narrowbandGrid: boolean;
+  narrowbandWaveformMode: NarrowbandWaveformMode;
+
   setActiveTool: (tool: ActiveTool) => void;
+  setNarrowbandPage: (page: NarrowbandPageId) => void;
+  setNarrowbandPsdFft: (n: number) => void;
+  setNarrowbandStftFft: (n: number) => void;
+  setNarrowbandFreqMode: (mode: NarrowbandFreqMode) => void;
+  setNarrowbandGrid: (on: boolean) => void;
+  setNarrowbandWaveformMode: (mode: NarrowbandWaveformMode) => void;
   setRightPage: (page: RightPage) => void;
   toggleRightPanel: () => void;
   setRightPanelCollapsed: (collapsed: boolean) => void;
@@ -189,6 +206,12 @@ export const useUiStore = create<UiState>((set, get) => ({
   spectrogramDisplay: null,
   navPaused: false,
   workspaceMode: 'wideband',
+  narrowbandPage: 'observe',
+  narrowbandPsdFft: 4096,
+  narrowbandStftFft: 1024,
+  narrowbandFreqMode: 'baseband',
+  narrowbandGrid: true,
+  narrowbandWaveformMode: 'iq',
   level: { ...DEFAULT_LEVEL },
   display: { ...DEFAULT_DISPLAY },
   levelDraft: null,
@@ -261,6 +284,12 @@ export const useUiStore = create<UiState>((set, get) => ({
   setNavPaused: (paused) => set({ navPaused: paused }),
   setSpectrogramDisplay: (snap) => set({ spectrogramDisplay: snap }),
   setWorkspaceMode: (mode) => set({ workspaceMode: mode }),
+  setNarrowbandPage: (page) => set({ narrowbandPage: page }),
+  setNarrowbandPsdFft: (n) => set({ narrowbandPsdFft: n }),
+  setNarrowbandStftFft: (n) => set({ narrowbandStftFft: n }),
+  setNarrowbandFreqMode: (mode) => set({ narrowbandFreqMode: mode }),
+  setNarrowbandGrid: (on) => set({ narrowbandGrid: on }),
+  setNarrowbandWaveformMode: (mode) => set({ narrowbandWaveformMode: mode }),
 
   updateLevelDraft: (patch) =>
     set((s) => ({
