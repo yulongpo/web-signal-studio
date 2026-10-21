@@ -88,6 +88,10 @@ export function SpecParamStrip() {
   const dspFftEngineActive = useUiStore((s) => s.dspFftEngineActive);
   const detectRunFeed = useUiStore((s) => s.detectRunFeed);
   const detectRunSelectedId = useUiStore((s) => s.detectRunSelectedId);
+  const dspFftWindow = useUiStore((s) => s.dspFftWindow);
+  const dspFftOverlap = useUiStore((s) => s.dspFftOverlap);
+  const dspFftHopSize = useUiStore((s) => s.dspFftHopSize);
+  const dspFftSizeActive = useUiStore((s) => s.dspFftSizeActive);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [iqOpenError, setIqOpenError] = useState<string | null>(null);
   const overflowRef = useRef<HTMLDivElement>(null);
@@ -165,11 +169,27 @@ export function SpecParamStrip() {
         ? `${selectedRun.status}/${selectedRun.kind} · n=${detectRunFeed.length}`
         : `n=${detectRunFeed.length}`;
 
+  const windowLabel = dspFftWindow ?? '—';
+  const overlapLabel =
+    dspFftOverlap == null || !Number.isFinite(dspFftOverlap)
+      ? '—'
+      : `${(dspFftOverlap * 100).toFixed(1)}%`;
+  const hopLabel =
+    dspFftHopSize == null || !Number.isFinite(dspFftHopSize)
+      ? '—'
+      : String(dspFftHopSize);
+  const fftActiveLabel =
+    dspFftSizeActive == null || !Number.isFinite(dspFftSizeActive)
+      ? '—'
+      : String(dspFftSizeActive);
+  const hasWindow = dspFftWindow != null;
+  const hasOverlap = dspFftOverlap != null && Number.isFinite(dspFftOverlap);
+
 return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19" data-strip-dsp="wave19"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21" data-strip-dsp="wave19 wave21"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -306,7 +326,7 @@ return (
         <span
           className="chart-strip-qlabel"
           data-testid="chart-strip-qlabel-window"
-          data-strip-wave="wave14"
+          data-strip-wave="wave14 wave21"
           title="窗函数 — 未接 DSP 时诚实为空"
         >
           窗
@@ -314,32 +334,73 @@ return (
         <span
           className="chart-strip-qlabel chart-strip-qlabel-value"
           data-testid="chart-strip-qlabel-window-value"
-          data-strip-wave="wave14 wave19"
-          data-strip-empty="true"
-          data-strip-partial="true"
-          data-strip-reason="no-window-fn-in-store"
+          data-strip-wave="wave14 wave19 wave21"
+          data-strip-empty={hasWindow ? 'false' : 'true'}
+          data-strip-partial={hasWindow ? 'false' : 'true'}
+          data-strip-reason={hasWindow ? '' : 'no-window-fn-in-store'}
+          data-dsp-fft-window={dspFftWindow ?? ''}
+          data-dsp-fft-size={dspFftSizeActive == null ? '' : String(dspFftSizeActive)}
         >
-          —
+          {windowLabel}
         </span>
         <span
           className="chart-strip-qlabel"
           data-testid="chart-strip-qlabel-overlap"
-          data-strip-wave="wave14"
+          data-strip-wave="wave14 wave21"
         >
           重叠
         </span>
         <span
           className="chart-strip-qlabel chart-strip-qlabel-value"
           data-testid="chart-strip-qlabel-overlap-value"
-          data-strip-wave="wave14 wave19"
-          data-strip-empty="true"
-          data-strip-partial="true"
-          data-strip-reason="no-overlap-in-store"
+          data-strip-wave="wave14 wave19 wave21"
+          data-strip-empty={hasOverlap ? 'false' : 'true'}
+          data-strip-partial={hasOverlap ? 'false' : 'true'}
+          data-strip-reason={hasOverlap ? '' : 'no-overlap-in-store'}
+          data-dsp-fft-overlap={dspFftOverlap == null ? '' : String(dspFftOverlap)}
+          data-dsp-fft-hop={dspFftHopSize == null ? '' : String(dspFftHopSize)}
         >
-          —
+          {overlapLabel}
         </span>
 
+        
         <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-fft-hop"
+          data-strip-wave="wave21"
+          title="STFT hop (uiStore.dspFftHopSize)"
+        >
+          Hop
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-fft-hop-value"
+          data-strip-wave="wave21"
+          data-dsp-fft-hop={dspFftHopSize == null ? '' : String(dspFftHopSize)}
+          data-strip-empty={dspFftHopSize == null ? 'true' : 'false'}
+          data-strip-partial={dspFftHopSize == null ? 'true' : 'false'}
+        >
+          {hopLabel}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-fft-size-active"
+          data-strip-wave="wave21"
+          title="Active FFT size (uiStore.dspFftSizeActive)"
+        >
+          FFTn
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-fft-size-active-value"
+          data-strip-wave="wave21"
+          data-dsp-fft-size={dspFftSizeActive == null ? '' : String(dspFftSizeActive)}
+          data-strip-empty={dspFftSizeActive == null ? 'true' : 'false'}
+          data-strip-partial={dspFftSizeActive == null ? 'true' : 'false'}
+        >
+          {fftActiveLabel}
+        </span>
+<span
           className="chart-strip-qlabel"
           data-testid="chart-strip-qlabel-dsp-source"
           data-strip-wave="wave19"
@@ -487,13 +548,28 @@ return (
                   {feedStamp}
                 </span>
               </div>
-<div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-window" data-strip-wave="wave14">
+<div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-window" data-strip-wave="wave14 wave21">
                 <span className="chart-strip-qlabel">窗函数</span>
-                <span className="chart-strip-qlabel-value" data-strip-empty="true">—</span>
+                <span
+                  className="chart-strip-qlabel-value"
+                  data-dsp-fft-window={dspFftWindow ?? ''}
+                  data-strip-empty={hasWindow ? 'false' : 'true'}
+                  data-strip-partial={hasWindow ? 'false' : 'true'}
+                >
+                  {windowLabel}
+                </span>
               </div>
-              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-overlap" data-strip-wave="wave14">
-                <span className="chart-strip-qlabel">重叠比</span>
-                <span className="chart-strip-qlabel-value" data-strip-empty="true">—</span>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-overlap" data-strip-wave="wave14 wave21">
+                <span className="chart-strip-qlabel">重叠</span>
+                <span
+                  className="chart-strip-qlabel-value"
+                  data-dsp-fft-overlap={dspFftOverlap == null ? '' : String(dspFftOverlap)}
+                  data-dsp-fft-hop={dspFftHopSize == null ? '' : String(dspFftHopSize)}
+                  data-strip-empty={hasOverlap ? 'false' : 'true'}
+                  data-strip-partial={hasOverlap ? 'false' : 'true'}
+                >
+                  {overlapLabel}
+                </span>
               </div>
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-colormap" data-strip-wave="wave14">
                 <span className="chart-strip-qlabel">色图</span>
