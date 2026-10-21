@@ -3,6 +3,7 @@ import {
   hitChartZone,
   resolvePointerDragMode,
   resolveInteractionCursor,
+  resolveNavigationOverviewCursor,
 } from "./chartHitZone.js";
 
 const M = { left: 52, right: 12, top: 10, bottom: 36 };
@@ -109,6 +110,28 @@ describe("resolveInteractionCursor OpenHand/ClosedHand (17471a6)", () => {
 
   it("none → default", () => {
     expect(resolveInteractionCursor({ zone: "none" })).toBe("default");
+  });
+});
+
+describe("resolveNavigationOverviewCursor OpenHand (17471a6 Kind::Navigation)", () => {
+  it("inside window hover → grab (OpenHand)", () => {
+    expect(resolveNavigationOverviewCursor({ insideWindow: true })).toBe("grab");
+  });
+
+  it("window move drag → grabbing (ClosedHand)", () => {
+    expect(
+      resolveNavigationOverviewCursor({ insideWindow: true, draggingWindow: true }),
+    ).toBe("grabbing");
+  });
+
+  it("outside window → pointer (PointingHand)", () => {
+    expect(resolveNavigationOverviewCursor({ insideWindow: false })).toBe("pointer");
+  });
+
+  it("create-drag outside keeps pointer (not ClosedHand)", () => {
+    expect(
+      resolveNavigationOverviewCursor({ insideWindow: false, draggingWindow: false }),
+    ).toBe("pointer");
   });
 });
 
