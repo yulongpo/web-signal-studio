@@ -2,25 +2,49 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "es2023",
-    "lib": ["ES2023", "DOM"],
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
     "module": "esnext",
-    "types": ["vite/client"],
+    "types": [
+      "vite/client"
+    ],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
-
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-
-    /* Linting */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "baseUrl": ".",
+    "paths": {
+      "@wss/charts": [
+        "../../packages/charts/src/index.ts"
+      ],
+      "@wss/charts/SpectrumChart": [
+        "../../packages/charts/src/react/SpectrumChart.tsx"
+      ],
+      "@wss/charts/HeatmapCanvas": [
+        "../../packages/charts/src/react/HeatmapCanvas.tsx"
+      ],
+      "@wss/charts/react": [
+        "../../packages/charts/src/react/index.ts"
+      ],
+      "@wss/charts/*": [
+        "../../packages/charts/src/*"
+      ],
+      "@wss/charts/lut/colormaps": [
+        "../../packages/charts/src/lut/colormaps.ts"
+      ]
+    },
+    "ignoreDeprecations": "6.0"
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

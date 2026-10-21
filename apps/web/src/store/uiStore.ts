@@ -72,13 +72,13 @@ export interface UiState {
 
 export const useUiStore = create<UiState>((set, get) => ({
   activeTool: 'navigate',
-  rightPage: 'detection',
+  rightPage: 'display',
   rightPanelCollapsed: false,
   openTempLayer: null,
   chartMode: 'stft',
   stftN: 1024,
   paletteId: 'viridis',
-  auxChartKind: 'waveform',
+  auxChartKind: 'wave',
   workspaceMode: 'wideband',
   level: { ...DEFAULT_LEVEL },
   display: { ...DEFAULT_DISPLAY },
