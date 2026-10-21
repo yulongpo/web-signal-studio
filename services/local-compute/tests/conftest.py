@@ -1,4 +1,4 @@
-"""Pytest fixtures for local-compute."""
+﻿"""Pytest fixtures for local-compute."""
 
 from __future__ import annotations
 
@@ -16,6 +16,8 @@ os.environ.setdefault("LOCAL_COMPUTE_STUB_STEP_MS", "30")
 os.environ.setdefault("LOCAL_COMPUTE_STUB_STEPS", "6")
 # Keep contract suite deterministic: no accidental real torch readiness
 os.environ["LOCAL_COMPUTE_DISABLE_TORCH"] = "1"
+# Contract suite: no accidental TRT ready from host Anaconda/site-packages
+os.environ["LOCAL_COMPUTE_DISABLE_TENSORRT"] = "1"
 
 
 @pytest.fixture()
@@ -25,10 +27,12 @@ def client():
     from app.model_layout import clear_hash_manifest_cache
     from app.tasks import clear_tasks
     from app.torch_runtime import clear_torch_cache
+    from app.tensorrt_runtime import clear_tensorrt_caches
 
     init_auth()
     clear_tasks()
     clear_torch_cache()
+    clear_tensorrt_caches()
     clear_hash_manifest_cache()
     with TestClient(app) as c:
         yield c
@@ -46,3 +50,4 @@ def slow_stub(monkeypatch):
     """Lengthen stub so in-flight cancel is observable."""
     monkeypatch.setenv("LOCAL_COMPUTE_STUB_STEP_MS", "200")
     monkeypatch.setenv("LOCAL_COMPUTE_STUB_STEPS", "40")
+

@@ -9,6 +9,7 @@ from typing import Any, Callable
 
 from ..model_layout import first_present, source_home
 from ..torch_runtime import REAL_ENGINE_CPU, REAL_ENGINE_CUDA, REAL_ENGINE_LABELS, probe_torch
+from ..tensorrt_runtime import REAL_ENGINE_TRT, probe_tensorrt
 
 log = logging.getLogger("local-compute.inference.pipeline")
 
@@ -53,6 +54,116 @@ def run_detection_inference(
             message_zh="不支持的检测任务类型，无法走真推理",
         )
 
+    weights = first_present(family)
+    home = source_home(family)
+
+    # ONNX still N/A
+    if weights is not None and weights.suffix.lower() == ".onnx":
+        return InferenceOutcome(
+            ok=False,
+            blocked=True,
+            reasons=[
+                f"BLOCKED: {family} ONNX is N/A at {weights} "
+                "(no ONNX runtime wired; refusing to invent)"
+            ],
+            ui_codes=["ONNX_NA", "NO_FAKE_INFERENCE"],
+            message=f"{family} ONNX runtime is not wired",
+            message_zh=f"{family} ONNX 运行时未接入，拒绝伪造结果",
+        )
+
+    # TensorRT .engine path
+    if weights is not None and weights.suffix.lower() == ".engine":
+        trt = probe_tensorrt()
+        if not trt.available:
+            return InferenceOutcome(
+                ok=False,
+                blocked=True,
+                reasons=[
+                    f"BLOCKED: {family} TENSORRT_RUNTIME_MISSING at {weights} ({trt.reason})"
+                ],
+                ui_codes=["TENSORRT_RUNTIME_MISSING", "TENSORRT_NA", "NO_FAKE_INFERENCE"],
+                message=f"{family} TensorRT runtime missing",
+                message_zh=f"{family} TensorRT 运行时不可用，拒绝伪造结果",
+            )
+        if not source_path or not str(source_path).strip():
+            return InferenceOutcome(
+                ok=False,
+                blocked=True,
+                reasons=["BLOCKED: sourcePath required for TensorRT detection (refusing to invent)"],
+                ui_codes=["SOURCE_MISSING", "NO_FAKE_INFERENCE"],
+                message="sourcePath required for TensorRT detection",
+                message_zh="TensorRT 检测需要 sourcePath，拒绝伪造结果",
+            )
+        src = Path(source_path)
+        if not src.is_file():
+            return InferenceOutcome(
+                ok=False,
+                blocked=True,
+                reasons=[f"BLOCKED: sourcePath not a file: {src}"],
+                ui_codes=["SOURCE_MISSING", "NO_FAKE_INFERENCE"],
+                message=f"sourcePath not found: {src}",
+                message_zh=f"sourcePath 不存在: {src}",
+            )
+        if cancel_cb is not None and cancel_cb():
+            return InferenceOutcome(ok=False, cancelled=True, message="Cancelled", message_zh="已取消")
+        if progress_cb:
+            progress_cb(0.05, f"Loading {family} TensorRT engine", f"正在加载 {family} TensorRT engine")
+        try:
+            if family == "FFSCN":
+                from .trt_ffscn import run_ffscn_trt
+
+                result = run_ffscn_trt(weights=weights, source_path=src, cancel_cb=cancel_cb)
+            else:
+                from .trt_scn import run_scn_trt
+
+                result = run_scn_trt(weights=weights, source_path=src, cancel_cb=cancel_cb)
+        except Exception as exc:  # noqa: BLE001
+            msg = str(exc)
+            if "cancel" in msg.lower():
+                return InferenceOutcome(ok=False, cancelled=True, message="Cancelled", message_zh="已取消")
+            log.exception("%s TensorRT inference failed", family)
+            # Load failures stay BLOCKED (honest); other errors FAILED
+            low = msg.lower()
+            if "deserialize" in low or "engine" in low and "load" in low:
+                return InferenceOutcome(
+                    ok=False,
+                    blocked=True,
+                    reasons=[f"BLOCKED: {family} ENGINE_LOAD_FAILED: {exc}"],
+                    ui_codes=["ENGINE_LOAD_FAILED", "NO_FAKE_INFERENCE"],
+                    message=f"{family} engine load failed: {exc}",
+                    message_zh=f"{family} engine 加载失败: {exc}",
+                )
+            return InferenceOutcome(
+                ok=False,
+                failed=True,
+                reasons=[f"FAILED: {family} TensorRT inference error: {exc}"],
+                ui_codes=["INFERENCE_FAILED"],
+                message=f"{family} TensorRT inference error: {exc}",
+                message_zh=f"{family} TensorRT 推理失败: {exc}",
+            )
+        if cancel_cb is not None and cancel_cb():
+            return InferenceOutcome(ok=False, cancelled=True, message="Cancelled", message_zh="已取消")
+        if not result.get("verifiedForward") or result.get("engine") not in (
+            set(REAL_ENGINE_LABELS) | {REAL_ENGINE_TRT}
+        ):
+            return InferenceOutcome(
+                ok=False,
+                blocked=True,
+                reasons=["BLOCKED: TensorRT adapter returned unverified payload"],
+                ui_codes=["NO_FAKE_INFERENCE"],
+                message="Unverified TensorRT payload refused",
+                message_zh="拒绝未核验的 TensorRT 推理结果",
+            )
+        if progress_cb:
+            progress_cb(1.0, f"{family} TensorRT inference complete", f"{family} TensorRT 推理完成")
+        return InferenceOutcome(
+            ok=True,
+            result=result,
+            message=f"{result.get('engine')}: {family} real TRT forward ({result.get('candidateCount', 0)} candidates)",
+            message_zh=f"{result.get('engine')}: {family} 真 TensorRT 推理完成（{result.get('candidateCount', 0)} 个候选）",
+        )
+
+    # PyTorch .pth path
     torch_probe = probe_torch()
     if not torch_probe.available:
         return InferenceOutcome(
@@ -64,22 +175,6 @@ def run_detection_inference(
             message_zh="未安装可用的 PyTorch，无法真推理",
         )
 
-    weights = first_present(family)
-    home = source_home(family)
-    if weights is not None and weights.suffix.lower() in {".engine", ".onnx"}:
-        kind_label = "TensorRT .engine" if weights.suffix.lower() == ".engine" else "ONNX"
-        code = "TENSORRT_NA" if weights.suffix.lower() == ".engine" else "ONNX_NA"
-        return InferenceOutcome(
-            ok=False,
-            blocked=True,
-            reasons=[
-                f"BLOCKED: {family} {kind_label} is N/A at {weights} "
-                "(PyTorch .pth/.pt only; refusing to invent)"
-            ],
-            ui_codes=[code, "NO_FAKE_INFERENCE"],
-            message=f"{family} {kind_label} runtime is not wired",
-            message_zh=f"{family} 的 {kind_label} 运行时未接入，拒绝伪造结果",
-        )
     if weights is None:
         code = "MODEL_MISSING_FFSCN" if family == "FFSCN" else "MODEL_MISSING_SCN"
         return InferenceOutcome(
@@ -188,6 +283,7 @@ def run_detection_inference(
 __all__ = [
     "REAL_ENGINE_CUDA",
     "REAL_ENGINE_CPU",
+    "REAL_ENGINE_TRT",
     "REAL_ENGINE_LABELS",
     "InferenceOutcome",
     "run_detection_inference",
