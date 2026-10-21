@@ -1,6 +1,6 @@
 /**
- * G19â€“G20 import stream: add a SigMF source into a native project document
- * (desktop ImportController.add semantics â€?append a file row; do not wipe
+ * G19-G20 import stream: add a SigMF source into a native project document
+ * (desktop ImportController.add semantics - append a file row; do not wipe
  * an existing project unless mode is replace).
  *
  * IQ bytes stay outside project-io; callers pass meta text + data byte length
@@ -50,7 +50,7 @@ export interface ImportSigmfStreamInput {
   /** Optional companion rfbench / desktop .json meta beside the pair. */
   companionJsonText?: string;
   displayName?: string;
-  /** Source path recorded on FileMetadata.path â€?must be allowlisted when enforceDemoPath. */
+  /** Source path recorded on FileMetadata.path - must be allowlisted when enforceDemoPath. */
   path: string;
   /** Existing project to append into (ignored when mode=replace). */
   project?: ProjectDocumentJson;
