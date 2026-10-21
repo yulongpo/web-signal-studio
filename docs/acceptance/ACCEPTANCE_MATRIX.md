@@ -23,7 +23,7 @@
 |----|------------------------|----------|----------|------|------|
 | M-01 | 工程打开 / 最近文件 | `packages/project-io` + `apps/web` | 单元 + E2E | TODO | |
 | M-02 | RAW / SigMF / WAV 分块读 | `packages/file-io` | 单测 + fixtures | TODO | |
-| M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | WIP | `docs/acceptance/evidence/bot-c/`（WebGL2 热图/LUT 探针；`@wss/charts` 52 单测；commits `7b21dff`/`694dc10`；**非 PASS，待 QA**） |
+| M-03 | PSD / STFT / 瀑布 | `packages/dsp-wasm` + `packages/charts` | 数值 golden + 截图 | PASS | Bot-G @ tip `3ad9035` / CI [run 39589623844](https://github.com/yulongpo/web-signal-studio/actions/runs/39589623844)：ANGLE/SwiftShader 健康截图 + charts **52/52**；software GL / toDataURL；`docs/acceptance/evidence/bot-c/` |
 | M-04 | 物理轴 / DPR / 交互预览 | `packages/charts` + `apps/web` | Playwright | WIP | `docs/acceptance/evidence/bot-c/BOT_C_PROBE_INDEX.md` + interaction P95；DPR/preview-refine；**非 PASS，待 QA** |
 | M-05 | 宽窄带工作区布局 | `apps/web` | E2E + 对照截图 | TODO | |
 | M-06 | 标记 / 通道快照 / 撤销重做 | `packages/domain` + `project-io` | 单测 + E2E | TODO | |
@@ -33,16 +33,16 @@
 | M-10 | BigInt 索引协议 | contracts / domain | 契约测试 | TODO | |
 
 
-## Bot-C 图谱引擎（实现证据 · 非 PASS）
+## Bot-C 图谱引擎（实现证据）
 
-> 状态一律 `WIP`。PASS 仅由 WSS-QA-G 在核验证据后改写。
+> PASS 仅由 WSS-QA-G 在独立核验证据后改写。M-04 / C-02 仍 WIP。
 
 | ID | 能力 | 落点 | 验收方式 | 状态 | 证据 |
 |----|------|------|----------|------|------|
-| C-01 | WebGL2 标量纹理 + 独立 LUT 热图 | `packages/charts` HeatmapRenderer / SpectrumChart | 单测 + 嵌入 demo | WIP | `docs/acceptance/evidence/bot-c/BOT_C_PROBE_INDEX.md`；commits `69b65c2`→`694dc10` |
+| C-01 | WebGL2 标量纹理 + 独立 LUT 热图 | `packages/charts` HeatmapRenderer / SpectrumChart | 单测 + 嵌入 demo | PASS | Bot-G @ `3ad9035` / run 39589623844：gpuAvailable + ANGLE/SwiftShader 健康截图；software GL / toDataURL；`BOT_C_PROBE_INDEX.md` |
 | C-02 | 显示态瓦片抽取（display-only） | `tile/displayExtract` | 单测 + probe | WIP | `CONDENSED_tile_dpi_preview.json`；`7b21dff` |
-| C-03 | DPR / canvas resize | `dpi/canvasSizing` | 单测 + probe dpr 字段 | WIP | tile/DPI probe `dpr=2` buffer；`7b21dff` |
-| C-04 | 拖拽/滚轮预览-细化 + WebGL context restore | `interaction/*` + `webgl/contextRestore` + SpectrumChart | 单测 + P50/P95 probe | WIP | `CONDENSED_interaction_p95.json`；`694dc10` |
+| C-03 | DPR / canvas resize | `dpi/canvasSizing` | 单测 + probe dpr 字段 | PASS | Bot-G @ `3ad9035` / run 39589623844：dpr×css buffer 核验；tile/DPI probe；software GL |
+| C-04 | 拖拽/滚轮预览-细化 + WebGL context restore | `interaction/*` + `webgl/contextRestore` + SpectrumChart | 单测 + P50/P95 probe | PASS | Bot-G @ `3ad9035` / run 39589623844：live lose_context restore；`CONDENSED_interaction_p95.json`；software GL |
 
 ## CI / DevOps / 安全
 
@@ -76,3 +76,4 @@
 
 | 2026-10-21 | Bot-C | QA-G re-review: healthy WebGL screenshots + live GPU/DPR/context-restore probes (**仍 WIP，不自报 PASS**); vitest **52**; ANGLE/SwiftShader Playwright |
 | 2026-10-21 | Bot-C | QA-G evidence gaps M-03/M-04 + C-01..C-04 under `docs/acceptance/evidence/bot-c/` (**仍 WIP，不自报 PASS**); golden+Playwright+GPU/LUT/displayOnly/resize/restore probes |
+| 2026-10-21 | WSS-QA-G | Bot-G 独立复核 @ tip `3ad9035` / CI run 39589623844：M-03/C-01/C-03/C-04 → **PASS**（ANGLE/SwiftShader；charts 52/52；software GL / toDataURL）；M-04/C-02 仍 WIP |
