@@ -186,6 +186,7 @@ export function DetectPage() {
   const token = useUiStore((s) => s.localComputeToken);
   const setToken = useUiStore((s) => s.setLocalComputeToken);
   const baseUrl = useUiStore((s) => s.localComputeBaseUrl);
+  const upsertDetectRun = useUiStore((s) => s.upsertDetectRun);
   const sampleRange = useUiStore((s) => s.detectSampleRange);
   const rangeSource = useUiStore((s) => s.detectSampleRangeSource);
   const setDetectSampleRange = useUiStore((s) => s.setDetectSampleRange);
@@ -431,6 +432,7 @@ export function DetectPage() {
         try {
           const rec = await client.getTask(runId);
           setTask(rec);
+          upsertDetectRun(rec);
           if (isTerminalStatus(rec.status)) {
             setBusy(false);
             // Hard rule: never draw invented candidates from result when blocked/stub.
@@ -446,7 +448,7 @@ export function DetectPage() {
       };
       await tick();
     },
-    [applyCapsFailure, makeClient, stopPoll],
+    [applyCapsFailure, makeClient, stopPoll, upsertDetectRun],
   );
 
   const runDetect = async (kind: 'ffscn.detect' | 'scn.detect') => {
@@ -515,11 +517,13 @@ export function DetectPage() {
       setBusy(false);
       // Re-fetch full record so statusHistory / result=null stay honest.
       const rec = await client.getTask(runId);
-      setTask({
+      const next = {
         ...rec,
         // Hard rule: cancelled never keeps draw-able candidates.
         result: rec.status === 'cancelled' ? null : rec.result,
-      });
+      };
+      setTask(next);
+      upsertDetectRun(next);
     } catch (err) {
       setErrorLine(err instanceof Error ? err.message : String(err));
     }

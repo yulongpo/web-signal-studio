@@ -1,11 +1,18 @@
 /**
  * Bot-B G07 bottom bar — AnnotationPanel / DetectionPanel docks vs rebuild 17471a6.
- * G19: Qt-ish table / paging(200) / quality chrome. G08: bottom height 100–500 + drag.
+ * G19: full Qt column matrix + paging(200)/quality. G07: live Detect feeds.
+ * G08: bottom height 100–500 + collapse-to-min (29px) persist. G02 chrome adjacent.
  * Honest hosts — no fake DSP runs or invented marks. IQ only via real open path.
  */
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import type { ReviewStatus } from '@wss/contracts';
 import { useUiStore } from '../store/uiStore';
+import { getIqFileSession } from '../dsp/iqFileSession';
+import {
+  QUALITY_LABEL_CN,
+  annotationToTableRow,
+} from './annotationTableMatrix';
+import { LocalComputeClient } from '../localCompute/client';
 
 const TABS = [
   { id: 'marks' as const, label: '统一标记记录', testId: 'bottom-tab-marks' },
@@ -18,11 +25,7 @@ const PAGE_SIZE = 200;
 type MarkLayer = 'all' | 'Manual' | 'ImportedLabel' | 'Algorithm';
 type QualityFilter = 'all' | ReviewStatus;
 
-const QUALITY_LABEL: Record<ReviewStatus, string> = {
-  Pending: '待判断',
-  Accepted: '已采纳',
-  Rejected: '已忽略',
-};
+const QUALITY_LABEL = QUALITY_LABEL_CN;
 
 export function BottomPanel() {
   const expanded = useUiStore((s) => s.bottomPanelExpanded);
@@ -41,6 +44,12 @@ export function BottomPanel() {
   const setRightPage = useUiStore((s) => s.setRightPage);
   const setRightPanelCollapsed = useUiStore((s) => s.setRightPanelCollapsed);
   const appendShellLog = useUiStore((s) => s.appendShellLog);
+  const detectRunFeed = useUiStore((s) => s.detectRunFeed);
+  const detectRunSelectedId = useUiStore((s) => s.detectRunSelectedId);
+  const selectDetectRun = useUiStore((s) => s.selectDetectRun);
+  const upsertDetectRun = useUiStore((s) => s.upsertDetectRun);
+  const localComputeBaseUrl = useUiStore((s) => s.localComputeBaseUrl);
+  const localComputeToken = useUiStore((s) => s.localComputeToken);
 
   const [m06Tick, setM06Tick] = useState(0);
   const [markLayer, setMarkLayer] = useState<MarkLayer>('all');
@@ -63,18 +72,31 @@ export function BottomPanel() {
   const selectedIds = snap?.selectedMarkIds ?? [];
   const activeMarkId = snap?.activeMarkId ?? null;
 
+  const sampleRateHz = getIqFileSession()?.sampleRateHz ?? null;
+
+  const channelCountByAnnotationId = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const hookNow = typeof window !== 'undefined' ? window.__wssM06 : undefined;
+    const channels = (hookNow?.session as { channels?: Array<{ annotationId?: string }> } | undefined)
+      ?.channels;
+    if (Array.isArray(channels)) {
+      for (const ch of channels) {
+        const id = ch?.annotationId;
+        if (!id) continue;
+        counts[id] = (counts[id] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }, [m06Tick]);
+
   const marks = useMemo(() => {
-    return annotations.map((a) => ({
-      id: a.id,
-      name: a.name || a.id,
-      sourceKind: a.sourceKind,
-      deleted: a.deleted === true,
-      reviewStatus: (a.reviewStatus ?? 'Pending') as ReviewStatus,
-      start: a.start != null ? String(a.start) : '',
-      end: a.end != null ? String(a.end) : '',
-      classLabel: a.classLabel ?? '',
-    }));
-  }, [annotations, m06Tick]);
+    return annotations.map((a) =>
+      annotationToTableRow(a, {
+        sampleRateHz,
+        channelCountByAnnotationId,
+      }),
+    );
+  }, [annotations, m06Tick, sampleRateHz, channelCountByAnnotationId]);
 
   const filteredMarks = useMemo(() => {
     return marks.filter((m) => {
@@ -158,6 +180,69 @@ export function BottomPanel() {
     window.addEventListener('pointerup', onUp);
   };
 
+
+  const [detectStatusFilter, setDetectStatusFilter] = useState<'all' | string>('all');
+
+  const filteredDetectRuns = useMemo(() => {
+    if (detectStatusFilter === 'all') return detectRunFeed;
+    const map: Record<string, string[]> = {
+      running: ['queued', 'running'],
+      done: ['succeeded'],
+      failed: ['failed', 'BLOCKED'],
+      cancelled: ['cancelled'],
+    };
+    const allow = map[detectStatusFilter] ?? [detectStatusFilter];
+    return detectRunFeed.filter((r) => allow.includes(r.status));
+  }, [detectRunFeed, detectStatusFilter]);
+
+  const selectedDetectRun =
+    filteredDetectRuns.find((r) => r.runId === detectRunSelectedId) ??
+    filteredDetectRuns[0] ??
+    null;
+
+  const refreshDetectFeeds = async () => {
+    if (detectRunFeed.length === 0) {
+      appendShellLog('Detect feed empty — open Detect page and run a real LocalCompute task');
+      return;
+    }
+    const client = new LocalComputeClient({
+      baseUrl: localComputeBaseUrl,
+      token: localComputeToken,
+    });
+    for (const run of detectRunFeed.slice(0, 10)) {
+      try {
+        const rec = await client.getTask(run.runId);
+        upsertDetectRun(rec);
+      } catch (err) {
+        appendShellLog(
+          `Detect refresh failed ${run.runId.slice(0, 8)}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+  };
+
+  const cancelSelectedDetect = async () => {
+    if (!selectedDetectRun?.runId) return;
+    if (!['queued', 'running'].includes(selectedDetectRun.status)) return;
+    const client = new LocalComputeClient({
+      baseUrl: localComputeBaseUrl,
+      token: localComputeToken,
+    });
+    try {
+      await client.cancelTask(selectedDetectRun.runId);
+      const rec = await client.getTask(selectedDetectRun.runId);
+      upsertDetectRun({
+        ...rec,
+        result: rec.status === 'cancelled' ? null : rec.result,
+      });
+      appendShellLog(`Detect cancel ${selectedDetectRun.runId.slice(0, 8)}`);
+    } catch (err) {
+      appendShellLog(
+        `Detect cancel failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  };
+
   const selectionSummary = `匹配 ${liveFiltered.length} / 总数 ${marks.length} / 已选 ${selectedIds.length} · 页 ${safePage + 1}/${totalPages}`;
 
   return (
@@ -168,6 +253,8 @@ export function BottomPanel() {
       data-tab={tab}
       data-dock="annotation-detection"
       data-bottom-height={String(heightPx)}
+      data-collapsed-min={expanded ? 'false' : 'true'}
+      data-collapse-min-px="29"
       style={{ height: expanded ? heightPx : 29 }}
     >
       <div
@@ -183,6 +270,13 @@ export function BottomPanel() {
           e.preventDefault();
           startBottomResize(e.clientY);
         }}
+        onDoubleClick={(e) => {
+          e.preventDefault();
+          // G08 collapse-to-min: desktop bottom closed height 29 (tabs only), persist expanded=false
+          setExpanded(false);
+          appendShellLog('G08 collapse-to-min → 29px (tabs)');
+        }}
+        title="拖拽调高；双击折叠到最小（29px）"
       />
       <div className="bottom-tabs" data-testid="bottom-tabs" style={{ height: 29 }}>
         {TABS.map((t) => (
@@ -364,12 +458,22 @@ export function BottomPanel() {
                 </label>
               </div>
               <div className="annotation-table-chrome" data-testid="bottom-annotation-table">
-                <div className="annotation-table-header" data-testid="bottom-annotation-table-header">
-                  <span className="col-check" />
-                  <span className="col-name">名称</span>
-                  <span className="col-kind">来源</span>
-                  <span className="col-quality">质量</span>
-                  <span className="col-range">范围</span>
+                                <div
+                  className="annotation-table-header annotation-table-header-full"
+                  data-testid="bottom-annotation-table-header"
+                  data-column-matrix="qt-full"
+                >
+                  <span className="col-h col-h-0" data-col="0"></span>
+                  <span className="col-h col-h-1" data-col="1">名字 / annotationId</span>
+                  <span className="col-h col-h-2" data-col="2">来源</span>
+                  <span className="col-h col-h-3" data-col="3">当前段</span>
+                  <span className="col-h col-h-4" data-col="4">开始 / ms</span>
+                  <span className="col-h col-h-5" data-col="5">结束 / ms</span>
+                  <span className="col-h col-h-6" data-col="6">中心 / MHz</span>
+                  <span className="col-h col-h-7" data-col="7">带宽 / kHz</span>
+                  <span className="col-h col-h-8" data-col="8">mean</span>
+                  <span className="col-h col-h-9" data-col="9">质量</span>
+                  <span className="col-h col-h-10" data-col="10">通道</span>
                 </div>
                 <ul
                   className="bottom-mark-list annotation-mark-table"
@@ -429,18 +533,26 @@ export function BottomPanel() {
                             setM06Tick((t) => t + 1);
                           }}
                         >
-                          <span
+                                                    <span
                             className={`annotation-mark-check${isSelected ? ' on' : ''}`}
                             aria-hidden
                           />
-                          <span className="annotation-mark-name col-name">{m.name}</span>
-                          <span className="muted col-kind">{m.sourceKind}</span>
+                          <span className="annotation-mark-name col-name" title={m.nameCell}>
+                            {m.name}
+                          </span>
+                          <span className="muted col-kind">{m.sourceLabel}</span>
+                          <span className="col-segment" data-testid={`bottom-mark-segment-${m.id}`}>
+                            {m.segmentLabel}
+                          </span>
+                          <span className="col-start-ms">{m.startMs}</span>
+                          <span className="col-end-ms">{m.endMs}</span>
+                          <span className="col-center-mhz">{m.centerMhz}</span>
+                          <span className="col-bw-khz">{m.bandwidthKhz}</span>
+                          <span className="col-mean">{m.mean}</span>
                           <span className="col-quality" data-testid={`bottom-mark-quality-${m.id}`}>
                             {QUALITY_LABEL[m.reviewStatus]}
                           </span>
-                          <span className="annotation-mark-range col-range">
-                            {m.start || m.end ? `[${m.start},${m.end}]` : m.deleted ? '软删' : '—'}
-                          </span>
+                          <span className="col-channel">{m.channelLabel}</span>
                         </li>
                       );
                     })
@@ -471,22 +583,27 @@ export function BottomPanel() {
                 <button
                   type="button"
                   data-testid="bottom-detect-refresh"
-                  disabled
-                  title="等待真实 Detect / Worker 报告后启用"
+                  disabled={detectRunFeed.length === 0}
+                  title="Refresh live LocalCompute task records (no invented runs)"
+                  onClick={() => void refreshDetectFeeds()}
                 >
                   刷新列表
                 </button>
                 <button
                   type="button"
                   data-testid="bottom-detect-cancel"
-                  disabled
-                  title="无运行中任务可取消"
+                  disabled={
+                    !selectedDetectRun ||
+                    !['queued', 'running'].includes(selectedDetectRun.status)
+                  }
+                  title="Cancel selected live run (exact runId)"
+                  onClick={() => void cancelSelectedDetect()}
                 >
                   取消任务
                 </button>
                 <label className="bottom-detect-filter" data-testid="bottom-detect-status-filter">
                   <span>状态</span>
-                  <select data-testid="bottom-detect-status-select" defaultValue="all" disabled>
+                  <select data-testid="bottom-detect-status-select" value={detectStatusFilter} onChange={(e) => setDetectStatusFilter(e.target.value)}>
                     <option value="all">全部</option>
                     <option value="running">运行中</option>
                     <option value="done">已完成</option>
@@ -531,10 +648,32 @@ export function BottomPanel() {
                       <span>模型</span>
                       <span>候选</span>
                     </div>
-                    <ul className="bottom-detect-list" data-testid="bottom-detect-run-list">
-                      <li data-testid="bottom-detect-run-empty">
-                        <span>暂无检测 run（等待真实 Detect / Worker 报告）</span>
-                      </li>
+                    <ul className="bottom-detect-list" data-testid="bottom-detect-run-list" data-live-feed="local-compute">
+                      {filteredDetectRuns.length === 0 ? (
+                        <li data-testid="bottom-detect-run-empty">
+                          <span>尚无检测 run（等待真实 Detect / Worker 回填）</span>
+                        </li>
+                      ) : (
+                        filteredDetectRuns.map((run) => {
+                          const selected = selectedDetectRun?.runId === run.runId;
+                          return (
+                            <li
+                              key={run.runId}
+                              className={selected ? 'is-selected' : ''}
+                              data-testid={`bottom-detect-run-${run.runId}`}
+                              data-run-id={run.runId}
+                              data-status={run.status}
+                              data-selected={selected ? 'true' : 'false'}
+                              onClick={() => selectDetectRun(run.runId)}
+                            >
+                              <span>{run.updatedAt || run.createdAt || '—'}</span>
+                              <span>{run.status}</span>
+                              <span>{run.kind}</span>
+                              <span>{selected ? '●' : ''}</span>
+                            </li>
+                          );
+                        })
+                      )}
                     </ul>
                   </div>
                   <div className="bottom-detect-col" data-testid="bottom-detect-col-detail">
@@ -542,20 +681,26 @@ export function BottomPanel() {
                     <dl className="bottom-detect-inspector" data-testid="bottom-detect-inspector">
                       <div>
                         <dt>引擎</dt>
-                        <dd data-testid="bottom-detect-inspector-engine">—</dd>
+                        <dd data-testid="bottom-detect-inspector-engine">{selectedDetectRun?.kind ?? '—'}</dd>
                       </div>
                       <div>
                         <dt>阶段</dt>
-                        <dd data-testid="bottom-detect-inspector-stage">—</dd>
+                        <dd data-testid="bottom-detect-inspector-stage">{selectedDetectRun?.status ?? '—'}</dd>
                       </div>
                       <div>
                         <dt>参数摘要</dt>
-                        <dd data-testid="bottom-detect-inspector-params">选中真实 run 后填充</dd>
+                        <dd data-testid="bottom-detect-inspector-params">{selectedDetectRun ? `${selectedDetectRun.runId.slice(0, 8)} · p=${Math.round((selectedDetectRun.progress || 0) * 100)}%` : '选中真实 run 后显示'}</dd>
                       </div>
                     </dl>
-                    <p className="bottom-empty-host" data-testid="bottom-detect-detail-empty">
-                      选中真实 run 后显示参数与阶段（本坞不伪造条目）。
-                    </p>
+                    {!selectedDetectRun ? (
+                      <p className="bottom-empty-host" data-testid="bottom-detect-detail-empty">
+                        选中真实 run 后显示详情与阶段（不伪造候选目标）
+                      </p>
+                    ) : (
+                      <p className="bottom-hint" data-testid="bottom-detect-detail-live">
+                        {(selectedDetectRun.messageZh || selectedDetectRun.message || selectedDetectRun.statusHistory?.join(' → ') || selectedDetectRun.status)}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

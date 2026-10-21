@@ -12,6 +12,7 @@ import {
   type EngineeringTreeNode,
 } from '@wss/project-io';
 import { asProjectSessionHook, useUiStore } from '../store/uiStore';
+import { SOURCE_KIND_CN } from './annotationTableMatrix';
 
 /** Desktop relationText (project_tree_presentation.h) — display overlay only. */
 const CN_RELATION: Record<string, string> = {
@@ -233,8 +234,15 @@ function TreeNodeView({
                 </span>
               ) : null}
               {node.sourceKind ? (
-                <span className="tree-source-kind" data-testid={`tree-source-${node.id}`}>
-                  {node.sourceKind}
+                <span
+                  className="tree-source-kind"
+                  data-testid={`tree-source-${node.id}`}
+                  data-source-kind={node.sourceKind}
+                  data-source-cn={
+                    SOURCE_KIND_CN[node.sourceKind as keyof typeof SOURCE_KIND_CN] ?? node.sourceKind
+                  }
+                >
+                  {SOURCE_KIND_CN[node.sourceKind as keyof typeof SOURCE_KIND_CN] ?? node.sourceKind}
                 </span>
               ) : null}
             </span>

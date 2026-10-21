@@ -29,6 +29,7 @@ export function AuxParamStrip() {
       <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-kind">
         视图
       </span>
+      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-caption">辅助图</span>
       <button
         type="button"
         data-testid="btn-aux-wave"
@@ -239,6 +240,12 @@ export function SpecParamStrip() {
         <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-palette">
           色板
         </span>
+        <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-mode">
+          模式：{chartMode === 'stft' ? 'STFT' : 'Waterfall'}
+        </span>
+        <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-workspace">
+          工作区：{workspaceMode === 'narrowband' ? '窄带' : '宽带'}
+        </span>
 <div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
           <button
             type="button"
@@ -285,7 +292,15 @@ export function SpecParamStrip() {
                   ))}
                 </select>
               </label>
-              <button
+                            <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-level">
+                <span className="chart-strip-qlabel">参考 / 动态</span>
+                <span className="muted">{`参考 ${level.refLevelDb.toFixed(1)} · 动态 ${level.dynamicRangeDb.toFixed(1)}`}</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-caption">
+                <span className="chart-strip-qlabel">图头标题</span>
+                <span className="muted">宽带时频图</span>
+              </div>
+<button
                 type="button"
                 className="overflow-action"
                 data-testid="btn-tool-roi"

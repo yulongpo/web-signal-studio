@@ -4,7 +4,7 @@
  */
 
 import { create } from 'zustand';
-import type { ProjectDocumentJson } from '@wss/contracts';
+import type { ProjectDocumentJson, LocalComputeTaskRecord } from '@wss/contracts';
 import {
   openProjectFromJsonText,
   saveProjectToJsonText,
@@ -164,6 +164,12 @@ export interface UiState {
   appendShellLog: (line: string) => void;
   clearShellLog: () => void;
   setTaskProgress: (p: { label?: string; percent?: number | null; detail?: string }) => void;
+  /** G07 live Detect feeds (real LocalComputeTaskRecord only; no invented runs). */
+  detectRunFeed: LocalComputeTaskRecord[];
+  detectRunSelectedId: string | null;
+  upsertDetectRun: (rec: LocalComputeTaskRecord) => void;
+  selectDetectRun: (runId: string | null) => void;
+  clearDetectRunFeed: () => void;
 
   /** G06 page chrome prefs (no fake DSP). */
   nbModulationType: NarrowbandModulationType;
@@ -266,7 +272,13 @@ export const useUiStore = create<UiState>((set, get) => ({
   narrowbandFreqMode: 'baseband',
   narrowbandGrid: true,
   narrowbandWaveformMode: 'iq',
-  bottomPanelExpanded: false,
+  bottomPanelExpanded: (() => {
+    try {
+      return localStorage.getItem('wss.bottomPanelExpanded.v1') !== '0';
+    } catch {
+      return false;
+    }
+  })(),
   bottomPanelTab: 'log',
   bottomPanelHeightPx: (() => {
     try {
@@ -281,6 +293,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   })(),
   shellLogLines: ['Web shell ready · G07 bottom panel (no PASS)'],
   taskProgress: { label: '', percent: null, detail: '' },
+  detectRunFeed: [],
+  detectRunSelectedId: null,
   nbModulationType: 'unknown',
   nbSymbolRate: '1e6',
   nbDlModelLabel: '',
@@ -418,7 +432,14 @@ export const useUiStore = create<UiState>((set, get) => ({
   setNarrowbandFreqMode: (mode) => set({ narrowbandFreqMode: mode }),
   setNarrowbandGrid: (on) => set({ narrowbandGrid: on }),
   setNarrowbandWaveformMode: (mode) => set({ narrowbandWaveformMode: mode }),
-  setBottomPanelExpanded: (open) => set({ bottomPanelExpanded: open }),
+  setBottomPanelExpanded: (open) => {
+    try {
+      localStorage.setItem('wss.bottomPanelExpanded.v1', open ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+    set({ bottomPanelExpanded: open });
+  },
   setBottomPanelTab: (tab) => set({ bottomPanelTab: tab }),
   setBottomPanelHeightPx: (px) => {
     const next = Math.max(100, Math.min(500, Math.round(px)));
@@ -443,6 +464,30 @@ export const useUiStore = create<UiState>((set, get) => ({
         detail: p.detail ?? s.taskProgress.detail,
       },
     })),
+  upsertDetectRun: (rec) =>
+    set((s) => {
+      const rest = s.detectRunFeed.filter((r) => r.runId !== rec.runId);
+      const next = [rec, ...rest].slice(0, 40);
+      const selected =
+        s.detectRunSelectedId && next.some((r) => r.runId === s.detectRunSelectedId)
+          ? s.detectRunSelectedId
+          : rec.runId;
+      const pct =
+        typeof rec.progress === 'number'
+          ? Math.round(Math.max(0, Math.min(1, rec.progress)) * 100)
+          : null;
+      return {
+        detectRunFeed: next,
+        detectRunSelectedId: selected,
+        taskProgress: {
+          label: `Detect ${rec.kind}`,
+          percent: pct,
+          detail: `${rec.status} · ${rec.runId.slice(0, 8)}`,
+        },
+      };
+    }),
+  selectDetectRun: (runId) => set({ detectRunSelectedId: runId }),
+  clearDetectRunFeed: () => set({ detectRunFeed: [], detectRunSelectedId: null }),
   setNbModulationType: (t) => set({ nbModulationType: t }),
   setNbSymbolRate: (v) => set({ nbSymbolRate: v }),
   setNbDlModelLabel: (v) => set({ nbDlModelLabel: v }),

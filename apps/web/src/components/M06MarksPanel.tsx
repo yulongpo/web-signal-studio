@@ -5,24 +5,18 @@
 import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
 import type { ReviewStatus } from '@wss/contracts';
 import type { M06SessionSnapshot } from '../projectIo';
+import { getIqFileSession } from '../dsp/iqFileSession';
+import {
+  QUALITY_LABEL_CN,
+  annotationToTableRow,
+  type AnnotationTableRow,
+} from './annotationTableMatrix';
 
-type MarkRow = {
-  id: string;
-  name: string;
-  start: string;
-  end: string;
-  deleted?: boolean;
-  reviewStatus: ReviewStatus;
-  sourceKind?: string;
-};
+type MarkRow = AnnotationTableRow;
 
 const PAGE_SIZE = 200;
 
-const QUALITY_LABEL: Record<ReviewStatus, string> = {
-  Pending: '待判断',
-  Accepted: '已采纳',
-  Rejected: '已忽略',
-};
+const QUALITY_LABEL = QUALITY_LABEL_CN;
 
 type QualityFilter = 'all' | ReviewStatus;
 
@@ -46,15 +40,6 @@ function readHookState(): {
   }
   const snapshot = hook.getState();
   const anns = hook.session.annotations.annotations ?? [];
-  const marks: MarkRow[] = anns.map((a) => ({
-    id: a.id,
-    name: a.name ?? a.id,
-    start: String(a.start ?? ''),
-    end: String(a.end ?? ''),
-    deleted: Boolean(a.deleted),
-    reviewStatus: (a.reviewStatus ?? 'Pending') as ReviewStatus,
-    sourceKind: a.sourceKind,
-  }));
   let channelHasSnapshot = false;
   let channelAnnotationId: string | undefined;
   try {
@@ -64,6 +49,14 @@ function readHookState(): {
   } catch {
     channelHasSnapshot = false;
   }
+  const sampleRateHz = getIqFileSession()?.sampleRateHz ?? null;
+  const channelCountByAnnotationId: Record<string, number> = {};
+  if (channelAnnotationId) {
+    channelCountByAnnotationId[channelAnnotationId] = 1;
+  }
+  const marks: MarkRow[] = anns.map((a) =>
+    annotationToTableRow(a, { sampleRateHz, channelCountByAnnotationId }),
+  );
   return {
     snapshot,
     marks,
@@ -283,11 +276,22 @@ export function M06MarksPanel() {
           每页 {PAGE_SIZE}
         </span>
       </div>
-      <div className="annotation-table-header" data-testid="annotation-table-header">
-        <span className="col-check" />
-        <span className="col-name">名称</span>
-        <span className="col-quality">质量</span>
-        <span className="col-range">范围</span>
+            <div
+        className="annotation-table-header annotation-table-header-full"
+        data-testid="annotation-table-header"
+        data-column-matrix="qt-full"
+      >
+        <span className="col-h col-h-0" data-col="0"></span>
+        <span className="col-h col-h-1" data-col="1">名字 / annotationId</span>
+        <span className="col-h col-h-2" data-col="2">来源</span>
+        <span className="col-h col-h-3" data-col="3">当前段</span>
+        <span className="col-h col-h-4" data-col="4">开始 / ms</span>
+        <span className="col-h col-h-5" data-col="5">结束 / ms</span>
+        <span className="col-h col-h-6" data-col="6">中心 / MHz</span>
+        <span className="col-h col-h-7" data-col="7">带宽 / kHz</span>
+        <span className="col-h col-h-8" data-col="8">mean</span>
+        <span className="col-h col-h-9" data-col="9">质量</span>
+        <span className="col-h col-h-10" data-col="10">通道</span>
       </div>
       <ul
         className="annotation-mark-table"
@@ -332,11 +336,16 @@ export function M06MarksPanel() {
                   className={`annotation-mark-check${isSelected ? ' on' : ''}`}
                   aria-hidden
                 />
-                <span className="annotation-mark-name">{m.name}</span>
+                <span className="annotation-mark-name" title={m.nameCell}>{m.name}</span>
+                <span className="muted col-kind">{m.sourceLabel}</span>
+                <span className="col-segment">{m.segmentLabel}</span>
+                <span className="col-start-ms">{m.startMs}</span>
+                <span className="col-end-ms">{m.endMs}</span>
+                <span className="col-center-mhz">{m.centerMhz}</span>
+                <span className="col-bw-khz">{m.bandwidthKhz}</span>
+                <span className="col-mean">{m.mean}</span>
                 <span className="annotation-mark-quality">{QUALITY_LABEL[m.reviewStatus]}</span>
-                <span className="annotation-mark-range">
-                  [{m.start},{m.end}]
-                </span>
+                <span className="col-channel">{m.channelLabel}</span>
               </li>
             );
           })

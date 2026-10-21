@@ -35,22 +35,31 @@ const LEFT_MAX = 450;
 const RIGHT_MIN = 320;
 const RIGHT_MAX = 650;
 
-function readShellColumns(): { left: number; right: number } {
+const LEFT_COLLAPSE_MIN = 8;
+
+type ShellColumns = { left: number; right: number; leftCollapsed: boolean };
+
+function readShellColumns(): ShellColumns {
   try {
     const raw = localStorage.getItem(SHELL_COL_KEY);
-    if (!raw) return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT };
-    const parsed = JSON.parse(raw) as { left?: number; right?: number };
+    if (!raw) return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT, leftCollapsed: false };
+    const parsed = JSON.parse(raw) as { left?: number; right?: number; leftCollapsed?: boolean };
+    const leftCollapsed = Boolean(parsed.leftCollapsed);
     return {
-      left: Math.min(LEFT_MAX, Math.max(LEFT_MIN, Number(parsed.left) || LEFT_DEFAULT)),
+      left: leftCollapsed
+        ? LEFT_COLLAPSE_MIN
+        : Math.min(LEFT_MAX, Math.max(LEFT_MIN, Number(parsed.left) || LEFT_DEFAULT)),
       right: Math.min(RIGHT_MAX, Math.max(RIGHT_MIN, Number(parsed.right) || RIGHT_DEFAULT)),
+      leftCollapsed,
     };
   } catch {
-    return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT };
+    return { left: LEFT_DEFAULT, right: RIGHT_DEFAULT, leftCollapsed: false };
   }
 }
 
 export default function App() {
   const [shellCols, setShellCols] = useState(readShellColumns);
+  const leftColPx = shellCols.leftCollapsed ? LEFT_COLLAPSE_MIN : shellCols.left;
   useEffect(() => {
     try {
       localStorage.setItem(SHELL_COL_KEY, JSON.stringify(shellCols));
@@ -62,13 +71,13 @@ export default function App() {
   }, [shellCols]);
 
   const startResize = (side: 'left' | 'right', clientX0: number) => {
-    const startLeft = shellCols.left;
+    const startLeft = shellCols.leftCollapsed ? LEFT_DEFAULT : shellCols.left;
     const startRight = shellCols.right;
     const onMove = (e: PointerEvent) => {
       const dx = e.clientX - clientX0;
       if (side === 'left') {
         const next = Math.min(LEFT_MAX, Math.max(LEFT_MIN, startLeft + dx));
-        setShellCols((c) => ({ ...c, left: next }));
+        setShellCols((c) => ({ ...c, left: next, leftCollapsed: false }));
       } else {
         const next = Math.min(RIGHT_MAX, Math.max(RIGHT_MIN, startRight - dx));
         setShellCols((c) => ({ ...c, right: next }));
@@ -115,12 +124,14 @@ export default function App() {
       <div
         className="app-shell-body"
         data-testid="app-shell-body"
-        data-shell-columns={`${shellCols.left}-${shellCols.right}`}
+        data-shell-columns={`${leftColPx}-${shellCols.right}`}
+        data-shell-left-collapsed={shellCols.leftCollapsed ? 'true' : 'false'}
+        data-shell-collapse-min={String(LEFT_COLLAPSE_MIN)}
         data-shell-resizable="true"
         style={{
           gridTemplateColumns: collapsed
-            ? `${shellCols.left}px 6px 1fr 48px`
-            : `${shellCols.left}px 6px 1fr 6px ${shellCols.right}px`,
+            ? `${leftColPx}px 6px 1fr 48px`
+            : `${leftColPx}px 6px 1fr 6px ${shellCols.right}px`,
         }}
       >
       <ProjectTree />
@@ -134,6 +145,17 @@ export default function App() {
             e.preventDefault();
             startResize('left', e.clientX);
           }}
+          onDoubleClick={(e) => {
+            e.preventDefault();
+            setShellCols((c) => {
+              if (c.leftCollapsed) {
+                return { ...c, leftCollapsed: false, left: Math.max(LEFT_MIN, c.left === LEFT_COLLAPSE_MIN ? LEFT_DEFAULT : c.left) };
+              }
+              return { ...c, leftCollapsed: true, left: LEFT_COLLAPSE_MIN };
+            });
+          }}
+          title="Drag resize; double-click collapse-to-min (8px)"
+          data-collapse-min="true"
         />
 
       <main

@@ -2376,6 +2376,44 @@ body,
   color: #7f98b0;
   border-bottom: 1px solid #1c2c3e;
 }
+.annotation-table-header-full,
+.annotation-mark-table .annotation-mark-row,
+.bottom-mark-row {
+  grid-template-columns: 18px minmax(88px, 1.3fr) 0.7fr 0.85fr 0.7fr 0.7fr 0.75fr 0.75fr 0.55fr 0.65fr 0.7fr;
+  overflow-x: auto;
+}
+.annotation-table-header-full {
+  display: grid;
+  gap: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  color: #7f98b0;
+  border-bottom: 1px solid #1c2c3e;
+  white-space: nowrap;
+}
+.annotation-mark-table .annotation-mark-row,
+.bottom-mark-row {
+  display: grid;
+  gap: 4px;
+  align-items: center;
+  font-size: 11px;
+}
+.bottom-panel[data-collapsed-min='true'] {
+  min-height: 29px;
+}
+.app-shell-body[data-shell-left-collapsed='true'] .project-tree {
+  overflow: hidden;
+  opacity: 0.55;
+}
+.overflow-qlabel-only {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px;
+}
+.bottom-detect-list li.is-selected {
+  background: #183f59;
+}
 .bottom-detect-table-header {
   grid-template-columns: 1.2fr 0.7fr 1fr 0.6fr;
 }
@@ -2403,9 +2441,5 @@ body,
   margin: 0;
   color: #c5d6e8;
 }
-.bottom-mark-row {
-  display: grid;
-  grid-template-columns: 18px 1.4fr 0.9fr 0.7fr 1.1fr;
-  gap: 6px;
-  align-items: center;
-}
+/* bottom-mark-row grid superseded by annotation-table-header-full wave5 */
+.bottom-mark-row { /* see wave5 full matrix */ }
