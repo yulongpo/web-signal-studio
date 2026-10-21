@@ -1,3 +1,11 @@
+> Bot-A `2026-10-22 02:37` Asia/Shanghai: Web **`762b876`** vs desktop `17471a6` — G02 PARTIAL deepened (B wave29 UI wire). Multitaper/Burg BLOCKED. Not CLOSED. Soft G08 OK. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_762b876/`. **No PASS.**
+
+| ID | Prior (`ab48064`) | Now (`762b876`) | Note |
+|----|---------------------|-------------------|------|
+| **G02** | PARTIAL | **PARTIAL 加深** | auto-N/removeMean UI→DSP MET |
+| **G08** | PARTIAL | **unchanged PARTIAL** | soft 无回归 |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_762b876/`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:34` Asia/Shanghai: Web **`ab48064`** vs desktop `17471a6` — G02 PARTIAL DSP deepen (D auto-N/removeMean). UI strip unwired → not CLOSED. Multitaper/Burg BLOCKED. Soft G08 OK. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ab48064/`. **No PASS.**
 
 | ID | Prior | Now (`ab48064`) | Note |
