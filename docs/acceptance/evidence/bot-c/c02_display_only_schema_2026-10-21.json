@@ -1,0 +1,45 @@
+{
+  "bot": "bot-c",
+  "gate": "C-02",
+  "writtenAt": "2026-10-21T12:00:00.000Z",
+  "displayOnly": true,
+  "allowedKeys": [
+    "width",
+    "height",
+    "displayOnly",
+    "reduce",
+    "extractMs",
+    "sourceWindow",
+    "dataLength",
+    "dataPeak"
+  ],
+  "forbiddenKeysAssertedAbsent": [
+    "hz",
+    "freqHz",
+    "frequencyHz",
+    "markerId",
+    "marker",
+    "detectionId",
+    "detection",
+    "timeSec",
+    "sampleIndex",
+    "businessCoords"
+  ],
+  "sample": {
+    "width": 4,
+    "height": 4,
+    "displayOnly": true,
+    "reduce": "peak",
+    "extractMs": 0.01,
+    "sourceWindow": {
+      "x": 0,
+      "y": 0,
+      "w": 8,
+      "h": 8
+    },
+    "dataLength": 16,
+    "dataPeak": 3.5
+  },
+  "status": "WIP",
+  "note": "vitest displayOnlySchema.test.ts asserts JSON schema; no detection coords"
+}

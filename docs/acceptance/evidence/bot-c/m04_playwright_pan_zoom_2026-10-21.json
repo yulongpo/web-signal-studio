@@ -1,0 +1,8 @@
+{
+  "bot": "bot-c",
+  "gate": "M-04",
+  "writtenAt": "2026-10-21T10:52:04.289Z",
+  "interactionModeAfterGesture": "preview",
+  "note": "Playwright pan/zoom on chart-main; Node CPU synthetic alone is not this evidence",
+  "status": "WIP"
+}

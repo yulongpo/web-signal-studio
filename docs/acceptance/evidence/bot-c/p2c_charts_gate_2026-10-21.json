@@ -1,15 +1,16 @@
 {
   "bot": "bot-c",
-  "writtenAt": "2026-10-21T10:18:25.685Z",
+  "writtenAt": "2026-10-21T10:51:24.349Z",
   "samples": [
     {
       "name": "p2c-commit-gate",
       "durationMs": 0,
       "meta": {
         "typecheck": true,
-        "tests": 10
+        "tests": 52,
+        "note": "aligned with vitest run: 14 files / 52 tests (was stale meta.tests=10)"
       },
-      "ts": "2026-10-21T10:18:25.685Z"
+      "ts": "2026-10-21T10:51:24.349Z"
     }
   ]
 }

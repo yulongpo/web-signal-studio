@@ -44,14 +44,22 @@ export class PreviewRefineController {
 
   constructor(hooks: PreviewRefineHooks = {}, idleSettleMsOrOpts: number | PreviewRefineOptions = 180) {
     this.hooks = hooks;
+    const boundSetTimeout: typeof setTimeout = ((
+      fn: TimerHandler,
+      ms?: number,
+      ...args: unknown[]
+    ) => setTimeout(fn, ms, ...args)) as typeof setTimeout;
+    const boundClearTimeout: typeof clearTimeout = ((
+      id?: ReturnType<typeof setTimeout> | string | number | undefined,
+    ) => clearTimeout(id as ReturnType<typeof setTimeout>)) as typeof clearTimeout;
     if (typeof idleSettleMsOrOpts === "number") {
       this.idleSettleMs = idleSettleMsOrOpts;
-      this.setTimeoutFn = setTimeout;
-      this.clearTimeoutFn = clearTimeout;
+      this.setTimeoutFn = boundSetTimeout;
+      this.clearTimeoutFn = boundClearTimeout;
     } else {
       this.idleSettleMs = idleSettleMsOrOpts.idleSettleMs ?? 180;
-      this.setTimeoutFn = idleSettleMsOrOpts.setTimeoutFn ?? setTimeout;
-      this.clearTimeoutFn = idleSettleMsOrOpts.clearTimeoutFn ?? clearTimeout;
+      this.setTimeoutFn = idleSettleMsOrOpts.setTimeoutFn ?? boundSetTimeout;
+      this.clearTimeoutFn = idleSettleMsOrOpts.clearTimeoutFn ?? boundClearTimeout;
     }
   }
 
