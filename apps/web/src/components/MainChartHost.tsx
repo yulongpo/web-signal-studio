@@ -7,10 +7,19 @@
  * - No file / open failed / FSA unsupported → synthetic two-tone fixture (synthetic-stft-worker)
  * - Worker failure → demo synthPower fallback (never claimed as capture)
  */
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { SpectrumChart } from '@wss/charts/SpectrumChart';
 import type { ColormapName } from '@wss/charts/lut/colormaps';
+import type { ViewState } from '@wss/charts';
 import { useUiStore } from '../store/uiStore';
+import { ChartMarkOverlay } from './ChartMarkOverlay';
+import {
+  cssToTimeFreq,
+  halfOpenEnd,
+  markContains,
+  pushCapped,
+  secondsToSampleIndex,
+} from './chartGesture';
 import { useDspWorkerClient } from '../dsp/useDspWorkerClient';
 import {
   computeMainSpectrogram,
@@ -19,6 +28,7 @@ import {
 import { computeFileSpectrogram } from '../dsp/computeFileSpectrogram';
 import {
   getIqFileEpoch,
+  getIqFileOpenBusy,
   getIqFileSession,
   subscribeIqFileSession,
 } from '../dsp/iqFileSession';
@@ -75,24 +85,25 @@ function kindForVia(via: 'fsa' | 'input'): DspSourceKind {
   return via === 'fsa' ? 'fsa-wav-stft' : 'file-stft-worker';
 }
 
-/** Map a chart time to a decimal sample index. Refuses non-safe integers. */
-function secondsToSampleIndex(sec: number, sampleRateHz: number): string | null {
-  if (!(sampleRateHz > 0) || !Number.isFinite(sec)) return null;
-  const n = Math.round(sec * sampleRateHz);
-  if (!Number.isSafeInteger(n) || n < 0) return null;
-  return String(n);
+function fullViewFor(
+  mode: 'stft' | 'waterfall',
+  freqHz: { min: number; max: number },
+  timeSec: { min: number; max: number },
+): ViewState {
+  if (mode === 'waterfall') {
+    return {
+      xDomain: { min: freqHz.min, max: freqHz.max, unit: 'Hz', label: 'Frequency' },
+      yDomain: { min: timeSec.min, max: timeSec.max, unit: 's', label: 'Time' },
+    };
+  }
+  return {
+    xDomain: { min: timeSec.min, max: timeSec.max, unit: 's', label: 'Time' },
+    yDomain: { min: freqHz.min, max: freqHz.max, unit: 'Hz', label: 'Frequency' },
+  };
 }
 
-function halfOpenEnd(start: string, end: string): string | null {
-  try {
-    const a = BigInt(start);
-    let b = BigInt(end);
-    if (b <= a) b = a + 1n;
-    if (b > BigInt(Number.MAX_SAFE_INTEGER)) return null;
-    return b.toString();
-  } catch {
-    return null;
-  }
+function cloneView(view: ViewState): ViewState {
+  return { xDomain: { ...view.xDomain }, yDomain: { ...view.yDomain } };
 }
 
 export function MainChartHost() {
@@ -112,7 +123,11 @@ export function MainChartHost() {
   const setDetectSampleRange = useUiStore((s) => s.setDetectSampleRange);
   const setRightPage = useUiStore((s) => s.setRightPage);
   const client = useDspWorkerClient();
-  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
+  const [menu, setMenu] = useState<{
+    x: number;
+    y: number;
+    hits: { id: string; name: string }[];
+  } | null>(null);
   const [roi, setRoi] = useState<{ start: string; end: string } | null>(null);
   const [markNote, setMarkNote] = useState<string | null>(null);
 
@@ -121,10 +136,18 @@ export function MainChartHost() {
     getIqFileEpoch,
     getIqFileEpoch,
   );
+  const iqOpenBusy = useSyncExternalStore(
+    subscribeIqFileSession,
+    getIqFileOpenBusy,
+    getIqFileOpenBusy,
+  );
 
   const [spec, setSpec] = useState<ChartSpec | null>(null);
   const [dspSource, setDspSource] = useState<DspSourceKind>('loading');
+  const [settledEpoch, setSettledEpoch] = useState(-1);
   const [iqFormat, setIqFormat] = useState<IqFileFormat | null>(null);
+  const shownSource: DspSourceKind =
+    iqOpenBusy || settledEpoch !== iqEpoch ? 'loading' : dspSource;
 
   const fallbackPower = useMemo(
     () => synthPower(FALLBACK_BINS, FALLBACK_FRAMES),
@@ -164,6 +187,7 @@ export function MainChartHost() {
         setDspSourceStore(kind);
         setIqFormat(session.format);
         setStatusFileLabel(session.fileName);
+        setSettledEpoch(getIqFileEpoch());
         return;
       }
 
@@ -177,6 +201,7 @@ export function MainChartHost() {
       setDspSourceStore('synthetic-stft-worker');
       setIqFormat(null);
       setStatusFileLabel('No file (synthetic fixture)');
+      setSettledEpoch(getIqFileEpoch());
     };
 
     void run().catch((err: unknown) => {
@@ -187,6 +212,7 @@ export function MainChartHost() {
       setDspSource('demo-fallback');
       setDspSourceStore('demo-fallback');
       setIqFormat(null);
+      setSettledEpoch(getIqFileEpoch());
     });
 
     return () => ac.abort();
@@ -230,7 +256,64 @@ export function MainChartHost() {
   const levelMax = Math.max(0.2, 1 + level.refLevelDb / 100);
   const levelMin = Math.max(0, levelMax - level.dynamicRangeDb / 100);
   const sampleRateHz = spec?.sampleRateHz ?? 0;
-  const gesture = activeTool === 'marker' || activeTool === 'select' ? 'box' : 'pan';
+  const gesture =
+    activeTool === 'zoom'
+      ? 'zoom-box'
+      : activeTool === 'marker' || activeTool === 'detection-roi' || activeTool === 'select'
+        ? 'box'
+        : 'pan';
+  const fitted = useMemo(
+    () => fullViewFor(chartMode, freqHz, timeSec),
+    [chartMode, freqHz.min, freqHz.max, timeSec.min, timeSec.max],
+  );
+  const historyRef = useRef<ViewState[]>([]);
+  const futureRef = useRef<ViewState[]>([]);
+  const currentViewRef = useRef<ViewState>(fitted);
+  const seqRef = useRef(0);
+  const [navRev, setNavRev] = useState(0);
+  const [viewCommand, setViewCommand] = useState<{ seq: number; view: ViewState } | null>(null);
+  const [liveView, setLiveView] = useState<ViewState>(fitted);
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [hostSize, setHostSize] = useState({ w: 0, h: 0 });
+
+  useEffect(() => {
+    historyRef.current = [];
+    futureRef.current = [];
+    currentViewRef.current = fitted;
+    setLiveView(fitted);
+    setViewCommand(null);
+    setNavRev((n) => n + 1);
+  }, [fitted]);
+
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el) return;
+    const measure = () => {
+      const rect = el.getBoundingClientRect();
+      setHostSize({ w: rect.width, h: rect.height });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const applyView = (next: ViewState) => {
+    const cloned = cloneView(next);
+    currentViewRef.current = cloned;
+    seqRef.current += 1;
+    setLiveView(cloned);
+    setViewCommand({ seq: seqRef.current, view: cloned });
+    setNavRev((n) => n + 1);
+  };
+
+  const confirmRoi = () => {
+    if (!roi) return;
+    setDetectSampleRange(roi, 'roi');
+    setRoi(null);
+    setActiveTool('navigate');
+    setRightPage('detect');
+  };
 
   useEffect(() => {
     if (!menu) return;
@@ -257,15 +340,14 @@ export function MainChartHost() {
         setRoi(null);
         setActiveTool('navigate');
       } else if (e.key === 'Enter') {
-        setDetectSampleRange(roi);
-        setRoi(null);
-        setActiveTool('navigate');
-        setRightPage('detect');
+        const target = e.target;
+        if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) return;
+        confirmRoi();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [roi, setActiveTool, setDetectSampleRange, setRightPage]);
+  }, [roi, setActiveTool, confirmRoi]);
 
   const onBoxCommit = (box: {
     xMin: number;
@@ -285,11 +367,12 @@ export function MainChartHost() {
       setMarkNote('无安全采样率映射，不写入标记或 ROI');
       return;
     }
-    if (activeTool === 'select') {
+    if (activeTool === 'detection-roi' || activeTool === 'select') {
       setRoi({ start, end });
       setMarkNote(null);
       return;
     }
+    if (activeTool === 'zoom') return;
     if (activeTool !== 'marker') return;
     const hook = window.__wssM06;
     if (!hook) {
@@ -311,30 +394,60 @@ export function MainChartHost() {
 
   return (
     <div
+      ref={hostRef}
       className="chart-host chart-host-live"
       data-chart-slot="main"
       data-chart-mode={chartMode}
       data-testid="main-chart-host"
-      data-dsp-source={dspSource}
-      data-dsp-label={spec?.sourceLabel ?? 'demo fallback'}
-      data-iq-format={iqFormat ?? undefined}
+      data-dsp-source={shownSource}
+      data-dsp-label={shownSource === 'loading' ? 'loading' : (spec?.sourceLabel ?? 'demo fallback')}
+      data-iq-format={shownSource === 'loading' ? undefined : (iqFormat ?? undefined)}
       data-fft-engine={fftActive?.active ?? 'js'}
       data-fft-requested={fftActive?.requested ?? 'js'}
       data-fft-fallback={fftActive?.fellBackToJs ? 'true' : 'false'}
       data-chart-gesture={gesture}
+      data-active-tool={activeTool}
       onContextMenu={(e) => {
         e.preventDefault();
-        setMenu({ x: e.clientX, y: e.clientY });
+        const rect = e.currentTarget.getBoundingClientRect();
+        const point = cssToTimeFreq(
+          e.clientX - rect.left,
+          e.clientY - rect.top,
+          rect.width,
+          rect.height,
+          chartMode,
+          currentViewRef.current.xDomain,
+          currentViewRef.current.yDomain,
+        );
+        const anns = window.__wssM06?.session.annotations.annotations ?? [];
+        const hits = anns
+          .filter(
+            (mark) =>
+              !mark.deleted &&
+              markContains(
+                {
+                  start: String(mark.start ?? ''),
+                  end: String(mark.end ?? ''),
+                  lowerHz: mark.lowerHz,
+                  upperHz: mark.upperHz,
+                },
+                point.timeSec,
+                point.freqHz,
+                sampleRateHz,
+              ),
+          )
+          .map((mark) => ({ id: mark.id, name: mark.name || mark.id }));
+        setMenu({ x: e.clientX, y: e.clientY, hits });
       }}
     >
       <span
         className="dsp-source-chip"
         data-testid="dsp-source-chip"
-        data-dsp-source={dspSource}
-        data-iq-format={iqFormat ?? undefined}
-        title={spec?.sourceLabel ?? dspSource}
+        data-dsp-source={shownSource}
+        data-iq-format={shownSource === 'loading' ? undefined : (iqFormat ?? undefined)}
+        title={shownSource === 'loading' ? 'loading' : (spec?.sourceLabel ?? shownSource)}
       >
-        {chipLabelFor(dspSource, iqFormat)}
+        {chipLabelFor(shownSource, shownSource === 'loading' ? null : iqFormat)}
       </span>
       <SpectrumChart
         power={power}
@@ -349,6 +462,16 @@ export function MainChartHost() {
         testId="chart-main"
         wheelModel="desktop-axis"
         gesture={gesture}
+        viewCommand={viewCommand}
+        onViewChange={(view) => {
+          currentViewRef.current = view;
+          setLiveView(view);
+        }}
+        onViewCommit={(before) => {
+          historyRef.current = pushCapped(historyRef.current, before);
+          futureRef.current = [];
+          setNavRev((n) => n + 1);
+        }}
         onBoxCommit={onBoxCommit}
         onCursor={({ xValue, yValue }) => {
           const timeLabel =
@@ -362,20 +485,30 @@ export function MainChartHost() {
           setStatusCursor(timeLabel, freqLabel);
         }}
       />
+      <ChartMarkOverlay
+        cssW={hostSize.w}
+        cssH={hostSize.h}
+        mode={chartMode}
+        sampleRateHz={sampleRateHz}
+        xDomain={liveView.xDomain}
+        yDomain={liveView.yDomain}
+      />
       {roi ? (
-        <div className="roi-confirm" data-testid="detection-roi-confirmation" role="status">
+        <div
+          className="roi-confirm"
+          data-testid="detection-roi-confirmation"
+          data-tool="detection-roi"
+          data-start={roi.start}
+          data-end={roi.end}
+          role="status"
+        >
           <span>
-            ROI [{roi.start}, {roi.end})
+            检测 ROI [{roi.start}, {roi.end})
           </span>
           <button
             type="button"
             data-testid="confirm-detection-roi"
-            onClick={() => {
-              setDetectSampleRange(roi);
-              setRoi(null);
-              setActiveTool('navigate');
-              setRightPage('detect');
-            }}
+            onClick={confirmRoi}
           >
             确认 · Enter
           </button>
@@ -417,25 +550,112 @@ export function MainChartHost() {
           <button
             type="button"
             role="menuitem"
-            data-testid="chart-menu-mark"
+            data-testid="chart-menu-zoom"
             onClick={() => {
-              setActiveTool('marker');
+              setActiveTool('zoom');
               setMenu(null);
             }}
           >
-            持续标记
+            框选放大
+          </button>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={activeTool === 'marker'}
+            data-testid="chart-menu-mark"
+            onClick={() => {
+              setActiveTool(activeTool === 'marker' ? 'navigate' : 'marker');
+              setMenu(null);
+            }}
+          >
+            持续创建标记
           </button>
           <button
             type="button"
             role="menuitem"
             data-testid="chart-menu-roi"
+            data-tool="detection-roi"
             onClick={() => {
-              setActiveTool('select');
+              setActiveTool('detection-roi');
               setMenu(null);
             }}
           >
             检测 ROI
           </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="chart-menu-view-back"
+            disabled={!(navRev >= 0 && historyRef.current.length > 0)}
+            onClick={() => {
+              const prev = historyRef.current.pop();
+              if (!prev) return;
+              futureRef.current.push(cloneView(currentViewRef.current));
+              applyView(prev);
+              setMenu(null);
+            }}
+          >
+            视图后退
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="chart-menu-view-forward"
+            disabled={!(navRev >= 0 && futureRef.current.length > 0)}
+            onClick={() => {
+              const next = futureRef.current.pop();
+              if (!next) return;
+              historyRef.current = pushCapped(historyRef.current, cloneView(currentViewRef.current));
+              applyView(next);
+              setMenu(null);
+            }}
+          >
+            视图前进
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="chart-menu-view-fit"
+            onClick={() => {
+              historyRef.current = pushCapped(historyRef.current, cloneView(currentViewRef.current));
+              futureRef.current = [];
+              applyView(fitted);
+              setMenu(null);
+            }}
+          >
+            适配全图
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="chart-menu-view-reset"
+            onClick={() => {
+              historyRef.current = [];
+              futureRef.current = [];
+              applyView(fitted);
+              setMenu(null);
+            }}
+          >
+            重置视图
+          </button>
+          {menu.hits.map((hit) => (
+            <button
+              key={hit.id}
+              type="button"
+              role="menuitem"
+              data-testid={`chart-menu-mark-hit-${hit.id}`}
+              onClick={() => {
+                window.__wssM06?.setSelection({
+                  activeFileId: 'file-1',
+                  activeMarkId: hit.id,
+                  selectedMarkIds: [hit.id],
+                });
+                setMenu(null);
+              }}
+            >
+              标记 {hit.name}
+            </button>
+          ))}
         </div>
       ) : null}
     </div>

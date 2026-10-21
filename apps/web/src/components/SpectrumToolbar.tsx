@@ -11,6 +11,7 @@ import {
   openIqFromFiles,
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
+import { beginIqFileOpen, endIqFileOpen } from '../dsp/iqFileSession';
 
 const STFT_N_OPTIONS = [256, 512, 1024, 2048, 4096] as const;
 const PALETTES = ['viridis', 'inferno', 'magma', 'gray'] as const;
@@ -71,9 +72,14 @@ export function SpectrumToolbar() {
     if (!list || list.length === 0) return;
     setIqOpenError(null);
     const files = Array.from(list);
-    const outcome = await openIqFromFiles(files);
-    if (!outcome.ok && outcome.reason !== 'cancelled') {
-      setIqOpenError(outcome.message);
+    beginIqFileOpen();
+    try {
+      const outcome = await openIqFromFiles(files);
+      if (!outcome.ok && outcome.reason !== 'cancelled') {
+        setIqOpenError(outcome.message);
+      }
+    } finally {
+      endIqFileOpen();
     }
   };
 
@@ -234,7 +240,7 @@ export function SpectrumToolbar() {
               data-testid="btn-tool-roi"
               role="menuitem"
               onClick={() => {
-                setActiveTool('select');
+                setActiveTool('detection-roi');
                 setOverflowOpen(false);
               }}
             >

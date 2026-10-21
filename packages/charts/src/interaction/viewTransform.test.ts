@@ -7,6 +7,9 @@ import {
   wheelDeltaToZoomFactor,
   clampZoomSpan,
   domainsEqual,
+  viewFromPhysicalBox,
+  BOX_ZOOM_MIN_DIAGONAL_PX,
+  boxDiagonalPx,
 } from "./viewTransform.js";
 
 describe("viewTransform", () => {
@@ -51,6 +54,19 @@ describe("viewTransform", () => {
     expect(zoomed.xDomain.max - zoomed.xDomain.min).toBeLessThan(
       panned.xDomain.max - panned.xDomain.min,
     );
+  });
+
+  it("viewFromPhysicalBox replaces both domains and rejects empty boxes", () => {
+    const view = {
+      xDomain: { min: 0, max: 10, unit: "s", label: "Time" },
+      yDomain: { min: -5, max: 5, unit: "Hz", label: "Frequency" },
+    };
+    const next = viewFromPhysicalBox(view, { xMin: 2, xMax: 4, yMin: 1, yMax: -1 });
+    expect(next?.xDomain).toMatchObject({ min: 2, max: 4, unit: "s", label: "Time" });
+    expect(next?.yDomain).toMatchObject({ min: -1, max: 1, unit: "Hz" });
+    expect(viewFromPhysicalBox(view, { xMin: 1, xMax: 1, yMin: 0, yMax: 1 })).toBeNull();
+    expect(boxDiagonalPx(6, 8)).toBe(10);
+    expect(BOX_ZOOM_MIN_DIAGONAL_PX).toBe(8);
   });
 
   it("zoomViewAt can zoom a single axis", () => {

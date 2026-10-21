@@ -420,7 +420,7 @@ body,
   display: flex;
   flex-direction: column;
 }
-.chart-host-live > *:not(.dsp-source-chip):not(.roi-confirm):not(.chart-mark-note):not(.chart-context-menu) {
+.chart-host-live > *:not(.dsp-source-chip):not(.roi-confirm):not(.chart-mark-note):not(.chart-context-menu):not(.chart-mark-layer) {
   flex: 1;
   min-height: 0;
 }
@@ -490,6 +490,75 @@ body,
 
 .chart-context-menu button:hover {
   background: #1a2a40;
+}
+
+.chart-context-menu button:disabled {
+  color: #6d7b8a;
+  cursor: default;
+}
+
+.chart-mark-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.chart-mark-rect {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1px solid #7eb6ff;
+  background: rgba(126, 182, 255, 0.12);
+  pointer-events: auto;
+}
+
+.chart-mark-rect[data-selected='true'] {
+  border-color: #e3bf70;
+}
+
+.chart-mark-handle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  padding: 0;
+  border: 0;
+  background: #e3bf70;
+  pointer-events: auto;
+  cursor: nwse-resize;
+}
+
+.detect-range-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #3a4d66;
+  border-radius: 6px;
+  background: #121f32;
+}
+
+.detect-range-card[data-range-source='roi'] {
+  border-color: #e3bf70;
+}
+
+.detect-range-card:focus {
+  outline: 1px solid #e3bf70;
+}
+
+.detect-range-values {
+  margin: 0;
+  font-family: ui-monospace, "Cascadia Mono", monospace;
+  font-size: 13px;
+}
+
+.detect-real-runtime {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #14261c;
+  border: 1px solid #1e5a3d;
+  color: #b5f0d0;
 }
 
 /* Detection page (RightRail) */
