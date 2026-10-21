@@ -1,3 +1,10 @@
+> Bot-A `2026-10-22 00:57` Asia/Shanghai: Web **`6ada5b0`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave13 AdaptiveValueEdit-in-cell + Evidence + browserSave). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6ada5b0.md`. **No PASS.**
+
+| ID | Prior (`6df15bc`) | Now (`6ada5b0`) | Note |
+|----|---------------------|-------------------|------|
+| **G19** | PARTIAL （Adaptive/Evidence/QFileDialog 残） | **PARTIAL 加深** | Adaptive-in-cell + Evidence + browserSave MET；Auxiliary/native dialog 残 → **未 CLOSED** |
+
+—— **OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —— `INCREMENTAL_6ada5b0.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:51` Asia/Shanghai: Web **`6df15bc`** vs desktop `17471a6` — G11/G18 PARTIAL deepened (C unselected polish; B wave12 pin z-index). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_6df15bc.md`. **No PASS.**
 
 | ID | Prior (`4c28588`) | Now (`6df15bc`) | Note |
