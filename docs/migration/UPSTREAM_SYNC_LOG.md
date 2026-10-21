@@ -1,14 +1,16 @@
-﻿# UPSTREAM_SYNC_LOG
+# UPSTREAM_SYNC_LOG
 
-记录对 `yulongpo/signal_studio` · `rebuild/a143-native` 的只读对齐检查。
+记录对 `yulongpo/signal_studio` 的 `rebuild/a143-native` 的只读观察。
 
-| 时间（Asia/Shanghai） | 动作 | 远端 HEAD | 备注 |
-|------------------------|------|-----------|------|
-| 2026-10-21 17:50:03 | 初始 shallow clone + longpaths restore + fetch deepen | `0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af` | 基线写入 `UPSTREAM_BASELINE.json`；长路径文件曾导致 partial checkout，已 `core.longpaths` + `reset --hard` |
-| 2026-10-21 17:50:03 | 对照本地 `signal_studio_rebuild` | 远端仍为 `0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af` | 本地 rebuild 曾见 `6499a64`；**不以 rebuild 写入**；差异待 P1 审计 |
+| 时间（Asia/Shanghai） | 动作 | 远程 / UR HEAD | 备注 |
+|------------------------|------|----------------|------|
+| 2026-10-21 17:50:03 | 初始 shallow clone + longpaths restore + fetch deepen | `0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af` | CAO：写入 `UPSTREAM_BASELINE.json`；长路径文件曾需 partial checkout，经 `core.longpaths` + `reset --hard` |
+| 2026-10-21 17:50:03 | 对照本地 `signal_studio_rebuild` | 远程仍为 `0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af` | 本地 rebuild 当时 `6499a64`；**禁止 rebuild 写入**；留给 P1 审计 |
+| 2026-10-21 17:55:00 | Bot-A 独立复核 | UR `git rev-parse HEAD` = `0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af`（与 origin/rebuild/a143-native 一致） | 本地 rebuild 仍为 `6499a64` ahead 2 + dirty（含 narrowband_workspace 等未提交改动）。已增补 `00_BASELINE_AUDIT` / 对等矩阵 REAL·DEMO·EXTERNAL 证据链；刷新 `UPSTREAM_BASELINE.json` 字段 `lastVerifiedAtAsiaShanghai` / `localRebuildHeadObserved` / `openDeltas` |
+| 2026-10-21 17:55:00 | 文档溯源差 | 基准 `0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af` | a143 `DELIVERY.md` / `EXECUTION_STATUS.md` 记载产品源 `399b85e`（W6）；其后文档归档提交为当前 HEAD `0f108d0`。不以 `399b85e` 替代基准 HEAD |
 
 ## 规则
 
-- 仅 `fetch` / 只读 `log` / `diff`；禁止 push 上游。
-- 发现新提交：差异分析 → 纳入 `01_SOURCE_TO_WEB_PARITY_MATRIX` → 增量回归。
-- 发布前后必须再核一次最新 HEAD。
+- 仅 `fetch` / 只读 `log` / `diff`；禁止 push 源仓。
+- 发现新提交：先更新本日志 → 更新 `01_SOURCE_TO_WEB_PARITY_MATRIX` → 回归审计。
+- 验收前必须再核对一次源 HEAD。
