@@ -133,10 +133,13 @@ test.describe('shell navigation', () => {
         return s;
       }, { timeout: 20000 })
       .toMatch(/^(file-stft-worker|demo-fallback|synthetic-stft-worker|fsa-wav-stft)$/);
+    await expect(host).toHaveAttribute(
+      'data-dsp-source',
+      /^(file-stft-worker|demo-fallback|synthetic-stft-worker|fsa-wav-stft)$/,
+      { timeout: 10000 },
+    );
     const source = await host.getAttribute('data-dsp-source');
-    expect(['file-stft-worker', 'demo-fallback', 'synthetic-stft-worker', 'fsa-wav-stft']).toContain(source);
     if (source === 'file-stft-worker') {
-      await expect(host).toHaveAttribute('data-dsp-source', 'file-stft-worker');
       const label = await host.getAttribute('data-dsp-label');
       expect(label?.toLowerCase()).not.toContain('synthetic');
       await expect(page.getByTestId('status-file')).toContainText('tiny-iq.wav');
