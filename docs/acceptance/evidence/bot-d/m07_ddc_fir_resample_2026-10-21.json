@@ -1,0 +1,16 @@
+{
+  "id": "m07_ddc_fir_resample",
+  "date": "2026-10-21",
+  "baseline": "389b135",
+  "matrix_pass_claimed": false,
+  "dtype": "float64_kernels_float32_api",
+  "tests": [
+    "packages/dsp-wasm src/wasm-m07.golden.test.ts"
+  ],
+  "kernels": [
+    "apply_fir_complex",
+    "rational_resample_iq",
+    "mix_down_lo"
+  ],
+  "js_default_unchanged": true
+}

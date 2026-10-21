@@ -76,3 +76,18 @@ export {
 } from './wasm/index.js';
 export type { DspFftModule } from './wasm/index.js';
 export type { FftRadix2Fn } from './psd.js';
+
+// M-07 — WASM FIR / rational resample / LO mix + optional WasmReferenceDdcEngine
+export {
+  WasmFirEngine,
+  WasmRationalResample,
+  ensureWasmFir,
+  wasmApplyFirComplex,
+  wasmApplyFirComplexWithModule,
+  wasmRationalResampleIq,
+  wasmRationalResampleIqWithModule,
+  wasmMixDownLo,
+  wasmMixDownLoWithModule,
+  WasmReferenceDdcEngine,
+  computeDdcWithWasmModule,
+} from './wasm/index.js';

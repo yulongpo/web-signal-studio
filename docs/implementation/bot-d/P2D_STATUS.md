@@ -1,62 +1,45 @@
 # Bot-D P2-D status
 
 - updated_at: 2026-10-21 (Asia/Shanghai)
-- stage: Package C — WASM STFT + optional Worker wasm-fft engine
+- stage: M-07 — WASM FIR / rational resample / LO mix + DDC golden (+ Bot-B wasm-fft wiring doc)
 - worktree: D:\\project\\wss-wt-d
 - branch: work/bot-d-dsp
-- base: a148aee (origin/main tip at Package C start; includes Package B + Bot-B FSA/chunked STFT)
+- base: 389b135 (origin/main tip at package start; includes Package C WASM STFT)
 - package_scope: @wss/*
 - shared_tree (D:\\project\\web_signal_studio): **no writes**
 - rebuild: **read-only reference**
-- MainChartHost: **untouched** (Bot-B owns FSA/chunked wiring)
+- MainChartHost: **untouched** (Bot-B)
+- ACCEPTANCE_MATRIX M-07: **not** marked PASS (QA/Bot-G)
 
-## Delivered (Package C)
+## Delivered (M-07 numerical path)
 
-### Injectable STFT FFT
-- `computeStft(request, iq, fft?)` — same `FftRadix2Fn` as PSD; JS `fftRadix2` remains default
-- `ReferenceStftEngine` unchanged for existing callers
+### Native + artifact
+- `native/fir_resample_ddc.cpp` — `apply_fir_complex`, `rational_resample_iq`, `mix_down_lo`
+- Same module as FFT: rebuild via `scripts/build-wasm.mjs` → committed `wasm/dsp_fft.{js,wasm}`
+- dtype: float64 kernels; Float32 IQ API
 
-### WASM STFT
-- `src/wasm/WasmStftEngine.ts` — `WasmReferenceStftEngine` / `computeStftWithFft`
-- Reuses Package B `loadWasmFftModule` / `wasmFftRadix2WithModule`
-- Exports from `src/index.ts` + `src/wasm/index.ts`
+### TS boundary
+- `WasmFirEngine` / `wasmApplyFirComplex` / `wasmRationalResampleIq` / `wasmMixDownLo`
+- `WasmReferenceDdcEngine` / `computeDdcWithWasmModule` (optional)
+- JS `ReferenceDdcEngine` / `computeDdc` remain **default**
+- Worker DDC still JS (engine flag still FFT-only)
 
-### Optional Worker engine
-- Protocol: `configure` request + `configured` response; `engine: 'js' | 'wasm-fft'`
-- Handler state shared per Worker / InProcess backend
-- `DspWorkerClientOptions.engine` (default `'js'`) posts one-time configure
-- `configureEngine()` / `ready()` APIs
-- WASM load failure → fall back to JS (`fellBackToJs: true`); no hang
+### Golden + evidence
+- `src/wasm-m07.golden.test.ts`
+- `docs/acceptance/evidence/bot-d/m07_ddc_fir_resample_2026-10-21.md` (+ JSON meta)
 
-### Golden tests
-- `src/wasm-stft.golden.test.ts` — JS vs WASM STFT frame/peaks/powers; in-process Worker wasm-fft path
+### Bot-B wiring doc
+- `docs/implementation/bot-d/WASM_FFT_WIRING_FOR_BOT_B.md`
 
-### Out of scope
-- MainChartHost / synthetic fixture rewiring (Bot-B)
+## Prior packages
+- C: WASM STFT + optional Worker `wasm-fft`
+- B: Emscripten FFT/PSD
+- A: IQ WAV + FSA → STFT Worker helpers
 
-## Prior: Package B (Emscripten WASM FFT/PSD)
-
-### packages/dsp-wasm native + wasm artifact
-- `native/fft_radix2.cpp`, `scripts/build-wasm.mjs`, committed `wasm/dsp_fft.{js,wasm}`
-- `WasmFftEngine` / `WasmReferencePsdEngine` / injectable `computePsd(..., fft?)`
-
-## Prior: Package A (IQ WAV + FSA → STFT Worker)
-
-### packages/file-io
-- wav-meta / wav-reader / blob-chunked-reader / fsa / buildPcm16LeStereoIqWav
-- STFT loop helper `apps/web/src/dsp/stftFromChunkedReader.ts`
-
-## Verify commands
+## Verify
 
 ```
 npx vitest run packages/dsp-wasm
 npx vitest run packages/file-io
 npm run typecheck -w @wss/web
-```
-
-Rebuild WASM (optional, needs emsdk):
-
-```
-cd .work/cache/emsdk && emsdk_env.bat
-npm run build:wasm -w @wss/dsp-wasm
 ```

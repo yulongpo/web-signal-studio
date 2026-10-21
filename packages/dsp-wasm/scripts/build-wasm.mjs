@@ -1,6 +1,10 @@
 /**
  * Build packages/dsp-wasm/wasm/dsp_fft.{js,wasm} with emcc.
  * Requires EMSDK env (run emsdk_env.bat first) or emcc on PATH.
+ *
+ * Sources:
+ *   native/fft_radix2.cpp       — Package B FFT
+ *   native/fir_resample_ddc.cpp — Package M-07 FIR / rational resample / LO mix
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -9,7 +13,10 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkgRoot = path.resolve(__dirname, '..');
-const src = path.join(pkgRoot, 'native', 'fft_radix2.cpp');
+const sources = [
+  path.join(pkgRoot, 'native', 'fft_radix2.cpp'),
+  path.join(pkgRoot, 'native', 'fir_resample_ddc.cpp'),
+];
 const outDir = path.join(pkgRoot, 'wasm');
 const outJs = path.join(outDir, 'dsp_fft.js');
 
@@ -26,8 +33,16 @@ function findEmcc() {
 }
 
 const emcc = findEmcc();
+const exported = [
+  '_fft_radix2',
+  '_apply_fir_complex',
+  '_rational_resample_iq',
+  '_mix_down_lo',
+  '_malloc',
+  '_free',
+];
 const args = [
-  src,
+  ...sources,
   '-O2',
   '-std=c++17',
   '-sWASM=1',
@@ -37,8 +52,9 @@ const args = [
   '-sENVIRONMENT=web,worker,node',
   '-sALLOW_MEMORY_GROWTH=1',
   '-sFILESYSTEM=0',
-  `-sEXPORTED_FUNCTIONS=["_fft_radix2","_malloc","_free"]`,
-  `-sEXPORTED_RUNTIME_METHODS=["HEAPF64"]`,
+  '-sDEFAULT_TO_CXX=1',
+  `-sEXPORTED_FUNCTIONS=${JSON.stringify(exported)}`,
+  '-sEXPORTED_RUNTIME_METHODS=["HEAPF64"]',
   '-sASSERTIONS=0',
   '-o',
   outJs,
