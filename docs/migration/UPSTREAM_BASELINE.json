@@ -1,12 +1,19 @@
 ﻿{
-    "branch":  "rebuild/a143-native",
-    "web_commit":  null,
-    "repo":  "yulongpo/signal_studio",
-    "source_diff_range":  "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af..0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
-    "open_deltas":  [
-
-                    ],
-    "parity_status":  "AUDIT_IN_PROGRESS",
-    "source_head":  "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
-    "checked_at":  "2026-10-21 17:48:09 +08:00"
+  "schemaVersion": 1,
+  "recordedAtAsiaShanghai": "2026-10-21 17:50:03",
+  "source": {
+    "remote": "https://github.com/yulongpo/signal_studio.git",
+    "branch": "rebuild/a143-native",
+    "head": "0f108d0a1ad1ebbfcf1aac85ca3f8a34b10188af",
+    "shortHead": "0f108d0",
+    "subject": "docs(ux): archive final native acceptance and delivery"
+  },
+  "readonlyClonePath": "D:/project/web_signal_studio/.work/upstream-readonly",
+  "localRebuildPath": "D:/project/signal_studio_rebuild",
+  "localRebuildNote": "Read-only reference only; may differ from remote HEAD; never write.",
+  "target": {
+    "remote": "https://github.com/yulongpo/web-signal-studio",
+    "defaultBranch": "main"
+  },
+  "workspaceRoot": "D:/project/web_signal_studio"
 }
