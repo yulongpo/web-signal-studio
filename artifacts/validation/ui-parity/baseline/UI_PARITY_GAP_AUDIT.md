@@ -1,3 +1,12 @@
+> Bot-A `2026-10-21 23:54` Asia/Shanghai: Web **`ee42717`** vs desktop `17471a6` — G11/G18/G17 PARTIAL deepened (C `4611be6` mark-edge 8 handles + PSD mode UI; E `3d3f3e5` active-segment + visible↔navWindow; recognition still BLOCKED); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_ee42717.md` (supersedes planned INCREMENTAL_4611be6). **No PASS.**
+
+| ID | Prior (`f5171fc`) | Now (`ee42717`) | Note |
+|----|-------------------|-----------------|------|
+| **G11** | PARTIAL 加深（mark-edge 残） | **PARTIAL 加深** | `4611be6` 8-handle edgeCursor MET；body-drag ClosedHand / non-current hover 残 → **未 CLOSED** |
+| **G18** | PARTIAL 加深（PSD mode C/D —） | **PARTIAL 加深** | `4611be6` 驻留帧谱/统计谱 UI slot MET；series 仍 D → **未 CLOSED** |
+| **G17** | PARTIAL 加深（segment/visible 残 + recognition BLOCKED） | **PARTIAL 加深** | `3d3f3e5` active-segment + visible↔navWindow MET；recognition BLOCKED → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_ee42717.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-21 23:47` Asia/Shanghai: Web **`f5171fc`** vs desktop `17471a6` — G17 PARTIAL deepened (E `72f208c` AdaptiveValueEdit / Fs notes / rangeOrigin+ROI chrome; recognition still BLOCKED); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f5171fc.md`. **No PASS.**
 
 | ID | Prior (`647978c`) | Now (`f5171fc`) | Note |
