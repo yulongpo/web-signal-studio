@@ -161,11 +161,16 @@ test.describe('chart gestures and detection range', () => {
 
   test('physical caption exposes live axis ranges (G02)', async ({ page }) => {
     await page.goto('/');
-    await waitChart(page);
+    const { chart } = await waitChart(page);
+    await expect(chart).toHaveAttribute('data-box-zoom-min-edge-px', '8');
     const caption = page.getByTestId('chart-physical-caption');
     await expect(caption).toBeVisible();
     await expect(caption).toHaveAttribute('data-x-min', /.+/);
     await expect(caption).toHaveAttribute('data-y-min', /.+/);
+    // Desktop-aligned scaled unit titles (charts-side; not f9f05bb strip).
+    await expect(caption).toHaveAttribute('data-x-unit', /.+/);
+    await expect(caption).toHaveAttribute('data-y-unit', /.+/);
+    await expect(caption).toHaveAttribute('data-x-label', /.+/);
   });
 
   test('header Detection ROI retires select entry (G14)', async ({ page }) => {

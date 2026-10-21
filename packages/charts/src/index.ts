@@ -42,6 +42,15 @@ export {
 } from "./axis/physicalAxis.js";
 
 export {
+  displayUnit,
+  formatPhysicalRange,
+  formatPhysicalCaptionPair,
+  type PhysicalKind,
+  type ScaledUnit,
+  type FormattedPhysicalRange,
+} from "./axis/physicalCaption.js";
+
+export {
   COLORMAPS,
   buildLutRgba8,
   mapScalarThroughLut,
@@ -79,6 +88,8 @@ export {
   domainsEqual,
   domainSpan,
   BOX_ZOOM_MIN_DIAGONAL_PX,
+  BOX_ZOOM_MIN_EDGE_PX,
+  isBoxZoomLargeEnough,
   boxDiagonalPx,
   viewFromPhysicalBox,
   type ViewDomain,

@@ -23,7 +23,8 @@ import {
   type PreviewRefineMode,
 } from "../interaction/previewRefine.js";
 import {
-  BOX_ZOOM_MIN_DIAGONAL_PX,
+  BOX_ZOOM_MIN_EDGE_PX,
+  isBoxZoomLargeEnough,
   panView,
   viewFromPhysicalBox,
   zoomViewAt,
@@ -31,6 +32,7 @@ import {
   type ViewDomain,
   type ViewState,
 } from "../interaction/viewTransform.js";
+import { formatPhysicalCaptionPair } from "../axis/physicalCaption.js";
 import { HEATMAP_PLOT_MARGIN } from "./plotMargin.js";
 import {
   extractDisplayGrid,
@@ -66,7 +68,7 @@ export interface HeatmapCanvasProps {
   wheelModel?: "uniform" | "desktop-axis";
   /**
    * Plot-body drag: pan, draw a selection box, or zoom the view into a box
-   * whose diagonal is at least {@link BOX_ZOOM_MIN_DIAGONAL_PX} CSS pixels.
+   * whose width AND height are at least {@link BOX_ZOOM_MIN_EDGE_PX} CSS pixels (desktop PlotWidget parity).
    * Axis drags still pan that axis.
    */
   gesture?: "pan" | "box" | "zoom-box";
@@ -633,7 +635,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       const h = Math.abs(yCss - drag.originY);
       const tooSmall =
         drag.mode === "zoom-box"
-          ? Math.hypot(w, h) < BOX_ZOOM_MIN_DIAGONAL_PX
+          ? !isBoxZoomLargeEnough(w, h)
           : w < 4 && h < 4;
       if (tooSmall) {
         setBoxCss(null);
@@ -715,7 +717,8 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       data-testid={testId}
       data-gesture={gesture}
       data-wheel-model={wheelModel}
-      data-box-zoom-min-px={BOX_ZOOM_MIN_DIAGONAL_PX}
+      data-box-zoom-min-px={BOX_ZOOM_MIN_EDGE_PX}
+      data-box-zoom-min-edge-px={BOX_ZOOM_MIN_EDGE_PX}
       data-view-x-min={view.xDomain.min}
       data-view-x-max={view.xDomain.max}
       data-view-y-min={view.yDomain.min}
@@ -738,6 +741,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
         overflow: "hidden",
         background: "#0f1218",
         touchAction: interactionEnabled ? "none" : undefined,
+        cursor: gesture === "zoom-box" || gesture === "box" ? "crosshair" : undefined,
         ...style,
       }}
     >
@@ -766,42 +770,45 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
         }}
       />
 
-      {/* G02 charts-side physical caption (not Bot-B chrome). */}
-      <div
-        data-testid="chart-physical-caption"
-        data-x-label={view.xDomain.label ?? view.xDomain.unit ?? "X"}
-        data-y-label={view.yDomain.label ?? view.yDomain.unit ?? "Y"}
-        data-x-min={view.xDomain.min}
-        data-x-max={view.xDomain.max}
-        data-y-min={view.yDomain.min}
-        data-y-max={view.yDomain.max}
-        style={{
-          position: "absolute",
-          left: 8,
-          top: 6,
-          zIndex: 2,
-          pointerEvents: "none",
-          font: "11px ui-sans-serif, system-ui, sans-serif",
-          color: "rgba(210,220,235,0.92)",
-          background: "rgba(15,18,24,0.55)",
-          borderRadius: 4,
-          padding: "2px 6px",
-          maxWidth: "70%",
-          whiteSpace: "nowrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-        }}
-      >
-        {(view.xDomain.label ?? view.xDomain.unit ?? "X")}:{" "}
-        {Number(view.xDomain.min).toPrecision(6)}–
-        {Number(view.xDomain.max).toPrecision(6)}
-        {view.xDomain.unit ? ` ${view.xDomain.unit}` : ""}
-        {" | "}
-        {(view.yDomain.label ?? view.yDomain.unit ?? "Y")}:{" "}
-        {Number(view.yDomain.min).toPrecision(6)}–
-        {Number(view.yDomain.max).toPrecision(6)}
-        {view.yDomain.unit ? ` ${view.yDomain.unit}` : ""}
-      </div>
+      {/* G02 charts-side physical caption (not Bot-B chrome / f9f05bb strip). */}
+      {(() => {
+        const pair = formatPhysicalCaptionPair(view.xDomain, view.yDomain);
+        return (
+          <div
+            data-testid="chart-physical-caption"
+            data-x-label={pair.x.title}
+            data-y-label={pair.y.title}
+            data-x-unit={pair.x.unitName}
+            data-y-unit={pair.y.unitName}
+            data-x-min={view.xDomain.min}
+            data-x-max={view.xDomain.max}
+            data-y-min={view.yDomain.min}
+            data-y-max={view.yDomain.max}
+            data-x-min-scaled={pair.x.minScaled}
+            data-x-max-scaled={pair.x.maxScaled}
+            data-y-min-scaled={pair.y.minScaled}
+            data-y-max-scaled={pair.y.maxScaled}
+            style={{
+              position: "absolute",
+              left: 8,
+              top: 6,
+              zIndex: 2,
+              pointerEvents: "none",
+              font: "11px ui-sans-serif, system-ui, sans-serif",
+              color: "rgba(210,220,235,0.92)",
+              background: "rgba(15,18,24,0.55)",
+              borderRadius: 4,
+              padding: "2px 6px",
+              maxWidth: "70%",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {pair.text}
+          </div>
+        );
+      })()}
       {boxCss ? (
         <div
           data-testid="chart-box-select"
