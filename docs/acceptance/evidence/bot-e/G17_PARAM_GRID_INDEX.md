@@ -30,4 +30,4 @@
 - TRT path accepts params without inventing candidates
 - `matrix_pass_claimed: false`
 
-**Tip (HEAD):** `PENDING`
+**Tip (HEAD):** `96deac987a8fa68cb8de132a49adec06f4236e3f`

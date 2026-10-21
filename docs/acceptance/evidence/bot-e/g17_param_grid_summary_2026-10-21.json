@@ -2,7 +2,7 @@
   "gate": "G17",
   "topic": "DetectionCard full parameter grid",
   "base": "97fc7c0ab94507fc2c9d534b1c3e568458e128c7",
-  "head": "PENDING",
+  "head": "96deac987a8fa68cb8de132a49adec06f4236e3f",
   "desktop_ref": "17471a6",
   "matrix_pass_claimed": false,
   "recognition": "BLOCKED",
@@ -21,5 +21,6 @@
   ],
   "blocked": [
     "narrowband_recognition"
-  ]
+  ],
+  "feat": "f87b94b6d21edbae194d94ebe81fd65564a428a4"
 }
