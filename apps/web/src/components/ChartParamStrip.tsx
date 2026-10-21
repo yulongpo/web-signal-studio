@@ -30,6 +30,8 @@ export function AuxParamStrip() {
         视图
       </span>
       <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-caption">辅助图</span>
+      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-wave">波形</span>
+      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-psd">PSD</span>
       <button
         type="button"
         data-testid="btn-aux-wave"
@@ -246,6 +248,12 @@ export function SpecParamStrip() {
         <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-workspace">
           工作区：{workspaceMode === 'narrowband' ? '窄带' : '宽带'}
         </span>
+        <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-stft-value">
+          N={stftN}
+        </span>
+        <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-palette-value">
+          {paletteId}
+        </span>
 <div className="toolbar-overflow" ref={overflowRef} data-f9f05bb="true">
           <button
             type="button"
@@ -299,6 +307,14 @@ export function SpecParamStrip() {
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-caption">
                 <span className="chart-strip-qlabel">图头标题</span>
                 <span className="muted">宽带时频图</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-iq">
+                <span className="chart-strip-qlabel">IQ</span>
+                <span className="muted">Open IQ / Clear IQ</span>
+              </div>
+              <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-workspace">
+                <span className="chart-strip-qlabel">工作区</span>
+                <span className="muted">{workspaceMode === 'narrowband' ? '窄带' : '宽带'}</span>
               </div>
 <button
                 type="button"

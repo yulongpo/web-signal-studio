@@ -72,6 +72,9 @@ export function M06MarksPanel() {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [qualityFilter, setQualityFilter] = useState<QualityFilter>('all');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editNote, setEditNote] = useState('');
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
@@ -148,6 +151,35 @@ export function M06MarksPanel() {
     refresh();
   };
 
+  const beginEdit = (m: MarkRow) => {
+    const hook = window.__wssM06;
+    if (!hook) return;
+    const ann = hook.session.annotations.annotations.find((a) => a.id === m.id);
+    if (!ann) return;
+    setEditingId(m.id);
+    setEditName(ann.name || m.name);
+    setEditNote(typeof ann.note === 'string' ? ann.note : '');
+  };
+
+  const commitEdit = () => {
+    const hook = window.__wssM06;
+    if (!hook || !editingId) return;
+    const current = hook.session.annotations.annotations.find((a) => a.id === editingId);
+    if (!current) {
+      setEditingId(null);
+      return;
+    }
+    const name = editName.trim() || current.name || current.id;
+    const note = editNote;
+    hook.session.replaceMark({ ...current, name, note });
+    setEditingId(null);
+    refresh();
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+  };
+
   const onUndo = () => {
     window.__wssM06?.undo();
     refresh();
@@ -166,6 +198,7 @@ export function M06MarksPanel() {
       className="m06-marks-panel annotation-panel"
       data-testid="m06-panel"
       data-annotation-panel="true"
+      data-annotation-edit="inline-replaceMark"
       data-hook-ready={hookReady}
       data-selected-count={selected.length}
     >
@@ -238,6 +271,18 @@ export function M06MarksPanel() {
         </button>
         <button
           type="button"
+          data-testid="m06-edit-mark"
+          disabled={selected.length !== 1}
+          title="Edit selected mark name/note via replaceMark"
+          onClick={() => {
+            const row = filtered.find((x) => x.id === selected[0]);
+            if (row) beginEdit(row);
+          }}
+        >
+          编辑
+        </button>
+        <button
+          type="button"
           data-testid="m06-btn-undo"
           disabled={!snapshot?.canUndo}
           onClick={onUndo}
@@ -276,7 +321,41 @@ export function M06MarksPanel() {
           每页 {PAGE_SIZE}
         </span>
       </div>
-            <div
+            {editingId ? (
+        <div className="annotation-edit-form" data-testid="m06-edit-form" data-editing-id={editingId}>
+          <label>
+            <span>名字</span>
+            <input
+              data-testid="m06-edit-name"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitEdit();
+                if (e.key === 'Escape') cancelEdit();
+              }}
+            />
+          </label>
+          <label>
+            <span>备注</span>
+            <input
+              data-testid="m06-edit-note"
+              value={editNote}
+              onChange={(e) => setEditNote(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitEdit();
+                if (e.key === 'Escape') cancelEdit();
+              }}
+            />
+          </label>
+          <button type="button" data-testid="m06-edit-commit" onClick={commitEdit}>
+            保存
+          </button>
+          <button type="button" data-testid="m06-edit-cancel" onClick={cancelEdit}>
+            取消
+          </button>
+        </div>
+      ) : null}
+      <div
         className="annotation-table-header annotation-table-header-full"
         data-testid="annotation-table-header"
         data-column-matrix="qt-full"
@@ -331,6 +410,7 @@ export function M06MarksPanel() {
                 onClick={(e: MouseEvent<HTMLLIElement>) => {
                   selectMark(m.id, e.metaKey || e.ctrlKey || e.shiftKey);
                 }}
+                onDoubleClick={() => beginEdit(m)}
               >
                 <span
                   className={`annotation-mark-check${isSelected ? ' on' : ''}`}

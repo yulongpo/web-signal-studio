@@ -262,8 +262,8 @@ export function ChartMarkOverlay({
         return (
           <div
             key={mark.id}
-            className={chart-mark-rect}
-            data-testid={chart-mark-}
+            className={`chart-mark-rect${isCurrent ? ' chart-mark-current' : ''}${isSelected ? ' chart-mark-selected' : ''}`}
+            data-testid={`chart-mark-${mark.id}`}
             data-start={String(mark.start)}
             data-end={String(mark.end)}
             data-selected={isSelected ? 'true' : 'false'}
@@ -332,15 +332,14 @@ export function ChartMarkOverlay({
                     <button
                       key={c.id}
                       type="button"
-                      className={chart-mark-handle chart-mark-handle-}
+                      className={`chart-mark-handle chart-mark-handle-${c.id}`}
                       data-testid={
-                        c.id === 'se' ? 'chart-mark-handle' : chart-mark-handle-
+                        c.id === 'se' ? 'chart-mark-handle' : `chart-mark-handle-${c.id}`
                       }
                       data-corner={c.id}
                       data-edge={c.id}
                       data-mark-edge-cursor={cursor}
-                      aria-label={
-esize mark }
+                      aria-label={`resize mark ${c.id}`}
                       style={{
                         left: c.left(box.width),
                         top: c.top(box.height),
