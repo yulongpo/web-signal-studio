@@ -98,3 +98,7 @@ Smoke targets: `apps/web`, `services/local-compute`.
 | Desktop baseline PNGs for UI compare | **STALE** — do not use for PASS (`qa/desktop-stale-note.txt`) |
 | `qa/` full UI screenshot pack | WIP — wait B/C tip + A re-audit |
 | UI parity closeout / matrix flip | WIP — no PASS from stale desktop shots |
+
+### UI screenshot pack @ 17937bb
+
+Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. **No PASS claimed.**

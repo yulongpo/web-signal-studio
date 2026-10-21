@@ -1,0 +1,32 @@
+{
+  "id": "qa-web-17937bb-screenshots",
+  "tip_web": "17937bb3a735d0df7058a3714aa353a88abb0e23",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g26_iq": "D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.sigmf-meta",
+  "captures": [
+    "01-shell-default.png",
+    "02-tri-chart-hosts.png",
+    "03-wideband-with-sigmf-demo.png",
+    "04-status-bar-g25.png",
+    "05-aux-wave-or-psd.png",
+    "06-narrowband.png",
+    "07-rail-display.png",
+    "08-rail-detect.png",
+    "09-rail-marker.png",
+    "10-rail-channel.png"
+  ],
+  "observations": {
+    "nav_chart_host": true,
+    "chart_strip_aux": true,
+    "splitter_nav_aux": true,
+    "splitter_aux_main": true,
+    "status_file": "0000000",
+    "status_workspace": "wideband",
+    "dsp_source_after_iq": "file-stft-worker",
+    "status_file_mentions_demo": true,
+    "status_bar_height_px": 28,
+    "narrowband_stub_visible": true
+  }
+}
