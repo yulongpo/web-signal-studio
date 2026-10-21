@@ -64,3 +64,40 @@ export {
   installM06E2eHook,
   type M06E2eHookApi,
 } from './m06-e2e-hook.js';
+
+export {
+  SIGMF_DEMO_DIR,
+  SIGMF_DEMO_BASENAME,
+  SIGMF_DEMO_META_PATH,
+  SIGMF_DEMO_DATA_PATH,
+  SIGMF_DEMO_JSON_PATH,
+  normalizePath,
+  isAllowedDemoIqPath,
+  assertAllowedDemoIqPath,
+  listAllowedDemoIqPaths,
+} from './demo-iq-paths.js';
+
+export {
+  engineeringTreeFromProject,
+  engineeringTreeFromSummary,
+  type EngineeringTreeKind,
+  type EngineeringTreeNode,
+} from './engineering-tree.js';
+
+export {
+  importSigmfStream,
+  type ImportStreamMode,
+  type ImportStreamStatus,
+  type ImportStreamRow,
+  type ImportSigmfStreamInput,
+  type ImportSigmfStreamResult,
+} from './import-sigmf-stream.js';
+
+export {
+  WSS_G19_HOOK_KEY,
+  createG19E2eHook,
+  installG19E2eHook,
+  G19_DEMO_PATHS,
+  type G19E2eHookApi,
+  type G19E2eHookState,
+} from './g19-e2e-hook.js';
