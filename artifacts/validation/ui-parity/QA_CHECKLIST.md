@@ -115,3 +115,8 @@ Evidence under qa/web-17937bb/ + qa/desktop-17471a6/; see COMPARISON_NOTES.md. *
 - Tip: `3d7ab59`. Evidence: `qa/web-3d7ab59/` (zoom-box, view-back, ROI→Detect, Level popover).
 - Desktop compare: baseline `17471a6` reference only.
 - **ui_parity_pass_claimed: false**
+
+## G01 corner/fit/File (Bot-G, Asia/Shanghai 2026-10-21)
+
+- Tip: `23c38d0`. Evidence: `qa/web-23c38d0/` (BrandV2+window controls, view fit/restore, File menu expanded).
+- **ui_parity_pass_claimed: false**
