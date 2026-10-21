@@ -5,6 +5,11 @@
 **OpenAPI:** `services/local-compute/openapi.yaml` (also live at `GET /openapi.json`)  
 **Audience:** web detection page (Bot-B shell / future detection UI)
 
+## HTTP client examples (Bot-B)
+
+Copy-paste TypeScript + curl/JSON: [HTTP_CLIENT_EXAMPLES.md](./HTTP_CLIENT_EXAMPLES.md) and `examples/detection-page-client.ts`.
+
+
 ## Base URL & auth
 
 | Item | Value |

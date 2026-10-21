@@ -1,4 +1,4 @@
-﻿# local-compute (Web Signal Studio)
+# local-compute (Web Signal Studio)
 
 Optional **loopback-only** FastAPI service implementing [WEB_NATIVE_PROTOCOL](../../docs/architecture/WEB_NATIVE_PROTOCOL.md) v0.1.0.
 
@@ -64,4 +64,9 @@ pytest -q
 
 `detection.uiMessages[]` carries stable `code` + bilingual `en`/`zh` strings (see contract table).
 `ffscn`/`scn` stay `false`; never invent detection candidates. Task records expose `message` / `messageZh` / `uiMessages` when blocked.
+
+
+## Detection page client examples
+
+See [docs/HTTP_CLIENT_EXAMPLES.md](docs/HTTP_CLIENT_EXAMPLES.md) and [examples/detection-page-client.ts](examples/detection-page-client.ts) for Bot-B wiring (Bearer, capabilities, tasks, BLOCKED / uiMessages). No fake FFSCN/SCN inference.
 
