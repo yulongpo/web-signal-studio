@@ -3053,3 +3053,17 @@ span[data-editable-col]:hover {
 .overflow-item[data-enabled="false"] .overflow-disabled-copy {
   opacity: 0.65;
 }
+
+
+/* G02 wave29 — auto N/B + removeMean toggles */
+.overflow-toggle,
+.overflow-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.overflow-item[data-auto-n="on"] {
+  border-left: 2px solid rgba(80, 160, 255, 0.45);
+  padding-left: 6px;
+}
