@@ -14,6 +14,9 @@ import {
   ANNOTATION_TABLE_HEADERS,
 } from './annotationTableMatrix';
 import { LocalComputeClient } from '../localCompute/client';
+import { AdaptiveValueEdit } from './AdaptiveValueEdit';
+import { AnnotationEvidencePanel } from './AnnotationEvidencePanel';
+import { browserSaveFile } from './browserSaveFile';
 
 const TABS = [
   { id: 'marks' as const, label: '统一标记记录', testId: 'bottom-tab-marks' },
@@ -418,6 +421,77 @@ export function BottomPanel() {
   };
 
   const cancelCellEdit = () => setCellEdit(null);
+  const applyCellNumeric = (id: string, col: 4 | 5 | 6 | 7, storeValue: number) => {
+    const hookNow = window.__wssM06;
+    if (!hookNow || !Number.isFinite(storeValue)) {
+      setCellEdit(null);
+      return;
+    }
+    const current = hookNow.session.annotations.annotations.find((a) => a.id === id);
+    if (!current) {
+      setCellEdit(null);
+      return;
+    }
+    const sr = getIqFileSession()?.sampleRateHz ?? null;
+    if (col === 4 || col === 5) {
+      // storeValue is milliseconds from AdaptiveValueEdit Time toStore
+      if (!sr || !(sr > 0)) {
+        setCellEdit(null);
+        return;
+      }
+      const sample = String(Math.round((storeValue / 1000) * sr));
+      const segs = current.segments ? [...current.segments] : [];
+      let next = { ...current };
+      if (segs.length > 0) {
+        const idx = Math.max(0, segs.findIndex((s) => s.id === current.activeSegmentId));
+        const ti = idx < 0 ? 0 : idx;
+        const target = { ...segs[ti] };
+        if (col === 4) target.start = sample;
+        else target.end = sample;
+        next = {
+          ...current,
+          segments: segs.map((s, i) => (i === ti ? target : s)),
+          ...(col === 4 ? { start: sample } : { end: sample }),
+        };
+      } else if (col === 4) {
+        next = { ...current, start: sample };
+      } else {
+        next = { ...current, end: sample };
+      }
+      hookNow.session.replaceMark(next);
+    } else {
+      const lower = typeof current.lowerHz === 'number' ? current.lowerHz : 0;
+      const upper = typeof current.upperHz === 'number' ? current.upperHz : 0;
+      let nextLower = lower;
+      let nextUpper = upper;
+      if (col === 6) {
+        // storeValue = center Hz
+        const bw = upper - lower;
+        nextLower = storeValue - bw / 2;
+        nextUpper = storeValue + bw / 2;
+      } else {
+        // storeValue = bandwidth Hz
+        const center = (lower + upper) / 2;
+        const half = storeValue / 2;
+        nextLower = center - half;
+        nextUpper = center + half;
+      }
+      const segs = current.segments ? [...current.segments] : [];
+      let next = { ...current, lowerHz: nextLower, upperHz: nextUpper };
+      if (segs.length > 0) {
+        const idx = Math.max(0, segs.findIndex((s) => s.id === current.activeSegmentId));
+        const ti = idx < 0 ? 0 : idx;
+        const target = { ...segs[ti], lowerHz: nextLower, upperHz: nextUpper };
+        next = { ...next, segments: segs.map((s, i) => (i === ti ? target : s)) };
+      }
+      hookNow.session.replaceMark(next);
+    }
+    appendShellLog(`G19 AdaptiveValueEdit cell col=${col} ${id.slice(0, 8)}`);
+    setCellEdit(null);
+    setM06Tick((n) => n + 1);
+  };
+
+
 
   const finishCellEdit = (commit: boolean) => {
     if (!cellEdit) return;
@@ -513,14 +587,14 @@ export function BottomPanel() {
     const hookNow = window.__wssM06;
     if (!hookNow) return;
     const { annotationsText } = hookNow.exportJson();
-    const blob = new Blob([annotationsText], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'annotations.json';
-    a.click();
-    URL.revokeObjectURL(url);
-    appendShellLog('G19 export annotations.json via exportJson');
+    void browserSaveFile({
+      suggestedName: 'annotations.json',
+      mimeType: 'application/json',
+      contents: annotationsText,
+    }).then((r) => {
+      if (r.ok) appendShellLog(`G19 export JSON via ${r.method}`);
+      else if (r.reason !== 'cancelled') appendShellLog(`G19 export JSON failed: ${r.reason}`);
+    });
   };
 
   const exportAnnotationsCsv = () => {
@@ -562,17 +636,24 @@ export function BottomPanel() {
           .join(','),
       );
     }
-    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'annotations.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-    appendShellLog(`G19 export annotations.csv rows=${lines.length - 1}`);
+    void browserSaveFile({
+      suggestedName: 'annotations.csv',
+      mimeType: 'text/csv',
+      contents: lines.join('\n'),
+    }).then((r) => {
+      if (r.ok) appendShellLog(`G19 export CSV via ${r.method} rows=${lines.length - 1}`);
+      else if (r.reason !== 'cancelled') appendShellLog(`G19 export CSV failed: ${r.reason}`);
+    });
   };
 
   const selectionSummary = `匹配 ${liveFiltered.length} / 总数 ${marks.length} / 已选 ${selectedIds.length} · 页 ${safePage + 1}/${totalPages}`;
+
+  const evidenceAnnotation = (() => {
+    const id = editingId ?? activeMarkId ?? (selectedIds.length === 1 ? selectedIds[0] : null);
+    if (!id || !hook) return null;
+    return hook.session.annotations.annotations.find((a) => a.id === id) ?? null;
+  })();
+
 
   return (
     <section
@@ -665,7 +746,7 @@ export function BottomPanel() {
               data-edit-selection={selectedIds.length === 1 ? 'single' : selectedIds.length === 0 ? 'empty' : 'multi'}
               data-edit-path="replaceMark"
               data-qt-reshot="wave8-annotation-panel"
-              data-qt-interactive="wave9" data-qt-editcell="wave11"
+              data-qt-interactive="wave9" data-qt-editcell="wave11" data-qt-adaptive-cell="wave13"
             >
               <p className="bottom-summary" data-testid="bottom-marks-summary">
                 {marksSummary}
@@ -784,7 +865,7 @@ export function BottomPanel() {
                     </button>
                     <button
                       type="button"
-                      data-testid="bottom-btn-export-json"
+                      data-testid="bottom-btn-export-json" data-browser-save="wave13"
                       disabled={!hook}
                       title="导出标记 JSON（exportJson）"
                       onClick={exportAnnotationsJson}
@@ -793,7 +874,7 @@ export function BottomPanel() {
                     </button>
                     <button
                       type="button"
-                      data-testid="bottom-btn-export-csv"
+                      data-testid="bottom-btn-export-csv" data-browser-save="wave13"
                       disabled={liveFiltered.length === 0}
                       title="导出 CSV（活动表行；非伪造）"
                       onClick={exportAnnotationsCsv}
@@ -939,6 +1020,7 @@ export function BottomPanel() {
                   </button>
                 </div>
               ) : null}
+              <AnnotationEvidencePanel annotation={evidenceAnnotation} />
 <div className="annotation-table-chrome" data-testid="bottom-annotation-table">
                                 <div
                   className="annotation-table-header annotation-table-header-full"
@@ -1054,26 +1136,22 @@ export function BottomPanel() {
                             {m.segmentLabel}
                           </span>
                           {cellEdit?.id === m.id && cellEdit.col === 4 ? (
-                            <input
+                            <AdaptiveValueEdit
                               className="col-start-ms annotation-cell-edit"
                               data-testid={`bottom-cell-edit-${m.id}-4`}
-                              data-edit-col="4"
-                              autoFocus
-                              value={cellEdit.draft}
-                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
-                              onBlur={() => finishCellEdit(true)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') finishCellEdit(true);
-                                if (e.key === 'Escape') {
-                                  e.preventDefault();
-                                  cancelCellEdit();
-                                }
-                              }}
+                              data-object-name="annotationAdaptiveCell"
+                              kind="Time"
+                              value={Number(m.startMs) || 0}
+                              fromStore={(ms) => ms / 1000}
+                              toStore={(s) => s * 1000}
+                              title="AdaptiveValueEdit Time · Enter/Tab commit · Esc discard"
+                              onCommit={(v) => applyCellNumeric(m.id, 4, v)}
                             />
                           ) : (
                             <span
                               className="col-start-ms"
                               data-editable-col="4"
+                              data-adaptive-cell="wave13"
                               onDoubleClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -1084,26 +1162,22 @@ export function BottomPanel() {
                             </span>
                           )}
                           {cellEdit?.id === m.id && cellEdit.col === 5 ? (
-                            <input
+                            <AdaptiveValueEdit
                               className="col-end-ms annotation-cell-edit"
                               data-testid={`bottom-cell-edit-${m.id}-5`}
-                              data-edit-col="5"
-                              autoFocus
-                              value={cellEdit.draft}
-                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
-                              onBlur={() => finishCellEdit(true)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') finishCellEdit(true);
-                                if (e.key === 'Escape') {
-                                  e.preventDefault();
-                                  cancelCellEdit();
-                                }
-                              }}
+                              data-object-name="annotationAdaptiveCell"
+                              kind="Time"
+                              value={Number(m.endMs) || 0}
+                              fromStore={(ms) => ms / 1000}
+                              toStore={(s) => s * 1000}
+                              title="AdaptiveValueEdit Time · Enter/Tab commit · Esc discard"
+                              onCommit={(v) => applyCellNumeric(m.id, 5, v)}
                             />
                           ) : (
                             <span
                               className="col-end-ms"
                               data-editable-col="5"
+                              data-adaptive-cell="wave13"
                               onDoubleClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -1114,26 +1188,20 @@ export function BottomPanel() {
                             </span>
                           )}
                           {cellEdit?.id === m.id && cellEdit.col === 6 ? (
-                            <input
+                            <AdaptiveValueEdit
                               className="col-center-mhz annotation-cell-edit"
                               data-testid={`bottom-cell-edit-${m.id}-6`}
-                              data-edit-col="6"
-                              autoFocus
-                              value={cellEdit.draft}
-                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
-                              onBlur={() => finishCellEdit(true)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') finishCellEdit(true);
-                                if (e.key === 'Escape') {
-                                  e.preventDefault();
-                                  cancelCellEdit();
-                                }
-                              }}
+                              data-object-name="annotationAdaptiveCell"
+                              kind="Frequency"
+                              value={(Number(m.centerMhz) || 0) * 1e6}
+                              title="AdaptiveValueEdit Frequency · Enter/Tab commit · Esc discard"
+                              onCommit={(v) => applyCellNumeric(m.id, 6, v)}
                             />
                           ) : (
                             <span
                               className="col-center-mhz"
                               data-editable-col="6"
+                              data-adaptive-cell="wave13"
                               onDoubleClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -1144,26 +1212,20 @@ export function BottomPanel() {
                             </span>
                           )}
                           {cellEdit?.id === m.id && cellEdit.col === 7 ? (
-                            <input
+                            <AdaptiveValueEdit
                               className="col-bw-khz annotation-cell-edit"
                               data-testid={`bottom-cell-edit-${m.id}-7`}
-                              data-edit-col="7"
-                              autoFocus
-                              value={cellEdit.draft}
-                              onChange={(e) => setCellEdit({ ...cellEdit, draft: e.target.value })}
-                              onBlur={() => finishCellEdit(true)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') finishCellEdit(true);
-                                if (e.key === 'Escape') {
-                                  e.preventDefault();
-                                  cancelCellEdit();
-                                }
-                              }}
+                              data-object-name="annotationAdaptiveCell"
+                              kind="Frequency"
+                              value={(Number(m.bandwidthKhz) || 0) * 1e3}
+                              title="AdaptiveValueEdit Frequency · Enter/Tab commit · Esc discard"
+                              onCommit={(v) => applyCellNumeric(m.id, 7, v)}
                             />
                           ) : (
                             <span
                               className="col-bw-khz"
                               data-editable-col="7"
+                              data-adaptive-cell="wave13"
                               onDoubleClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();

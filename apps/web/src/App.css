@@ -2740,3 +2740,50 @@ span[data-editable-col]:hover {
   right: 0;
   left: -4px;
 }
+
+
+/* wave13 G19 AdaptiveValueEdit cells + Evidence widget + browser save */
+.annotation-evidence-panel {
+  margin: 6px 0 8px;
+  padding: 8px;
+  border: 1px solid #2a4058;
+  border-radius: 4px;
+  background: #101820;
+  font-size: 11px;
+}
+.annotation-evidence-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.annotation-evidence-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+  margin: 0;
+}
+.annotation-evidence-fact {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px;
+}
+.annotation-evidence-fact dt {
+  color: #8a9bb0;
+}
+.annotation-evidence-fact dd {
+  margin: 0;
+}
+.annotation-evidence-fact dd[data-empty='true'] {
+  opacity: 0.55;
+}
+.annotation-evidence-raw {
+  margin-top: 6px;
+}
+.annotation-evidence-raw pre {
+  max-height: 120px;
+  overflow: auto;
+  margin: 4px 0 0;
+  font-size: 10px;
+}
+.annotation-cell-edit[data-adaptive-kind] {
+  min-width: 72px;
+}
