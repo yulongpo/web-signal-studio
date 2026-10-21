@@ -21,3 +21,7 @@
 - `data-unread` / `tree-badge-unread` when badges include `unread`.
 - `detectionRuns` nodes render via existing kind styling.
 - matrix_pass_claimed: **false**
+
+## CN tree chrome (ee64b70+)
+
+See `BOT_B_G19_CN_CHROME.md`. matrix_pass_claimed: **false**
