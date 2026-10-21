@@ -313,3 +313,11 @@ export function createBrowserDspWorkerClient(
   const backend = new BrowserWorkerBackend(backendOpts);
   return new DspWorkerClient({ backend, engine });
 }
+
+
+/** Thin Bot-B helper: browser Worker client preferring WASM FFT (falls back to JS on load failure). */
+export function createBrowserDspWorkerClientPreferWasmFft(
+  options?: BrowserWorkerBackendOptions,
+): DspWorkerClient {
+  return createBrowserDspWorkerClient({ ...options, engine: 'wasm-fft' });
+}

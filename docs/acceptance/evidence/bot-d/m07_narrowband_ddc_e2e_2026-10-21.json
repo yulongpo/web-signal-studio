@@ -1,0 +1,63 @@
+{
+  "id": "m07_narrowband_ddc_e2e_2026-10-21",
+  "date": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "owner": "bot-d",
+  "worktree": "D:\\\\project\\\\wss-wt-d",
+  "branch": "work/bot-d-dsp",
+  "baseline_tip": "f9f4616",
+  "commit": "418e81f1dce80ab0fc0d0b4f931174e2aac2407f",
+  "matrix_id": "M-07",
+  "matrix_pass_claimed": false,
+  "status": "WIP_awaiting_QA",
+  "acceptance_matrix_action": "none_do_not_flip_PASS",
+  "fixtures": {
+    "kind": "synthetic_labeled",
+    "live_capture_claimed": false,
+    "wav": "PCM16 LE stereo IQ via buildPcm16LeStereoIqWav + openIqWavFromArrayBuffer",
+    "tones_hz_examples": [
+      10000,
+      30000
+    ],
+    "sample_rate_hz_examples": [
+      100000
+    ]
+  },
+  "key_assertions": {
+    "output_sample_rate_hz": 25000,
+    "decimation": 4,
+    "dc_peak_bin_distance_max": 1,
+    "dc_energy_fraction_min_single_tone": 0.8,
+    "dc_energy_fraction_min_two_tone": 0.55,
+    "js_vs_wasm_abs_eps": 0.00002,
+    "abort_error_name": "AbortError"
+  },
+  "commands": [
+    "npm run typecheck -w @wss/web",
+    "npx vitest run packages/dsp-wasm",
+    "npx vitest run apps/web/src/dsp/ddcFromChunkedReader.test.ts",
+    "npx vitest run packages/file-io"
+  ],
+  "test_files": [
+    "apps/web/src/dsp/ddcFromChunkedReader.test.ts",
+    "packages/dsp-wasm/src/m07-narrowband-ddc-e2e.golden.test.ts"
+  ],
+  "helper_files": [
+    "apps/web/src/dsp/ddcFromChunkedReader.ts",
+    "packages/dsp-wasm/src/worker/dsp-client.ts"
+  ],
+  "verify": {
+    "typecheck_web": "PASS",
+    "vitest_dsp_wasm": "PASS 39 passed | 1 skipped",
+    "vitest_web_ddc": "PASS 4 passed",
+    "vitest_file_io": "PASS 19 passed"
+  },
+  "pass_counts": {
+    "dsp_wasm_tests": 39,
+    "dsp_wasm_skipped": 1,
+    "web_ddc_tests": 4,
+    "file_io_tests": 19
+  },
+  "commit_resolve": "git log -1 --format=%H --grep=narrowband DDC E2E",
+  "reported_separately_to_cao": true
+}
