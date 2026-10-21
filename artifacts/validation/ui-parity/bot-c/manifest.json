@@ -1,16 +1,12 @@
 {
   "bot": "bot-c",
   "scope": [
-    "G03",
-    "G04",
-    "G05"
+    "G11",
+    "G14",
+    "G02",
+    "G13"
   ],
-  "baseSha": "fa5a72032f02ff33dc9cdfa9f6ec2ad4755470d3",
+  "baseSha": "cf1b3f864c1f2d0f5ec76d23bee6efe9703075e9",
   "selfPass": false,
-  "screenshots": [
-    "g03-global-nav.png",
-    "g04-aux-wave.png",
-    "g04-aux-psd.png",
-    "g05-splitters.png"
-  ]
+  "notes": "Navigate zoom-box; Detection ROI header; physical caption; 4 mark handles. No PASS."
 }

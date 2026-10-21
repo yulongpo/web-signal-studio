@@ -765,6 +765,43 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
           pointerEvents: "none",
         }}
       />
+
+      {/* G02 charts-side physical caption (not Bot-B chrome). */}
+      <div
+        data-testid="chart-physical-caption"
+        data-x-label={view.xDomain.label ?? view.xDomain.unit ?? "X"}
+        data-y-label={view.yDomain.label ?? view.yDomain.unit ?? "Y"}
+        data-x-min={view.xDomain.min}
+        data-x-max={view.xDomain.max}
+        data-y-min={view.yDomain.min}
+        data-y-max={view.yDomain.max}
+        style={{
+          position: "absolute",
+          left: 8,
+          top: 6,
+          zIndex: 2,
+          pointerEvents: "none",
+          font: "11px ui-sans-serif, system-ui, sans-serif",
+          color: "rgba(210,220,235,0.92)",
+          background: "rgba(15,18,24,0.55)",
+          borderRadius: 4,
+          padding: "2px 6px",
+          maxWidth: "70%",
+          whiteSpace: "nowrap",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {(view.xDomain.label ?? view.xDomain.unit ?? "X")}:{" "}
+        {Number(view.xDomain.min).toPrecision(6)}–
+        {Number(view.xDomain.max).toPrecision(6)}
+        {view.xDomain.unit ? ` ${view.xDomain.unit}` : ""}
+        {" | "}
+        {(view.yDomain.label ?? view.yDomain.unit ?? "Y")}:{" "}
+        {Number(view.yDomain.min).toPrecision(6)}–
+        {Number(view.yDomain.max).toPrecision(6)}
+        {view.yDomain.unit ? ` ${view.yDomain.unit}` : ""}
+      </div>
       {boxCss ? (
         <div
           data-testid="chart-box-select"

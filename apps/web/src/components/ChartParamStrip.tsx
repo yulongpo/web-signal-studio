@@ -167,6 +167,16 @@ export function SpecParamStrip() {
             Waterfall
           </button>
           <span className="toolbar-sep" aria-hidden />
+          <button
+            type="button"
+            data-testid="btn-header-detection-roi"
+            data-tool="detection-roi"
+            title="Detection ROI: confirm bar; Enter writes, Esc cancels"
+            onClick={() => setActiveTool('detection-roi')}
+          >
+            Detection ROI
+          </button>
+          <span className="toolbar-sep" aria-hidden />
           <button type="button" data-testid="btn-open-iq-wav" onClick={() => void onOpenIqWav()}>
             Open IQ
           </button>
@@ -234,13 +244,14 @@ export function SpecParamStrip() {
                 type="button"
                 className="overflow-action"
                 data-testid="btn-tool-roi"
+                data-tool="detection-roi"
                 role="menuitem"
                 onClick={() => {
-                  setActiveTool('select');
+                  setActiveTool('detection-roi');
                   setOverflowOpen(false);
                 }}
               >
-                ROI
+                Detection ROI
               </button>
               <button
                 type="button"

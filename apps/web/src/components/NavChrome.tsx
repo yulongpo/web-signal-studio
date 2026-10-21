@@ -114,8 +114,8 @@ export function NavChrome() {
         <button
           type="button"
           data-testid="nav-segment"
-          onClick={() => setActiveTool('select')}
-          title="Segment / ROI tool"
+          onClick={() => setActiveTool('detection-roi')}
+          title="Detection ROI tool"
         >
           Segment
         </button>

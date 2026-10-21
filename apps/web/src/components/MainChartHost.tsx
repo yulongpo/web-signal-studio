@@ -256,8 +256,10 @@ export function MainChartHost() {
   const levelMax = Math.max(0.2, 1 + level.refLevelDb / 100);
   const levelMin = Math.max(0, levelMax - level.dynamicRangeDb / 100);
   const sampleRateHz = spec?.sampleRateHz ?? 0;
+  // G11: navigate (default) box-drag zooms the view (>=8px diagonal via HeatmapCanvas).
+  // G14: detection-roi owns ROI boxes; legacy 'select' still draws a box but is retired as an entry.
   const gesture =
-    activeTool === 'zoom'
+    activeTool === 'zoom' || activeTool === 'navigate'
       ? 'zoom-box'
       : activeTool === 'marker' || activeTool === 'detection-roi' || activeTool === 'select'
         ? 'box'
@@ -367,12 +369,17 @@ export function MainChartHost() {
       setMarkNote('无安全采样率映射，不写入标记或 ROI');
       return;
     }
-    if (activeTool === 'detection-roi' || activeTool === 'select') {
+    // G14: only detection-roi writes the confirmation bar (select alias retired).
+    if (activeTool === 'detection-roi') {
       setRoi({ start, end });
       setMarkNote(null);
       return;
     }
-    if (activeTool === 'zoom') return;
+    if (activeTool === 'select') {
+      setMarkNote('select tool retired — use Detection ROI');
+      return;
+    }
+    if (activeTool === 'zoom' || activeTool === 'navigate') return;
     if (activeTool !== 'marker') return;
     const hook = window.__wssM06;
     if (!hook) {
@@ -407,6 +414,7 @@ export function MainChartHost() {
       data-fft-fallback={fftActive?.fellBackToJs ? 'true' : 'false'}
       data-chart-gesture={gesture}
       data-active-tool={activeTool}
+      data-continuous-create={activeTool === 'marker' ? 'true' : 'false'}
       onContextMenu={(e) => {
         e.preventDefault();
         const rect = e.currentTarget.getBoundingClientRect();
