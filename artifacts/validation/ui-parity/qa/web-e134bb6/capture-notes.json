@@ -1,0 +1,58 @@
+{
+  "id": "qa-web-e134bb6-combined",
+  "tip_web_sync": "e134bb699232acf00ae4f9632b92d4b792302d32",
+  "tip_impl_ba868e4": "ba868e4895bd6170cfa91d3642fe0dd516686242",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g26_iq": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.sigmf-meta",
+  "captures": [
+    "01-detect-capabilities.png",
+    "01b-detect-debug-chips.png",
+    "01c-detect-real-runtime.png",
+    "02-project-tree-three-source.png",
+    "02b-g19-tree-presentation.png",
+    "02c-g19-tree-row-hover.png",
+    "03-g07-bottom-tasks.png",
+    "03b-g07-bottom-crop.png",
+    "03c-g07-bottom-log.png",
+    "03d-status-bar.png",
+    "04-nb-observe.png",
+    "04b-nb-modulation.png",
+    "04c-nb-demodulation.png",
+    "04d-nb-dl-blocked.png",
+    "05-g11-zoom-box-drag.png",
+    "05b-g11-zoom-box-applied.png",
+    "06-g14-roi-header.png",
+    "06b-g14-roi-strip.png",
+    "06c-g14-roi-confirmation.png",
+    "07-g13-mark-handles.png"
+  ],
+  "observations": {
+    "real_runtime": {
+      "code": "REAL_RUNTIME",
+      "engine": "TENSORRT_CUDA"
+    },
+    "g19_label_title": "Demo Project",
+    "g19": {
+      "engineering": "true",
+      "kinds": [
+        "project",
+        "folder",
+        "file"
+      ],
+      "text_snippet": "Project\nClear\nDemo Project\nIQ Files\ndemo_wideband.iq\ndemo_narrow.sigmf"
+    },
+    "nb_blocked": "RECOGNITION_ENGINE_MISSING",
+    "g11": {
+      "before": "0.0004192",
+      "after": "0.00020374525139664804",
+      "gesture": "zoom-box"
+    },
+    "g13": {
+      "marks": "2",
+      "handles": 0
+    },
+    "gaps": "No PASS. Desktop 17471a6 ref only. G19 presentation partial in UI (tooltips/badges still B gaps)."
+  }
+}
