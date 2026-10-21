@@ -1,3 +1,10 @@
+> Bot-A `2026-10-22 01:03` Asia/Shanghai: Web **`85596ed`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave15 Auxiliary 3-col + OS dialog chrome). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_85596ed.md`. **No PASS.**
+
+| ID | Prior (`b88443e`) | Now (`85596ed`) | Note |
+|----|-------------------|-----------------|------|
+| **G19** | PARTIAL（Auxiliary/native dialog 残） | **PARTIAL 加深** | Auxiliary 3-col + OS chrome MET；MeasuredEvidenceTrace / true native QFileDialog → **未 CLOSED** |
+
+——**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**——详 `INCREMENTAL_85596ed.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:00` Asia/Shanghai: Web **`b88443e`** vs desktop `17471a6` — G11/G02/G07/G08 PARTIAL deepened (C sourceKind+hover; B wave14 strip/Worker/shell). G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_b88443e.md`. **No PASS.**
 
 | ID | Prior (`6ada5b0`) | Now (`b88443e`) | Note |
