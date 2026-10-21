@@ -42,6 +42,6 @@ Optional FFSCN GUI weights (also PyTorch):
 ## Gaps / honesty
 
 1. Default `services/local-compute` venv does **not** ship `torch` (keeps contract tests light). Real inference requires starting the service with a CUDA-capable interpreter (e.g. Anaconda) **or** installing torch into the venv.
-2. No `.engine` / TensorRT artifacts in the surveyed trees — capabilities no longer require TRT to become ready; they require **verified PyTorch load+forward**.
+2. **TensorRT / `.engine` = N/A** for surveyed trees — do not stub a fake engine. Capabilities require **verified PyTorch `.pth` load+forward** (optional SHA-256 via env/manifest; mismatch → `WEIGHT_HASH_MISMATCH`).
 3. SCN needs `.ptpsd` (or compatible PSDSample) `sourcePath`. FFSCN needs wav/iq/psd readable by `FFSCN_TEST_GUI`.
 4. Without weights / torch / sourcePath, capabilities and tasks stay **BLOCKED** and must not invent candidates.

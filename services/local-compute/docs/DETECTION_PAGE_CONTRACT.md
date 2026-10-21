@@ -62,6 +62,7 @@ Bound to exact `runId`; cancel is terminal.
 | MODEL_PATH_MISSING | `error` | Configured detection model path is missing on disk. | 配置的检测模型路径在磁盘上不存在。 |
 | MODEL_HOME_MISSING | `error` | Algorithm source home is missing (set LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME). | 缺少算法源码目录（请设置 LOCAL_COMPUTE_FFSCN_HOME / LOCAL_COMPUTE_SCN_HOME）。 |
 | MODEL_HASH_MISMATCH | `error` | Detection model hash/version does not match the configured expectation. | 检测模型哈希/版本与配置期望不一致。 |
+| WEIGHT_HASH_MISMATCH | `error` | Detection model hash/version does not match the configured expectation. | 检测模型哈希/版本与配置期望不一致。 |
 | MODEL_HASH_UNAVAILABLE | `warning` | Detection model hash could not be read; treating as blocked. | 无法读取检测模型哈希，按不可用处理。 |
 | MODEL_LOAD_FAILED | `error` | Detection weights were found but failed to load/forward. Detection stays blocked. | 已找到检测权重但加载/前向失败，检测仍不可用。 |
 | SOURCE_MISSING | `error` | sourcePath is required for real detection; refusing to invent candidates. | 真检测需要 sourcePath，拒绝伪造候选结果。 |

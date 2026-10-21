@@ -19,6 +19,7 @@ REQUIRED_UI_CODES = {
     "MODEL_PATH_MISSING",
     "MODEL_HOME_MISSING",
     "MODEL_HASH_MISMATCH",
+    "WEIGHT_HASH_MISMATCH",
     "MODEL_HASH_UNAVAILABLE",
     "MODEL_LOAD_FAILED",
     "SOURCE_MISSING",
@@ -97,12 +98,13 @@ def test_ui_copy_table_complete():
 def test_capabilities_model_present_reports_identity_still_blocked(
     client, auth_headers, tmp_path, monkeypatch
 ):
-    model = tmp_path / "ffscn.engine"
-    payload = b"NOT-A-REAL-ENGINE-WARMUP-ONLY"
+    model = tmp_path / "ffscn.pth"
+    payload = b"NOT-A-REAL-PTH-WARMUP-ONLY"
     model.write_bytes(payload)
     digest = hashlib.sha256(payload).hexdigest()
     monkeypatch.setenv("LOCAL_COMPUTE_MODEL_DIRS", str(tmp_path))
     monkeypatch.delenv("LOCAL_COMPUTE_FFSCN_SHA256", raising=False)
+    monkeypatch.delenv("LOCAL_COMPUTE_FFSCN_WEIGHT_SHA256", raising=False)
 
     data = client.get("/capabilities", headers=auth_headers).json()
     assert data["detection"]["ffscn"] is False
@@ -119,21 +121,23 @@ def test_capabilities_model_present_reports_identity_still_blocked(
 def test_capabilities_hash_mismatch_reason(
     client, auth_headers, tmp_path, monkeypatch
 ):
-    model = tmp_path / "ffscn.engine"
+    model = tmp_path / "ffscn.pth"
     model.write_bytes(b"abc")
     monkeypatch.setenv("LOCAL_COMPUTE_MODEL_DIRS", str(tmp_path))
     monkeypatch.setenv("LOCAL_COMPUTE_FFSCN_SHA256", "0" * 64)
     data = client.get("/capabilities", headers=auth_headers).json()
     assert data["detection"]["ffscn"] is False
+    assert any("WEIGHT_HASH_MISMATCH" in r for r in data["detection"]["reasons"])
     assert any("hash/version mismatch" in r for r in data["detection"]["reasons"])
     codes = {m["code"] for m in data["detection"]["uiMessages"]}
     assert "MODEL_HASH_MISMATCH" in codes
+    assert "WEIGHT_HASH_MISMATCH" in codes
 
 
 def test_capabilities_missing_configured_path(
     client, auth_headers, tmp_path, monkeypatch
 ):
-    missing = tmp_path / "nope" / "ffscn.engine"
+    missing = tmp_path / "nope" / "ffscn.pth"
     monkeypatch.setenv("LOCAL_COMPUTE_FFSCN_PATH", str(missing))
     data = client.get("/capabilities", headers=auth_headers).json()
     assert data["detection"]["ffscn"] is False

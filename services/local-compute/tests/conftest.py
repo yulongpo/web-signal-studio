@@ -22,15 +22,18 @@ os.environ["LOCAL_COMPUTE_DISABLE_TORCH"] = "1"
 def client():
     from app.auth import init_auth
     from app.main import app
+    from app.model_layout import clear_hash_manifest_cache
     from app.tasks import clear_tasks
+    from app.torch_runtime import clear_torch_cache
 
     init_auth()
     clear_tasks()
-    from app.torch_runtime import clear_torch_cache
     clear_torch_cache()
+    clear_hash_manifest_cache()
     with TestClient(app) as c:
         yield c
     clear_tasks()
+    clear_hash_manifest_cache()
 
 
 @pytest.fixture()
