@@ -1,6 +1,7 @@
 /**
  * PROVISIONAL — Bot-B detection page (RightRail detect tab).
  * Follows DETECTION_PAGE_CONTRACT.md. Never invents FFSCN/SCN candidates.
+ * Uses Bot-E-aligned LocalComputeClient (class API).
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type {
@@ -9,8 +10,9 @@ import type {
 } from '@wss/contracts';
 import { useUiStore } from '../store/uiStore';
 import {
+  LocalComputeClient,
   LocalComputeClientError,
-  createLocalComputeClient,
+  isTerminalStatus,
 } from '../localCompute/client';
 import {
   bannerTextsFromCapabilities,
@@ -37,6 +39,11 @@ export function DetectPage() {
   const [errorLine, setErrorLine] = useState<string | null>(null);
   const pollTimer = useRef<number | null>(null);
 
+  const makeClient = useCallback(
+    () => new LocalComputeClient({ baseUrl, token }),
+    [baseUrl, token],
+  );
+
   const stopPoll = useCallback(() => {
     if (pollTimer.current != null) {
       window.clearTimeout(pollTimer.current);
@@ -62,8 +69,8 @@ export function DetectPage() {
 
   const refreshCapabilities = useCallback(async () => {
     setErrorLine(null);
-    const client = createLocalComputeClient({ baseUrl, token });
     try {
+      const client = makeClient();
       const next = await client.getCapabilities();
       setCaps(next);
       setOfflineReason(null);
@@ -78,7 +85,7 @@ export function DetectPage() {
     } catch (err) {
       applyCapsFailure(err);
     }
-  }, [applyCapsFailure, baseUrl, token]);
+  }, [applyCapsFailure, makeClient]);
 
   useEffect(() => {
     void refreshCapabilities();
@@ -93,15 +100,12 @@ export function DetectPage() {
   const pollUntilDone = useCallback(
     async (runId: string) => {
       stopPoll();
-      const client = createLocalComputeClient({ baseUrl, token });
+      const client = makeClient();
       const tick = async () => {
         try {
           const rec = await client.getTask(runId);
           setTask(rec);
-          const terminal = ['succeeded', 'failed', 'cancelled', 'BLOCKED'].includes(
-            rec.status,
-          );
-          if (terminal) {
+          if (isTerminalStatus(rec.status)) {
             setBusy(false);
             if (rec.status === 'BLOCKED') {
               const blockedLines = bannerTextsFromCapabilities(
@@ -129,7 +133,7 @@ export function DetectPage() {
       };
       await tick();
     },
-    [applyCapsFailure, baseUrl, stopPoll, token],
+    [applyCapsFailure, makeClient, stopPoll],
   );
 
   const runDetect = async (kind: 'ffscn.detect' | 'scn.detect') => {
@@ -137,7 +141,7 @@ export function DetectPage() {
     setErrorLine(null);
     setTask(null);
     setBusy(true);
-    const client = createLocalComputeClient({ baseUrl, token });
+    const client = makeClient();
     try {
       const { runId } = await client.createTask({
         kind,
@@ -161,7 +165,7 @@ export function DetectPage() {
   const cancelRun = async () => {
     const runId = task?.runId;
     if (!runId) return;
-    const client = createLocalComputeClient({ baseUrl, token });
+    const client = makeClient();
     try {
       const res = await client.cancelTask(runId);
       setTask((prev) =>

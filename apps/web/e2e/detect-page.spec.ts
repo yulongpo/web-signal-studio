@@ -24,14 +24,26 @@ const BLOCKED_CAPS = {
   notes: [],
 };
 
+/** CORS so absolute loopback :8000 fulfill is readable from the Vite origin. */
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Authorization, Content-Type, Accept',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+};
+
 test.describe('detection page', () => {
   test('opens detect tab; mocked capabilities disable buttons and show zh banner', async ({
     page,
   }) => {
     await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
+        headers: CORS,
         body: JSON.stringify(BLOCKED_CAPS),
       });
     });

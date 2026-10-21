@@ -1,9 +1,10 @@
 /**
  * PROVISIONAL — Bot-B left project tree panel.
- * Open/save via @wss/project-io; sample tree remains fallback.
+ * Open/save via Bot-F ProjectSessionHookApi (asProjectSessionHook → @wss/project-io).
+ * Sample tree remains fallback.
  */
 import { useRef } from 'react';
-import { useUiStore } from '../store/uiStore';
+import { asProjectSessionHook, useUiStore } from '../store/uiStore';
 import type { ProjectTreeNode } from '../types/provisional';
 
 const SAMPLE_TREE: ProjectTreeNode[] = [
@@ -52,7 +53,10 @@ function TreeNodeView({ node, depth }: { node: ProjectTreeNode; depth: number })
   );
 }
 
-function summaryToTree(name: string, files: Array<{ id: string; name: string; channelCount: number; sampleCount: string }>): ProjectTreeNode[] {
+function summaryToTree(
+  name: string,
+  files: Array<{ id: string; name: string; channelCount: number; sampleCount: string }>,
+): ProjectTreeNode[] {
   return [
     {
       id: 'proj-loaded',
@@ -84,15 +88,17 @@ function downloadText(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
+/** Bot-F session surface — always read latest store state at action time. */
+function sessionHook() {
+  return asProjectSessionHook(useUiStore.getState());
+}
+
 export function ProjectTree() {
   const hasSample = useUiStore((s) => s.projectHasSample);
   const projectSource = useUiStore((s) => s.projectSource);
   const projectSummary = useUiStore((s) => s.projectSummary);
   const projectError = useUiStore((s) => s.projectError);
   const loadSampleProject = useUiStore((s) => s.loadSampleProject);
-  const clearProject = useUiStore((s) => s.clearProject);
-  const openProjectFromText = useUiStore((s) => s.openProjectFromText);
-  const saveProjectJsonText = useUiStore((s) => s.saveProjectJsonText);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pasteRef = useRef<HTMLTextAreaElement>(null);
 
@@ -101,21 +107,21 @@ export function ProjectTree() {
     const reader = new FileReader();
     reader.onload = () => {
       const text = typeof reader.result === 'string' ? reader.result : '';
-      openProjectFromText(text);
+      sessionHook().openProjectFromText(text);
     };
     reader.onerror = () => {
-      openProjectFromText('{'); // force parse error path without crashing shell
+      sessionHook().openProjectFromText('{'); // force parse error path without crashing shell
     };
     reader.readAsText(file);
   };
 
   const onPasteOpen = () => {
     const text = pasteRef.current?.value ?? '';
-    openProjectFromText(text);
+    sessionHook().openProjectFromText(text);
   };
 
   const onSave = () => {
-    const text = saveProjectJsonText();
+    const text = sessionHook().saveProjectJsonText();
     if (text == null) return;
     const name = projectSummary?.name?.replace(/[^\w.-]+/g, '_') || 'project';
     downloadText(`${name}.json`, text);
@@ -148,7 +154,7 @@ export function ProjectTree() {
                 type="button"
                 data-testid="btn-clear-project"
                 className="btn-ghost"
-                onClick={clearProject}
+                onClick={() => sessionHook().clearProject()}
               >
                 Clear
               </button>

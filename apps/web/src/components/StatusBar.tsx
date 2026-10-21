@@ -9,6 +9,7 @@ export function StatusBar() {
   const fileLabel = useUiStore((s) => s.statusFileLabel);
   const channelLabel = useUiStore((s) => s.statusChannelLabel);
   const workspaceMode = useUiStore((s) => s.workspaceMode);
+  const dspSource = useUiStore((s) => s.dspSource);
 
   return (
     <footer className="status-bar" data-testid="status-bar">
@@ -18,6 +19,14 @@ export function StatusBar() {
       <span className="status-sep" />
       <span data-testid="status-time">t: {cursor.timeLabel}</span>
       <span data-testid="status-freq">f: {cursor.freqLabel}</span>
+      <span className="status-sep" />
+      <span
+        className="status-dsp"
+        data-testid="status-dsp-source"
+        data-dsp-source={dspSource}
+      >
+        dsp: {dspSource}
+      </span>
       <span className="status-spacer" />
       <span data-testid="status-file">{fileLabel}</span>
       <span className="status-sep" />

@@ -10,6 +10,7 @@ import {
   saveProjectToJsonText,
   summarizeLoadedProject,
   type ProjectSessionSummary,
+  type ProjectSessionHookApi,
 } from '@wss/project-io';
 import type {
   ActiveTool,
@@ -20,6 +21,7 @@ import type {
   RightPage,
   TempLayerId,
   WorkspaceMode,
+  DspSourceKind,
 } from '../types/provisional';
 import {
   DEFAULT_DETECT_SAMPLE_RANGE,
@@ -86,6 +88,9 @@ export interface UiState {
   localComputeBaseUrl: string;
   localComputeToken: string;
 
+  /** Main chart DSP source for StatusBar / chip (Bot-D worker path). */
+  dspSource: DspSourceKind;
+
   setActiveTool: (tool: ActiveTool) => void;
   setRightPage: (page: RightPage) => void;
   toggleRightPanel: () => void;
@@ -112,6 +117,7 @@ export interface UiState {
   setLocalComputeToken: (token: string) => void;
   setLocalComputeBaseUrl: (url: string) => void;
   setDetectSampleRange: (range: { start: string; end: string }) => void;
+  setDspSource: (source: DspSourceKind) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -141,6 +147,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   detectSampleRange: { ...DEFAULT_DETECT_SAMPLE_RANGE },
   localComputeBaseUrl: resolveLocalComputeBaseUrl(envLocalComputeUrl(), null),
   localComputeToken: envLocalComputeToken(),
+
+  dspSource: 'loading',
 
   setActiveTool: (tool) => set({ activeTool: tool }),
   setRightPage: (page) => set({ rightPage: page }),
@@ -288,4 +296,30 @@ export const useUiStore = create<UiState>((set, get) => ({
         end: String(range.end),
       },
     }),
+
+  setDspSource: (source) => set({ dspSource: source }),
 }));
+
+
+/**
+ * Thin Bot-F session-hook adapter: project open/save surface from uiStore.
+ * See docs/implementation/BOT_F_WEB_SESSION_CONTRACT.md.
+ */
+export function asProjectSessionHook(
+  state: Pick<
+    UiState,
+    | 'openProjectFromText'
+    | 'saveProjectJsonText'
+    | 'clearProject'
+    | 'projectSummary'
+    | 'projectDocument'
+  >,
+): ProjectSessionHookApi {
+  return {
+    openProjectFromText: state.openProjectFromText,
+    saveProjectJsonText: state.saveProjectJsonText,
+    clearProject: state.clearProject,
+    projectSummary: state.projectSummary,
+    projectDocument: state.projectDocument,
+  };
+}

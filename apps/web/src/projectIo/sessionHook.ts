@@ -1,8 +1,15 @@
 /**
  * Session hook / store contract for native project open/save.
  *
- * Bot-B Zustand `uiStore` (and any future React hook) should implement
- * `ProjectSessionHookApi`. Bot-F only publishes the type + primitives in
- * `@wss/project-io`; do not put shell UI here.
+ * Bot-B Zustand `uiStore` implements `ProjectSessionHookApi` via
+ * `asProjectSessionHook(useUiStore.getState())` (defined in uiStore).
+ * This module stays a Bot-F thin re-export of types + primitives only.
+ *
+ * See docs/implementation/BOT_F_WEB_SESSION_CONTRACT.md.
  */
 export type { ProjectSessionHookApi } from '@wss/project-io';
+export {
+  openProjectFromJsonText,
+  saveProjectToJsonText,
+  summarizeLoadedProject,
+} from '@wss/project-io';

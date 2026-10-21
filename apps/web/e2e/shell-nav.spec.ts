@@ -54,4 +54,33 @@ test.describe('shell navigation', () => {
     await expect(page.getByTestId('btn-tool-roi')).toBeVisible();
     await expect(page.getByTestId('btn-tool-mark')).toBeVisible();
   });
+
+  /**
+   * Bot-D STFT worker path + Bot-B chip.
+   * Happy path: prefer data-dsp-source="synthetic-stft-worker".
+   * CI without WASM/worker may land on "demo-fallback" — both are OK once
+   * the attribute is no longer stuck on "loading". Never invent real capture.
+   */
+  test('main chart DSP source leaves loading (prefer synthetic-stft-worker)', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    const host = page.getByTestId('main-chart-host');
+    await expect(host).toBeVisible();
+    const chip = page.getByTestId('dsp-source-chip');
+    await expect(chip).toBeVisible();
+
+    await expect
+      .poll(async () => host.getAttribute('data-dsp-source'), { timeout: 15000 })
+      .not.toBe('loading');
+
+    const source = await host.getAttribute('data-dsp-source');
+    expect(['synthetic-stft-worker', 'demo-fallback']).toContain(source);
+    await expect(chip).toHaveAttribute('data-dsp-source', source!);
+
+    // Prefer happy path when worker succeeds.
+    if (source === 'synthetic-stft-worker') {
+      await expect(host).toHaveAttribute('data-dsp-source', 'synthetic-stft-worker');
+    }
+  });
 });

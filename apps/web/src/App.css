@@ -399,7 +399,7 @@ body,
   display: flex;
   flex-direction: column;
 }
-.chart-host-live > * {
+.chart-host-live > *:not(.dsp-source-chip) {
   flex: 1;
   min-height: 0;
 }
@@ -476,3 +476,34 @@ body,
   resize: vertical;
 }
 .project-summary { margin-bottom: 8px; font-size: 12px; }
+
+
+/* Bot-B STFT DSP source chip (MainChartHost overlay) */
+.dsp-source-chip {
+  position: absolute;
+  z-index: 2;
+  top: 8px;
+  right: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(28, 38, 51, 0.92);
+  border: 1px solid #2c3b4f;
+  color: #9aa7b5;
+  font-size: 11px;
+  pointer-events: none;
+  letter-spacing: 0.02em;
+}
+.dsp-source-chip[data-dsp-source='synthetic-stft-worker'] {
+  color: #b5f0d0;
+  border-color: #1e5a3d;
+}
+.dsp-source-chip[data-dsp-source='demo-fallback'] {
+  color: #f0d9b5;
+  border-color: #5a3d1e;
+}
+.dsp-source-chip[data-dsp-source='loading'] {
+  color: #9aa7b5;
+}
+.status-dsp {
+  font-variant-numeric: tabular-nums;
+}

@@ -13,6 +13,7 @@ import {
   computeMainSpectrogram,
   type MainSpectrogramResult,
 } from '../dsp/computeMainSpectrogram';
+import type { DspSourceKind } from '../types/provisional';
 
 /** Demo-only procedural frames (loading / error fallback). Not DSP output. */
 function synthPower(binCount: number, frameCount: number): Float32Array {
@@ -40,12 +41,11 @@ export function MainChartHost() {
   const paletteId = useUiStore((s) => s.paletteId);
   const level = useUiStore((s) => s.level);
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
+  const setDspSourceStore = useUiStore((s) => s.setDspSource);
   const client = useDspWorkerClient();
 
   const [spec, setSpec] = useState<MainSpectrogramResult | null>(null);
-  const [dspSource, setDspSource] = useState<'loading' | 'synthetic-stft-worker' | 'demo-fallback'>(
-    'loading',
-  );
+  const [dspSource, setDspSource] = useState<DspSourceKind>('loading');
 
   const fallbackPower = useMemo(
     () => synthPower(FALLBACK_BINS, FALLBACK_FRAMES),
@@ -56,11 +56,13 @@ export function MainChartHost() {
     if (!client) return;
     const ac = new AbortController();
     setDspSource('loading');
+    setDspSourceStore('loading');
     void computeMainSpectrogram({ client, signal: ac.signal })
       .then((result) => {
         if (ac.signal.aborted) return;
         setSpec(result);
         setDspSource('synthetic-stft-worker');
+        setDspSourceStore('synthetic-stft-worker');
       })
       .catch((err: unknown) => {
         if (ac.signal.aborted) return;
@@ -68,9 +70,10 @@ export function MainChartHost() {
         console.warn('[MainChartHost] STFT worker path failed; using demo fallback', err);
         setSpec(null);
         setDspSource('demo-fallback');
+        setDspSourceStore('demo-fallback');
       });
     return () => ac.abort();
-  }, [client]);
+  }, [client, setDspSourceStore]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;
@@ -85,6 +88,13 @@ export function MainChartHost() {
   const levelMax = Math.max(0.2, 1 + level.refLevelDb / 100);
   const levelMin = Math.max(0, levelMax - level.dynamicRangeDb / 100);
 
+  const chipLabel =
+    dspSource === 'synthetic-stft-worker'
+      ? 'DSP: STFT worker'
+      : dspSource === 'demo-fallback'
+        ? 'DSP: demo fallback'
+        : 'DSP: loading…';
+
   return (
     <div
       className="chart-host chart-host-live"
@@ -94,6 +104,14 @@ export function MainChartHost() {
       data-dsp-source={dspSource}
       data-dsp-label={spec?.sourceLabel ?? 'demo fallback'}
     >
+      <span
+        className="dsp-source-chip"
+        data-testid="dsp-source-chip"
+        data-dsp-source={dspSource}
+        title={spec?.sourceLabel ?? dspSource}
+      >
+        {chipLabel}
+      </span>
       <SpectrumChart
         power={power}
         binCount={binCount}

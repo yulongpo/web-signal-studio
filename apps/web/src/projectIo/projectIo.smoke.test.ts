@@ -6,6 +6,7 @@ import {
   type ProjectSessionHookApi,
 } from './index';
 import type { ProjectSessionHookApi as HookFromSession } from './sessionHook';
+import { asProjectSessionHook, useUiStore } from '../store/uiStore';
 
 describe('projectIo thin adapter (Bot-F)', () => {
   it('re-exports open/save/summary primitives', () => {
@@ -15,7 +16,6 @@ describe('projectIo thin adapter (Bot-F)', () => {
   });
 
   it('exposes ProjectSessionHookApi as a type-only contract', () => {
-    // Compile-time shape check: a stub object satisfies the interface.
     const stub: ProjectSessionHookApi = {
       openProjectFromText: () => ({ ok: false, error: 'not wired' }),
       saveProjectJsonText: () => null,
@@ -26,5 +26,14 @@ describe('projectIo thin adapter (Bot-F)', () => {
     const also: HookFromSession = stub;
     expect(also.projectDocument).toBeNull();
     expect(stub.openProjectFromText('').ok).toBe(false);
+  });
+
+  it('asProjectSessionHook adapts uiStore to ProjectSessionHookApi', () => {
+    const api = asProjectSessionHook(useUiStore.getState());
+    expect(typeof api.openProjectFromText).toBe('function');
+    expect(typeof api.saveProjectJsonText).toBe('function');
+    expect(typeof api.clearProject).toBe('function');
+    expect(api.projectDocument).toBeNull();
+    expect(api.projectSummary).toBeNull();
   });
 });
