@@ -13,6 +13,8 @@ import {
   normalizePower01,
   synthesizeTwoToneIq,
   SYNTHETIC_SOURCE_LABEL,
+  MAIN_STFT_DEFAULTS,
+  overlapFromHop,
 } from './computeMainSpectrogram';
 
 const clients: DspWorkerClient[] = [];
@@ -43,6 +45,10 @@ describe('computeMainSpectrogram', () => {
     expect(result.freqHz.min).toBe(-500_000);
     expect(result.freqHz.max).toBe(500_000);
     expect(result.timeSec.max).toBeGreaterThan(0);
+    expect(result.window).toBe('hann');
+    expect(result.fftSize).toBe(256);
+    expect(result.hopSize).toBe(64);
+    expect(result.overlap).toBeCloseTo(0.75, 10);
 
     let max = 0;
     for (let i = 0; i < result.power.length; i++) {
@@ -78,5 +84,19 @@ describe('spectrogram helpers', () => {
     expect(Array.from(shifted)).toEqual([3, 4, 1, 2]);
     const norm = normalizePower01(new Float32Array([0, 2, 4]));
     expect(Array.from(norm)).toEqual([0, 0.5, 1]);
+  });
+});
+
+describe('G02 FFT window/overlap publish helpers', () => {
+  it('MAIN_STFT_DEFAULTS are hann + hop=fft/4', () => {
+    expect(MAIN_STFT_DEFAULTS.window).toBe('hann');
+    expect(MAIN_STFT_DEFAULTS.hopSize).toBe(MAIN_STFT_DEFAULTS.fftSize / 4);
+  });
+
+  it('overlapFromHop matches 1 - hop/fft', () => {
+    expect(overlapFromHop(256, 64)).toBeCloseTo(0.75, 12);
+    expect(overlapFromHop(1024, 512)).toBeCloseTo(0.5, 12);
+    expect(overlapFromHop(256, 256)).toBe(0);
+    expect(overlapFromHop(0, 64)).toBe(0);
   });
 });

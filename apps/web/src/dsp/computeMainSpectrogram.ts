@@ -7,6 +7,22 @@ import { createDspWorkerClient, InProcessAsyncBackend } from '@wss/dsp-wasm';
 
 export const SYNTHETIC_SOURCE_LABEL = 'synthetic fixture' as const;
 
+/** Defaults used by main STFT when callers omit fft/hop/window. */
+export const MAIN_STFT_DEFAULTS = {
+  fftSize: 256,
+  hopSize: 64,
+  window: 'hann' as const,
+} as const;
+
+/** Overlap ratio from hop: 1 - hop/fft (clamped to [0, 1)). */
+export function overlapFromHop(fftSize: number, hopSize: number): number {
+  if (!(fftSize > 0) || !(hopSize > 0)) return 0;
+  const o = 1 - hopSize / fftSize;
+  if (o < 0) return 0;
+  if (o >= 1) return 0.999999;
+  return o;
+}
+
 export interface MainSpectrogramResult {
   power: Float32Array;
   binCount: number;
@@ -15,6 +31,11 @@ export interface MainSpectrogramResult {
   timeSec: { min: number; max: number };
   sourceLabel: typeof SYNTHETIC_SOURCE_LABEL;
   sampleRateHz: number;
+  /** Actual STFT analysis params used (source of truth for SpecParamStrip). */
+  fftSize: number;
+  hopSize: number;
+  window: typeof MAIN_STFT_DEFAULTS.window;
+  overlap: number;
 }
 
 export interface ComputeMainSpectrogramOptions {
@@ -79,8 +100,9 @@ export function normalizePower01(power: Float32Array): Float32Array {
 export async function computeMainSpectrogram(
   options: ComputeMainSpectrogramOptions = {},
 ): Promise<MainSpectrogramResult> {
-  const fftSize = options.fftSize ?? 256;
-  const hopSize = options.hopSize ?? 64;
+  const fftSize = options.fftSize ?? MAIN_STFT_DEFAULTS.fftSize;
+  const hopSize = options.hopSize ?? MAIN_STFT_DEFAULTS.hopSize;
+  const window = MAIN_STFT_DEFAULTS.window;
   const sampleRateHz = options.sampleRateHz ?? 1_000_000;
   const toneHz = options.toneHz ?? ([150_000, -220_000] as [number, number]);
   const frameTarget = 128;
@@ -99,7 +121,7 @@ export async function computeMainSpectrogram(
         end: BigInt(sampleCount),
         fftSize,
         hopSize,
-        window: 'hann',
+        window,
         sampleRateHz,
       },
       iq,
@@ -123,6 +145,10 @@ export async function computeMainSpectrogram(
       timeSec: { min: 0, max: durationSec },
       sourceLabel: SYNTHETIC_SOURCE_LABEL,
       sampleRateHz,
+      fftSize,
+      hopSize,
+      window,
+      overlap: overlapFromHop(fftSize, hopSize),
     };
   } finally {
     if (ownClient) await client.close();

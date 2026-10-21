@@ -115,6 +115,7 @@ export function MainChartHost() {
   const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
   const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
   const setDspSourceStore = useUiStore((s) => s.setDspSource);
+  const setDspFftAnalysisParams = useUiStore((s) => s.setDspFftAnalysisParams);
   const setStatusFileLabel = useUiStore((s) => s.setStatusFileLabel);
   const fftActive = useUiStore((s) => s.dspFftEngineActive);
   const navWindowTime = useUiStore((s) => s.navWindowTime);
@@ -162,6 +163,7 @@ export function MainChartHost() {
     const ac = new AbortController();
     setDspSource('loading');
     setDspSourceStore('loading');
+    setDspFftAnalysisParams(null);
     setIqFormat(null);
 
     const session = getIqFileSession();
@@ -188,6 +190,12 @@ export function MainChartHost() {
         });
         setDspSource(kind);
         setDspSourceStore(kind);
+        setDspFftAnalysisParams({
+          window: result.window,
+          overlap: result.overlap,
+          hopSize: result.hopSize,
+          fftSize: result.fftSize,
+        });
         setIqFormat(session.format);
         setStatusFileLabel(session.fileName);
         setSettledEpoch(getIqFileEpoch());
@@ -202,6 +210,12 @@ export function MainChartHost() {
       setSpec(result);
       setDspSource('synthetic-stft-worker');
       setDspSourceStore('synthetic-stft-worker');
+      setDspFftAnalysisParams({
+        window: result.window,
+        overlap: result.overlap,
+        hopSize: result.hopSize,
+        fftSize: result.fftSize,
+      });
       setIqFormat(null);
       setStatusFileLabel('No file (synthetic fixture)');
       setSettledEpoch(getIqFileEpoch());
@@ -214,12 +228,13 @@ export function MainChartHost() {
       setSpec(null);
       setDspSource('demo-fallback');
       setDspSourceStore('demo-fallback');
+      setDspFftAnalysisParams(null);
       setIqFormat(null);
       setSettledEpoch(getIqFileEpoch());
     });
 
     return () => ac.abort();
-  }, [client, iqEpoch, setDspSourceStore, setStatusFileLabel]);
+  }, [client, iqEpoch, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;
