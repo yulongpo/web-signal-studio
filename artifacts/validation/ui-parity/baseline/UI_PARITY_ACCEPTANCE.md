@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 00:38` Asia/Shanghai: Web **`787623d`** vs desktop `17471a6` — G19 PARTIAL deepened (B wave9 interactive AnnotationPanel; G02/G08 skim); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_787623d.md`. **No PASS.**
+
+| ID | Prior (`f9a56b8`) | Now (`787623d`) | Note |
+|----|-------------------|-----------------|------|
+| **G19** | PARTIAL 加深（interactive 残） | **PARTIAL 加深** | review bar MET；editCell/export 残 → **未 CLOSED** |
+| **G02** | PARTIAL 加深 | **PARTIAL 加深（轻）** | wave9 strip QLabels MET → **未 CLOSED** |
+| **G08** | PARTIAL 加深 | **PARTIAL 加深（轻）** | wave9 focus MET → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表 `INCREMENTAL_787623d.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:30` Asia/Shanghai: Web **`f9a56b8`** vs desktop `17471a6` — G11/G18/G19 PARTIAL deepened (C bounds+STFT pin; B right-rail pin + AnnotationPanel re-shot; G02/G08 skim); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f9a56b8.md`. **No PASS.**
 
 | ID | Prior (`5a0b035`) | Now (`f9a56b8`) | Note |

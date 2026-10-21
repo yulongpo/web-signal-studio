@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 00:38` Asia/Shanghai: Web tip **`787623d`** vs desktop `17471a6` — G19 PARTIAL deepened (B `daa1125` interactive AnnotationPanel review bar locate/delete/edit/segment + apply/cancel; G02/G08 skim); no bucket flips. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_787623d.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`f9a56b8`) | Now (`787623d`) | Note |
+|----|-------------------|-----------------|------|
+| **G19** | PARTIAL 加深（full interactive 残） | **PARTIAL 加深** | `daa1125` review bar locate/delete/edit/segment MET；editCell/export 残 → **未 CLOSED** |
+| **G02** | PARTIAL 加深 | **PARTIAL 加深（轻）** | wave9 palette-unit/mode-caption MET → **未 CLOSED** |
+| **G08** | PARTIAL 加深 | **PARTIAL 加深（轻）** | wave9 resize focus MET → **未 CLOSED** |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表 `INCREMENTAL_787623d.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 00:30` Asia/Shanghai: Web tip **`f9a56b8`** vs desktop `17471a6` — G11/G18/G19 PARTIAL deepened (C `e688975` bounds+unselected PointingHand + STFT pin; B `9e175d4` right-rail pin + AnnotationPanel re-shot + G02/G08 skim; ort kept both chrome). Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_f9a56b8.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`5a0b035`) | Now (`f9a56b8`) | Note |
