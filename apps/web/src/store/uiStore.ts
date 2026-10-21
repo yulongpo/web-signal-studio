@@ -83,8 +83,10 @@ export interface UiState {
   projectError: string | null;
   projectSource: 'none' | 'sample' | 'json';
 
-  /** Detection sample range stub — decimal strings only. */
+  /** Detection sample range — decimal strings only. */
   detectSampleRange: { start: string; end: string };
+  /** Where the current range came from. ROI confirm does not run detection. */
+  detectSampleRangeSource: 'default' | 'roi' | 'file';
   localComputeBaseUrl: string;
   localComputeToken: string;
 
@@ -128,7 +130,10 @@ export interface UiState {
   saveProjectJsonText: () => string | null;
   setLocalComputeToken: (token: string) => void;
   setLocalComputeBaseUrl: (url: string) => void;
-  setDetectSampleRange: (range: { start: string; end: string }) => void;
+  setDetectSampleRange: (
+    range: { start: string; end: string },
+    source?: 'default' | 'roi' | 'file',
+  ) => void;
   setDspSource: (source: DspSourceKind) => void;
   setStatusFileLabel: (label: string) => void;
   setDspFftEnginePreference: (engine: 'js' | 'wasm-fft') => void;
@@ -166,6 +171,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   projectSource: 'none',
 
   detectSampleRange: { ...DEFAULT_DETECT_SAMPLE_RANGE },
+  detectSampleRangeSource: 'default',
   localComputeBaseUrl: resolveLocalComputeBaseUrl(envLocalComputeUrl(), null),
   localComputeToken: envLocalComputeToken(),
 
@@ -267,6 +273,7 @@ export const useUiStore = create<UiState>((set, get) => ({
       statusChannelLabel: '—',
       statusCursor: { timeLabel: '—', freqLabel: '—' },
       detectSampleRange: { ...DEFAULT_DETECT_SAMPLE_RANGE },
+      detectSampleRangeSource: 'default',
     }),
 
   openProjectFromText: (text) => {
@@ -290,6 +297,7 @@ export const useUiStore = create<UiState>((set, get) => ({
             : `${summary.files.reduce((n, f) => n + f.channelCount, 0)} ch`),
         statusCursor: { timeLabel: '0.000 s', freqLabel: '—' },
         detectSampleRange: { start: '0', end: sampleEnd },
+        detectSampleRangeSource: 'file',
       });
       return { ok: true as const };
     } catch (err) {
@@ -316,13 +324,14 @@ export const useUiStore = create<UiState>((set, get) => ({
     set({
       localComputeBaseUrl: resolveLocalComputeBaseUrl(null, url) || DEFAULT_LOCAL_COMPUTE_BASE_URL,
     }),
-  setDetectSampleRange: (range) =>
-    set({
+  setDetectSampleRange: (range, source) =>
+    set((s) => ({
       detectSampleRange: {
         start: String(range.start),
         end: String(range.end),
       },
-    }),
+      detectSampleRangeSource: source ?? s.detectSampleRangeSource,
+    })),
 
   setDspSource: (source) => set({ dspSource: source }),
   setStatusFileLabel: (label) => set({ statusFileLabel: label }),

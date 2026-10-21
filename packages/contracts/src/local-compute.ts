@@ -147,6 +147,11 @@ export const LOCAL_COMPUTE_UI_CODES = [
   'STUB_RUNTIME',
   'REAL_RUNTIME',
   'NO_FAKE_INFERENCE',
+  'TENSORRT_RUNTIME_MISSING',
+  'TENSORRT_OK',
+  'TENSORRT_NA',
+  'ENGINE_MISSING',
+  'ENGINE_LOAD_FAILED',
 ] as const;
 
 export type LocalComputeUiCode = (typeof LOCAL_COMPUTE_UI_CODES)[number];
@@ -165,5 +170,12 @@ export const LOCAL_COMPUTE_STUB_RUNTIME_COPY = {
 /** Stub engine label until real TensorRT/PyTorch runtime is verified. */
 export const LOCAL_COMPUTE_STUB_ENGINE = 'STUB_NON_TENSORRT' as const;
 
-/** Real engines reported when verifiedForward=true (never invent these). */
-export const LOCAL_COMPUTE_REAL_ENGINES = ['PYTORCH_CUDA', 'PYTORCH_CPU'] as const;
+/**
+ * Real engines reported when verifiedForward=true.
+ * TENSORRT_CUDA is the rebuild-tree .engine path. Never invent these labels.
+ */
+export const LOCAL_COMPUTE_REAL_ENGINES = [
+  'PYTORCH_CUDA',
+  'PYTORCH_CPU',
+  'TENSORRT_CUDA',
+] as const;

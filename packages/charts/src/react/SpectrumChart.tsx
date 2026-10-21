@@ -24,7 +24,7 @@ export interface SpectrumChartProps
    * - `interactionEnabled?: boolean` — pan (drag) + zoom (wheel); default true.
    * - `wheelModel?: 'uniform' | 'desktop-axis'` — uniform zooms both axes;
    *   desktop-axis matches Qt: plot/bottom wheel zooms X, left-axis wheel zooms Y.
-   * - `gesture?: 'pan' | 'box'` — plot drag pans, or draws a physical box selection.
+   * - `gesture?: 'pan' | 'box' | 'zoom-box'` — plot drag pans, draws a box, or zooms into it.
    * - `viewCommand?: { seq, view }` — apply an external physical view (nav / fit).
    * - `onViewChange?: (view) => void` — physical x/y domains only (no detection coords).
    * - `onCursor` — existing MainChartHost readout; unchanged.

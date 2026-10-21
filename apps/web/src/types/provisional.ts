@@ -7,7 +7,13 @@ export type TempLayerId = 'level' | 'display' | 'spectral' | null;
 
 export type FreqDisplayMode = 'rf' | 'baseband';
 
-export type ActiveTool = 'navigate' | 'select' | 'zoom' | 'marker' | 'measure';
+export type ActiveTool =
+  | 'navigate'
+  | 'select'
+  | 'zoom'
+  | 'marker'
+  | 'measure'
+  | 'detection-roi';
 
 /** Stable right-rail page ids; contract + e2e use `detect` (not `detection`). */
 export type RightPage = 'display' | 'detect' | 'marker' | 'channel';

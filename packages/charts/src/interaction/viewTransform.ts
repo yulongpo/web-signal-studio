@@ -149,6 +149,33 @@ export function wheelDeltaToZoomFactor(
   return deltaY < 0 ? baseFactor : 1 / baseFactor;
 }
 
+/** Desktop box-zoom ignores drags whose diagonal is shorter than this. */
+export const BOX_ZOOM_MIN_DIAGONAL_PX = 8;
+
+export function boxDiagonalPx(widthPx: number, heightPx: number): number {
+  return Math.hypot(widthPx, heightPx);
+}
+
+/**
+ * Replace both domains with a dragged physical rectangle.
+ * Returns null when the rectangle has no positive area.
+ */
+export function viewFromPhysicalBox(
+  view: ViewState,
+  box: { xMin: number; xMax: number; yMin: number; yMax: number },
+): ViewState | null {
+  const xMin = Math.min(box.xMin, box.xMax);
+  const xMax = Math.max(box.xMin, box.xMax);
+  const yMin = Math.min(box.yMin, box.yMax);
+  const yMax = Math.max(box.yMin, box.yMax);
+  if (!(xMax > xMin) || !(yMax > yMin)) return null;
+  if (![xMin, xMax, yMin, yMax].every(Number.isFinite)) return null;
+  return {
+    xDomain: { ...view.xDomain, min: xMin, max: xMax },
+    yDomain: { ...view.yDomain, min: yMin, max: yMax },
+  };
+}
+
 export function domainsEqual(
   a: ViewDomain,
   b: ViewDomain,

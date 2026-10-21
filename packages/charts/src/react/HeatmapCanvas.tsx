@@ -23,12 +23,15 @@ import {
   type PreviewRefineMode,
 } from "../interaction/previewRefine.js";
 import {
+  BOX_ZOOM_MIN_DIAGONAL_PX,
   panView,
+  viewFromPhysicalBox,
   zoomViewAt,
   wheelDeltaToZoomFactor,
   type ViewDomain,
   type ViewState,
 } from "../interaction/viewTransform.js";
+import { HEATMAP_PLOT_MARGIN } from "./plotMargin.js";
 import {
   extractDisplayGrid,
   suggestExtractOutSize,
@@ -61,8 +64,12 @@ export interface HeatmapCanvasProps {
    * that axis; drag on the plot pans both (or draws a box when gesture is box).
    */
   wheelModel?: "uniform" | "desktop-axis";
-  /** Plot-body drag: pan the view, or draw a physical-axis box selection. */
-  gesture?: "pan" | "box";
+  /**
+   * Plot-body drag: pan, draw a selection box, or zoom the view into a box
+   * whose diagonal is at least {@link BOX_ZOOM_MIN_DIAGONAL_PX} CSS pixels.
+   * Axis drags still pan that axis.
+   */
+  gesture?: "pan" | "box" | "zoom-box";
   /**
    * External view apply. `seq` must change to take effect (nav, fit, history).
    * Does not echo `onViewChange`.
@@ -91,7 +98,7 @@ export interface HeatmapCanvasProps {
   ) => void;
 }
 
-const MARGIN = { left: 52, right: 12, top: 10, bottom: 36 };
+const MARGIN = HEATMAP_PLOT_MARGIN;
 
 function toViewDomain(
   d: { min: number; max: number; unit?: string; label?: string },
@@ -144,7 +151,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     lastY: number;
     originX: number;
     originY: number;
-    mode: "pan-both" | "pan-x" | "pan-y" | "box";
+    mode: "pan-both" | "pan-x" | "pan-y" | "box" | "zoom-box";
     before: ViewState;
   } | null>(null);
   const [boxCss, setBoxCss] = useState<{
@@ -217,13 +224,13 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
   }, [commandSeq]);
 
   useEffect(() => {
-    if (gesture !== "box") setBoxCss(null);
+    if (gesture !== "box" && gesture !== "zoom-box") setBoxCss(null);
   }, [gesture]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      if (dragRef.current?.mode === "box") {
+      if (dragRef.current?.mode === "box" || dragRef.current?.mode === "zoom-box") {
         dragRef.current = null;
         setBoxCss(null);
       }
@@ -552,10 +559,11 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       wheelModelRef.current === "desktop-axis"
         ? zoneOf(xCss, yCss, rect.height)
         : "plot";
-    let mode: "pan-both" | "pan-x" | "pan-y" | "box" = "pan-both";
+    let mode: "pan-both" | "pan-x" | "pan-y" | "box" | "zoom-box" = "pan-both";
     if (zone === "left") mode = "pan-y";
     else if (zone === "bottom") mode = "pan-x";
     else if (gestureRef.current === "box") mode = "box";
+    else if (gestureRef.current === "zoom-box") mode = "zoom-box";
     wrap.setPointerCapture(ev.pointerId);
     dragRef.current = {
       pointerId: ev.pointerId,
@@ -569,7 +577,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
         yDomain: { ...viewRef.current.yDomain },
       },
     };
-    if (mode === "box") {
+    if (mode === "box" || mode === "zoom-box") {
       setBoxCss({ x0: xCss, y0: yCss, x1: xCss, y1: yCss });
     }
     preview.current?.noteInteraction();
@@ -591,7 +599,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       drag.lastX = ev.clientX;
       drag.lastY = ev.clientY;
       preview.current?.noteInteraction();
-      if (drag.mode === "box") {
+      if (drag.mode === "box" || drag.mode === "zoom-box") {
         setBoxCss({ x0: drag.originX, y0: drag.originY, x1: xCss, y1: yCss });
       } else {
         const { xAxis, yAxis } = readAxes(cssW, cssH);
@@ -620,11 +628,16 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     const rect = wrap.getBoundingClientRect();
     const xCss = ev.clientX - rect.left;
     const yCss = ev.clientY - rect.top;
-    if (drag.mode === "box") {
+    if (drag.mode === "box" || drag.mode === "zoom-box") {
       const w = Math.abs(xCss - drag.originX);
       const h = Math.abs(yCss - drag.originY);
-      if (w < 4 && h < 4) {
+      const tooSmall =
+        drag.mode === "zoom-box"
+          ? Math.hypot(w, h) < BOX_ZOOM_MIN_DIAGONAL_PX
+          : w < 4 && h < 4;
+      if (tooSmall) {
         setBoxCss(null);
+        if (drag.mode === "box") onBoxCommitRef.current?.(null);
         return;
       }
       const { xAxis, yAxis } = readAxes(rect.width, rect.height);
@@ -632,12 +645,20 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       const xB = xAxis.toValue(xCss);
       const yA = yAxis.toValue(drag.originY);
       const yB = yAxis.toValue(yCss);
-      onBoxCommitRef.current?.({
+      const box = {
         xMin: Math.min(xA, xB),
         xMax: Math.max(xA, xB),
         yMin: Math.min(yA, yB),
         yMax: Math.max(yA, yB),
-      });
+      };
+      if (drag.mode === "zoom-box") {
+        const next = viewFromPhysicalBox(drag.before, box);
+        if (next) {
+          onViewCommitRef.current?.(drag.before);
+          commitView(next);
+        }
+      }
+      onBoxCommitRef.current?.(box);
       setBoxCss(null);
       return;
     }
@@ -694,6 +715,11 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       data-testid={testId}
       data-gesture={gesture}
       data-wheel-model={wheelModel}
+      data-box-zoom-min-px={BOX_ZOOM_MIN_DIAGONAL_PX}
+      data-view-x-min={view.xDomain.min}
+      data-view-x-max={view.xDomain.max}
+      data-view-y-min={view.yDomain.min}
+      data-view-y-max={view.yDomain.max}
       data-interaction-mode={interactionMode}
       data-webgl-state={webglState}
       data-dpr="1"

@@ -327,6 +327,62 @@ test.describe('detection page', () => {
     await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
   });
 
+  test('REAL_RUNTIME is visible from capabilities and still refuses unverified candidates', async ({
+    page,
+  }) => {
+    await page.route('**/capabilities', async (route) => {
+      if (route.request().method() === 'OPTIONS') {
+        await route.fulfill({ status: 204, headers: CORS });
+        return;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: CORS,
+        body: JSON.stringify({
+          ...BLOCKED_CAPS,
+          detection: {
+            ffscn: true,
+            scn: false,
+            reasons: [],
+            uiMessages: [
+              {
+                code: 'REAL_RUNTIME',
+                severity: 'info',
+                en: 'Verified PyTorch detection runtime is ready for this family.',
+                zh: '该检测族别的 PyTorch 真推理运行时已就绪。',
+              },
+            ],
+          },
+          runtime: {
+            ...BLOCKED_CAPS.runtime,
+            engine: 'TENSORRT_CUDA',
+            tensorrtVerified: true,
+            canInventResults: false,
+            ffscnReady: true,
+          },
+        }),
+      });
+    });
+    await page.goto('/');
+    await page.getByTestId('rail-tab-detect').click();
+    const runtime = page.getByTestId('detect-real-runtime');
+    await expect(runtime).toBeVisible();
+    await expect(runtime).toHaveAttribute('data-code', 'REAL_RUNTIME');
+    await expect(runtime).toHaveAttribute('data-can-invent', 'false');
+    await expect(runtime).toContainText('真推理运行时已就绪');
+    await expect(page.getByTestId('detect-runtime-engine')).toHaveAttribute(
+      'data-engine',
+      'TENSORRT_CUDA',
+    );
+    await expect(page.getByTestId('detect-sample-range')).toHaveAttribute(
+      'data-range-source',
+      'default',
+    );
+    await expect(page.getByTestId('detect-candidate-item')).toHaveCount(0);
+    await expect(page.getByTestId('detect-btn-ffscn')).toBeDisabled();
+  });
+
   test('WEIGHT_HASH_MISMATCH banners use server uiMessages; no candidates', async ({ page }) => {
     await page.route('**/capabilities', async (route) => {
       if (route.request().method() === 'OPTIONS') {

@@ -156,9 +156,8 @@ test.describe('M-06 marks / snapshot / undo (UI + __wssM06)', () => {
 
     const finalState = await hookGetState(page);
     const evidenceDir = ensureEvidenceDir();
-    await page.screenshot({
+    await page.getByTestId('m06-panel').screenshot({
       path: path.join(evidenceDir, 'm06_marks_panel.png'),
-      fullPage: true,
     });
 
     writeEvidenceJson('m06_marks_undo_2026-10-21.json', {
