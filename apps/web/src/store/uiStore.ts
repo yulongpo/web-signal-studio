@@ -609,11 +609,19 @@ export const useUiStore = create<UiState>((set, get) => ({
     if (st.workspaceMode === 'narrowband') {
       const hadPin = st.narrowbandPinnedDwellIndex != null;
       const wasFrame = st.narrowbandPsdMode === 'frame';
-      if (!hadPin && !wasFrame) return false;
+      const hadLinked = st.linkedCursor.pinned;
+      if (!hadPin && !wasFrame && !hadLinked) return false;
       set({
         narrowbandPinnedDwellIndex: null,
         // Desktop Session::clearCursor drops framePsd -> averaged PSD.
         narrowbandPsdMode: 'statistical',
+        // Also drop linked freq so NB PSD vline clears with Esc.
+        linkedCursor: {
+          pinned: false,
+          timeSec: 0,
+          frequencyHz: 0,
+          selectedFrame: null,
+        },
       });
       return true;
     }

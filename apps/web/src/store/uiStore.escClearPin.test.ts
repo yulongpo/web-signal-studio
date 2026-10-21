@@ -28,15 +28,36 @@ describe('G18 clearActivePinnedCursor (Esc clear)', () => {
     expect(useUiStore.getState().clearActivePinnedCursor()).toBe(false);
   });
 
-  it('narrowband: clears dwell and restores statistical PSD', () => {
+  it('narrowband: clears dwell, linked freq, and restores statistical PSD', () => {
     useUiStore.setState({
       workspaceMode: 'narrowband',
       narrowbandPinnedDwellIndex: 5,
       narrowbandPsdMode: 'frame',
     });
+    useUiStore.getState().pinLinkedCursor({
+      source: 'psd',
+      frequencyHz: 12_345,
+      timeSec: 0.1,
+    });
     expect(useUiStore.getState().clearActivePinnedCursor()).toBe(true);
     expect(useUiStore.getState().narrowbandPinnedDwellIndex).toBeNull();
     expect(useUiStore.getState().narrowbandPsdMode).toBe('statistical');
+    expect(useUiStore.getState().linkedCursor.pinned).toBe(false);
+    expect(useUiStore.getState().linkedCursor.frequencyHz).toBe(0);
+  });
+
+  it('narrowband: clears linked freq vline even without dwell', () => {
+    useUiStore.setState({
+      workspaceMode: 'narrowband',
+      narrowbandPinnedDwellIndex: null,
+      narrowbandPsdMode: 'statistical',
+    });
+    useUiStore.getState().pinLinkedCursor({
+      source: 'psd',
+      frequencyHz: 99_000,
+    });
+    expect(useUiStore.getState().clearActivePinnedCursor()).toBe(true);
+    expect(useUiStore.getState().linkedCursor.pinned).toBe(false);
   });
 
   it('narrowband: restores statistical even if only frame mode set', () => {

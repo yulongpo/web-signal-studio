@@ -1,44 +1,44 @@
-# Bot-C short tip — G18 Esc clear pin + NB multi-view wave sync (no PASS)
+# Bot-C short tip — NB PSD freq vline + Esc clears linked (no PASS)
 
 | Field | Value |
 |-------|-------|
-| Asia/Shanghai | 2026-10-22 01:18 |
-| Base tip | 0515ed8 |
+| Asia/Shanghai | 2026-10-22 01:25 |
+| Base tip | 088f322 |
 | Branch | work/bot-c-charts |
-| Desktop ref | 17471a6 MainWindow Esc → clearActiveLinkedCursor / Session::clearCursor |
-| Self-check | ChartMarkOverlay untouched; HeatmapCanvas backticks unchanged (30) |
+| Desktop ref | 17471a6 NarrowbandWorkspace::updateLinkedCursors / Session::clearCursor |
+| Self-check | ChartMarkOverlay untouched; HeatmapCanvas backticks unchanged |
 
 ## Landed
 
 | ID | Landed | Note |
 |----|--------|------|
-| G18 Esc clear pin | clearActivePinnedCursor + useEscClearPinnedCursor | WB clears linkedCursor; NB clears dwell + restores statistical PSD |
-| G18 NB multi-view | wave linkedX from pinned dwell time | data-g18-nb-multi-view; desktop updateLinkedCursors subset |
-| G18 clear menu | uses clearActivePinnedCursor | Main + NB chrome clears |
+| NB PSD freq vline | linkedX from linkedCursor.frequencyHz | WaveformChart already draws vertical pin line; probes data-g18-nb-psd-freq-vline |
+| STFT pin → freq | cssToTimeFreq on STFT click | Also pinLinkedCursor(time+freq+frame); feeds PSD vline without new D field |
+| PSD click pin | onPinX → pinLinkedCursor source=psd | Same as AuxChartHost PSD path |
+| Esc clear linked in NB | clearActivePinnedCursor | Drops dwell + linkedCursor so PSD vline clears |
+| G11 PlotWidget leftover | none this tip | sourceKind/hover already MET; no clear evidence-backed chrome leftover owned by C |
 
 ## Deferred / gaps
 
 | Item | Status |
 |------|--------|
-| NB PSD linked freq overlay | deferred (no pin-frequency store yet; STFT click is frame-X only) |
-| G11 PlotWidget leftover paint nuances | deferred (capacity; sourceKind/hover already MET) |
+| Dedicated NB pin-frequency store field | **not needed** — reuse linkedCursor.frequencyHz (C). If D later wants STFT-only field for DSP series, document separately |
+| Dwell-only historic pins (no linkedCursor) | no freq vline until STFT/PSD re-pin provides frequency |
 | rail-dwell-scrubber twin | Bot-B — untouched |
+| G11 residual paint nuances | still PARTIAL at matrix level; nothing concrete left for this tip |
 
 ## Owner split
 
 | Item | Owner |
 |------|-------|
-| Esc clear / charts linked sync | **Bot-C** (this tip) |
-| Right-rail rail-dwell-scrubber | **Bot-B** (untouched) |
+| NB PSD freq chrome / Esc clear | **Bot-C** (this tip) |
+| DSP series / pin store fields beyond linkedCursor | **Bot-D** (no new field this tip) |
+| Right-rail scrubber | **Bot-B** (untouched) |
 
 ## Evidence
 
-- apps/web/src/store/uiStore.ts (+ escClearPin.test.ts)
-- apps/web/src/hooks/useEscClearPinnedCursor.ts
-- apps/web/src/App.tsx (data-g18-esc-clear)
-- apps/web/src/components/MainChartHost.tsx
 - apps/web/src/components/NarrowbandObserveCharts.tsx
-- apps/web/src/components/NarrowbandWorkspace.tsx
-- artifacts/validation/ui-parity/bot-c/G18-ESC-CLEAR-HANDOFF.md
+- apps/web/src/store/uiStore.ts (+ escClearPin.test.ts)
+- packages/charts WaveformChart linkedX (unchanged consumer)
 
 **matrix_pass_claimed: false. No PASS.**

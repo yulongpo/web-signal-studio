@@ -12,6 +12,7 @@ import {
   type NarrowbandObserveDdcResult,
 } from '../dsp/narrowbandObserveDdc';
 import {
+  cssToTimeFreq,
   frameIndexFromPlotX,
   PLOT_MARGIN,
 } from './chartGesture';
@@ -136,6 +137,8 @@ export function NarrowbandObserveCharts() {
   const setPinnedDwellIndex = useUiStore((s) => s.setNarrowbandPinnedDwellIndex);
   const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
   const setPsdMode = useUiStore((s) => s.setNarrowbandPsdMode);
+  const linkedCursor = useUiStore((s) => s.linkedCursor);
+  const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
 
   const [result, setResult] = useState<NarrowbandObserveDdcResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -237,6 +240,13 @@ export function NarrowbandObserveCharts() {
     return timeSec.min + ((i + 0.5) / frameCount) * span;
   }, [pinnedDwellIndex, result]);
 
+  // G18 NB PSD freq vline: reuse linkedCursor.frequencyHz (no new D store field).
+  const psdLinkedFreqHz =
+    linkedCursor.pinned && Number.isFinite(linkedCursor.frequencyHz)
+      ? linkedCursor.frequencyHz
+      : null;
+
+
   return (
     <>
       <div
@@ -292,6 +302,8 @@ export function NarrowbandObserveCharts() {
             'data-nb-psd-frame-index': result?.psdFrameIndexUsed ?? undefined,
             'data-nb-psd-frame-count': result?.psdFrameCount ?? undefined,
             'data-nb-psd-pinned-dwell': pinnedDwellIndex ?? undefined,
+            'data-g18-nb-psd-freq-vline': psdLinkedFreqHz == null ? 'false' : 'true',
+            'data-g18-linked-cursor': linkedCursor.pinned ? 'true' : 'false',
           }}
         >
           {result && psdXDomain && psdPlot && psdPlot.y.length > 0 ? (
@@ -302,6 +314,20 @@ export function NarrowbandObserveCharts() {
               height="100%"
               testId="nb-chart-psd"
               windowX={null}
+              linkedX={psdLinkedFreqHz}
+              onPinX={(frequencyHz) => {
+                const centerTime =
+                  dwellTimeSec != null
+                    ? dwellTimeSec
+                    : result.waveform.xDomain.min +
+                      (result.waveform.xDomain.max - result.waveform.xDomain.min) / 2;
+                pinLinkedCursor({
+                  source: 'psd',
+                  frequencyHz,
+                  centerTimeSec: centerTime,
+                  centerFrequencyHz: (psdXDomain.min + psdXDomain.max) / 2,
+                });
+              }}
             />
           ) : (
             <Waiting text={statusText ?? '等待真实 DDC PSD'} />
@@ -340,12 +366,36 @@ export function NarrowbandObserveCharts() {
                 return;
               }
               const host = event.currentTarget.getBoundingClientRect();
-              if (!(host.width > 0) || result.stft.frameCount <= 0) return;
+              if (!(host.width > 0) || !(host.height > 0) || result.stft.frameCount <= 0)
+                return;
               const x = event.clientX - host.left;
+              const y = event.clientY - host.top;
               const idx = frameIndexFromPlotX(x, host.width, result.stft.frameCount);
               if (idx == null) return; // click in axis margin — ignore
               setPinnedDwellIndex(idx);
               setPsdMode('frame');
+              // Desktop updateLinkedCursors: STFT pin also carries frequency → PSD vline.
+              if (stftFreq) {
+                const { timeSec, freqHz } = cssToTimeFreq(
+                  x,
+                  y,
+                  host.width,
+                  host.height,
+                  'stft',
+                  result.stft.timeSec,
+                  stftFreq,
+                );
+                pinLinkedCursor({
+                  source: 'main',
+                  timeSec,
+                  frequencyHz: freqHz,
+                  selectedFrame: idx,
+                  centerTimeSec:
+                    result.stft.timeSec.min +
+                    (result.stft.timeSec.max - result.stft.timeSec.min) / 2,
+                  centerFrequencyHz: (stftFreq.min + stftFreq.max) / 2,
+                });
+              }
             }}
             onContextMenu={(event) => {
               // contextFramePsd menu: require pin, then switch to frame mode
