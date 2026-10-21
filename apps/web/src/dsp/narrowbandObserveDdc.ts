@@ -4,7 +4,7 @@
  * LO/window defaults come from the first SigMF annotation when present.
  */
 import type { DspWorkerClient } from '@wss/dsp-wasm';
-import type { NarrowbandWaveformMode } from '../types/provisional';
+import type { NarrowbandWaveformMode, NarrowbandPsdMode } from '../types/provisional';
 import {
   ensureDemoSigmfReader,
   iqRmsOverview,
@@ -29,6 +29,10 @@ export type NarrowbandObserveDdcOptions = {
   psdFftSize?: number;
   stftFftSize?: number;
   waveformMode?: NarrowbandWaveformMode;
+  /** G18: frame = single STFT dwell; statistical = Welch aggregate. */
+  psdMode?: NarrowbandPsdMode;
+  /** Frame index for frame mode (default: last available frame). */
+  psdFrameIndex?: number;
   maxWavePoints?: number;
   maxInputSamples?: number;
   demoDir?: string | null;
@@ -55,10 +59,16 @@ export type NarrowbandObserveDdcResult = {
     xDomain: { min: number; max: number; unit: string; label: string };
     mode: NarrowbandWaveformMode;
   };
+  psdMode: NarrowbandPsdMode;
+  /** Honest tag for which series is plotted. */
+  psdSeriesKind: 'frame-stft' | 'welch-statistical';
   psd: {
     y: Float32Array;
     xDomain: { min: number; max: number; unit: string; label: string };
   };
+  /** Both series retained so mode switch can be proven to change data. */
+  psdFrame: Float32Array;
+  psdStatistical: Float32Array;
   stft: {
     power: Float32Array;
     binCount: number;
@@ -194,6 +204,95 @@ function linearPowerToDb(linear: Float32Array): Float32Array {
   return out;
 }
 
+
+/**
+ * fftshift linear power bins then convert to dB.
+ */
+export function linearPowerToDbShifted(linear: Float32Array): Float32Array {
+  const n = linear.length;
+  if (n === 0) return new Float32Array(0);
+  const half = n >> 1;
+  const shifted = new Float32Array(n);
+  shifted.set(linear.subarray(half), 0);
+  shifted.set(linear.subarray(0, half), half);
+  return linearPowerToDb(shifted);
+}
+
+/**
+ * G18 frame PSD: one STFT dwell (default last frame). Differs from Welch
+ * statistical PSD whenever multiple frames/windows exist.
+ */
+export function buildFramePsdFromStft(
+  linearPower: Float32Array,
+  binCount: number,
+  frameCount: number,
+  frameIndex?: number,
+): Float32Array {
+  if (binCount <= 0 || frameCount <= 0 || linearPower.length < binCount) {
+    return new Float32Array(0);
+  }
+  const idx =
+    frameIndex == null
+      ? frameCount - 1
+      : Math.max(0, Math.min(frameCount - 1, Math.floor(frameIndex)));
+  const row = linearPower.subarray(idx * binCount, (idx + 1) * binCount);
+  return linearPowerToDbShifted(row);
+}
+
+/**
+ * G18 statistical PSD: Welch aggregate (independent PSD-N). Falls back to
+ * mean across STFT frames when Welch is empty.
+ */
+export function buildStatisticalPsd(
+  welchLinear: Float32Array | null | undefined,
+  stftLinear?: Float32Array,
+  binCount?: number,
+  frameCount?: number,
+): Float32Array {
+  if (welchLinear && welchLinear.length > 0) {
+    return linearPowerToDbShifted(welchLinear);
+  }
+  if (
+    stftLinear &&
+    binCount &&
+    frameCount &&
+    frameCount > 0 &&
+    binCount > 0 &&
+    stftLinear.length >= binCount * frameCount
+  ) {
+    const mean = new Float32Array(binCount);
+    for (let f = 0; f < frameCount; f++) {
+      const row = stftLinear.subarray(f * binCount, (f + 1) * binCount);
+      for (let k = 0; k < binCount; k++) mean[k]! += row[k]!;
+    }
+    const inv = 1 / frameCount;
+    for (let k = 0; k < binCount; k++) mean[k]! *= inv;
+    return linearPowerToDbShifted(mean);
+  }
+  return new Float32Array(0);
+}
+
+/**
+ * Pick plotted PSD series from mode. Frame and statistical must be able to
+ * differ numerically when both are available.
+ */
+export function selectNarrowbandPsdSeries(args: {
+  mode: NarrowbandPsdMode;
+  frameDb: Float32Array;
+  statisticalDb: Float32Array;
+}): { y: Float32Array; kind: 'frame-stft' | 'welch-statistical' } {
+  if (args.mode === 'frame' && args.frameDb.length > 0) {
+    return { y: args.frameDb, kind: 'frame-stft' };
+  }
+  if (args.statisticalDb.length > 0) {
+    return { y: args.statisticalDb, kind: 'welch-statistical' };
+  }
+  if (args.frameDb.length > 0) {
+    return { y: args.frameDb, kind: 'frame-stft' };
+  }
+  return { y: new Float32Array(0), kind: 'welch-statistical' };
+}
+
 /**
  * Open demo SigMF → DDC (+ baseband PSD/STFT) for G06 observe charts.
  */
@@ -258,23 +357,36 @@ export async function computeNarrowbandObserveDdc(
     maxWavePoints,
   );
 
-  // PSD: fftshift-ish axis from -fs/2..fs/2 for WaveformChart x.
-  let psdY = new Float32Array(0);
-  let psdX = {
+  // G18 PSD: frame = last STFT dwell; statistical = Welch aggregate.
+  const psdMode: NarrowbandPsdMode = options.psdMode ?? 'statistical';
+  const psdX = {
     min: -result.outputSampleRateHz / 2,
     max: result.outputSampleRateHz / 2,
     unit: 'Hz',
     label: 'Frequency',
   };
-  if (result.basebandPsd && result.basebandPsd.linearPower.length > 0) {
-    const lin = result.basebandPsd.linearPower;
-    const n = lin.length;
-    const half = n >> 1;
-    const shifted = new Float32Array(n);
-    shifted.set(lin.subarray(half), 0);
-    shifted.set(lin.subarray(0, half), half);
-    psdY = new Float32Array(linearPowerToDb(shifted));
-  }
+  const welchLinear = result.basebandPsd?.linearPower;
+  const stftLinEarly = result.basebandStft?.linearPower;
+  const stftBinsEarly = result.basebandStft?.binCount ?? 0;
+  const stftFramesEarly = result.basebandStft?.frameCount ?? 0;
+  const psdFrame = buildFramePsdFromStft(
+    stftLinEarly ?? new Float32Array(0),
+    stftBinsEarly,
+    stftFramesEarly,
+    options.psdFrameIndex,
+  );
+  const psdStatistical = buildStatisticalPsd(
+    welchLinear,
+    stftLinEarly,
+    stftBinsEarly,
+    stftFramesEarly,
+  );
+  const selected = selectNarrowbandPsdSeries({
+    mode: psdMode,
+    frameDb: psdFrame,
+    statisticalDb: psdStatistical,
+  });
+  const psdY = selected.y;
 
   let stftPower = new Float32Array(0);
   let binCount = 0;
@@ -330,10 +442,14 @@ export async function computeNarrowbandObserveDdc(
       },
       mode: waveformMode,
     },
+    psdMode,
+    psdSeriesKind: selected.kind,
     psd: {
       y: psdY,
       xDomain: psdX,
     },
+    psdFrame,
+    psdStatistical,
     stft: {
       power: stftPower,
       binCount,

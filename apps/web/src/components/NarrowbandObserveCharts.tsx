@@ -54,6 +54,7 @@ export function NarrowbandObserveCharts() {
   const psdFft = useUiStore((s) => s.narrowbandPsdFft);
   const stftFft = useUiStore((s) => s.narrowbandStftFft);
   const freqMode = useUiStore((s) => s.narrowbandFreqMode);
+  const psdMode = useUiStore((s) => s.narrowbandPsdMode);
 
   const [result, setResult] = useState<NarrowbandObserveDdcResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +86,7 @@ export function NarrowbandObserveCharts() {
         setLoading(false);
       });
     return () => ac.abort();
-  }, [client, waveformMode, psdFft, stftFft]);
+  }, [client, waveformMode, psdFft, stftFft, psdMode]);
 
   const statusText = error
     ? `DDC unavailable: ${error}`
@@ -171,6 +172,9 @@ export function NarrowbandObserveCharts() {
           ready={ready && Boolean(result?.psd.y.length)}
           extraAttrs={{
             'data-nb-psd-source': 'sigmf_data_demo-ddc',
+            'data-nb-psd-mode': psdMode,
+            'data-nb-psd-series-kind': result?.psdSeriesKind,
+            'data-nb-psd-bins': result?.psd.y.length,
           }}
         >
           {result && psdXDomain && result.psd.y.length > 0 ? (
