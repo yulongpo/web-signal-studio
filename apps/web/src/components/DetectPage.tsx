@@ -31,6 +31,8 @@ import {
   getIqFileSession,
   subscribeIqFileSession,
 } from '../dsp/iqFileSession';
+import { AdaptiveValueEdit } from './AdaptiveValueEdit';
+import { formatDetectionPhysicalTimes } from './adaptiveValue';
 
 const POLL_MS = 500;
 
@@ -130,6 +132,8 @@ export function DetectPage() {
   const baseUrl = useUiStore((s) => s.localComputeBaseUrl);
   const sampleRange = useUiStore((s) => s.detectSampleRange);
   const rangeSource = useUiStore((s) => s.detectSampleRangeSource);
+  const setDetectSampleRange = useUiStore((s) => s.setDetectSampleRange);
+  const setActiveTool = useUiStore((s) => s.setActiveTool);
   const rangeRef = useRef<HTMLElement>(null);
 
   const iqEpoch = useSyncExternalStore(
@@ -155,6 +159,10 @@ export function DetectPage() {
   const [spectrumMode, setSpectrumMode] = useState<number>(0);
   const [timeStrategy, setTimeStrategy] = useState<'sample' | 'roi' | 'coarse'>('sample');
   const [splitBursts, setSplitBursts] = useState(false);
+  /** Desktop detectionRangeOrigin — visible / available-file / active-segment / custom. */
+  const [rangeOrigin, setRangeOrigin] = useState<
+    'visible' | 'available-file' | 'active-segment' | 'custom'
+  >('visible');
   const [params, setParams] = useState<DetectionCardParams>(DEFAULT_DETECTION_PARAMS);
   const pollTimer = useRef<number | null>(null);
 
@@ -167,6 +175,26 @@ export function DetectPage() {
       (k) => params[k] !== DEFAULT_DETECTION_PARAMS[k],
     );
   }, [params]);
+
+
+  // Mirror chart/file ROI confirm into DetectionCard rangeOrigin chrome (no auto-run).
+  useEffect(() => {
+    if (rangeSource === 'roi') setRangeOrigin('custom');
+    else if (rangeSource === 'file') setRangeOrigin('available-file');
+  }, [rangeSource]);
+
+  const sampleRateHz = iqSession?.sampleRateHz ?? null;
+  const physicalTimes = useMemo(
+    () =>
+      formatDetectionPhysicalTimes({
+        sampleRateHz,
+        fftSize: params.fftSize,
+        hopMilliseconds: params.hopMilliseconds,
+        modelFrames: params.modelFrames,
+        modelHopFrames: params.modelHopFrames,
+      }),
+    [sampleRateHz, params.fftSize, params.hopMilliseconds, params.modelFrames, params.modelHopFrames],
+  );
 
 
   const makeClient = useCallback(
@@ -302,6 +330,7 @@ export function DetectPage() {
           spectrumMode,
           timeStrategy,
           splitBursts,
+          rangeOrigin,
           // Full DetectionCard grid (desktop objectNames) — TRT honors score/nms/topK/fft/hop/frames when present.
           fftSize: params.fftSize,
           hopMilliseconds: params.hopMilliseconds,
@@ -634,15 +663,14 @@ export function DetectPage() {
               </label>
               <label className="detect-field" data-testid="detection-hop-ms-field">
                 <span>谱步长 / ms</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-hop-milliseconds"
                   data-object-name="detectionHopMilliseconds"
-                  min={0.001}
-                  step={0.001}
                   value={params.hopMilliseconds}
                   disabled={busy}
-                  onChange={(e) => setParam('hopMilliseconds', Math.max(0.001, Number(e.target.value) || 0.001))}
+                  title="数值（桌面 AdaptiveValueEdit Scalar）；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('hopMilliseconds', Math.max(0.001, v))}
                 />
               </label>
             </div>
@@ -674,26 +702,40 @@ export function DetectPage() {
                 />
               </label>
             </div>
-            <p className="muted detection-physical-times" data-testid="detection-physical-times" data-object-name="detectionPhysicalTimes">
-              谱窗≈FFT/Fs；hop 为相邻谱帧间隔（桌面 floor(Fs×hop)）。本页不伪造 Fs。
+            <p
+              className="muted detection-physical-times"
+              data-testid="detection-physical-times"
+              data-object-name="detectionPhysicalTimes"
+              data-has-fs={physicalTimes.hasFs ? 'true' : 'false'}
+              title={physicalTimes.details}
+            >
+              {physicalTimes.summary}
             </p>
+            <details className="detection-calculation-details" data-testid="detection-calculation-details" data-object-name="detectionCalculationDetails">
+              <summary>计算详情（Fs 说明）</summary>
+              <pre
+                className="muted"
+                data-testid="detection-calculation-details-text"
+                data-object-name="detectionCalculationDetailsText"
+              >
+                {physicalTimes.details}
+              </pre>
+            </details>
           </div>
 
           <div className="detection-param-section" data-testid="detection-threshold-section" data-object-name="detectionThresholdParameters">
             <strong>置信阈值</strong>
             <label className="detect-field" data-testid="detection-score-threshold-field">
               <span>置信阈值（score threshold）</span>
-              <input
-                type="number"
-                data-testid="detection-score-threshold"
-                data-object-name="detectionScoreThreshold"
-                min={0}
-                max={1}
-                step={0.01}
-                value={params.scoreThreshold}
-                disabled={busy}
-                onChange={(e) => setParam('scoreThreshold', Math.min(1, Math.max(0, Number(e.target.value) || 0)))}
-              />
+              <AdaptiveValueEdit
+                  kind="Scalar"
+                  data-testid="detection-score-threshold"
+                  data-object-name="detectionScoreThreshold"
+                  value={params.scoreThreshold}
+                  disabled={busy}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('scoreThreshold', Math.min(1, Math.max(0, v)))}
+                />
             </label>
           </div>
 
@@ -702,16 +744,14 @@ export function DetectPage() {
             <div className="detection-param-row">
               <label className="detect-field" data-testid="detection-nms-iou-field">
                 <span>重叠抑制（NMS IoU）</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-nms-iou"
                   data-object-name="detectionNmsIou"
-                  min={0}
-                  max={1}
-                  step={0.01}
                   value={params.nmsIou}
                   disabled={busy}
-                  onChange={(e) => setParam('nmsIou', Math.min(1, Math.max(0, Number(e.target.value) || 0)))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('nmsIou', Math.min(1, Math.max(0, v)))}
                 />
               </label>
               <label className="detect-field" data-testid="detection-topk-field">
@@ -731,106 +771,92 @@ export function DetectPage() {
             <div className="detection-param-row" data-testid="detection-margin-fields" data-enabled={timeStrategy !== 'coarse' ? 'true' : 'false'}>
               <label className="detect-field" data-testid="detection-bandwidth-margin-field">
                 <span>噪底裕量 / dB</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-bandwidth-margin-db"
                   data-object-name="detectionBandwidthMarginDb"
-                  min={0}
-                  max={60}
-                  step={0.1}
                   value={params.bandwidthMarginDb}
                   disabled={busy || timeStrategy === 'coarse'}
-                  onChange={(e) => setParam('bandwidthMarginDb', Math.max(0, Number(e.target.value) || 0))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('bandwidthMarginDb', Math.max(0, v))}
                 />
               </label>
             </div>
             <div className="detection-param-row" data-testid="detection-fine-fields" data-enabled={timeStrategy !== 'coarse' ? 'true' : 'false'}>
               <label className="detect-field">
                 <span>边缘比例</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-sample-edge-ratio"
                   data-object-name="detectionSampleEdgeRatio"
-                  min={0}
-                  max={1}
-                  step={0.01}
                   value={params.sampleEdgeRatio}
                   disabled={busy || timeStrategy === 'coarse'}
-                  onChange={(e) => setParam('sampleEdgeRatio', Math.min(1, Math.max(0, Number(e.target.value) || 0)))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('sampleEdgeRatio', Math.min(1, Math.max(0, v)))}
                 />
               </label>
               <label className="detect-field">
                 <span>平滑 / ms</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-smooth-milliseconds"
                   data-object-name="detectionSmoothMilliseconds"
-                  min={0}
-                  max={60000}
-                  step={0.1}
                   value={params.smoothMilliseconds}
                   disabled={busy || timeStrategy === 'coarse'}
-                  onChange={(e) => setParam('smoothMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('smoothMilliseconds', Math.max(0, v))}
                 />
               </label>
             </div>
             <div className="detection-param-row" data-testid="detection-fine-split-fields" data-enabled={timeStrategy !== 'coarse' && splitBursts ? 'true' : 'false'}>
               <label className="detect-field">
                 <span>min on / ms</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-min-on-milliseconds"
                   data-object-name="detectionMinOnMilliseconds"
-                  min={0}
-                  max={60000}
-                  step={0.1}
                   value={params.minOnMilliseconds}
                   disabled={busy || timeStrategy === 'coarse' || !splitBursts}
-                  onChange={(e) => setParam('minOnMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('minOnMilliseconds', Math.max(0, v))}
                 />
               </label>
               <label className="detect-field">
                 <span>min off / ms</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-min-off-milliseconds"
                   data-object-name="detectionMinOffMilliseconds"
-                  min={0}
-                  max={60000}
-                  step={0.1}
                   value={params.minOffMilliseconds}
                   disabled={busy || timeStrategy === 'coarse' || !splitBursts}
-                  onChange={(e) => setParam('minOffMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('minOffMilliseconds', Math.max(0, v))}
                 />
               </label>
             </div>
             <div className="detection-param-row" data-testid="detection-coarse-split-fields" data-enabled={timeStrategy === 'coarse' && splitBursts ? 'true' : 'false'}>
               <label className="detect-field">
                 <span>粗分段间隔 / ms</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-coarse-split-gap-milliseconds"
                   data-object-name="detectionCoarseSplitGapMilliseconds"
-                  min={0}
-                  max={60000}
-                  step={0.1}
                   value={params.coarseSplitGapMilliseconds}
                   disabled={busy || timeStrategy !== 'coarse' || !splitBursts}
-                  onChange={(e) => setParam('coarseSplitGapMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('coarseSplitGapMilliseconds', Math.max(0, v))}
                 />
               </label>
               <label className="detect-field">
                 <span>最短粗事件 / ms</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Scalar"
                   data-testid="detection-coarse-min-burst-milliseconds"
                   data-object-name="detectionCoarseMinBurstMilliseconds"
-                  min={0}
-                  max={60000}
-                  step={0.1}
                   value={params.coarseMinBurstMilliseconds}
                   disabled={busy || timeStrategy !== 'coarse' || !splitBursts}
-                  onChange={(e) => setParam('coarseMinBurstMilliseconds', Math.max(0, Number(e.target.value) || 0))}
+                  title="数值；Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('coarseMinBurstMilliseconds', Math.max(0, v))}
                 />
               </label>
             </div>
@@ -883,15 +909,14 @@ export function DetectPage() {
               </label>
               <label className="detect-field">
                 <span>merge / Hz</span>
-                <input
-                  type="number"
+                <AdaptiveValueEdit
+                  kind="Frequency"
                   data-testid="detection-merge-frequency-hz"
                   data-object-name="detectionMergeFrequencyHz"
-                  min={0}
-                  step={1}
                   value={params.mergeFrequencyHz}
                   disabled={busy}
-                  onChange={(e) => setParam('mergeFrequencyHz', Math.max(0, Number(e.target.value) || 0))}
+                  title="Hz、kHz、MHz、GHz；无单位=Hz。Enter/Tab 提交，Esc 撤销"
+                  onCommit={(v) => setParam('mergeFrequencyHz', Math.max(0, v))}
                 />
               </label>
             </div>
@@ -1110,20 +1135,84 @@ export function DetectPage() {
         data-start={sampleRange.start}
         data-end={sampleRange.end}
         data-range-source={rangeSource}
+        data-range-origin={rangeOrigin}
         tabIndex={-1}
       >
-        <strong>检测采样范围</strong>
-        <p className="detect-range-values" data-testid="detect-sample-range-values">
+        <strong>检测范围</strong>
+        <label className="detect-field" data-testid="detection-range-origin-field">
+          <span>范围来源</span>
+          <select
+            data-testid="detection-range-origin"
+            data-object-name="detectionRangeOrigin"
+            value={rangeOrigin}
+            disabled={busy}
+            onChange={(e) => {
+              const next = e.target.value as typeof rangeOrigin;
+              setRangeOrigin(next);
+              if (next === 'available-file' && hasIqSource) {
+                // Keep existing file range if already from file; otherwise leave samples as-is.
+                setDetectSampleRange(sampleRange, 'file');
+              }
+              if (next === 'visible') {
+                setDetectSampleRange(sampleRange, 'default');
+              }
+              if (next === 'custom' && rangeSource !== 'roi') {
+                // Custom waits for chart ROI confirm — do not invent a range.
+              }
+            }}
+          >
+            <option value="visible">当前可见区域</option>
+            <option value="available-file">全可用文件</option>
+            <option value="active-segment">活动标记的单段</option>
+            <option value="custom">自定义 ROI</option>
+          </select>
+        </label>
+        <label
+          className="detect-field"
+          data-testid="detection-active-segment-field"
+          data-visible={rangeOrigin === 'active-segment' ? 'true' : 'false'}
+          style={{ display: rangeOrigin === 'active-segment' ? undefined : 'none' }}
+        >
+          <span>活动段</span>
+          <select
+            data-testid="detection-active-segment"
+            data-object-name="detectionActiveSegment"
+            disabled
+            defaultValue=""
+            title="活动标记段绑定仍 PARTIAL — 无伪造段列表"
+          >
+            <option value="">（无可用活动段 · PARTIAL）</option>
+          </select>
+        </label>
+        <p
+          className="detect-range-values"
+          data-testid="detect-sample-range-values"
+          data-object-name="detectionRequestedRange"
+        >
           [{sampleRange.start}, {sampleRange.end})
         </p>
         <p data-testid="detect-sample-range-source">
-          {rangeSource === 'roi'
+          {rangeOrigin === 'custom' || rangeSource === 'roi'
             ? '来自图上检测 ROI 确认。确认不会自动运行检测。'
-            : rangeSource === 'file'
+            : rangeOrigin === 'available-file' || rangeSource === 'file'
               ? '来自已打开工程的样本区间。'
-              : '默认区间。尚未确认图上检测 ROI。'}
+              : rangeOrigin === 'active-segment'
+                ? '活动标记段：列表仍 PARTIAL（不伪造段）。'
+                : '当前可见区域（与主图窗口对齐仍 PARTIAL；区间如下）。'}
         </p>
-        <p className="muted">十进制字符串，半开区间。</p>
+        <button
+          type="button"
+          data-testid="select-detection-roi"
+          data-object-name="selectDetectionRoi"
+          disabled={busy}
+          onClick={() => {
+            setRangeOrigin('custom');
+            setActiveTool('detection-roi');
+          }}
+        >
+          选择单个检测 ROI…
+        </button>
+        <p className="muted">十进制字符串，半开区间。选 ROI 后切主图 detection-roi 工具；确认不自动跑检测。</p>
       </section>
 
       <div className="detect-task" data-testid="detect-task-status">
