@@ -1,0 +1,58 @@
+{
+  "bot": "bot-c",
+  "writtenAt": "2026-10-21T10:26:00.777Z",
+  "package": "@wss/charts",
+  "samples": [
+    {
+      "name": "extract-preview",
+      "durationMs": 2.429699999999997,
+      "ts": "2026-10-21T10:26:00.755Z"
+    },
+    {
+      "name": "extract-refine",
+      "durationMs": 8.581600000000009,
+      "ts": "2026-10-21T10:26:00.766Z"
+    },
+    {
+      "name": "frame-preview",
+      "durationMs": 3.0783000000000014,
+      "meta": {
+        "frameMs": 3.0783000000000014,
+        "extractMs": 2.2783000000000015,
+        "dpr": 2,
+        "mode": "preview",
+        "bufferWidth": 1280,
+        "bufferHeight": 640,
+        "outW": 320,
+        "outH": 160,
+        "note": "cpu extract + synthetic frame budget"
+      },
+      "ts": "2026-10-21T10:26:00.776Z"
+    },
+    {
+      "name": "frame-refine",
+      "durationMs": 10.124400000000014,
+      "meta": {
+        "frameMs": 10.124400000000014,
+        "extractMs": 8.524400000000014,
+        "dpr": 2,
+        "mode": "refine",
+        "bufferWidth": 1280,
+        "bufferHeight": 640,
+        "outW": 512,
+        "outH": 256,
+        "note": "idle refine denser grid"
+      },
+      "ts": "2026-10-21T10:26:00.776Z"
+    }
+  ],
+  "summary": {
+    "sampleCount": 4,
+    "totalDurationMs": 24.21400000000002,
+    "modes": [
+      "preview",
+      "refine"
+    ],
+    "dpr": 2
+  }
+}

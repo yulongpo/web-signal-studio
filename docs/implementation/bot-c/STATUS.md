@@ -1,11 +1,11 @@
-﻿# Bot-C STATUS — packages/charts
+# Bot-C STATUS — packages/charts
 
 Updated: 2026-10-21 Asia/Shanghai  
 Branch: `work/bot-c-charts`  
 Worktree: `D:\project\wss-wt-c` only (do not write shared `web_signal_studio` tree).  
-Synced main tip: `8e4bf5f` (includes Bot-B MainChartHost + SpectrumChart wiring)
-Latest Bot-C commit on `work/bot-c-charts`: `694dc10` (`694dc104d4d0f58a19afce77d7fbc8c29bf39802`).
-Commit (this package): `b5b03d5` (`b5b03d5cc40595cd919a324a8cf618b29542b9ca`)
+Synced main tip: `610a79c` (`610a79c464493cf600ad6b109704ca372cb2958b`) (CAO merge includes `694dc10` / prior Bot-C packages + Bot-B host).
+Feature commits: tile/DPI/preview `7b21dff`; interaction P95 `694dc10`.
+Acceptance evidence (tracked, WIP only): `docs/acceptance/evidence/bot-c/BOT_C_PROBE_INDEX.md`.
 
 ## Embed API for Bot-B (`apps/web`)
 
@@ -62,6 +62,13 @@ import { SpectrumChart } from "@wss/charts/SpectrumChart";
 | `PreviewRefineController` | Cheap preview during pan/zoom; refine after idle. |
 | `planHeatmapContextRestore` / `nextWebGlUiState` | Context-loss restore plan + `data-webgl-state` machine. |
 | `writeChartsValidationProbe` / `runSyntheticInteractionProbe` | Writes JSON under `artifacts/validation/bot-c/` with **P50/P95** `frameMs` / `extractMs`. |
+
+
+### SpectrumChart embed props (Bot-B)
+
+- `interactionEnabled?: boolean` — pointer-drag pan + wheel zoom (default `true`). Inherited from `HeatmapCanvasProps`; set `false` for read-only host.
+- `onViewChange?: (view: ViewState) => void` — physical `xDomain`/`yDomain` only (no detection coords). Safe for MainChartHost to adopt later; `onCursor` unchanged.
+- Acceptance packaging: evidence under `docs/acceptance/evidence/bot-c/`; matrix M-03/M-04/C-01..C-04 are **WIP** (QA verifies PASS).
 
 ### Interaction (Bot-B can adopt later)
 
@@ -124,7 +131,7 @@ Probe evidence:
 | DPI sizing + ResizeObserver helper | Working + tests |
 | Tile / viewport display extract | Working + tests (display-only contract) |
 | Preview/refine controller | Working + tests |
-| Performance probe P50/P95 + synthetic interaction loop | Working; evidence under artifacts/validation/bot-c |
+| Performance probe P50/P95 + synthetic interaction loop | Working; evidence under artifacts/validation/bot-c + docs/acceptance/evidence/bot-c (38 vitest) |
 | Waveform / PSD line GL path | Stub type only |
 | Tile streaming / ring buffer | Stub (CPU extract only) |
 | Bot-D live STFT wiring | Not owned |

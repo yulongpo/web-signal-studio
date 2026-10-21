@@ -20,10 +20,11 @@ export interface SpectrumChartProps
   className?: string;
   style?: CSSProperties;
   /**
-   * Optional pan/zoom view callback (passed through to HeatmapCanvas).
-   * MainChartHost may adopt later; existing onCursor is unchanged.
+   * Inherited from HeatmapCanvas (passed through unchanged):
+   * - `interactionEnabled?: boolean` — pan (drag) + zoom (wheel); default true.
+   * - `onViewChange?: (view) => void` — physical x/y domains only (no detection coords).
+   * - `onCursor` — existing MainChartHost readout; unchanged.
    */
-  // onViewChange / interactionEnabled / onCursor inherited from HeatmapCanvasProps
 }
 
 /**

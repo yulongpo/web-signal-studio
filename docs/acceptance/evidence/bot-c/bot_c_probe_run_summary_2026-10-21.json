@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "flushedPath": "artifacts\\validation\\bot-c\\bot_c_tile_dpi_preview_2026-10-21.json",
+  "singlePath": "artifacts\\validation\\bot-c\\charts_probe_tile_dpi_preview_2026-10-21.json",
+  "previewOut": {
+    "w": 320,
+    "h": 160,
+    "ms": 2.2783000000000015
+  },
+  "refineOut": {
+    "w": 512,
+    "h": 256,
+    "ms": 8.524400000000014
+  },
+  "dpr": {
+    "cssWidth": 640,
+    "cssHeight": 320,
+    "bufferWidth": 1280,
+    "bufferHeight": 640,
+    "dpr": 2,
+    "clamped": false
+  },
+  "modes": [
+    "preview",
+    "refine"
+  ],
+  "viewportWindow": {
+    "x": 64,
+    "y": 32,
+    "w": 256,
+    "h": 128
+  }
+}
