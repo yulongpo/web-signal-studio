@@ -63,3 +63,14 @@ CMakeUserPresets.json
 **/*.pth
 **/*.pt
 **/weights/*.bin
+
+# UI parity (Bot-G) — baseline copy + qa captures
+!artifacts/validation/ui-parity/
+artifacts/validation/ui-parity/*
+!artifacts/validation/ui-parity/QA_CHECKLIST.md
+!artifacts/validation/ui-parity/baseline/
+artifacts/validation/ui-parity/baseline/*
+!artifacts/validation/ui-parity/baseline/**
+!artifacts/validation/ui-parity/qa/
+artifacts/validation/ui-parity/qa/*
+!artifacts/validation/ui-parity/qa/**
