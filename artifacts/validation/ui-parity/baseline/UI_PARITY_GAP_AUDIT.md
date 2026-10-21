@@ -1,3 +1,12 @@
+> Bot-A `2026-10-22 01:36` Asia/Shanghai: Web tip **`4937422`** vs desktop `17471a6` — evidence-only G `d731897` (web-5c569c2 G02 DSP + G18 NB PSD vline). No apps/packages delta. Statuses unchanged. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_4937422.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`5c569c2`) | Now (`4937422`) | Note |
+|----|---------------------|-------------------|------|
+| **G18** / **G02** | PARTIAL 加深 | **unchanged PARTIAL** | G corroborates；residuals 仍在 → **未 CLOSED** |
+| **G19** | PARTIAL | **unchanged** | `data-native-qfiledialog=false` |
+| **G06** / **G17** | PARTIAL | **unchanged — BLOCKED** | 未发明路径；wave20 C/D 未落地 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_4937422.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 01:31` Asia/Shanghai: Web tip **`5c569c2`** vs desktop `17471a6` — G18/G02 PARTIAL deepened (C `0a604d1` NB PSD freq vline; B `f7a4b13` wave19 DSP/FFT/detectRunFeed stamps). ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_5c569c2.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`088f322`) | Now (`5c569c2`) | Note |
