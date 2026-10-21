@@ -1,3 +1,24 @@
+> Bot-A `2026-10-22 02:07` Asia/Shanghai: **CAO retarget** Web tip **`663b522`** (supersedes d7e6973) vs desktop `17471a6` — G08 PARTIAL deepened (B `498b2ac` MenuBar QKeySequence / useMenuBarShortcuts). G `f88c440` web-42265bf corroborates G18 mod STFT + G02 soft (no elevate). Full shell re-shot residual. G18 recog STFT panes residual; G17 not elevated. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_663b522/`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`42265bf`) | Now (`663b522`) | Note |
+|----|---------------------|-------------------|------|
+| **G08** | PARTIAL（shell re-shot 残） | **PARTIAL 加深** | MenuBar shortcuts **MET**；full re-shot → **未 CLOSED** |
+| **G18** | PARTIAL | **unchanged PARTIAL** | G corroborates mod STFT；recog STFT panes 残 |
+| **G02** | PARTIAL | **unchanged PARTIAL** | G corroborates wave22 soft；Qt residual |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未抬升 / 未发明 |
+| **G19** | PARTIAL | **unchanged PARTIAL** | `data-native-qfiledialog=false` |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_663b522/`。**无矩阵 PASS**。
+> Bot-A `2026-10-22 02:04` Asia/Shanghai: Web tip **`d7e6973`** vs desktop `17471a6` — G08 PARTIAL deepened (B `498b2ac` MenuBar QKeySequence / useMenuBarShortcuts wave23). Full shell re-shot residual. G18 recog STFT panes residual; G17 not elevated. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_d7e6973.md`. **No PASS.** matrix_pass_claimed: false.
+
+| ID | Prior (`42265bf`) | Now (`d7e6973`) | Note |
+|----|---------------------|-------------------|------|
+| **G08** | PARTIAL（shell re-shot 残） | **PARTIAL 加深** | MenuBar shortcuts **MET**；full re-shot → **未 CLOSED** |
+| **G18** | PARTIAL | **unchanged PARTIAL** | recog STFT panes 残 |
+| **G17** / **G06** | PARTIAL | **unchanged — BLOCKED** | 未抬升 / 未发明 |
+| **G02** / **G19** | PARTIAL | **unchanged PARTIAL** | residuals 仍在 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）** —详 `INCREMENTAL_d7e6973.md`。**无矩阵 PASS**。
 > Bot-A `2026-10-22 02:02` Asia/Shanghai: Web tip **`42265bf`** vs desktop `17471a6` — G18 PARTIAL deepened (C `80d25bd` mod STFT linkedCursor). Residual → recognition STFT panes only (BLOCKED placeholder; not invented). G17 recognition **not elevated**. ChartMarkOverlay backticks=16. G06/G17 still BLOCKED. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_42265bf.md`. **No PASS.** matrix_pass_claimed: false.
 
 | ID | Prior (`d4f0943`) | Now (`42265bf`) | Note |
