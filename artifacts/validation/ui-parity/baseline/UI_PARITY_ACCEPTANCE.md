@@ -1,6 +1,6 @@
 # UI 对等可执行验收矩阵（Bot-A 增量 @ 17471a6）
 
-> Bot-A `2026-10-21 21:50:00`：Web `d8297d1` vs desktop `17471a6` — **G01+G06 PARTIAL**；截图不 CLOSED；详见 `INCREMENTAL_d8297d1.md`。**无 PASS。**
+> Bot-A `2026-10-21 21:55:00`: Web `ef2713a` vs desktop `17471a6` — **G01+G06 PARTIAL**; observe-page DDC criterion **MET** (item not CLOSED). See `INCREMENTAL_ef2713a.md`. **No PASS.**
 
 
 | 字段 | 值 |
@@ -44,7 +44,7 @@
 | G03 | P0 | PARTIAL | `global-nav` / `navigation-chart` | ① 非 placeholder；② 拖拽导航窗；③ 主图 timeSec 跟随；④（FULL）滚轮改窗宽；⑤（FULL）导航图头设置/chrome | **PARTIAL 退出**：有 NavigationChart+NavChrome；仍缺滚轮改窗宽 |
 | G04 | P0 | PARTIAL | `chart-aux` / `WaveformChart` | ① Wave/PSD 可见且可切换；② 切换改轴语义；③（FULL）Wave 为 raw IQ 显示路径（非仅 STFT envelope） | **PARTIAL 退出**：Wave raw IQ 代码路径已清；待 QA 视觉/`/@fs` |
 | G05 | P0 | CLOSED | `splitter-nav-aux` / `splitter-aux-main` | ① 可拖；② 双击复位；③（FULL）默认高度≈桌面 82/205（±10%） | 默认 82/205 + 拖 + 双击已满足；短窗阈值 900≠850 软差 |
-| G06 | P0 | **PARTIAL**（`95e24d0`/`6c17a53` 四页壳+截图） | `workspace-narrowband-*` | ☑ 无 `workspace-narrowband-stub`；☑ 四页 tab + 多图 panel 区分；☑ 无伪解调文案；☑ STFT N/网格/频率跨页+overflow 保留（uiStore/`a64117e` 语义）；☐ 观察页真 DDC Wave/PSD/STFT；☐ 调制/识别/解调桌面级 chrome；☐ 标题「解调工作台」 | **PARTIAL 退出**：壳+持久化已接线；真图/四页控件未对等；Bot-B WIP 非 PASS |
+| G06 | P0 | **PARTIAL** (`ef2713a` observe DDC) | `workspace-narrowband-*` / `nb-chart-waveform` / `nb-observe-pipeline` | PASS-if: no stub; four tabs; no fake demod; STFT N/grid/freq persist across page+overflow; **observe-page real DDC Wave/PSD/STFT** (MET @a145d21/ef2713a); mod/DL/demod chrome; title workbench; channel-linked interactive STFT | **PARTIAL exit**: DDC sub MET; item not CLOSED; no PASS |
 
 | G07 | P0 | OPEN | `bottom-panel` | ① 三标签；② 收起≈29±6 / 展开≈150±20；③ 任务列表容器可空 | 无底栏 |
 | G08 | P1 | OPEN | 左右栏 | ① 左 270–286 / 右 382–398；② 收起≈38±4；③ 可拖宽 | 锁死 220/280 |
@@ -102,6 +102,6 @@ G26: // fixture path === ...\resources\sigmf_data_demo\...
 2. **G03–G05** — 从 PARTIAL 补齐 82/205、raw IQ Wave、导航 chrome
 3. **G17+G14** — DetectionCard + 检测 ROI 确认条（清 G26 `.pth`）
 4. **G11–G13** — 从 PARTIAL 补齐框选放大 / 右键完整 / 控制点
-5. **G06+G07** — G06 已 PARTIAL（收口真 DDC 图+四页 chrome / 64117e）+ 底栏
+5. **G06+G07** — G06 still PARTIAL (observe DDC MET; remaining: mod/DL/demod chrome + workbench title/channel link) + bottom bar
 
 未改实现代码；供 CAO / 实现 bot 按 ID 认领。

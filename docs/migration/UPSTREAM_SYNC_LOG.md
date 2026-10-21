@@ -123,3 +123,10 @@ Bot-C 证据：`NavigationChart` / `WaveformChart` / `VerticalSplitter`；e2e `g
 | 计数 | OPEN 10 · PARTIAL 12 · DOCS 1 · CLOSED 1（G05） |
 | 交付 | `INCREMENTAL_d8297d1.md`（扩展并 supersede 单点 `95e24d0` 焦点） |
 
+## 2026-10-21 21:55 Asia/Shanghai — Bot-A UI incremental ef2713a
+- Desktop tip unchanged: 
+ebuild/a143-native @ 17471a6488383b456281d12cb1a6d3d80290205d
+- Web tip audited: ef2713a735cc96407ff2dcf7156f08fffb74a6a3 (narrowband observe DDC)
+- Synced writing base: origin/main @ 905cdadda26b0ef453256be8352a30824851addf
+- Deliverable: rtifacts/validation/ui-parity/INCREMENTAL_ef2713a.md — G06 stays PARTIAL; observe-page DDC criterion MET; G01 unchanged PARTIAL
+
