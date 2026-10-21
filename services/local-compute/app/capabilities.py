@@ -130,8 +130,8 @@ UI_COPY: dict[str, tuple[str, str, str]] = {
     ),
     "STUB_RUNTIME": (
         "error",
-        "Local compute is in stub mode (no verified PyTorch forward). Detection will not invent results.",
-        "本地计算处于占位模式（无已核验的 PyTorch 前向），检测不会伪造结果。",
+        "Local compute is in stub mode (no TensorRT). Detection will not invent results.",
+        "本地计算处于占位模式（无 TensorRT），检测不会伪造结果。",
     ),
     "REAL_RUNTIME": (
         "info",
