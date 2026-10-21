@@ -70,7 +70,7 @@ export function BottomPanel() {
   const [editUpperMhz, setEditUpperMhz] = useState('');
   /** G19 Qt-like editCell: col 1 name, 4 startMs, 5 endMs, 6 centerMHz, 7 bwKHz */
   const [cellEdit, setCellEdit] = useState<null | { id: string; col: 1 | 4 | 5 | 6 | 7; draft: string }>(null);
-  /** Wave15 OS-dialog chrome stub (not native QFileDialog). */
+  /** Wave16 OS-dialog chrome (browser-honest; not native QFileDialog). */
   const [exportSaveStatus, setExportSaveStatus] = useState('就绪');
   const [exportFilter, setExportFilter] = useState<'json' | 'csv'>('json');
   const resizeStart = useRef<{ y: number; h: number } | null>(null);
@@ -595,9 +595,11 @@ export function BottomPanel() {
       suggestedName: 'annotations.json',
       mimeType: 'application/json',
       contents: annotationsText,
+      dialogTitle: '无损标记JSON导出',
+      filterDescription: 'JSON (*.json) · 工程交换',
     }).then((r) => {
       if (r.ok) {
-        setExportSaveStatus(`已保存 annotations.json · ${r.method}`);
+        setExportSaveStatus(`已导出标记JSON；工程交换格式 · ${r.method}`);
         appendShellLog(`G19 export JSON via ${r.method}`);
       } else if (r.reason === 'cancelled') {
         setExportSaveStatus('已取消');
@@ -651,9 +653,11 @@ export function BottomPanel() {
       suggestedName: 'annotations.csv',
       mimeType: 'text/csv',
       contents: lines.join('\n'),
+      dialogTitle: 'CSV每活动段一行；不保存完整原始字段/修订证据',
+      filterDescription: 'CSV (*.csv) · 每活动段一行',
     }).then((r) => {
       if (r.ok) {
-        setExportSaveStatus(`已保存 annotations.csv · ${r.method} · ${lines.length - 1} 行`);
+        setExportSaveStatus(`已导出CSV；原始字段/完整修订仅JSON保留 · ${r.method} · ${lines.length - 1} 行`);
         appendShellLog(`G19 export CSV via ${r.method} rows=${lines.length - 1}`);
       } else if (r.reason === 'cancelled') {
         setExportSaveStatus('已取消');
@@ -884,9 +888,19 @@ export function BottomPanel() {
                     <div
                       className="bottom-export-dialog-chrome"
                       data-testid="bottom-export-dialog-chrome"
-                      data-os-dialog-chrome="wave15"
+                      data-os-dialog-chrome="wave16"
                       data-native-qfiledialog="false"
                     >
+                      <span
+                        className="bottom-export-dialog-title"
+                        data-testid="bottom-export-dialog-title"
+                        data-native-qfiledialog="false"
+                        title="浏览器保存；非原生 QFileDialog"
+                      >
+                        {exportFilter === 'json'
+                          ? '无损标记JSON导出'
+                          : 'CSV每活动段一行；不保存完整原始字段'}
+                      </span>
                       <label className="bottom-export-filter" data-testid="bottom-export-filter-label">
                         <span>过滤器</span>
                         <select
@@ -910,7 +924,7 @@ export function BottomPanel() {
                         type="button"
                         data-testid="bottom-btn-export-json"
                         data-browser-save="wave13"
-                        data-os-dialog-chrome="wave15"
+                        data-os-dialog-chrome="wave16"
                         disabled={!hook}
                         title="导出标记 JSON（browserSaveFile · exportJson）"
                         onClick={() => {
@@ -924,7 +938,7 @@ export function BottomPanel() {
                         type="button"
                         data-testid="bottom-btn-export-csv"
                         data-browser-save="wave13"
-                        data-os-dialog-chrome="wave15"
+                        data-os-dialog-chrome="wave16"
                         disabled={liveFiltered.length === 0}
                         title="导出 CSV（browserSaveFile · 活动表行）"
                         onClick={() => {
