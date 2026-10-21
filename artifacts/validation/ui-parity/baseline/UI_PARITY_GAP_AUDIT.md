@@ -1,4 +1,18 @@
-> Bot-A `2026-10-21 22:45` Asia/Shanghai: Web **`8783b55`** vs desktop `17471a6` — short G19 (F `bb58265` / `e134bb6` tree API: title/tooltip/relation/unread/detectionRuns). **G19 stays PARTIAL** (API MET; ProjectTree still `title={node.detail||label}`, no tooltip wire). Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_8783b55.md`. **No PASS.**
+> Bot-A `2026-10-21 22:48` Asia/Shanghai: Web **`425cb40`** vs desktop `17471a6` — G17/G18/G19/G11/G02 PARTIAL deepened (E+B+C); G18/G08 OPEN→PARTIAL. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_425cb40.md` (supersedes planned ef89727/e9153b8). **No PASS.**
+
+## INCREMENTAL @ `425cb40`（相对 `8783b55`；含 ef89727 G17 + e9153b8 B + C 5de2e6b；替代未交 ef89727/e9153b8）
+| ID | 先前 | @425cb40 | 证据 |
+|----|------|----------|------|
+| **G17** | PARTIAL | **PARTIAL 加深** | `59f9820` inventory/cancel/precheck；DetectionCard/可选 .engine 仍缺 → **不 CLOSED** |
+| **G18** | OPEN | **PARTIAL** | `0eabe56` display-summary 参考/动态；PSD N/STFT N/palette 残 |
+| **G19** | PARTIAL | **PARTIAL 加深** | ProjectTree 已接 tooltip/title/unread；中文 relation/多选残 → **不 CLOSED** |
+| **G11** | PARTIAL | **PARTIAL 加深** | `5de2e6b` both-edges≥8px；axis-only pan 残；middle-button N/A@桌面 |
+| **G02** | PARTIAL | **PARTIAL 加深** | B toolbar/overflow + C `formatPhysicalCaptionPair`；更深 strip 残 |
+| **G08** | OPEN | **PARTIAL** | 278/390 MET；resize 残 → **不 CLOSED** |
+| **G07** | PARTIAL | **PARTIAL 加深** | dock hosts；完整 Qt panel 残 |
+
+计数：**OPEN 7 · PARTIAL 16 · CLOSED 2（G05, G14）· DOCS 1（G25）**。详表：`INCREMENTAL_425cb40.md`。**无矩阵 PASS**。
+---> Bot-A `2026-10-21 22:45` Asia/Shanghai: Web **`8783b55`** vs desktop `17471a6` — short G19 (F `bb58265` / `e134bb6` tree API: title/tooltip/relation/unread/detectionRuns). **G19 stays PARTIAL** (API MET; ProjectTree still `title={node.detail||label}`, no tooltip wire). Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_8783b55.md`. **No PASS.**
 # UI 鐎靛湱鐡戝顔跨獩鐎孤ゎ吀閿涘湐ot-A 婢х偤鍣烘径宥嗙壋 @ 17471a6閿?
 
 > Bot-A `2026-10-21 22:37` Asia/Shanghai: Web **`0e31e6d`** vs desktop `17471a6` — G06 golden tighten + recognition BLOCKED assess; **G06 stays PARTIAL** (no flip). Counts OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_0e31e6d.md`. Next main tip `e134bb6` (G19) noted only — not this audit subject. **No PASS.**

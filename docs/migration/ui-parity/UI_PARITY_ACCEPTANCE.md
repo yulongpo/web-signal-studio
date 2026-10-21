@@ -1,3 +1,4 @@
+> Bot-A `2026-10-21 22:48` Asia/Shanghai: Web **`425cb40`** vs desktop `17471a6` — G17/G18/G19/G11/G02 PARTIAL deepened (E+B+C); G18/G08 OPEN→PARTIAL. Counts OPEN 7 / PARTIAL 16 / CLOSED 2. See `INCREMENTAL_425cb40.md` (supersedes planned ef89727/e9153b8). **No PASS.**
 > Evidence tip `2d12522` / `qa/web-3d7ab59`; audit subject `3d7ab59`; no PASS.
 
 > Bot-A `2026-10-21 22:37` Asia/Shanghai: Web **`0e31e6d`** vs desktop `17471a6` — G06 goldens + BLOCKED assess; **G06 PARTIAL** unchanged. OPEN 9 / PARTIAL 14 / CLOSED 2. See `INCREMENTAL_0e31e6d.md`. **No PASS.**
