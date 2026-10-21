@@ -73,6 +73,9 @@ export interface UiState {
   navFullTime: { min: number; max: number };
   /** G03 linked time window for main/aux. */
   navWindowTime: { min: number; max: number };
+  /** G15/G01 view navigation history for navWindowTime (max 40). */
+  viewHistory: Array<{ min: number; max: number }>;
+  viewHistoryIndex: number;
   /** G05 aux pane height (CSS px). */
   auxPaneHeightPx: number;
   /** G05 nav pane height (CSS px). */
@@ -149,7 +152,12 @@ export interface UiState {
   setStftN: (n: number) => void;
   setPaletteId: (id: string) => void;
   setAuxChartKind: (kind: AuxChartKind) => void;
-  setNavWindowTime: (win: { min: number; max: number }) => void;
+  setNavWindowTime: (
+    win: { min: number; max: number },
+    opts?: { recordHistory?: boolean },
+  ) => void;
+  viewHistoryBack: () => void;
+  viewHistoryForward: () => void;
   setNavFullTime: (full: { min: number; max: number }) => void;
   setAuxPaneHeightPx: (px: number) => void;
   setNavPaneHeightPx: (px: number) => void;
@@ -201,6 +209,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   auxChartKind: 'wave',
   navFullTime: { min: 0, max: 1 },
   navWindowTime: { min: 0, max: 1 },
+  viewHistory: [{ min: 0, max: 1 }],
+  viewHistoryIndex: 0,
   auxPaneHeightPx: 205,
   navPaneHeightPx: 82,
   spectrogramDisplay: null,
@@ -277,7 +287,43 @@ export const useUiStore = create<UiState>((set, get) => ({
   setStftN: (n) => set({ stftN: n }),
   setPaletteId: (id) => set({ paletteId: id }),
   setAuxChartKind: (kind) => set({ auxChartKind: kind }),
-  setNavWindowTime: (win) => set({ navWindowTime: { ...win } }),
+  setNavWindowTime: (win, opts) => {
+    const record = opts?.recordHistory !== false;
+    set((s) => {
+      const next = { min: win.min, max: win.max };
+      const cur = s.navWindowTime;
+      const same =
+        Math.abs(cur.min - next.min) < 1e-15 && Math.abs(cur.max - next.max) < 1e-15;
+      if (!record || same) {
+        return { navWindowTime: next };
+      }
+      const truncated = s.viewHistory.slice(0, s.viewHistoryIndex + 1);
+      truncated.push(next);
+      const capped =
+        truncated.length > 40 ? truncated.slice(truncated.length - 40) : truncated;
+      return {
+        navWindowTime: next,
+        viewHistory: capped,
+        viewHistoryIndex: capped.length - 1,
+      };
+    });
+  },
+  viewHistoryBack: () =>
+    set((s) => {
+      if (s.viewHistoryIndex <= 0) return s;
+      const idx = s.viewHistoryIndex - 1;
+      const win = s.viewHistory[idx];
+      if (!win) return s;
+      return { viewHistoryIndex: idx, navWindowTime: { ...win } };
+    }),
+  viewHistoryForward: () =>
+    set((s) => {
+      if (s.viewHistoryIndex >= s.viewHistory.length - 1) return s;
+      const idx = s.viewHistoryIndex + 1;
+      const win = s.viewHistory[idx];
+      if (!win) return s;
+      return { viewHistoryIndex: idx, navWindowTime: { ...win } };
+    }),
   setNavFullTime: (full) => set({ navFullTime: { ...full } }),
   setAuxPaneHeightPx: (px) => set({ auxPaneHeightPx: px }),
   setNavPaneHeightPx: (px) => set({ navPaneHeightPx: px }),

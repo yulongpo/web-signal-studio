@@ -1,34 +1,23 @@
-# Bot-B G01 menubar COMPLETE menus (WIRING / WIP — NOT PASS)
+# Bot-B G01 residual — rename + view history (WIP / NOT PASS)
 
 | Field | Value |
 |-------|-------|
-| Status | **WIP evidence** — do not treat as UI_PARITY ACCEPTANCE PASS |
-| Asia/Shanghai | 2026-10-21 |
-| Base tip | `905cdad` (A incremental + D DDC) |
-| Rebuild ref | `17471a6` `buildMenus()` File/Edit/View/Analysis/Tools/Help |
-| Branch | `work/bot-b-web-shell` |
+| Status | **WIP evidence** — not ACCEPTANCE PASS |
+| Base tip | `62d3b70` |
+| Rebuild | `17471a6` renameMark + view back/forward |
 
-## Menus
+## Wiring
 
-| Menu | Wired | Honest empty / disabled |
-|------|-------|-------------------------|
-| File | Open IQ, clear IQ, project open/save/sample | — |
-| Edit | undo/redo/delete via `__wssM06` when ready; open marker page | rename disabled |
-| View | wide/narrow, STFT/waterfall, rail | back/forward disabled (G15) |
-| Analysis | open Detect page; ROI → select tool + Detect | no fake demod |
-| Tools | About dialog | — |
-| Help | mouse interaction dialog | — |
+| Item | Implementation |
+|------|----------------|
+| Rename mark | dialog + `__wssM06.session.replaceMark` |
+| View history | `uiStore.viewHistory` max 40; sync uses `recordHistory:false` |
 
 ## Screenshots
 
-- g01-menubar-default.png
-- g01-menubar-file-menu.png
-- g01-menubar-edit-menu.png
-- g01-menubar-analysis-menu.png
-- g01-menubar-help-dialog.png
-- g01-menubar-view-narrowband.png
+- g01-menubar-edit-rename.png
+- g01-menubar-view-history.png
 
 ## Non-claims
 
 - No ACCEPTANCE_MATRIX PASS.
-- NavChrome / G02 / G06 / C hosts preserved.

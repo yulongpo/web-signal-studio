@@ -64,6 +64,11 @@ export function MenuBar() {
   const projectSource = useUiStore((s) => s.projectSource);
   const setRightPage = useUiStore((s) => s.setRightPage);
   const setActiveTool = useUiStore((s) => s.setActiveTool);
+  const viewHistory = useUiStore((s) => s.viewHistory);
+  const viewHistoryIndex = useUiStore((s) => s.viewHistoryIndex);
+  const viewHistoryBack = useUiStore((s) => s.viewHistoryBack);
+  const viewHistoryForward = useUiStore((s) => s.viewHistoryForward);
+  const [renameDraft, setRenameDraft] = useState('');
 
   useEffect(() => {
     if (!openMenu) return;
@@ -164,6 +169,34 @@ export function MenuBar() {
     setM06Tick((t) => t + 1);
     close();
   };
+
+  const openRenameDialog = () => {
+    if (!hook || !activeMarkId) return;
+    const ann = hook.session.annotations.annotations.find((a) => a.id === activeMarkId);
+    setRenameDraft(ann?.name ?? activeMarkId);
+    close();
+    setDialog({ title: '重命名当前标记', body: '__rename__' });
+  };
+
+  const commitRename = () => {
+    if (!hook || !activeMarkId) {
+      setDialog(null);
+      return;
+    }
+    const name = renameDraft.trim();
+    if (!name) return;
+    const ann = hook.session.annotations.annotations.find((a) => a.id === activeMarkId);
+    if (!ann) {
+      setDialog(null);
+      return;
+    }
+    hook.session.replaceMark({ ...ann, name });
+    setM06Tick((t) => t + 1);
+    setDialog(null);
+  };
+
+  const canViewBack = viewHistoryIndex > 0;
+  const canViewForward = viewHistoryIndex < viewHistory.length - 1;
 
   const openDetect = () => {
     setRightPanelCollapsed(false);
@@ -325,14 +358,19 @@ export function MenuBar() {
               >
                 删除所选标记
               </button>
-              <button
+                            <button
                 type="button"
                 role="menuitem"
                 data-testid="menu-edit-rename-mark"
-                disabled
-                title="重命名标记 UI 尚未接入；不伪造操作"
+                disabled={!canDeleteMark}
+                title={
+                  canDeleteMark
+                    ? `Rename mark ${activeMarkId}`
+                    : "No active mark; needs M-06 hook + selection"
+                }
+                onClick={openRenameDialog}
               >
-                重命名当前标记（未接入）
+                重命名当前标记…
               </button>
               <div className="menubar-sep" role="separator" />
               <button
@@ -412,23 +450,31 @@ export function MenuBar() {
                 Waterfall
               </button>
               <div className="menubar-sep" role="separator" />
-              <button
+                            <button
                 type="button"
                 role="menuitem"
                 data-testid="menu-view-back"
-                disabled
-                title="视图历史（G15）尚未接入；不伪造后退"
+                disabled={!canViewBack}
+                title={canViewBack ? "视图后退" : "No earlier view history"}
+                onClick={() => {
+                  viewHistoryBack();
+                  close();
+                }}
               >
-                视图后退（未接入）
+                视图后退
               </button>
               <button
                 type="button"
                 role="menuitem"
                 data-testid="menu-view-forward"
-                disabled
-                title="视图历史（G15）尚未接入；不伪造前进"
+                disabled={!canViewForward}
+                title={canViewForward ? "视图前进" : "No newer view history"}
+                onClick={() => {
+                  viewHistoryForward();
+                  close();
+                }}
               >
-                视图前进（未接入）
+                视图前进
               </button>
               <div className="menubar-sep" role="separator" />
               <button
@@ -589,9 +635,34 @@ export function MenuBar() {
                 ×
               </button>
             </header>
-            <pre className="menubar-dialog-body" data-testid="menubar-dialog-body">
-              {dialog.body}
-            </pre>
+            {dialog.body === '__rename__' ? (
+              <div className="menubar-dialog-body" data-testid="menubar-dialog-body">
+                <label className="menubar-rename-field">
+                  <span>标记名称</span>
+                  <input
+                    data-testid="menu-rename-input"
+                    value={renameDraft}
+                    onChange={(e) => setRenameDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitRename();
+                    }}
+                    autoFocus
+                  />
+                </label>
+                <div className="menubar-dialog-actions">
+                  <button type="button" data-testid="menu-rename-cancel" onClick={() => setDialog(null)}>
+                    Cancel
+                  </button>
+                  <button type="button" data-testid="menu-rename-apply" onClick={commitRename}>
+                    Apply
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <pre className="menubar-dialog-body" data-testid="menubar-dialog-body">
+                {dialog.body}
+              </pre>
+            )}
           </div>
         </div>
       ) : null}
