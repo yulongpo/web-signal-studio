@@ -612,7 +612,14 @@ export function DetectPage() {
   const drawCandidates = candidatesForDraw(task, runtime);
 
   return (
-    <div className="detect-page" data-testid="detect-page">
+    <div
+      className="detect-page"
+      data-testid="detect-page"
+      data-native-worker="false"
+      data-worker-backend="local-compute-only"
+      data-wave="wave33"
+      title="Honest: LocalCompute client only — no Qt DetectionWorker in browser"
+    >
       <div
         className="detect-banner"
         data-testid="detect-capabilities-banner"

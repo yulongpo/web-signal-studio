@@ -91,6 +91,11 @@ export interface UiState {
   stftAutoNbPref: boolean;
   /** G02 chrome: desktop removeMean. Drives compute; D publishes dspRemoveMean. */
   stftRemoveMeanPref: boolean;
+  /**
+   * G02 chrome: fixed SegmentMs when auto-N off (desktop duration_ 0.1/1/10/100).
+   * Wave33 A1 — drives resolveAnalysisSamples(segmentMilliseconds>0) PoT path.
+   */
+  stftSegmentMsPref: number;
   paletteId: string;
   auxChartKind: AuxChartKind;
   /** G03 full capture time extent (seconds). */
@@ -271,6 +276,7 @@ export interface UiState {
   setStftKaiserBetaPref: (beta: number) => void;
   setStftAutoNbPref: (on: boolean) => void;
   setStftRemoveMeanPref: (on: boolean) => void;
+  setStftSegmentMsPref: (ms: number) => void;
   setPaletteId: (id: string) => void;
   setAuxChartKind: (kind: AuxChartKind) => void;
   setNavWindowTime: (
@@ -368,6 +374,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   stftKaiserBetaPref: DEFAULT_KAISER_BETA,
   stftAutoNbPref: false,
   stftRemoveMeanPref: false,
+  stftSegmentMsPref: 1,
   paletteId: 'viridis',
   auxChartKind: 'wave',
   navFullTime: { min: 0, max: 1 },
@@ -513,6 +520,13 @@ export const useUiStore = create<UiState>((set, get) => ({
     }),
   setStftAutoNbPref: (on) => set({ stftAutoNbPref: Boolean(on) }),
   setStftRemoveMeanPref: (on) => set({ stftRemoveMeanPref: Boolean(on) }),
+  setStftSegmentMsPref: (ms) => {
+    const allowed = [0.1, 1, 10, 100];
+    const n = Number(ms);
+    set({
+      stftSegmentMsPref: allowed.includes(n) ? n : 1,
+    });
+  },
   setPaletteId: (id) => set({ paletteId: id }),
   setAuxChartKind: (kind) => set({ auxChartKind: kind }),
   setNavWindowTime: (win, opts) => {
