@@ -65,3 +65,18 @@ cd apps/web && npx playwright test e2e/bot-g-g01-nb-observe-capture.spec.ts
 | Level ref/dynamic | `04-level-popover.png`, `04b-crop`, `04c-applied` | baseline `web-temp-layer-level.png` archival |
 
 Gaps: no PASS; desktop interactive not re-shot; G01 File corner parallel Bot-B.
+## G01 corner / fit / File @ 23c38d0 (Bot-G, NOT PASS)
+
+| Field | Value |
+|-------|--------|
+| Web tip | `23c38d01fc176bbb8319431639640bf0c54ec3c9` (includes `6adcd75` G01 deepen) |
+| Pack | `qa/web-23c38d0/` |
+| **ui_parity_pass_claimed** | **false** |
+
+| Theme | Evidence |
+|-------|----------|
+| BrandV2 + window controls | `01-brandv2-window-controls.png`, `01b-menubar-corner-crop.png` |
+| 视图适应全部 / 恢复默认 | `02-view-fit-restore-menu.png`, `02b-view-fit-all-applied.png`, `02c-view-restore-defaults-applied.png` |
+| File 菜单展开 | `03-file-menu-expanded.png`, `03b-file-menu-crop.png` |
+
+Gaps: web window controls are chrome stubs; no PASS.

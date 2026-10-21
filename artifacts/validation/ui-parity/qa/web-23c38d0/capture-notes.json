@@ -1,0 +1,43 @@
+{
+  "id": "qa-web-23c38d0-g01-corner-fit-file",
+  "tip_web": "23c38d01fc176bbb8319431639640bf0c54ec3c9",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "tip_feature": "6adcd75 / 06911b3 G01 BrandV2 corner + fit/restore + File depth",
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "captures": [
+    "01-brandv2-window-controls.png",
+    "01b-menubar-corner-crop.png",
+    "02-view-fit-restore-menu.png",
+    "02b-view-fit-all-applied.png",
+    "02c-view-restore-defaults-applied.png",
+    "03-file-menu-expanded.png",
+    "03b-file-menu-crop.png"
+  ],
+  "observations": {
+    "brand": {
+      "data_brand": "BrandV2",
+      "wordmark": "Signal Studio",
+      "version": "A1.4.3 · 交互可靠性优化",
+      "window_controls": true
+    },
+    "view_fit_restore": {
+      "fit_all_testid": "menu-view-fit-all",
+      "restore_testid": "menu-view-restore-defaults",
+      "status_workspace_after_restore": "wideband"
+    },
+    "file_menu_items": {
+      "menu-new-project": true,
+      "menu-open-project-folder": true,
+      "menu-open-project": true,
+      "menu-load-sample": true,
+      "menu-open-iq": true,
+      "menu-clear-iq": true,
+      "menu-save-project": true,
+      "menu-recent-projects": true,
+      "menu-remove-current-file": true,
+      "menu-clear-project": true
+    },
+    "gaps": "No PASS. Window min/max/close are chrome stubs in web; desktop OS chrome differs. Bot-B parallel wiring shots in bot-b/."
+  }
+}
