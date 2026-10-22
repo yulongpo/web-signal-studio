@@ -4,7 +4,7 @@
 |-------|-------|
 | baseline_main | `27e3e294e0aed3afcb7a028bc15233b3a9d785f0` (merge bot-b PIXEL + A GAP `f54c404`) |
 | branch | `work/bot-c-charts` |
-| tip | _(stamped after commit)_ |
+| tip | `1f72143f834f8747729bc76b8bfbff9fd8dd9779` |
 | desktop_ro | `17471a6488383b456281d12cb1a6d3d80290205d` |
 | GAP cite | `docs/acceptance/evidence/bot-a/GAP_QUALITY_7f7aead.md` |
 | B PIXEL | `PIXEL_SHELL_4K_816858d` / `shellMidLayout.ts` CSS vars consumed, not rewritten |
