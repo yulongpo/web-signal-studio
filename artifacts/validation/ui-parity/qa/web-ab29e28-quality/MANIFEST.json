@@ -2,7 +2,7 @@
   "pack": "web-ab29e28-quality",
   "tip_web_base": "ab29e281c374a11531fc9df0d5a937f079fa096e",
   "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
-  "evidence_sha_after_commit": "be499055a82ad82890a085ca04cbd8038ddbd5f3",
+  "evidence_sha_after_commit": "2f79617905f114b89ae7ec4f29a81bbb28016f19",
   "pass_claimed": false,
   "matrix_pass_claimed": false,
   "ui_parity_pass_claimed": false,
@@ -51,5 +51,6 @@
     }
   },
   "out_dir": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality",
-  "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo"
+  "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo",
+  "branch_tip_sha": "2f79617905f114b89ae7ec4f29a81bbb28016f19"
 }

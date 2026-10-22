@@ -2,7 +2,7 @@
   "pack": "web-7969aba-quality",
   "tip_web_base": "7969abaa3ed64234f250aa459dec16153666bddf",
   "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
-  "evidence_sha_after_commit": "f5725e4be8955827b8fb4da3358513e9d54a5f2f",
+  "evidence_sha_after_commit": "2f79617905f114b89ae7ec4f29a81bbb28016f19",
   "pass_claimed": false,
   "matrix_pass_claimed": false,
   "ui_parity_pass_claimed": false,
@@ -48,5 +48,6 @@
   ],
   "out_dir": "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality",
   "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo",
-  "note": "Salvaged mid-run; 01≠03; NB 05 present; 06 PARTIAL"
+  "note": "Salvaged mid-run; 01≠03; NB 05 present; 06 PARTIAL",
+  "branch_tip_sha": "2f79617905f114b89ae7ec4f29a81bbb28016f19"
 }
