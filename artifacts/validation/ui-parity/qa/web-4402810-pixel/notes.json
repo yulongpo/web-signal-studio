@@ -1,0 +1,166 @@
+{
+  "id": "qa-web-4402810-pixel",
+  "baseline_sha": "44028104021a3067fadc0dcc4d827651de3f4579",
+  "tip_web_base": "44028104021a3067fadc0dcc4d827651de3f4579",
+  "pack": "web-4402810-pixel",
+  "pass_claimed": false,
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "viewport": {
+    "width": 3840,
+    "height": 2160
+  },
+  "desktop_ref_sha": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "contains": {
+    "D": "4402810/f1ed98f",
+    "C": "6e78061",
+    "B": "27e3e29"
+  },
+  "focus": "pixel BB|NB separate + sxs desktop 4K; Aux/Observe; DDC real-marker|real-channel",
+  "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo",
+  "captures": [
+    "desktop-bb-17471a6-4k.png",
+    "desktop-nb-17471a6-4k.png",
+    "01-project-tree-loaded.png",
+    "01b-project-tree-crop.png",
+    "02-broadband-waterfall-4k.png",
+    "02b-display-colorscale-crop.png",
+    "02c-aux-wave-crop.png",
+    "03-broadband-stft-4k.png",
+    "05-narrowband-observe-4k.png",
+    "06-nb-ddc-pipeline-state.png",
+    "06b-nb-observe-workspace.png",
+    "04-sxs-bb-web-vs-desktop-4k.png",
+    "07-sxs-nb-web-vs-desktop-4k.png"
+  ],
+  "observations": {
+    "load": {
+      "prefer": "menu-load-demo-iq",
+      "via": "menu-load-demo-iq",
+      "input": "ok"
+    },
+    "tree_gate": {
+      "ok": true,
+      "emptyVisible": false,
+      "hasEmptyPhrase": false,
+      "loaded": true,
+      "sample": false,
+      "nodes": 7,
+      "tree": "工程树保存清除0000000.sigmf · v6 · 1 个文件 · 0 通道树中标记: 0◈0000000.sigmf11 个文件▾IQ 文件1▣0000000.sigmf0Fc 2.5 GHz · Fs 20 MS/s▾标注00 个标记▾原始标签0原始标签0 个标记▾手动标记0手动0 个标记▾算法结果0算法0 个标记",
+      "elapsed_ms": 5
+    },
+    "mark_seed": {
+      "ok": true,
+      "id": "qa-pixel-mark",
+      "markCount": null
+    },
+    "aux": {
+      "ready": true,
+      "waiting_visible": false,
+      "feed": "opened_iq_session",
+      "peak": "2.0483837127685547",
+      "points": "2048",
+      "amp_domain": "linear-rms",
+      "chart_aux_count": 1,
+      "non_empty": true
+    },
+    "broadband": {
+      "partition": "broadband-nav-aux-main",
+      "partition_ok": true,
+      "chart_mode": "waterfall",
+      "colorscale_visible": true,
+      "colorscale_text": "-20\n-32\n-43\n-55\n-67\n-78\n-90\ndB",
+      "color_scale_dom_count": 1,
+      "nav_present": true,
+      "aux_present": true,
+      "nb_workspace_count": 0,
+      "menubar_snippet": "信号\n信号工作室\nA1.4.3 · 交互可靠性优化\n文件(F)\n编辑(E)\n视图(V)\n分析(A)\n工具(T)\n帮助(H)\n宽带\n窄带\n命令栏\n−\n□\n×"
+    },
+    "shot02_ne_01": {
+      "different": true,
+      "h01": "83f08377543c72d384cc4af11dd818145e585a67c6103237164b6b2c4eb2907a",
+      "h02": "82c4716547d6daa7b6acd1bf9cb38c16b283df8808e1accb2a2a9dbb3a942303",
+      "soft": true
+    },
+    "shot01_ne_03": {
+      "different": true,
+      "h01": "83f08377543c72d384cc4af11dd818145e585a67c6103237164b6b2c4eb2907a",
+      "h03": "066e41c460017d59aca939719c845adcf0f60dd4e5b3938618e4dbb8312e5dce",
+      "hard": true
+    },
+    "broadband_stft": {
+      "partition": "broadband-nav-aux-main",
+      "chart_mode": "stft"
+    },
+    "sxs_bb_pending": {
+      "web": "02-broadband-waterfall-4k.png",
+      "desk": "desktop-bb-17471a6-4k.png",
+      "out": "04-sxs-bb-web-vs-desktop-4k.png"
+    },
+    "narrowband": {
+      "partition": "narrowband-only",
+      "partition_ok": true,
+      "global_nav_count": 0,
+      "aux_slot_count": 0,
+      "xor_ok": true,
+      "menubar_snippet": "信号\n信号工作室\nA1.4.3 · 交互可靠性优化\n文件(F)\n编辑(E)\n视图(V)\n分析(A)\n工具(T)\n帮助(H)\n宽带\n窄带\n命令栏\n−\n□\n×"
+    },
+    "chart_ready": {
+      "ok": true,
+      "wave": "true",
+      "psd": "true",
+      "stft": "true",
+      "elapsed_ms": 16
+    },
+    "shot06_pipeline": {
+      "text": "真实 DDC · 标记 qa-pixel-mark",
+      "title": "sigmf_data_demo → 真实 DDC (标记 qa-pixel-mark, Fc 2500000000 Hz, BW 20000000 Hz, LO 0 Hz, R=1/1) · not demod · no Multitaper/Burg",
+      "attrs": {
+        "data-nb-source": "opened-or-demo-iq",
+        "data-nb-pipeline": "ddc",
+        "data-nb-ddc-kind": "real-marker",
+        "data-nb-ddc-status": "真实 DDC · 标记 qa-pixel-mark",
+        "data-nb-lo-hz": "0",
+        "data-nb-decimation": "1"
+      },
+      "ddc_kind": "real-marker",
+      "has_真实_DDC": true,
+      "is_real_marker_or_channel": true,
+      "needs_active_mark": false
+    },
+    "observe": {
+      "non_empty": true,
+      "chartsReady": true,
+      "ddcKind": "real-marker"
+    },
+    "sxs_nb_pending": {
+      "web": "05-narrowband-observe-4k.png",
+      "desk": "desktop-nb-17471a6-4k.png",
+      "out": "07-sxs-nb-web-vs-desktop-4k.png"
+    },
+    "sxs_done": {
+      "bb": "04-sxs-bb-web-vs-desktop-4k.png",
+      "nb": "07-sxs-nb-web-vs-desktop-4k.png",
+      "desktop_ref_sha": "17471a6488383b456281d12cb1a6d3d80290205d"
+    }
+  },
+  "gaps": [],
+  "skipped": [],
+  "absolute_png_paths": [
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\desktop-bb-17471a6-4k.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\desktop-nb-17471a6-4k.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\01-project-tree-loaded.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\01b-project-tree-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\02-broadband-waterfall-4k.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\02b-display-colorscale-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\02c-aux-wave-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\03-broadband-stft-4k.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\05-narrowband-observe-4k.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\06-nb-ddc-pipeline-state.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\06b-nb-observe-workspace.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\04-sxs-bb-web-vs-desktop-4k.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\07-sxs-nb-web-vs-desktop-4k.png"
+  ],
+  "evidence_sha_after_commit": "d96b0ad0b5bbdfd31c134ce33b9cba9add9e9063",
+  "tip_sha": "d96b0ad0b5bbdfd31c134ce33b9cba9add9e9063"
+}
