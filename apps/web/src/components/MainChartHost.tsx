@@ -97,13 +97,13 @@ function fullViewFor(
 ): ViewState {
   if (mode === 'waterfall') {
     return {
-      xDomain: { min: freqHz.min, max: freqHz.max, unit: 'Hz', label: 'Frequency' },
-      yDomain: { min: timeSec.min, max: timeSec.max, unit: 's', label: 'Time' },
+      xDomain: { min: freqHz.min, max: freqHz.max, unit: 'Hz', label: '频率 (Hz)' },
+      yDomain: { min: timeSec.min, max: timeSec.max, unit: 's', label: '时间 (s)' },
     };
   }
   return {
-    xDomain: { min: timeSec.min, max: timeSec.max, unit: 's', label: 'Time' },
-    yDomain: { min: freqHz.min, max: freqHz.max, unit: 'Hz', label: 'Frequency' },
+    xDomain: { min: timeSec.min, max: timeSec.max, unit: 's', label: '时间 (s)' },
+    yDomain: { min: freqHz.min, max: freqHz.max, unit: 'Hz', label: '频率 (Hz)' },
   };
 }
 
@@ -132,13 +132,13 @@ function snapToView(
 ): ViewState {
   if (mode === 'waterfall') {
     return {
-      xDomain: { min: snap.xMin, max: snap.xMax, unit: 'Hz', label: 'Frequency' },
-      yDomain: { min: snap.yMin, max: snap.yMax, unit: 's', label: 'Time' },
+      xDomain: { min: snap.xMin, max: snap.xMax, unit: 'Hz', label: '频率 (Hz)' },
+      yDomain: { min: snap.yMin, max: snap.yMax, unit: 's', label: '时间 (s)' },
     };
   }
   return {
-    xDomain: { min: snap.xMin, max: snap.xMax, unit: 's', label: 'Time' },
-    yDomain: { min: snap.yMin, max: snap.yMax, unit: 'Hz', label: 'Frequency' },
+    xDomain: { min: snap.xMin, max: snap.xMax, unit: 's', label: '时间 (s)' },
+    yDomain: { min: snap.yMin, max: snap.yMax, unit: 'Hz', label: '频率 (Hz)' },
   };
 }
 

@@ -2,9 +2,10 @@
  * G06 observe charts: DDC'd IQ from sigmf_data_demo into WaveformChart + SpectrumChart.
  * Does not rewrite Bot-B shell chrome — only fills the honest empty chart slots.
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { WaveformChart } from '@wss/charts/WaveformChart';
 import { SpectrumChart } from '@wss/charts/SpectrumChart';
+import { VerticalSplitter } from '@wss/charts/VerticalSplitter';
 import { useUiStore } from '../store/uiStore';
 import { useDspWorkerClient } from '../dsp/useDspWorkerClient';
 import {
@@ -57,6 +58,45 @@ function PanelShell({
 function Waiting({ text }: { text: string }) {
   return <span className="nb-chart-panel-status">{text}</span>;
 }
+
+/** Desktop narrowband_workspace.cpp waveformAxisLabel(). */
+function waveformAxisLabel(mode: string): string {
+  switch (mode) {
+    case 'iq':
+      return 'I / Q (ADC 计数等效值)';
+    case 'magnitude':
+      return '幅度 RMS (ADC 计数等效值)';
+    case 'phase':
+      return '相位 (rad)';
+    case 'envelope':
+      return '幅度包络 (ADC 计数等效值)';
+    default:
+      return '幅值 (ADC 计数等效值)';
+  }
+}
+
+/** Desktop setFrequencyAxis: RF vs 基带. */
+function frequencyAxisLabel(freqMode: string): string {
+  return freqMode === 'rf' ? 'RF 频率 (Hz)' : '基带频率 (Hz)';
+}
+
+const NB_OBSERVE_TOP_DEFAULT = 320; // desktop observeSplitter setSizes({320,640})
+const NB_OBSERVE_TOP_MIN = 120;
+const NB_OBSERVE_TOP_MAX = 720;
+const NB_OBSERVE_TOP_LS = 'wss.nbObserveTopH.v1';
+
+function readNbObserveTopH(): number {
+  try {
+    const raw = localStorage.getItem(NB_OBSERVE_TOP_LS);
+    if (raw == null) return NB_OBSERVE_TOP_DEFAULT;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return NB_OBSERVE_TOP_DEFAULT;
+    return Math.min(NB_OBSERVE_TOP_MAX, Math.max(NB_OBSERVE_TOP_MIN, Math.round(n)));
+  } catch {
+    return NB_OBSERVE_TOP_DEFAULT;
+  }
+}
+
 
 
 /** G18 charts-owned pinned-dwell scrubber: drag vertical marker in STFT plot. */
@@ -212,9 +252,20 @@ export function NarrowbandObserveCharts() {
         min: result.psd.xDomain.min + (freqMode === 'rf' ? result.loOffsetHz : 0),
         max: result.psd.xDomain.max + (freqMode === 'rf' ? result.loOffsetHz : 0),
         unit: 'Hz' as const,
-        label: freqMode === 'rf' ? 'Freq (LO-centered)' : 'Frequency',
+        label: frequencyAxisLabel(freqMode),
       }
     : null;
+
+  const waveXDomain = result
+    ? {
+        ...result.waveform.xDomain,
+        unit: result.waveform.xDomain.unit || 's',
+        label: result.waveform.xDomain.label?.includes('时间')
+          ? result.waveform.xDomain.label
+          : '源文件时间 (s)',
+      }
+    : null;
+
 
   const stftFreq = result
     ? {
@@ -300,6 +351,17 @@ export function NarrowbandObserveCharts() {
           : statusText ?? 'Waiting for DDC…'}
       </div>
 
+      <div
+        className="nb-observe-split"
+        data-testid="nb-observe-split"
+        data-nb-observe-top-h={nbObserveTopH}
+        data-desktop-observe-sizes="320/640"
+        style={
+          {
+            ['--nb-observe-top-h' as string]: `${nbObserveTopH}px`,
+          } as CSSProperties
+        }
+      >
       <div className="nb-observe-top">
         <PanelShell
           title="波形"
@@ -315,12 +377,14 @@ export function NarrowbandObserveCharts() {
           {result ? (
             <WaveformChart
               y={result.waveform.y}
-              xDomain={result.waveform.xDomain}
+              xDomain={waveXDomain ?? result.waveform.xDomain}
               kind="waveform"
               height="100%"
               testId="nb-chart-waveform"
               windowX={null}
               linkedX={waveLinkedX}
+              xLabel="源文件时间 (s)"
+              yLabel={waveformAxisLabel(waveformMode)}
               onPinX={(timeSec) => {
                 const centerFreq = psdXDomain
                   ? (psdXDomain.min + psdXDomain.max) / 2
@@ -368,6 +432,8 @@ export function NarrowbandObserveCharts() {
               testId="nb-chart-psd"
               windowX={null}
               linkedX={psdLinkedFreqHz}
+              xLabel={frequencyAxisLabel(freqMode)}
+              yLabel="dBFS/Hz"
               onPinX={(frequencyHz) => {
                 const centerTime =
                   dwellTimeSec != null
@@ -388,7 +454,17 @@ export function NarrowbandObserveCharts() {
         </PanelShell>
       </div>
 
-      <PanelShell
+            <VerticalSplitter
+        sizePx={nbObserveTopH}
+        minPx={NB_OBSERVE_TOP_MIN}
+        maxPx={NB_OBSERVE_TOP_MAX}
+        defaultPx={NB_OBSERVE_TOP_DEFAULT}
+        onChange={onNbObserveTopChange}
+        testId="nb-observe-splitter"
+        style={{ height: 5 }}
+      />
+      <div className="nb-observe-stft" data-testid="nb-observe-stft">
+<PanelShell
         title="时频谱"
         testId="nb-panel-stft"
         ready={ready && Boolean(result && result.stft.frameCount > 0)}
@@ -467,6 +543,8 @@ export function NarrowbandObserveCharts() {
               mode="stft"
               freqHz={stftFreq}
               timeSec={result.stft.timeSec}
+              freqLabel={frequencyAxisLabel(freqMode)}
+              timeLabel="源文件时间 (s)"
               height="100%"
               testId="nb-chart-stft"
               interactionEnabled={false}
@@ -511,6 +589,8 @@ export function NarrowbandObserveCharts() {
           <Waiting text={statusText ?? '等待真实 DDC 时频谱'} />
         )}
       </PanelShell>
+      </div>
+      </div>
     </>
   );
 }

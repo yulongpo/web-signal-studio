@@ -52,7 +52,7 @@ export class AxisOverlay {
     ctx.stroke();
 
     ctx.fillStyle = labelStyle;
-    ctx.font = "11px ui-sans-serif, system-ui, sans-serif";
+    ctx.font = "10px Consolas, ui-monospace, monospace";
 
     const xTicks = xAxis.ticks(6);
     ctx.textAlign = "center";

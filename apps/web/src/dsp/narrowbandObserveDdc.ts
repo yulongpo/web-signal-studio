@@ -381,7 +381,7 @@ export async function computeNarrowbandObserveDdc(
     min: -result.outputSampleRateHz / 2,
     max: result.outputSampleRateHz / 2,
     unit: 'Hz',
-    label: 'Frequency',
+    label: '基带频率 (Hz)',
   };
   const welchLinear = result.basebandPsd?.linearPower;
   const stftLinEarly = result.basebandStft?.linearPower;
@@ -467,7 +467,7 @@ export async function computeNarrowbandObserveDdc(
         min: 0,
         max: Math.max(durationSec, 1e-9),
         unit: 's',
-        label: 'Time',
+        label: '源文件时间 (s)',
       },
       mode: waveformMode,
     },

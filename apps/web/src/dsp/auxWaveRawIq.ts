@@ -345,7 +345,7 @@ export async function readAuxWaveRawIq(options: {
       min: options.win.min,
       max: options.win.max,
       unit: 's',
-      label: 'Time',
+      label: '源文件时间 (s)',
     },
     sourceLabel: handle.sourceLabel,
     sampleBegin: response.begin,

@@ -27,6 +27,9 @@ export interface WaveformChartProps {
   linkedX?: number | null;
   /** Click-to-pin on plot (desktop aux pinAt). */
   onPinX?: (xValue: number) => void;
+  /** Override axis titles (desktop narrowband_workspace axis labels). */
+  xLabel?: string;
+  yLabel?: string;
 }
 
 const MARGIN = { left: 52, right: 12, top: 10, bottom: 28 };
@@ -49,6 +52,8 @@ export function WaveformChart(props: WaveformChartProps) {
     stroke = kind === "psd" ? "#7dd3fc" : "#86efac",
     linkedX = null,
     onPinX,
+    xLabel,
+    yLabel,
   } = props;
 
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -68,7 +73,7 @@ export function WaveformChart(props: WaveformChartProps) {
         min: kind === "psd" ? -80 : -1,
         max: kind === "psd" ? 0 : 1,
         unit: kind === "psd" ? "dB" : "",
-        label: kind === "psd" ? "PSD" : "Amplitude",
+        label: kind === "psd" ? "功率谱密度 (dBFS/Hz)" : "幅度",
       };
     }
     const pad = (max - min) * 0.08 || 0.1;
@@ -76,7 +81,7 @@ export function WaveformChart(props: WaveformChartProps) {
       min: min - pad,
       max: max + pad,
       unit: kind === "psd" ? "dB" : "",
-      label: kind === "psd" ? "PSD" : "Amplitude",
+      label: kind === "psd" ? "功率谱密度 (dBFS/Hz)" : "幅度",
     };
   })();
 
@@ -108,15 +113,21 @@ export function WaveformChart(props: WaveformChartProps) {
       const plotB = cssH - MARGIN.bottom;
       const plotH = Math.max(1, plotB - plotT);
 
+      const xDomainDraw = xLabel
+        ? { ...xDomain, label: xLabel }
+        : xDomain;
+      const yDomainDraw = yLabel
+        ? { ...yDomain, label: yLabel }
+        : yDomain;
       const xAxis = new PhysicalAxis({
         orientation: "horizontal",
-        domain: xDomain,
+        domain: xDomainDraw,
         pixelMin: plotL,
         pixelMax: plotR,
       });
       const yAxis = new PhysicalAxis({
         orientation: "vertical",
-        domain: yDomain,
+        domain: yDomainDraw,
         pixelMin: plotT,
         pixelMax: plotB,
         invertPixel: true,
@@ -184,7 +195,7 @@ export function WaveformChart(props: WaveformChartProps) {
       ro?.disconnect();
       window.removeEventListener("resize", draw);
     };
-  }, [y, xDomain.min, xDomain.max, yDomain.min, yDomain.max, height, kind, stroke, windowX?.min, windowX?.max, linkedX, axisOverlay]);
+  }, [y, xDomain.min, xDomain.max, xDomain.label, xDomain.unit, yDomain.min, yDomain.max, yDomain.label, yDomain.unit, xLabel, yLabel, height, kind, stroke, windowX?.min, windowX?.max, linkedX, axisOverlay]);
 
   return (
     <div

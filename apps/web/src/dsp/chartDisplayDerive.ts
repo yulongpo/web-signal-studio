@@ -69,7 +69,7 @@ export function deriveWaveInWindow(
       min: win.min,
       max: win.max,
       unit: "s",
-      label: "Time",
+      label: "源文件时间 (s)",
     },
   };
 }
@@ -108,7 +108,7 @@ export function derivePsdInWindow(
       min: freqHz.min,
       max: freqHz.max,
       unit: "Hz",
-      label: "Frequency",
+      label: "频率 (Hz)",
     },
   };
 }
