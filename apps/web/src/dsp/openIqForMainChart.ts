@@ -25,6 +25,8 @@ import {
   SIGMF_DATA_DEMO_STEM,
   ensureDemoSigmfReader,
 } from './auxWaveRawIq';
+import { syncDemoSigmfIntoUiProject } from '../projectIo/syncDemoIqProject';
+import { SIGMF_DEMO_META_PATH } from '@wss/project-io';
 
 /** Default sample rate when RAW has no sidecar meta (explicit UI default). */
 export const DEFAULT_RAW_SAMPLE_RATE_HZ = 1_000_000;
@@ -325,6 +327,8 @@ export async function openIqFromFileBlob(
 export async function openDemoIqForMainChart(options: {
   signal?: AbortSignal;
   demoDir?: string | null;
+  /** When false, only chart session (legacy). Default true: also commit engineering tree. */
+  syncProjectTree?: boolean;
 } = {}): Promise<OpenIqOutcome> {
   try {
     const handle = await ensureDemoSigmfReader({
@@ -332,13 +336,32 @@ export async function openDemoIqForMainChart(options: {
       signal: options.signal,
     });
     const fileName = `${SIGMF_DATA_DEMO_STEM}.sigmf-data`;
-    return publish({
+    const published = publish({
       reader: handle.reader,
       sampleRateHz: handle.sampleRateHz,
       fileName,
       via: 'demo',
       format: 'sigmf',
     });
+    if (options.syncProjectTree !== false) {
+      // Demo loader only reads allowlisted sigmf_data_demo; record canonical meta path.
+      const synced = syncDemoSigmfIntoUiProject({
+        metaText: handle.metaText,
+        dataByteLength: handle.dataByteLength,
+        path: SIGMF_DEMO_META_PATH,
+        displayName: `${handle.stem}.sigmf-meta`,
+      });
+      if (!synced.ok) {
+        return {
+          ok: false,
+          reason: 'error',
+          message:
+            synced.message ||
+            '\u6f14\u793a IQ \u5df2\u6253\u5f00\u56fe\u8868\uff0c\u4f46\u5199\u5165\u5de5\u7a0b\u6811\u5931\u8d25',
+        };
+      }
+    }
+    return published;
   } catch (err: unknown) {
     const cancelled = abortMessage(err);
     if (cancelled) return cancelled;
@@ -346,7 +369,9 @@ export async function openDemoIqForMainChart(options: {
     return {
       ok: false,
       reason: 'error',
-      message: msg || `无法打开演示 IQ（目录 ${DEFAULT_SIGMF_DATA_DEMO_DIR}）`,
+      message:
+        msg ||
+        `\u65e0\u6cd5\u6253\u5f00\u6f14\u793a IQ\uff08\u76ee\u5f55 ${DEFAULT_SIGMF_DATA_DEMO_DIR}\uff09`,
     };
   }
 }

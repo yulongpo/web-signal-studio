@@ -13,6 +13,7 @@ import {
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
 import { beginIqFileOpen, endIqFileOpen } from '../dsp/iqFileSession';
+import { clearDemoSigmfCache } from '../dsp/auxWaveRawIq';
 
 const STFT_N_OPTIONS = [256, 512, 1024, 2048, 4096] as const;
 const PALETTES = ['viridis', 'inferno', 'magma', 'gray'] as const;
@@ -92,12 +93,23 @@ export function SpectrumToolbar() {
   const onLoadDemoIq = async () => {
     setIqOpenError(null);
     beginIqFileOpen();
+    const ac = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      ac.abort();
+      clearDemoSigmfCache();
+    }, 45_000);
     try {
-      const outcome = await openDemoIqForMainChart();
+      const outcome = await openDemoIqForMainChart({ signal: ac.signal });
       if (!outcome.ok && outcome.reason !== 'cancelled') {
         setIqOpenError(outcome.message);
+      } else if (!outcome.ok && outcome.reason === 'cancelled') {
+        setIqOpenError('加载演示 IQ 超时或已取消（请重试）');
       }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setIqOpenError(msg || '加载演示 IQ 失败');
     } finally {
+      window.clearTimeout(timeoutId);
       endIqFileOpen();
     }
   };
@@ -195,7 +207,7 @@ export function SpectrumToolbar() {
           type="button"
           data-testid="btn-clear-iq-wav"
           onClick={onClearIq}
-          title="Clear opened IQ and return to synthetic fixture"
+          title="清除已打开 IQ，并回到合成夹具（非演示磁盘）"
         >
           清除 IQ
         </button>
