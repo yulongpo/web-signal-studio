@@ -133,6 +133,7 @@ export {
 
 export {
   ColorbarOverlay,
+  colorScaleTickLabels,
   type ColorScaleDb,
   type ColorbarOverlayDrawInput,
 } from "./overlay/colorbarOverlay.js";

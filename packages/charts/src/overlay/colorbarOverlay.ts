@@ -32,6 +32,22 @@ function formatDbTick(v: number): string {
   return Number(v.toFixed(1)).toString();
 }
 
+/** dB tick labels for DOM legend / Playwright (top = reference, bottom = ref - range). */
+export function colorScaleTickLabels(
+  levelsDb: ColorScaleDb,
+  tickCount = 5,
+): string[] {
+  const ref = levelsDb.referenceLevelDb;
+  const dyn = Math.max(1e-6, levelsDb.dynamicRangeDb);
+  const n = Math.max(2, tickCount);
+  const out: string[] = [];
+  for (let i = 0; i < n; i++) {
+    const frac = i / (n - 1);
+    out.push(formatDbTick(ref - dyn * frac));
+  }
+  return out;
+}
+
 /**
  * Draw vertical LUT strip + dB ticks to the right of the plot
  * (desktop: left = width-38, width=13, ticks at left+17).
