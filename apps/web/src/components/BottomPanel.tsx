@@ -17,6 +17,7 @@ import { LocalComputeClient } from '../localCompute/client';
 import { AdaptiveValueEdit } from './AdaptiveValueEdit';
 import { AnnotationEvidencePanel } from './AnnotationEvidencePanel';
 import { browserSaveFile } from './browserSaveFile';
+import { BottomScaleChrome } from './BottomScaleChrome';
 
 const TABS = [
   { id: 'marks' as const, label: '统一标记记录', testId: 'bottom-tab-marks' },
@@ -681,6 +682,7 @@ export function BottomPanel() {
     <section
       className="bottom-panel"
       data-testid="bottom-panel"
+      data-g09-scale="partial"
       data-expanded={expanded ? 'true' : 'false'}
       data-tab={tab}
       data-dock="annotation-detection"
@@ -713,7 +715,9 @@ export function BottomPanel() {
         }}
         title="拖拽调高；双击折叠到最小（29px）"
       />
-      <div className="bottom-tabs" data-testid="bottom-tabs" style={{ height: 29 }}>
+      
+      <BottomScaleChrome />
+<div className="bottom-tabs" data-testid="bottom-tabs" style={{ height: 29 }}>
         {TABS.map((t) => (
           <button
             key={t.id}

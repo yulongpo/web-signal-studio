@@ -3067,3 +3067,47 @@ span[data-editable-col]:hover {
   border-left: 2px solid rgba(80, 160, 255, 0.45);
   padding-left: 6px;
 }
+
+
+/* G09 D4 — BottomPanel scale chrome (view ΔT/ΔF; axis ticks → C) */
+.bottom-scale-chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 10px;
+  min-height: 22px;
+  font: 10px Consolas, ui-monospace, monospace;
+  color: #a7bbd0;
+  background: #152538;
+  border-bottom: 1px solid #2c4056;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.bottom-scale-chrome .bottom-scale-view {
+  color: #a7bbd0;
+}
+.bottom-scale-chrome .bottom-scale-cursor {
+  color: #a7bbd0;
+}
+.bottom-scale-chrome .bottom-scale-sep {
+  color: #3a5168;
+}
+.bottom-scale-chrome .bottom-scale-honesty {
+  margin-left: auto;
+  color: #6e8499;
+  font-size: 9px;
+}
+
+/* G16 D5 — mode-wheel shell */
+.mode-wheel {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 2px;
+  border: 1px solid #2a4158;
+  border-radius: 3px;
+  background: #132338;
+}
+.mode-wheel[data-g16='partial'] {
+  outline: 1px dashed #3d5a74;
+}
