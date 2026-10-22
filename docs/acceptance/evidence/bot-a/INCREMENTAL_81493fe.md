@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `INCREMENTAL_f01d582` (Web tip `f01d582` / `faee81a`; replaces audit tip `46ead6c` — not merging). **matrix_pass_claimed: false**.
+
 # INCREMENTAL_81493fe — 宽带收口审计 vs BROADBAND_GAP (no PASS)
 
 | Field | Value |
