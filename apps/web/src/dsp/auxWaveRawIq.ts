@@ -65,6 +65,10 @@ export type DemoSigmfHandle = {
   centerFrequencyHz?: number;
   /** Parsed annotations for LO / window defaults (demo only). */
   annotations: DemoSigmfAnnotation[];
+  /** Raw .sigmf-meta text (for F importSigmfStream → engineering tree). */
+  metaText: string;
+  /** Byte length of .sigmf-data used for sampleCount derivation. */
+  dataByteLength: number;
 };
 
 
@@ -150,11 +154,17 @@ async function loadMetaAndDataFromViteFs(demoDir: string, signal?: AbortSignal):
 }
 
 function isNodeFsAvailable(): boolean {
-  return (
+  // Vitest / Node: disk read. Vite browser / Playwright: /@fs fetch only.
+  // Do not treat a Vite client `process` polyfill as Node (hangs on node:fs).
+  const env = (import.meta as ImportMeta & { env?: Record<string, unknown> }).env;
+  const isVitest = Boolean(env?.VITEST || env?.MODE === 'test');
+  const hasNode =
     typeof process !== 'undefined' &&
     typeof process.versions === 'object' &&
-    typeof process.versions.node === 'string'
-  );
+    typeof process.versions.node === 'string';
+  if (isVitest) return hasNode;
+  if (typeof window !== 'undefined') return false;
+  return hasNode;
 }
 
 /**
@@ -201,6 +211,8 @@ export async function ensureDemoSigmfReader(options: {
       stem: SIGMF_DATA_DEMO_STEM,
       centerFrequencyHz: handle.meta.centerFrequencyHz,
       annotations: parseDemoAnnotations(handle.meta.raw.annotations),
+      metaText,
+      dataByteLength: data.byteLength,
     };
     cached = opened;
     return opened;

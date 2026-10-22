@@ -13,6 +13,8 @@ import {
   openIqFromFiles,
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
+import { beginIqFileOpen, endIqFileOpen } from '../dsp/iqFileSession';
+import { clearDemoSigmfCache } from '../dsp/auxWaveRawIq';
 import {
   clearRecentProjects,
   listRecentProjects,
@@ -164,8 +166,27 @@ export function MenuBar() {
   const onLoadDemoIq = async () => {
     close();
     setIqError(null);
-    const outcome = await openDemoIqForMainChart();
-    if (!outcome.ok && outcome.reason !== 'cancelled') setIqError(outcome.message);
+    beginIqFileOpen();
+    const ac = new AbortController();
+    const timeoutId = window.setTimeout(() => {
+      ac.abort();
+      clearDemoSigmfCache();
+    }, 45_000);
+    try {
+      const outcome = await openDemoIqForMainChart({ signal: ac.signal });
+      if (!outcome.ok && outcome.reason !== 'cancelled') {
+        setIqError(outcome.message);
+      } else if (!outcome.ok && outcome.reason === 'cancelled') {
+        setIqError('加载演示 IQ 超时或已取消（请重试）');
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setIqError(msg || '加载演示 IQ 失败');
+      clearDemoSigmfCache();
+    } finally {
+      window.clearTimeout(timeoutId);
+      endIqFileOpen();
+    }
   };
 
   const onOpenProjectFile = (file: File | undefined) => {
