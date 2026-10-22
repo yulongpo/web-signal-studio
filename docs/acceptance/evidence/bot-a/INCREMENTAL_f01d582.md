@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `INCREMENTAL_fb2a03e` (Web tip `fb2a03e`; G §4 scored). Prior tip also merged main @ `3ac80e5`. **matrix_pass_claimed: false**.
+
 # INCREMENTAL_f01d582 — broadband close-out + C G12/G15 shared history (supersedes 46ead6c) (no PASS)
 
 | Field | Value |
