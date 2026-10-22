@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `INCREMENTAL_bf2fa8d` (Web tip `bf2fa8d`; audit tip replaces `655761a`). Prior tip also merged main @ `27a3511`. **matrix_pass_claimed: false**.
+
 # INCREMENTAL_555d001 — D4 G09 + D5 G16 PARTIAL (B shell; C residuals) (no PASS)
 
 | Field | Value |
