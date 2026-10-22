@@ -5,6 +5,7 @@
 | When | 2026-10-22 Asia/Shanghai |
 | Base | **7969aba** = 7969aba (origin/main = QUALITY_DEMO_TREE merge incl. 64d657d) |
 | Branch | work/bot-b-ui |
+| Tip | **93bedc9** = 93bedc9f14612407cf9ae0a965fe8f059fc55dce |
 | Desktop | **17471a6** D:\\project\\signal_studio_rebuild (pp/main_window.cpp modeMain/modeAux/workspaceMode/detectionRoiTool) |
 | Status | PARTIAL — user-visible shell chrome EN cleared where desktop has CN; no PASS |
 
@@ -52,6 +53,6 @@ Aligned user-visible chrome labels to desktop CN (no new visual language):
 4. No ACCEPTANCE_MATRIX PASS flips; matrix_pass_claimed=false
 
 ## Deliver
-- Tip: (fill after commit)
+- Tip: 93bedc9 = 93bedc9f14612407cf9ae0a965fe8f059fc55dce
 - Evidence: docs/acceptance/evidence/bot-b/RESIDUAL_EN_7969aba.md
 - matrix_pass_claimed=false
