@@ -1,5 +1,5 @@
 ﻿import { describe, expect, it } from "vitest";
-import { AxisOverlay } from "./axisOverlay.js";
+import { AxisOverlay, suggestedTickCount } from "./axisOverlay.js";
 import { PhysicalAxis } from "../axis/physicalAxis.js";
 
 function mockCtx() {
@@ -58,5 +58,14 @@ describe("AxisOverlay physical scaling", () => {
     // MHz-scaled tick present (1 or 2), not raw 1e6 scientific
     expect(texts.some((t) => t === "1" || t === "1.5" || t === "2")).toBe(true);
     expect(texts.some((t) => /e\+0?6/i.test(t))).toBe(false);
+  });
+});
+
+
+describe("suggestedTickCount (4K density)", () => {
+  it("densifies for wide 4K plot spans and stays sparse for aux", () => {
+    expect(suggestedTickCount(400)).toBeLessThanOrEqual(8);
+    expect(suggestedTickCount(2400)).toBeGreaterThanOrEqual(12);
+    expect(suggestedTickCount(2400)).toBeLessThanOrEqual(18);
   });
 });

@@ -585,6 +585,7 @@ export function MainChartHost() {
       className="chart-host chart-host-live"
       data-chart-slot="main"
       data-chart-mode={chartMode}
+      data-mode-paint={chartMode}
       data-testid="main-chart-host" data-g10-soft="esc-context-menu-roi"
       data-dsp-source={shownSource}
       data-dsp-label={shownSource === 'loading' ? 'loading' : (spec?.sourceLabel ?? 'demo fallback')}
@@ -639,6 +640,7 @@ export function MainChartHost() {
         {chipLabelFor(shownSource, shownSource === 'loading' ? null : iqFormat)}
       </span>
       <SpectrumChart
+        key={chartMode}
         power={power}
         binCount={binCount}
         frameCount={frameCount}

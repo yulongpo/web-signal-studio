@@ -128,6 +128,7 @@ export {
 
 export {
   AxisOverlay,
+  suggestedTickCount,
   type AxisOverlayDrawInput,
 } from "./overlay/axisOverlay.js";
 
@@ -137,6 +138,18 @@ export {
   type ColorScaleDb,
   type ColorbarOverlayDrawInput,
 } from "./overlay/colorbarOverlay.js";
+
+export {
+  HEATMAP_PLOT_MARGIN,
+  HEATMAP_COLORBAR,
+  HEATMAP_RIGHT_WITH_COLORSCALE,
+  HEATMAP_RIGHT_NO_COLORSCALE,
+  heatmapPlotMargin,
+  stripOffsetForMargin,
+  type HeatmapPlotMargin,
+} from "./react/plotMargin.js";
+
+
 
 
 export {

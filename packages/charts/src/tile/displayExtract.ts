@@ -223,20 +223,31 @@ export function suggestExtractOutSize(input: {
   plotCssWidth: number;
   plotCssHeight: number;
   mode: "preview" | "refine" | "idle";
+  /** Optional devicePixelRatio — refine targets CSS×DPR for 4K density. */
+  devicePixelRatio?: number;
 }): { outW: number; outH: number } {
-  const { sourceWidth, sourceHeight, plotCssWidth, plotCssHeight, mode } = input;
+  const {
+    sourceWidth,
+    sourceHeight,
+    plotCssWidth,
+    plotCssHeight,
+    mode,
+    devicePixelRatio = 1,
+  } = input;
   const cssW = Math.max(1, Math.round(plotCssWidth));
   const cssH = Math.max(1, Math.round(plotCssHeight));
+  const dpr = Math.max(1, Math.min(3, devicePixelRatio || 1));
   if (mode === "preview") {
+    // Was 0.5×CSS — too blocky/pale on 4K; keep cheap but closer to plot pixels.
     return {
-      outW: Math.min(sourceWidth, Math.max(16, Math.round(cssW * 0.5))),
-      outH: Math.min(sourceHeight, Math.max(16, Math.round(cssH * 0.5))),
+      outW: Math.min(sourceWidth, Math.max(32, Math.round(cssW * 0.85))),
+      outH: Math.min(sourceHeight, Math.max(32, Math.round(cssH * 0.85))),
     };
   }
-  // refine + idle: denser paint grid
+  // refine + idle: paint near buffer density (CSS × DPR), capped by source.
   return {
-    outW: Math.min(sourceWidth, Math.max(32, Math.round(cssW))),
-    outH: Math.min(sourceHeight, Math.max(32, Math.round(cssH))),
+    outW: Math.min(sourceWidth, Math.max(64, Math.round(cssW * dpr))),
+    outH: Math.min(sourceHeight, Math.max(64, Math.round(cssH * dpr))),
   };
 }
 

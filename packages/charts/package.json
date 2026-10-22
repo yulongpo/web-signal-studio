@@ -42,6 +42,7 @@
     "./SpectrumChart": "./src/react/SpectrumChart.tsx",
     "./WaveformChart": "./src/react/WaveformChart.tsx",
     "./NavigationChart": "./src/react/NavigationChart.tsx",
-    "./VerticalSplitter": "./src/react/VerticalSplitter.tsx"
+    "./VerticalSplitter": "./src/react/VerticalSplitter.tsx",
+    "./react/plotMargin": "./src/react/plotMargin.ts"
   }
 }
