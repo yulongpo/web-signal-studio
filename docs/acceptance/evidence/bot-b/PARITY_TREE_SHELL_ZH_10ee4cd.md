@@ -43,3 +43,6 @@
 |-------|-------|
 | matrix_pass_claimed | false |
 | Status | PARTIAL (chrome/layout/copy/tree/NB surface); import dialog + pixel parity OPEN |
+
+## Follow-up (base 522ca11 / F wire)
+Add-signal dialog wired to F APIs — see ADD_SIGNAL_F_WIRE_522ca11.md. This P0 chrome tip retained; import dialog no longer OPEN for SigMF preview/confirm path (RAW tree commit still OPEN). matrix_pass_claimed=false.
