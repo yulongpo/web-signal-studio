@@ -43,15 +43,23 @@ const CN_BADGE: Record<string, string> = {
   loading: '读取中',
   partial: '未完整',
   failed: '失败',
+  deleted: '已删除',
 };
 
 /** Section / folder TitleRole chrome (desktop Chinese headers). */
 const CN_SECTION: Record<string, string> = {
   Marks: '标注',
-  Channels: '通道',
+  Channels: '窄带通道',
   'Detection runs': '检测运行',
   'IQ Files': 'IQ 文件',
   'Demo Project': '演示工程',
+  'Imported labels': '原始标签',
+  'Manual marks': '手动标记',
+  'Algorithm results': '算法结果',
+  ImportedLabel: '原始标签',
+  Manual: '手动标记',
+  Algorithm: '算法结果',
+  通道: '窄带通道',
 };
 
 const GROUP_KINDS = new Set([
@@ -81,9 +89,63 @@ function m06() {
   return typeof window !== 'undefined' ? window.__wssM06 : undefined;
 }
 
+/** Desktop cleanName-lite: strip leading decorations / trailing id wrappers. */
+function cleanName(name: string, id?: string, fallback = '未命名'): string {
+  let n = name.trim();
+  const decorations = '★●◆■▪•·';
+  while (n && decorations.includes(n[0]!)) n = n.slice(1).trim();
+  if (id) {
+    for (const [a, b] of [
+      ['[', ']'],
+      ['(', ')'],
+      ['【', '】'],
+    ] as const) {
+      const token = `${a}${id}${b}`;
+      if (n.startsWith(token)) n = n.slice(token.length).trim();
+      if (n.endsWith(token)) n = n.slice(0, -token.length).trim();
+    }
+    if (n === id) n = '';
+  }
+  n = n.trim();
+  return n || fallback;
+}
+
 function presentTitle(node: EngineeringTreeNode): string {
   const raw = (node.title || node.label || '').trim();
-  return CN_SECTION[raw] ?? raw;
+  const mapped = CN_SECTION[raw] ?? raw;
+  const fallback =
+    node.kind === 'file'
+      ? '未命名文件'
+      : node.kind === 'channel'
+        ? '未命名通道'
+        : node.kind === 'project'
+          ? '未命名工程'
+          : '未命名';
+  return cleanName(mapped, node.fileId || node.channelId || node.markId, fallback);
+}
+
+/** Rewrite residual EN detail fragments (desktop DetailRole shape). */
+function presentDetail(raw: string | undefined, kind: string): string | undefined {
+  if (!raw) return undefined;
+  let d = raw;
+  d = d.replace(/\bCF\b/g, 'Fc');
+  d = d.replace(/\s*\|\s*/g, ' · ');
+  d = d.replace(/(\d+)\s*samples?/gi, '样本 $1');
+  d = d.replace(/\b(\d+)\s*ch\b/gi, '通道 $1');
+  d = d.replace(/(\d+)\s*mark\(s\)/gi, '$1 个标记');
+  d = d.replace(/\bcreate rev\b/gi, '创建修订');
+  d = d.replace(/\bsrc\s*\[/gi, '源时间 [');
+  d = d.replace(/\bdetection run\b/gi, '检测运行');
+  d = d.replace(/\bfile\b/gi, '文件');
+  for (const [en, cn] of Object.entries(CN_RELATION)) {
+    if (d.includes(en)) d = d.split(en).join(cn);
+  }
+  // Channel/file two-line detail should stay compact (Fc · BW / Fc · Fs).
+  if ((kind === 'file' || kind === 'channel') && d.includes('来源')) {
+    // relation belongs in tooltip; strip from detail if leaked
+    d = d.split(' · ').filter((p) => !p.includes('来源') && !p.includes('创建修订') && !p.includes('源时间')).join(' · ');
+  }
+  return d.trim() || undefined;
 }
 
 function presentBadge(code: string): string {
@@ -144,6 +206,7 @@ function TreeNodeView({
     node.color ??
     (node.sourceKind ? ANNOTATION_SOURCE_TREE_COLORS[node.sourceKind] : undefined);
   const title = presentTitle(node);
+  const detail = presentDetail(node.detail, node.kind);
   const tooltip = presentTooltip(node);
   const glyph = kindGlyph(node.kind, expanded);
 
@@ -246,11 +309,11 @@ function TreeNodeView({
                 </span>
               ) : null}
             </span>
-            {node.detail || (node.badges && node.badges.length > 0) ? (
+            {detail || (node.badges && node.badges.length > 0) ? (
               <span className="tree-detail-line">
-                {node.detail ? (
+                {detail ? (
                   <span className="tree-detail" data-testid={`tree-detail-${node.id}`}>
-                    {node.detail}
+                    {detail}
                   </span>
                 ) : (
                   <span className="tree-detail tree-detail-empty" />
@@ -337,8 +400,8 @@ const SAMPLE_FALLBACK: EngineeringTreeNode[] = [
       },
       {
         id: 'folder-channels',
-        label: '通道',
-        title: '通道',
+        label: '窄带通道',
+        title: '窄带通道',
         kind: 'channels',
         count: 1,
         children: [
@@ -349,7 +412,7 @@ const SAMPLE_FALLBACK: EngineeringTreeNode[] = [
             kind: 'channel',
             detail: 'Fc 915 M · BW 200 k',
             badges: ['diff'],
-            sourceTooltip: 'source changed; keep create snapshot',
+            sourceTooltip: '来源已修改；保留创建快照',
             tooltip: 'NB-1\n来源已修改；保留创建快照',
           },
         ],
@@ -561,7 +624,7 @@ export function ProjectTree() {
               className="tree-root"
               data-testid={showLoaded ? 'project-tree-loaded' : 'project-tree-sample'}
               data-engineering="true"
-              data-presentation="desktop-cn-chrome"
+              data-presentation="desktop-cn-chrome" data-tree-incremental="c9243fe"
             >
               {hasTree
                 ? tree.map((n) => (
