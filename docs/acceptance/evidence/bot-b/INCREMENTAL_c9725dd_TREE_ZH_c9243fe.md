@@ -4,7 +4,7 @@
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
 | Base | **c9243fe** = `c9243fe316850c809c6a28de7bfafef6e86459e4` (origin/main = A INCREMENTAL merge) |
-| Tip | **7634cf7** = `7634cf7f86abcbe43a145ee6a8bc6b625cfa1684` (branch `work/bot-b-ui`) |
+| Tip | **3bf2e87** = `3bf2e87b634b1b53ebc6cc6730bff52a9aa2e278` (branch `work/bot-b-ui`; docs stamp may sit on top) |
 | Desktop | **17471a6** read-only `D:\project\signal_studio_rebuild` (`ui/project_tree_presentation.h`, `app/main_window.cpp` annotationSource titles, `annotation_evidence_widget.cpp` sourceName) |
 | Worktree | `D:\project\wss-wt-b` |
 | A audit | `docs/acceptance/evidence/bot-a/INCREMENTAL_c9725dd.md` TOP residual #1 |
