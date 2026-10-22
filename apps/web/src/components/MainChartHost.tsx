@@ -17,7 +17,6 @@ import {
   cssToTimeFreq,
   halfOpenEnd,
   markContains,
-  pushCapped,
   secondsToSampleIndex,
 } from './chartGesture';
 import { useDspWorkerClient } from '../dsp/useDspWorkerClient';
@@ -108,6 +107,37 @@ function cloneView(view: ViewState): ViewState {
   return { xDomain: { ...view.xDomain }, yDomain: { ...view.yDomain } };
 }
 
+/** G12/G15: plain store snap <-> ViewState (desktop Session ViewSnapshot slice). */
+function viewToSnap(view: ViewState): {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+} {
+  return {
+    xMin: view.xDomain.min,
+    xMax: view.xDomain.max,
+    yMin: view.yDomain.min,
+    yMax: view.yDomain.max,
+  };
+}
+
+function snapToView(
+  snap: { xMin: number; xMax: number; yMin: number; yMax: number },
+  mode: 'stft' | 'waterfall',
+): ViewState {
+  if (mode === 'waterfall') {
+    return {
+      xDomain: { min: snap.xMin, max: snap.xMax, unit: 'Hz', label: 'Frequency' },
+      yDomain: { min: snap.yMin, max: snap.yMax, unit: 's', label: 'Time' },
+    };
+  }
+  return {
+    xDomain: { min: snap.xMin, max: snap.xMax, unit: 's', label: 'Time' },
+    yDomain: { min: snap.yMin, max: snap.yMax, unit: 'Hz', label: 'Frequency' },
+  };
+}
+
 function publishPhysicalSpans(
   mode: 'stft' | 'waterfall',
   view: ViewState,
@@ -145,6 +175,15 @@ export function MainChartHost() {
   const navWindowTime = useUiStore((s) => s.navWindowTime);
   const setNavFullTime = useUiStore((s) => s.setNavFullTime);
   const setNavWindowTime = useUiStore((s) => s.setNavWindowTime);
+  const commitMainViewChange = useUiStore((s) => s.commitMainViewChange);
+  const setMainViewCurrent = useUiStore((s) => s.setMainViewCurrent);
+  const mainViewBack = useUiStore((s) => s.mainViewBack);
+  const mainViewForward = useUiStore((s) => s.mainViewForward);
+  const resetMainViewHistory = useUiStore((s) => s.resetMainViewHistory);
+  const mainViewPastLen = useUiStore((s) => s.mainViewPast.length);
+  const mainViewFutureLen = useUiStore((s) => s.mainViewFuture.length);
+  const mainViewRestoreSeq = useUiStore((s) => s.mainViewRestoreSeq);
+  const mainViewRestore = useUiStore((s) => s.mainViewRestore);
   const setSpectrogramDisplay = useUiStore((s) => s.setSpectrogramDisplay);
   const activeTool = useUiStore((s) => s.activeTool);
   const setActiveTool = useUiStore((s) => s.setActiveTool);
@@ -388,24 +427,20 @@ export function MainChartHost() {
     () => fullViewFor(chartMode, freqHz, timeSec),
     [chartMode, freqHz.min, freqHz.max, timeSec.min, timeSec.max],
   );
-  const historyRef = useRef<ViewState[]>([]);
-  const futureRef = useRef<ViewState[]>([]);
   const currentViewRef = useRef<ViewState>(fitted);
   const seqRef = useRef(0);
-  const [navRev, setNavRev] = useState(0);
   const [viewCommand, setViewCommand] = useState<{ seq: number; view: ViewState } | null>(null);
   const [liveView, setLiveView] = useState<ViewState>(fitted);
   const hostRef = useRef<HTMLDivElement>(null);
   const [hostSize, setHostSize] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
-    historyRef.current = [];
-    futureRef.current = [];
+    resetMainViewHistory();
     currentViewRef.current = fitted;
+    setMainViewCurrent(viewToSnap(fitted));
     setLiveView(fitted);
     setViewCommand(null);
-    setNavRev((n) => n + 1);
-  }, [fitted]);
+  }, [fitted, resetMainViewHistory, setMainViewCurrent]);
 
   // A2: seed analysis bandwidth from full/fitted freq span (desktop view.frequency).
   useEffect(() => {
@@ -430,11 +465,24 @@ export function MainChartHost() {
   const applyView = (next: ViewState) => {
     const cloned = cloneView(next);
     currentViewRef.current = cloned;
+    setMainViewCurrent(viewToSnap(cloned));
     seqRef.current += 1;
     setLiveView(cloned);
     setViewCommand({ seq: seqRef.current, view: cloned });
-    setNavRev((n) => n + 1);
   };
+
+  // G12/G15: MenuBar / Alt+Left|Right restore via shared store (desktop session_.back/forward).
+  useEffect(() => {
+    if (!mainViewRestore || mainViewRestoreSeq === 0) return;
+    const next = snapToView(mainViewRestore, chartMode);
+    currentViewRef.current = next;
+    seqRef.current += 1;
+    setLiveView(next);
+    setViewCommand({ seq: seqRef.current, view: next });
+    const spans = physicalSpansFromView(chartMode, next);
+    setNavWindowTime(spans.timeSec, { recordHistory: false });
+    publishPhysicalSpans(chartMode, next, setMainChartPhysicalSpans);
+  }, [mainViewRestoreSeq]); // eslint-disable-line react-hooks/exhaustive-deps -- seq is the trigger
 
   const confirmRoi = () => {
     if (!roi) return;
@@ -601,13 +649,16 @@ export function MainChartHost() {
         viewCommand={viewCommand}
         onViewChange={(view) => {
           currentViewRef.current = view;
+          setMainViewCurrent(viewToSnap(view));
           setLiveView(view);
           publishPhysicalSpans(chartMode, view, setMainChartPhysicalSpans);
         }}
         onViewCommit={(before) => {
-          historyRef.current = pushCapped(historyRef.current, before);
-          futureRef.current = [];
-          setNavRev((n) => n + 1);
+          // G12/G15: single Session-like stack (MenuBar + context share store).
+          commitMainViewChange(viewToSnap(before));
+          setMainViewCurrent(viewToSnap(currentViewRef.current));
+          const spans = physicalSpansFromView(chartMode, currentViewRef.current);
+          setNavWindowTime(spans.timeSec, { recordHistory: false });
           // A2: commit visible freq span -> bandwidthHz (auto-N + fixed SegmentMs).
           const fsHz = sampleRateHz > 0 ? sampleRateHz : 1_000_000;
           setAnalysisBandwidthHz(
@@ -771,12 +822,10 @@ export function MainChartHost() {
             type="button"
             role="menuitem"
             data-testid="chart-menu-view-back"
-            disabled={!(navRev >= 0 && historyRef.current.length > 0)}
+            data-g12-g15-shared-history="true"
+            disabled={mainViewPastLen <= 0}
             onClick={() => {
-              const prev = historyRef.current.pop();
-              if (!prev) return;
-              futureRef.current.push(cloneView(currentViewRef.current));
-              applyView(prev);
+              mainViewBack();
               setMenu(null);
             }}
           >
@@ -786,12 +835,10 @@ export function MainChartHost() {
             type="button"
             role="menuitem"
             data-testid="chart-menu-view-forward"
-            disabled={!(navRev >= 0 && futureRef.current.length > 0)}
+            data-g12-g15-shared-history="true"
+            disabled={mainViewFutureLen <= 0}
             onClick={() => {
-              const next = futureRef.current.pop();
-              if (!next) return;
-              historyRef.current = pushCapped(historyRef.current, cloneView(currentViewRef.current));
-              applyView(next);
+              mainViewForward();
               setMenu(null);
             }}
           >
@@ -802,8 +849,7 @@ export function MainChartHost() {
             role="menuitem"
             data-testid="chart-menu-view-fit"
             onClick={() => {
-              historyRef.current = pushCapped(historyRef.current, cloneView(currentViewRef.current));
-              futureRef.current = [];
+              commitMainViewChange(viewToSnap(currentViewRef.current));
               applyView(fitted);
               setMenu(null);
             }}
@@ -815,8 +861,7 @@ export function MainChartHost() {
             role="menuitem"
             data-testid="chart-menu-view-reset"
             onClick={() => {
-              historyRef.current = [];
-              futureRef.current = [];
+              resetMainViewHistory();
               applyView(fitted);
               setMenu(null);
             }}
