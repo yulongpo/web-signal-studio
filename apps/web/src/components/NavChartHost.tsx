@@ -25,7 +25,7 @@ export function NavChartHost() {
       data-testid="nav-chart-host"
     >
       <NavigationChart
-        fullTime={{ min: full.min, max: full.max, unit: 's', label: 'Time' }}
+        fullTime={{ min: full.min, max: full.max, unit: 's', label: '时间 (s)' }}
         windowTime={win}
         envelope={envelope}
         height="100%"

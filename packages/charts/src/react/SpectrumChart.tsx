@@ -17,6 +17,9 @@ export interface SpectrumChartProps
   mode?: HeatmapOrientation;
   freqHz?: { min: number; max: number };
   timeSec?: { min: number; max: number };
+  /** Axis title override (desktop narrowband_workspace frequencyAxisLabel_/timeAxisLabel_). */
+  freqLabel?: string;
+  timeLabel?: string;
   className?: string;
   style?: CSSProperties;
   /**
@@ -44,6 +47,8 @@ export function SpectrumChart(props: SpectrumChartProps) {
     mode = "stft",
     freqHz = { min: -0.5, max: 0.5 },
     timeSec = { min: 0, max: 1 },
+    freqLabel = "频率 (Hz)",
+    timeLabel = "时间 (s)",
     ...rest
   } = props;
 
@@ -54,13 +59,13 @@ export function SpectrumChart(props: SpectrumChartProps) {
           min: freqHz.min,
           max: freqHz.max,
           unit: "Hz",
-          label: "Frequency",
+          label: freqLabel,
         },
         yDomain: {
           min: timeSec.min,
           max: timeSec.max,
           unit: "s",
-          label: "Time",
+          label: timeLabel,
         },
         widthBins: binCount,
         heightBins: frameCount,
@@ -71,18 +76,18 @@ export function SpectrumChart(props: SpectrumChartProps) {
         min: timeSec.min,
         max: timeSec.max,
         unit: "s",
-        label: "Time",
+        label: timeLabel,
       },
       yDomain: {
         min: freqHz.min,
         max: freqHz.max,
         unit: "Hz",
-        label: "Frequency",
+        label: freqLabel,
       },
       widthBins: frameCount,
       heightBins: binCount,
     };
-  }, [mode, freqHz.min, freqHz.max, timeSec.min, timeSec.max, binCount, frameCount]);
+  }, [mode, freqHz.min, freqHz.max, timeSec.min, timeSec.max, binCount, frameCount, freqLabel, timeLabel]);
 
   return (
     <HeatmapCanvas

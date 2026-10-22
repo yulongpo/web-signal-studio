@@ -35,7 +35,7 @@ describe('chartDisplayDerive', () => {
     const { y, xDomain } = deriveWaveInWindow(makeSrc(), { min: 0.2, max: 0.6 });
     expect(y.length).toBeGreaterThan(1);
     expect(xDomain.min).toBeCloseTo(0.2);
-    expect(xDomain.label).toBe('Time');
+    expect(xDomain.label).toBe('源文件时间 (s)');
   });
 
   it('psd Y is frequency-labeled dB curve', () => {
