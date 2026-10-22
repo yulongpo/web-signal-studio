@@ -1,14 +1,15 @@
-﻿# BOT_B_A5 — spectral_settings_json open/save wire (no PASS)
+# BOT_B_A5 — spectral_settings_json open/save wire (no PASS)
 
 | Field | Value |
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
-| Base | `6bf49bb47600d55e0499bf638478d74a86474560` (`merge(F): A5 spectral_settings_json`) |
+| Tip | `66b09938ac2acb9bb952f6523922c7ed5ae37d63` |
+| Base | `0f1183af9972ddc70a995ceb64474f0d4bac940b` (`merge(bot-c): A2`; includes F `6bf49bb` A5 helpers) |
 | Branch | `work/bot-b-ui` |
 | matrix_pass_claimed | **false** |
 | ui_parity_pass_claimed | **false** |
 | pass_claimed | **false** |
-| Fence | No Multitaper / Burg / non-PoT invent |
+| Fence | No Multitaper / Burg / non-PoT invent; no dual-write of C `visibleBandwidthHz` |
 
 ## What landed
 
@@ -21,14 +22,15 @@ JSON shape (F helpers): `{ window, overlap, segmentMilliseconds, kaiserBeta, rem
 
 ## Round-trip
 
-Vitest: `apps/web/src/store/uiStore.spectralSettingsA5.test.ts` — **2 passed** (`npm test -- --run src/store/uiStore.spectralSettingsA5.test.ts`).
+Vitest: `apps/web/src/store/uiStore.spectralSettingsA5.test.ts` — **2 passed**.
 
 ## Changed paths
 
 - `apps/web/src/store/uiStore.ts`
 - `apps/web/src/store/uiStore.spectralSettingsA5.test.ts`
-- evidence (this file, both trees)
+- `docs/acceptance/evidence/bot-b/BOT_B_A5_SPECTRAL_SETTINGS_6bf49bb.md`
+- `artifacts/validation/ui-parity/bot-b/BOT_B_A5_SPECTRAL_SETTINGS_6bf49bb.md`
 
 ## Honesty
 
-G02 remains PARTIAL. A5 is prefs persistence only — not Multitaper/Burg/non-PoT/STFT-DDC. No PASS claim.
+G02 remains PARTIAL. A5 is prefs persistence only. Did not touch C A2 `visibleBandwidthHz` / MainChartHost bandwidth wiring. No PASS claim.
