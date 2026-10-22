@@ -111,3 +111,24 @@ export {
   type G19E2eHookApi,
   type G19E2eHookState,
 } from './g19-e2e-hook.js';
+
+export {
+  SPECTRAL_SETTINGS_JSON_KEY,
+  DESKTOP_SPECTROGRAM_SETTINGS_KEY,
+  STFT_SIZE_DISPLAY_KEY,
+  defaultSpectralSettingsJson,
+  defaultSpectralChromePrefs,
+  decodeSpectralSettingsJson,
+  encodeSpectralSettingsJson,
+  encodeDesktopSpectrogramSettings,
+  spectralSettingsFromChromePrefs,
+  chromePrefsFromSpectralSettings,
+  readSpectralSettingsFromFile,
+  readSpectralChromePrefsFromFile,
+  writeSpectralSettingsToFile,
+  writeSpectralChromePrefsToFile,
+  applySpectralChromePrefsToProject,
+  type SpectralSettingsJson,
+  type SpectralChromePrefs,
+} from './spectral-settings-json.js';
+

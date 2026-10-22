@@ -1,0 +1,19 @@
+﻿{
+  "id": "A5",
+  "matrix_pass_claimed": false,
+  "base_tip": "2ce34a937c5927eb39108ac7ca865646134ba4ae",
+  "module": "packages/project-io/src/spectral-settings-json.ts",
+  "keys": ["window", "overlap", "segmentMilliseconds", "kaiserBeta", "removeMean", "autoNb"],
+  "display_keys": ["spectral_settings_json", "spectrogramSettings", "stftSize"],
+  "b_chrome_prefs": [
+    "stftWindowPref",
+    "stftOverlapPref",
+    "stftSegmentMsPref",
+    "stftKaiserBetaPref",
+    "stftAutoNbPref",
+    "stftRemoveMeanPref",
+    "stftN"
+  ],
+  "tests_passed": 4,
+  "blocked_not_touched": ["multitaper", "burg", "non-PoT", "STFT-DDC"]
+}
