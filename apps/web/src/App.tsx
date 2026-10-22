@@ -22,6 +22,19 @@ import { NarrowbandWorkspace } from './components/NarrowbandWorkspace';
 import { MenuBar } from './components/MenuBar';
 import { VerticalSplitter } from '@wss/charts/VerticalSplitter';
 import { useUiStore } from './store/uiStore';
+import {
+  SHELL_LEFT_DEFAULT,
+  SHELL_RIGHT_DEFAULT,
+  SHELL_LEFT_MIN,
+  SHELL_LEFT_MAX,
+  SHELL_RIGHT_MIN,
+  SHELL_RIGHT_MAX,
+  SHELL_RAIL_COLLAPSED_PX,
+  SHELL_LEFT_HIDE_MAX,
+  SHELL_RIGHT_HIDE_MAX,
+  SHELL_LEFT_COMPACT_MAX,
+  computeShellRailWidths,
+} from './shellRailLayout';
 
 const DESKTOP_NAV_DEFAULT = 82;
 const DESKTOP_AUX_DEFAULT = 205;
@@ -30,15 +43,15 @@ const SHORT_WINDOW_H = 900;
 
 
 const SHELL_COL_KEY = 'wss.shellColumns.v1';
-const LEFT_DEFAULT = 278;
-const RIGHT_DEFAULT = 390;
-const LEFT_MIN = 190;
-const LEFT_MAX = 450;
-const RIGHT_MIN = 320;
-const RIGHT_MAX = 650;
-
-const LEFT_COLLAPSE_MIN = 8;
-const RIGHT_COLLAPSE_MIN = 8;
+const LEFT_DEFAULT = SHELL_LEFT_DEFAULT;
+const RIGHT_DEFAULT = SHELL_RIGHT_DEFAULT;
+const LEFT_MIN = SHELL_LEFT_MIN;
+const LEFT_MAX = SHELL_LEFT_MAX;
+const RIGHT_MIN = SHELL_RIGHT_MIN;
+const RIGHT_MAX = SHELL_RIGHT_MAX;
+/** Desktop enforceLayout collapsed / auto-hide rail width @17471a6. */
+const LEFT_COLLAPSE_MIN = SHELL_RAIL_COLLAPSED_PX;
+const RIGHT_COLLAPSE_MIN = SHELL_RAIL_COLLAPSED_PX;
 
 type ShellColumns = { left: number; right: number; leftCollapsed: boolean; rightCollapsed: boolean };
 
@@ -66,8 +79,28 @@ function readShellColumns(): ShellColumns {
 
 export default function App() {
   const [shellCols, setShellCols] = useState(readShellColumns);
-  const leftColPx = shellCols.leftCollapsed ? LEFT_COLLAPSE_MIN : shellCols.left;
-  const rightColPx = shellCols.rightCollapsed ? RIGHT_COLLAPSE_MIN : shellCols.right;
+  const [windowWidth, setWindowWidth] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 3840,
+  );
+  useEffect(() => {
+    const onResize = () => setWindowWidth(window.innerWidth);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+  const collapsedStore = useUiStore((s) => s.rightPanelCollapsed);
+  const setRightPanelCollapsed = useUiStore((s) => s.setRightPanelCollapsed);
+  const railWidths = computeShellRailWidths({
+    windowWidth,
+    leftPreferred: shellCols.left,
+    rightPreferred: shellCols.right,
+    leftUserCollapsed: shellCols.leftCollapsed,
+    // Store OR shellCols — RightRail toggle only flips store; edge double-click flips both.
+    rightUserCollapsed: shellCols.rightCollapsed || collapsedStore,
+  });
+  const leftColPx = railWidths.leftPx;
+  const rightColPx = railWidths.rightPx;
+  const collapsed = railWidths.hideRight;
   useEffect(() => {
     try {
       localStorage.setItem(SHELL_COL_KEY, JSON.stringify(shellCols));
@@ -100,8 +133,6 @@ export default function App() {
   };
 
 
-  const collapsed = useUiStore((s) => s.rightPanelCollapsed);
-  const setRightPanelCollapsed = useUiStore((s) => s.setRightPanelCollapsed);
   const workspaceMode = useUiStore((s) => s.workspaceMode);
   const navPaneHeightPx = useUiStore((s) => s.navPaneHeightPx);
   const auxPaneHeightPx = useUiStore((s) => s.auxPaneHeightPx);
@@ -137,17 +168,23 @@ export default function App() {
         className="app-shell-body"
         data-testid="app-shell-body"
         data-shell-columns={`${leftColPx}-${rightColPx}`}
-        data-shell-left-collapsed={shellCols.leftCollapsed ? 'true' : 'false'}
+        data-shell-left-collapsed={railWidths.hideLeft ? 'true' : 'false'}
         data-shell-collapse-min={String(LEFT_COLLAPSE_MIN)}
-        data-shell-right-collapsed={shellCols.rightCollapsed ? 'true' : 'false'}
+        data-shell-right-collapsed={railWidths.hideRight ? 'true' : 'false'}
         data-shell-right-collapse-min={String(RIGHT_COLLAPSE_MIN)}
         data-shell-resizable="true"
         data-shell-edge-pair="lr" data-shell-persist="wss.shellColumns.v1" data-shell-desktop-left="278" data-shell-desktop-right="390"
         data-shell-reshot="wave8" data-shell-wave="wave9 wave11 wave14 wave17" data-shell-keyboard="wave17" data-shell-desktop-defaults="278/390"
+        data-shell-4k-thresholds={`${SHELL_LEFT_HIDE_MAX}/${SHELL_RIGHT_HIDE_MAX}/${SHELL_LEFT_COMPACT_MAX}`}
+        data-shell-auto-hide-left={railWidths.hideLeft ? 'true' : 'false'}
+        data-shell-auto-hide-right={railWidths.hideRight ? 'true' : 'false'}
+        data-shell-left-tier={railWidths.leftTier}
+        data-shell-rail-collapsed-px={String(SHELL_RAIL_COLLAPSED_PX)}
+        data-shell-desktop-cite="enforceLayout@17471a6"
         style={{
-          gridTemplateColumns: collapsed
-            ? `${leftColPx}px 6px 1fr 48px`
-            : `${leftColPx}px 6px 1fr 6px ${rightColPx}px`,
+          gridTemplateColumns: railWidths.hideRight
+            ? `${leftColPx}px ${railWidths.leftResizeVisible ? '6px' : '0px'} 1fr ${rightColPx}px`
+            : `${leftColPx}px ${railWidths.leftResizeVisible ? '6px' : '0px'} 1fr 6px ${rightColPx}px`,
         }}
       >
       <ProjectTree />
