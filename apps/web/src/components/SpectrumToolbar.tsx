@@ -112,8 +112,10 @@ export function SpectrumToolbar() {
         <span className="toolbar-sep" aria-hidden />
         <div
           className="mode-wheel"
-          data-testid="mode-wheel"
+          data-testid="mode-wheel-demoted"
+          data-g16-host="demoted-not-live-app-dom"
           data-g16="partial"
+          data-live-dom="false"
           data-g16-owner="bot-b"
           data-desktop-main-mode="TimeFrequency|Waterfall"
           data-desktop-aux-mode="Waveform|Psd"
