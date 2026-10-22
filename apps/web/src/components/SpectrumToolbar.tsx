@@ -124,7 +124,7 @@ export function SpectrumToolbar() {
           aria-pressed={workspaceMode === 'wideband' || workspaceMode === 'linked'}
           onClick={() => setWorkspaceMode('wideband')}
         >
-          Wideband
+          宽带
         </button>
         <button
           type="button"
@@ -133,7 +133,7 @@ export function SpectrumToolbar() {
           aria-pressed={workspaceMode === 'narrowband'}
           onClick={() => setWorkspaceMode('narrowband')}
         >
-          Narrowband
+          窄带
         </button>
         <span className="toolbar-sep" aria-hidden />
         <div
@@ -157,7 +157,7 @@ export function SpectrumToolbar() {
           data-active={chartMode === 'stft'}
           onClick={() => setChartMode('stft')}
         >
-          STFT
+          时频图
         </button>
         <button
           type="button"
@@ -165,7 +165,7 @@ export function SpectrumToolbar() {
           data-active={chartMode === 'waterfall'}
           onClick={() => setChartMode('waterfall')}
         >
-          Waterfall
+          瀑布图
         </button>
         <span className="toolbar-sep" aria-hidden />
         <button
@@ -174,7 +174,7 @@ export function SpectrumToolbar() {
           data-active={auxChartKind === 'wave'}
           onClick={() => setAuxChartKind('wave')}
         >
-          Wave
+          时域波形
         </button>
         <button
           type="button"
@@ -182,7 +182,7 @@ export function SpectrumToolbar() {
           data-active={auxChartKind === 'psd'}
           onClick={() => setAuxChartKind('psd')}
         >
-          PSD
+          功率谱(PSD)
         </button>
         </div>
         <span className="toolbar-sep" aria-hidden />
@@ -201,7 +201,7 @@ export function SpectrumToolbar() {
           onClick={() => void onLoadDemoIq()}
           title="D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.*"
         >
-          Load demo IQ
+          加载演示 IQ
         </button>
         <button
           type="button"
@@ -234,7 +234,7 @@ export function SpectrumToolbar() {
           data-active={openTempLayer === 'level'}
           onClick={() => toggleLayer('level')}
         >
-          Level
+          电平
         </button>
         <button
           type="button"
@@ -242,7 +242,7 @@ export function SpectrumToolbar() {
           data-active={openTempLayer === 'display'}
           onClick={() => toggleLayer('display')}
         >
-          Display
+          显示
         </button>
       </div>
 
@@ -253,7 +253,7 @@ export function SpectrumToolbar() {
           aria-expanded={overflowOpen}
           onClick={() => setOverflowOpen((v) => !v)}
         >
-          More …
+          更多…
         </button>
         {overflowOpen ? (
           <div className="overflow-menu" data-testid="toolbar-overflow-menu" role="menu">
@@ -272,7 +272,7 @@ export function SpectrumToolbar() {
               </select>
             </label>
             <label className="overflow-item">
-              <span>Palette</span>
+              <span>色板</span>
               <select
                 data-testid="select-palette"
                 value={paletteId}
@@ -295,7 +295,7 @@ export function SpectrumToolbar() {
                 setOverflowOpen(false);
               }}
             >
-              ROI
+              检测 ROI
             </button>
             <button
               type="button"
@@ -307,7 +307,7 @@ export function SpectrumToolbar() {
                 setOverflowOpen(false);
               }}
             >
-              Mark
+              标记
             </button>
           </div>
         ) : null}

@@ -49,7 +49,7 @@ export function AuxParamStrip() {
       </span>
       <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-caption">辅助图</span>
       <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-wave">波形</span>
-      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-psd">PSD</span>
+      <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-psd">功率谱</span>
       <button
         type="button"
         data-testid="btn-aux-wave-strip"
@@ -57,7 +57,7 @@ export function AuxParamStrip() {
         data-active={auxChartKind === 'wave'}
         onClick={() => setAuxChartKind('wave')}
       >
-        Wave
+        时域波形
       </button>
       <button
         type="button"
@@ -66,7 +66,7 @@ export function AuxParamStrip() {
         data-active={auxChartKind === 'psd'}
         onClick={() => setAuxChartKind('psd')}
       >
-        PSD
+        功率谱(PSD)
       </button>
       <span className="toolbar-sep" aria-hidden />
       <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-level-btn">电平</span>
@@ -77,7 +77,7 @@ export function AuxParamStrip() {
         data-active={openTempLayer === 'level'}
         onClick={() => toggleLayer('level')}
       >
-        Level
+        电平
       </button>
       <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-display-btn">显示</span>
       <button
@@ -86,7 +86,7 @@ export function AuxParamStrip() {
         data-active={openTempLayer === 'display'}
         onClick={() => toggleLayer('display')}
       >
-        Display
+        显示
       </button>
     </header>
   );
@@ -318,7 +318,7 @@ return (
               data-active={chartMode === 'stft'}
               onClick={() => setChartMode('stft')}
             >
-              STFT
+              时频图
             </button>
             <button
               type="button"
@@ -326,7 +326,7 @@ return (
               data-active={chartMode === 'waterfall'}
               onClick={() => setChartMode('waterfall')}
             >
-              Waterfall
+              瀑布图
             </button>
             <button
               type="button"
@@ -335,7 +335,7 @@ return (
               data-g16-aux="true"
               onClick={() => setAuxChartKind('wave')}
             >
-              Wave
+              时域波形
             </button>
             <button
               type="button"
@@ -344,7 +344,7 @@ return (
               data-g16-aux="true"
               onClick={() => setAuxChartKind('psd')}
             >
-              PSD
+              功率谱(PSD)
             </button>
           </div>
           <span className="toolbar-sep" aria-hidden />
@@ -352,10 +352,10 @@ return (
             type="button"
             data-testid="btn-header-detection-roi"
             data-tool="detection-roi"
-            title="Detection ROI: confirm bar; Enter writes, Esc cancels"
+            title="检测 ROI：确认条；Enter 写入，Esc 取消"
             onClick={() => setActiveTool('detection-roi')}
           >
-            Detection ROI
+            检测 ROI
           </button>
           <span className="toolbar-sep" aria-hidden />
           <button type="button" data-testid="btn-open-iq-wav" data-native-qfiledialog="false" title="浏览器文件选择器 / FSA WAV；非原生 QFileDialog（data-native-qfiledialog=false）" onClick={() => void onOpenIqWav()}>
@@ -398,7 +398,7 @@ return (
           色板
         </span>
         <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-mode">
-          模式：{chartMode === 'stft' ? 'STFT' : 'Waterfall'}
+          模式：{chartMode === 'stft' ? '时频图' : '瀑布图'}
         </span>
         <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-workspace">
           工作区：{workspaceMode === 'narrowband' ? '窄带' : '宽带'}
@@ -702,7 +702,7 @@ return (
             aria-haspopup="menu"
             onClick={() => setOverflowOpen((v) => !v)}
           >
-            More
+            更多…
           </button>
           {overflowOpen ? (
             <div
@@ -863,7 +863,7 @@ return (
                 </label>
                 {!stftAutoNbPref ? (
                   <label className="overflow-field" data-testid="overflow-stft-segment-ms-field">
-                    <span className="chart-strip-qlabel">SegmentMs</span>
+                    <span className="chart-strip-qlabel">段长(ms)</span>
                     <select
                       data-testid="select-stft-segment-ms"
                       value={
@@ -1034,11 +1034,11 @@ return (
               </div>
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-mode-caption" data-strip-nuance="wave9">
                 <span className="chart-strip-qlabel">主图模式</span>
-                <span className="chart-strip-qlabel-value">STFT / Waterfall</span>
+                <span className="chart-strip-qlabel-value">时频图 / 瀑布图</span>
               </div>
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-grid" data-strip-wave="wave11">
                 <span className="chart-strip-qlabel">网格</span>
-                <span className="chart-strip-qlabel-value" data-strip-unit="grid">on/off</span>
+                <span className="chart-strip-qlabel-value" data-strip-unit="grid">开/关</span>
               </div>
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-ref-unit" data-strip-wave="wave11">
                 <span className="chart-strip-qlabel">参考单位</span>
@@ -1057,7 +1057,7 @@ return (
                 </span>
               </div>
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-detect-feed" data-strip-wave="wave19">
-                <span className="chart-strip-qlabel">Detect feed</span>
+                <span className="chart-strip-qlabel">检测馈送</span>
                 <span className="chart-strip-qlabel-value" data-detect-feed-count={String(detectRunFeed.length)} data-strip-empty={detectRunFeed.length === 0 ? 'true' : 'false'}>
                   {feedStamp}
                 </span>

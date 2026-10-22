@@ -760,7 +760,7 @@ export function MenuBar() {
                   close();
                 }}
               >
-                STFT
+                时频图
               </button>
               <button
                 type="button"
@@ -772,7 +772,7 @@ export function MenuBar() {
                   close();
                 }}
               >
-                Waterfall
+                瀑布图
               </button>
               <div className="menubar-sep" role="separator" />
                             <button
@@ -780,7 +780,7 @@ export function MenuBar() {
                 role="menuitem"
                 data-testid="menu-view-back" data-accel="Alt+Left" data-g12-g15-shared-history="true"
                 disabled={!canViewBack}
-                title={canViewBack ? "视图后退" : "No earlier view history"}
+                title={canViewBack ? "视图后退" : "没有更早的视图历史"}
                 onClick={() => {
                   sharedViewBack();
                   close();
