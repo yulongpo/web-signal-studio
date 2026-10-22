@@ -4,7 +4,7 @@
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
 | Base | **10ee4cd** = 10ee4cd29cdba2d87cf9dc48fd5da7ff3caf5abe (origin/main = C+D; includes 854b785/6316da9 + D DDC) |
-| Tip | **0c20f4a** = 0c20f4affaad5bf0390f4201f9b181a431ad2d5c (branch work/bot-b-ui) |
+| Tip | **0149da6** = 0149da65f3f63d01bed4ff93607b5268f5672cde (branch work/bot-b-ui) |
 | Desktop | 17471a6 read-only D:\\project\\signal_studio_rebuild |
 | Worktree | D:\\project\\wss-wt-b |
 | matrix_pass_claimed | **false** |
