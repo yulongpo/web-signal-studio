@@ -74,6 +74,7 @@ function publish(input: {
   fileName: string;
   via: IqOpenVia;
   format: IqFileFormat;
+  centerFrequencyHz?: number;
 }) {
   const sourceLabel = fileSourceLabel(input.fileName, input.via, input.format);
   setIqFileSession({
@@ -83,6 +84,7 @@ function publish(input: {
     fileName: input.fileName,
     via: input.via,
     format: input.format,
+    centerFrequencyHz: input.centerFrequencyHz,
   });
   return {
     ok: true as const,
@@ -207,12 +209,18 @@ async function openSigmfFromPair(
         : undefined,
   });
   const sampleRateHz = handle.meta.sampleRateHz ?? DEFAULT_RAW_SAMPLE_RATE_HZ;
+  const centerFrequencyHz =
+    handle.meta.centerFrequencyHz != null &&
+    Number.isFinite(handle.meta.centerFrequencyHz)
+      ? handle.meta.centerFrequencyHz
+      : undefined;
   return publish({
     reader: handle.reader,
     sampleRateHz,
     fileName: displayName,
     via,
     format: 'sigmf',
+    centerFrequencyHz,
   });
 }
 
@@ -342,6 +350,7 @@ export async function openDemoIqForMainChart(options: {
       fileName,
       via: 'demo',
       format: 'sigmf',
+      centerFrequencyHz: handle.centerFrequencyHz,
     });
     if (options.syncProjectTree !== false) {
       // Demo loader only reads allowlisted sigmf_data_demo; record canonical meta path.

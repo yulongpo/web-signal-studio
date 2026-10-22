@@ -221,6 +221,33 @@ export function AuxChartHost() {
     );
   }
 
+  if (waveSeries.feed === 'empty_iq_buffer') {
+    return (
+      <div
+        className="chart-host"
+        data-chart-slot="aux"
+        data-chart-kind="wave"
+        data-aux-ready="false"
+        data-aux-wave-source={waveSeries.format ?? iqSession.format}
+        data-aux-wave-feed="empty_iq_buffer"
+        data-aux-wave-via={waveSeries.via ?? iqSession.via}
+        data-aux-wave-peak="0"
+        data-aux-amp-domain="linear-rms"
+        data-testid="aux-chart-waiting"
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          color: '#9aa7b5',
+          fontSize: 12,
+          padding: 8,
+          textAlign: 'center',
+        }}
+      >
+        {`Opened IQ buffer empty/silent in window (${waveSeries.sourceLabel})`}
+      </div>
+    );
+  }
+
   return (
     <div
       className="chart-host"
@@ -233,17 +260,21 @@ export function AuxChartHost() {
       data-aux-wave-feed={waveSeries.feed}
       data-aux-wave-via={waveSeries.via ?? iqSession.via}
       data-aux-wave-label={waveSeries.sourceLabel}
+      data-aux-wave-peak={String(waveSeries.peak)}
+      data-aux-amp-domain="linear-rms"
       data-g18-linked-cursor={linkedCursor.pinned ? 'true' : 'false'}
       title={`Aux Wave: raw IQ IqRms · ${waveSeries.sourceLabel}`}
     >
       <WaveformChart
         y={waveSeries.y}
         xDomain={waveSeries.xDomain}
+        yDomain={waveSeries.yDomain}
         kind="waveform"
         height="100%"
         testId="chart-aux"
         windowX={null}
         linkedX={linkedCursor.pinned ? linkedCursor.timeSec : null}
+        yLabel={waveSeries.yDomain.label}
         onPinX={(timeSec) => {
           const centerFreq =
             snap != null ? (snap.freqHz.min + snap.freqHz.max) / 2 : 0;
