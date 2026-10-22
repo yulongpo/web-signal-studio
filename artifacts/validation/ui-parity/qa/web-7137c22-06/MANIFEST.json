@@ -2,7 +2,7 @@
   "pack": "web-7137c22-06",
   "baseline_sha": "7137c2292409d8e11e51b96ec3abbff3ef4b276d",
   "tip_web_base": "7137c2292409d8e11e51b96ec3abbff3ef4b276d",
-  "evidence_sha_after_commit": "PENDING_COMMIT",
+  "evidence_sha_after_commit": "27f9ac030ddbb52487678f64d1aede8b3cb59016",
   "pass_claimed": false,
   "matrix_pass_claimed": false,
   "ui_parity_pass_claimed": false,
@@ -94,5 +94,6 @@
       },
       "has_真实_DDC": true
     }
-  }
+  },
+  "tip_sha": "27f9ac030ddbb52487678f64d1aede8b3cb59016"
 }

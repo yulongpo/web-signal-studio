@@ -69,5 +69,7 @@
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-7137c22-06\\02-nb-observe-ready.png",
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-7137c22-06\\06-nb-ddc-pipeline-state.png",
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-7137c22-06\\06b-nb-observe-workspace.png"
-  ]
+  ],
+  "tip_sha": "27f9ac030ddbb52487678f64d1aede8b3cb59016",
+  "evidence_sha_after_commit": "27f9ac030ddbb52487678f64d1aede8b3cb59016"
 }
