@@ -52,7 +52,8 @@ export function AuxParamStrip() {
       <span className="chart-strip-qlabel" data-testid="chart-strip-qlabel-aux-psd">PSD</span>
       <button
         type="button"
-        data-testid="btn-aux-wave"
+        data-testid="btn-aux-wave-strip"
+        data-g16-mirror="mode-wheel"
         data-active={auxChartKind === 'wave'}
         onClick={() => setAuxChartKind('wave')}
       >
@@ -60,7 +61,8 @@ export function AuxParamStrip() {
       </button>
       <button
         type="button"
-        data-testid="btn-aux-psd"
+        data-testid="btn-aux-psd-strip"
+        data-g16-mirror="mode-wheel"
         data-active={auxChartKind === 'psd'}
         onClick={() => setAuxChartKind('psd')}
       >
@@ -93,6 +95,8 @@ export function AuxParamStrip() {
 export function SpecParamStrip() {
   const chartMode = useUiStore((s) => s.chartMode);
   const setChartMode = useUiStore((s) => s.setChartMode);
+  const auxChartKind = useUiStore((s) => s.auxChartKind);
+  const setAuxChartKind = useUiStore((s) => s.setAuxChartKind);
   const stftN = useUiStore((s) => s.stftN);
   const setStftN = useUiStore((s) => s.setStftN);
   const stftWindowPref = useUiStore((s) => s.stftWindowPref);
@@ -267,6 +271,7 @@ return (
       <div
         className="chart-header-toolbar"
         data-testid="chart-header-toolbar"
+        data-g16-shell="partial"
         data-variant="chart-header"
         data-legacy-testid="spectrum-toolbar"
         role="toolbar"
@@ -292,22 +297,56 @@ return (
             窄带
           </button>
           <span className="toolbar-sep" aria-hidden />
-          <button
-            type="button"
-            data-testid="btn-mode-stft"
-            data-active={chartMode === 'stft'}
-            onClick={() => setChartMode('stft')}
+          <div
+            className="mode-wheel"
+            data-testid="mode-wheel"
+            data-g16="partial"
+            data-g16-owner="bot-b"
+            data-g16-host="chart-header-toolbar"
+            data-desktop-main-mode="TimeFrequency|Waterfall"
+            data-desktop-aux-mode="Waveform|Psd"
+            data-matrix="insufficient"
+            data-no-invent="true"
+            data-live-dom="true"
+            role="group"
+            aria-label="Chart mode wheel (live chart-header-toolbar)"
+            title="G16 live shell: MainMode STFT/Waterfall + Aux Wave/PSD. Demoted SpectrumToolbar is not the live host. Matrix incomplete — no invent."
           >
-            STFT
-          </button>
-          <button
-            type="button"
-            data-testid="btn-mode-waterfall"
-            data-active={chartMode === 'waterfall'}
-            onClick={() => setChartMode('waterfall')}
-          >
-            Waterfall
-          </button>
+            <button
+              type="button"
+              data-testid="btn-mode-stft"
+              data-active={chartMode === 'stft'}
+              onClick={() => setChartMode('stft')}
+            >
+              STFT
+            </button>
+            <button
+              type="button"
+              data-testid="btn-mode-waterfall"
+              data-active={chartMode === 'waterfall'}
+              onClick={() => setChartMode('waterfall')}
+            >
+              Waterfall
+            </button>
+            <button
+              type="button"
+              data-testid="btn-aux-wave"
+              data-active={auxChartKind === 'wave'}
+              data-g16-aux="true"
+              onClick={() => setAuxChartKind('wave')}
+            >
+              Wave
+            </button>
+            <button
+              type="button"
+              data-testid="btn-aux-psd"
+              data-active={auxChartKind === 'psd'}
+              data-g16-aux="true"
+              onClick={() => setAuxChartKind('psd')}
+            >
+              PSD
+            </button>
+          </div>
           <span className="toolbar-sep" aria-hidden />
           <button
             type="button"
