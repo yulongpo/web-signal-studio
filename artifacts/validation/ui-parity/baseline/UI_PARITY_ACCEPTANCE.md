@@ -1,3 +1,4 @@
+> Bot-A `2026-10-22 08:25` Asia/Shanghai: Web **`0df7960`** — G16 PARTIAL/matrix BLOCKED written close. See `INCREMENTAL_0df7960/`. **No PASS.**
 > Bot-A `2026-10-22 08:21` Asia/Shanghai: Web **`bf2fa8d`** — D4/D5 PARTIAL deepen; A2 SegmentMs MET; C G16 consumers movable. G02 PARTIAL. G06/G17 BLOCKED. See `INCREMENTAL_bf2fa8d/`. **No PASS.**
 > Bot-A `2026-10-22 08:14` Asia/Shanghai: Web **`555d001`** — D4/D5 PARTIAL; next **C** axis tick + G16 consumers. A2/A3/A5 MET. G02 PARTIAL. G06/G17 BLOCKED. See `INCREMENTAL_555d001/`. **No PASS.**
 > Bot-A `2026-10-22 08:08` Asia/Shanghai: Web **`2aea4cb`** — supersedes 41f69c1. A3 MET; A2/A5 MET. G02 PARTIAL. G06/G17 BLOCKED. D4/D5 owners B(+C). See `INCREMENTAL_2aea4cb/`. **No PASS.**
