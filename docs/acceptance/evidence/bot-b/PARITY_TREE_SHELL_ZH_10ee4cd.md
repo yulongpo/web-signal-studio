@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
-| Base | **854b785** = 854b7856ba92ce350bacc6a9afcb16eb03c23fc8 (origin/main = A PARITY + C NB Observe / 6316da9) |
-| Tip | ****bcebac3** = bcebac32775d76cbe96da362e324d479734c2763** (branch work/bot-b-ui) |
+| Base | **10ee4cd** = 10ee4cd29cdba2d87cf9dc48fd5da7ff3caf5abe (origin/main = C+D; includes 854b785/6316da9 + D DDC) |
+| Tip | **0c20f4a** = 0c20f4affaad5bf0390f4201f9b181a431ad2d5c (branch work/bot-b-ui) |
 | Desktop | 17471a6 read-only D:\\project\\signal_studio_rebuild |
 | Worktree | D:\\project\\wss-wt-b |
 | matrix_pass_claimed | **false** |
