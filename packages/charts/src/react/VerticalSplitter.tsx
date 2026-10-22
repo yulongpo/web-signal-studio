@@ -12,6 +12,8 @@ export interface VerticalSplitterProps {
   maxPx?: number;
   /** Double-click restores this height (desktop enforceLayout default). */
   defaultPx?: number;
+  /** Desktop graphSplitter setHandleWidth(10) @17471a6. */
+  handleWidth?: number;
   onChange: (nextPx: number) => void;
   orientation?: "horizontal"; // horizontal bar → vertical resize of panes
   testId?: string;
@@ -29,6 +31,7 @@ export function VerticalSplitter(props: VerticalSplitterProps) {
     minPx = 48,
     maxPx = 800,
     defaultPx = 205,
+    handleWidth = 10,
     onChange,
     testId = "vertical-splitter",
     className,
@@ -78,6 +81,8 @@ export function VerticalSplitter(props: VerticalSplitterProps) {
       aria-valuenow={Math.round(sizePx)}
       data-testid={testId}
       data-size-px={Math.round(sizePx)}
+      data-handle-width={handleWidth}
+      data-desktop-cite="graphs_.setHandleWidth(10)@17471a6"
       className={className}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
@@ -86,7 +91,7 @@ export function VerticalSplitter(props: VerticalSplitterProps) {
       onDoubleClick={onDoubleClick}
       title="Drag to resize · double-click to reset"
       style={{
-        height: 6,
+        height: handleWidth,
         cursor: "row-resize",
         background: "#1a2433",
         borderTop: "1px solid #293f56",

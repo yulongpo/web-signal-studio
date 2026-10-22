@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
-| Base | **1112706** = 1112706aa496273db54cc60c065e8eb921647b7f (origin/main PARITY merge) |
-| Tip | **TIP_SHA_PLACEHOLDER** (branch work/bot-b-ui) |
+| Base | **854b785** = 854b7856ba92ce350bacc6a9afcb16eb03c23fc8 (origin/main = A PARITY + C NB Observe / 6316da9) |
+| Tip | ****bcebac3** = bcebac32775d76cbe96da362e324d479734c2763** (branch work/bot-b-ui) |
 | Desktop | 17471a6 read-only D:\\project\\signal_studio_rebuild |
 | Worktree | D:\\project\\wss-wt-b |
 | matrix_pass_claimed | **false** |
@@ -18,7 +18,7 @@
 2. **ProjectTree** — SAMPLE_FALLBACK CN titles; presentation still uses Title/Detail/Badge via existing roles + CN maps; project-io section labels CN at source.
 3. **Add-signal / parse UI** — no fake Qt dialog; stamps remain data-native-qfiledialog="false" / data-g20="browser-picker" on MenuBar / strip / toolbar inputs. Full SignalImportDialog still OPEN (F parse deepen).
 4. **Fonts** — index.css + App.css: Microsoft YaHei UI / YaHei + Segoe UI fallback; Consolas mono; ~12px chrome.
-5. **Broadband layout** — MenuBar height 34 retained; chart-strip height/max 28; bottom dock prior 29 tabs unchanged. Splitter ratios left for C (MainChartHost/gesture reserved).
+5. **Broadband layout** — MenuBar height 34 retained; chart-strip height/max 28; bottom dock prior 29 tabs unchanged. Graph **splitter handleWidth=10** (VerticalSplitter / graphs_.setHandleWidth(10) @17471a6). Chart-pane **mins left to C** (do not redo). MainChartHost/gesture reserved for C.
 
 ### P1#8 (CAO)
 - Narrowband product surface **Observe-only** (data-nb-product-surface="observe-only" / data-cao-p1-8="observe-three-charts").
@@ -31,6 +31,7 @@
 
 ## Self-test bullets
 1. Load app → MenuBar 34px; strip ~28px; fonts resolve YaHei/Consolas (fallback OK on non-Windows).
+1b. splitter-nav-aux / splitter-aux-main DOM data-handle-width="10" (height 10px).
 2. Empty tree CN; sample/open project → tree sections CN (IQ 文件…); badges CN chips.
 3. File → 添加/打开信号 → browser picker; DOM data-native-qfiledialog="false".
 4. Open IQ fail → CN error chip (not IQ open failed).
