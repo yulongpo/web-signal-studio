@@ -57,6 +57,15 @@ export type BroadbandMarkLike = {
   start?: string;
   end?: string;
   deleted?: boolean;
+  activeSegmentId?: string;
+  /** Annotation segments — RF may live here when top-level lower/upper absent. */
+  segments?: Array<{
+    id?: string;
+    lowerHz?: number;
+    upperHz?: number;
+    start?: string;
+    end?: string;
+  }>;
 };
 
 export type BroadbandChannelLike = {
@@ -118,13 +127,34 @@ export function rationalResampleForOutputRate(
   return { interpolation: Math.min(4096, interp), decimation: 1 };
 }
 
-export function markRfCenterBandwidth(mark: BroadbandMarkLike): {
-  centerFrequencyHz: number;
-  bandwidthHz: number;
+/** Prefer top-level RF; else active/first segment (AnnotationJson shape). */
+export function markRfEdges(mark: BroadbandMarkLike): {
+  lowerHz: number;
+  upperHz: number;
+  start?: string;
+  end?: string;
 } | null {
   if (mark.deleted) return null;
-  const lo = mark.lowerHz;
-  const hi = mark.upperHz;
+  let lo = mark.lowerHz;
+  let hi = mark.upperHz;
+  let start = mark.start;
+  let end = mark.end;
+  const segs = mark.segments ?? [];
+  if (
+    (lo == null || hi == null || !Number.isFinite(lo) || !Number.isFinite(hi) || !(hi > lo)) &&
+    segs.length > 0
+  ) {
+    const active =
+      (mark.activeSegmentId
+        ? segs.find((s) => s.id === mark.activeSegmentId)
+        : undefined) ?? segs[0];
+    if (active) {
+      lo = active.lowerHz;
+      hi = active.upperHz;
+      start = start ?? active.start;
+      end = end ?? active.end;
+    }
+  }
   if (
     lo == null ||
     hi == null ||
@@ -134,9 +164,18 @@ export function markRfCenterBandwidth(mark: BroadbandMarkLike): {
   ) {
     return null;
   }
+  return { lowerHz: lo, upperHz: hi, start, end };
+}
+
+export function markRfCenterBandwidth(mark: BroadbandMarkLike): {
+  centerFrequencyHz: number;
+  bandwidthHz: number;
+} | null {
+  const edges = markRfEdges(mark);
+  if (!edges) return null;
   return {
-    centerFrequencyHz: (lo + hi) / 2,
-    bandwidthHz: hi - lo,
+    centerFrequencyHz: (edges.lowerHz + edges.upperHz) / 2,
+    bandwidthHz: edges.upperHz - edges.lowerHz,
   };
 }
 
@@ -297,19 +336,20 @@ export function resolveBroadbandDrive(input: {
   if (input.activeMarkId) {
     const mark = marks.find((m) => m.id === input.activeMarkId);
     if (mark) {
-      const rf = markRfCenterBandwidth(mark);
-      if (rf) {
+      const edges = markRfEdges(mark);
+      if (edges) {
+        const bandwidthHz = edges.upperHz - edges.lowerHz;
         return {
           kind: 'mark',
           id: mark.id,
-          centerFrequencyHz: rf.centerFrequencyHz,
-          bandwidthHz: rf.bandwidthHz,
+          centerFrequencyHz: (edges.lowerHz + edges.upperHz) / 2,
+          bandwidthHz,
           outputSampleRateHz: desktopOutputSampleRateHz(
             sampleRateHz,
-            rf.bandwidthHz,
+            bandwidthHz,
           ),
-          sampleBegin: parseSampleIndex(mark.start),
-          sampleEnd: parseSampleIndex(mark.end),
+          sampleBegin: parseSampleIndex(edges.start),
+          sampleEnd: parseSampleIndex(edges.end),
           label: mark.name ?? mark.id,
         };
       }

@@ -17,6 +17,8 @@ export interface IqFileSession {
   fileName: string;
   via: IqOpenVia;
   format: IqFileFormat;
+  /** Capture center RF (Hz) when known (SigMF / demo). Used by NB DDC LO. */
+  centerFrequencyHz?: number;
   epoch: number;
 }
 
@@ -74,6 +76,7 @@ export function setIqFileSession(input: {
   fileName: string;
   via: IqOpenVia;
   format: IqFileFormat;
+  centerFrequencyHz?: number;
 }): IqFileSession {
   epoch += 1;
   current = {
@@ -83,6 +86,10 @@ export function setIqFileSession(input: {
     fileName: input.fileName,
     via: input.via,
     format: input.format,
+    centerFrequencyHz:
+      input.centerFrequencyHz != null && Number.isFinite(input.centerFrequencyHz)
+        ? input.centerFrequencyHz
+        : undefined,
     epoch,
   };
   notify();

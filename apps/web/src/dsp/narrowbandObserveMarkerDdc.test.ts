@@ -7,6 +7,7 @@ import {
   channelRfCenterBandwidth,
   desktopOutputSampleRateHz,
   markRfCenterBandwidth,
+  markRfEdges,
   rationalResampleForOutputRate,
   resolveBroadbandDrive,
   resolveObserveDdcDrive,
@@ -40,6 +41,41 @@ describe('P0#7 mark/channel RF extract', () => {
         upperHz: 1010e6,
       }),
     ).toEqual({ centerFrequencyHz: 1e9, bandwidthHz: 20e6 });
+  });
+
+  it('Q7-10: reads RF from annotation segments when top-level edges missing', () => {
+    const edges = markRfEdges({
+      id: 'seg-only',
+      activeSegmentId: 's1',
+      segments: [
+        { id: 's0', lowerHz: 10e6, upperHz: 11e6, start: '0', end: '100' },
+        { id: 's1', lowerHz: 100e6, upperHz: 120e6, start: '200', end: '5000' },
+      ],
+    });
+    expect(edges).toEqual({
+      lowerHz: 100e6,
+      upperHz: 120e6,
+      start: '200',
+      end: '5000',
+    });
+    const d = resolveBroadbandDrive({
+      sampleRateHz: 20e6,
+      activeMarkId: 'seg-only',
+      marks: [
+        {
+          id: 'seg-only',
+          segments: [
+            { id: 's1', lowerHz: 100e6, upperHz: 120e6, start: '200', end: '5000' },
+          ],
+          activeSegmentId: 's1',
+        },
+      ],
+    });
+    expect(d?.kind).toBe('mark');
+    expect(d?.centerFrequencyHz).toBe(110e6);
+    expect(d?.bandwidthHz).toBe(20e6);
+    expect(d?.sampleBegin).toBe(200n);
+    expect(d?.sampleEnd).toBe(5000n);
   });
 
   it('reads channel fields or snapshot range', () => {

@@ -133,6 +133,10 @@ describe('auxWaveRawIq · opened iqFileSession', () => {
     expect(series.sourceLabel).toMatch(/file input/);
     expect(series.sourceLabel.toLowerCase()).not.toMatch(/synthetic/);
     expect(series.y.length).toBe(128);
+    expect(series.peak).toBeGreaterThan(0);
+    expect(series.yDomain.label).toMatch(/幅度|RMS/i);
+    expect(series.yDomain.max).toBeGreaterThan(0);
+    expect(series.yDomain.min).toBe(0);
     let peak = 0;
     for (let i = 0; i < series.y.length; i++) {
       const v = series.y[i]!;

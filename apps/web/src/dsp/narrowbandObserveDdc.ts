@@ -13,12 +13,14 @@ import {
 } from './auxWaveRawIq';
 import { ddcFromChunkedReader } from './ddcFromChunkedReader';
 import { fftshiftFrame, normalizePower01 } from './computeMainSpectrogram';
+import { getIqFileSession } from './iqFileSession';
 import {
   resolveObserveDdcDrive,
   desktopOutputSampleRateHz,
   type ObserveBroadbandDrive,
   type ResolvedObserveDdcDrive,
 } from './narrowbandObserveMarkerDdc';
+import type { ChunkedReader } from '@wss/file-io';
 
 /** Cap input IQ samples so one observe paint stays interactive. */
 export const NB_OBSERVE_MAX_INPUT_SAMPLES = 65_536;
@@ -50,6 +52,17 @@ export type NarrowbandObserveDdcOptions = {
    * When set, LO/BW/rate/window come from this — not invented demo index alone.
    */
   broadbandDrive?: ObserveBroadbandDrive | null;
+  /**
+   * Q7-11: when true (UI default), refuse demo-annotation fallback — caller
+   * must supply an active mark/channel drive before claiming NB visual.
+   * Tests may set false to exercise annotation LO path.
+   */
+  requireActiveDrive?: boolean;
+  /**
+   * When false, do not fall back to sigmf_data_demo without an opened session.
+   * Default true (tests + Observe before Main open). Opened session always wins.
+   */
+  allowDemoFallback?: boolean;
 };
 
 export type NarrowbandObserveDdcResult = {
@@ -329,38 +342,126 @@ export function plotYForNarrowbandPsdMode(
 }
 
 /**
- * Open demo SigMF → DDC (+ baseband PSD/STFT) for G06 observe charts.
+ * Opened IQ session (preferred) or demo SigMF → DDC (+ baseband PSD/STFT)
+ * for G06 observe charts. Does not invent Multitaper/Burg/cascaded FIR.
  */
+export type ObserveIqSourceKind = 'opened_iq_session' | 'sigmf_data_demo';
+
 export async function computeNarrowbandObserveDdc(
   options: NarrowbandObserveDdcOptions,
 ): Promise<NarrowbandObserveDdcResult> {
-  const handle = await ensureDemoSigmfReader({
-    demoDir: options.demoDir,
-    signal: options.signal,
-  });
-  const ann = pickAnnotation(handle, options.annotationIndex ?? 0);
+  const session = getIqFileSession();
+  // Prefer opened Main session; demo allowlist remains default fallback
+  // (vitest + Observe before Main open). UI honesty is requireActiveDrive.
+  const allowDemo = options.allowDemoFallback !== false;
+
+  type IqSource = {
+    reader: ChunkedReader;
+    sampleRateHz: number;
+    totalSamples: bigint;
+    sourceLabel: string;
+    centerFrequencyHz?: number;
+    annotations: DemoSigmfAnnotation[];
+    feed: ObserveIqSourceKind;
+  };
+
+  let source: IqSource;
+  if (session) {
+    const available = session.reader.availablePrefix().availableSamples;
+    source = {
+      reader: session.reader,
+      sampleRateHz: session.sampleRateHz,
+      totalSamples: available,
+      sourceLabel: session.sourceLabel,
+      centerFrequencyHz: session.centerFrequencyHz,
+      annotations: [],
+      feed: 'opened_iq_session',
+    };
+    // When session is the allowlisted demo, reuse annotation LO helpers.
+    if (session.via === 'demo' || /sigmf_data_demo/i.test(session.sourceLabel)) {
+      try {
+        const handle = await ensureDemoSigmfReader({
+          demoDir: options.demoDir,
+          signal: options.signal,
+        });
+        // Same reader identity preferred; annotations + center from demo meta.
+        source = {
+          reader: session.reader,
+          sampleRateHz: session.sampleRateHz || handle.sampleRateHz,
+          totalSamples: available > 0n ? available : handle.totalSamples,
+          sourceLabel: session.sourceLabel,
+          centerFrequencyHz:
+            session.centerFrequencyHz ?? handle.centerFrequencyHz,
+          annotations: handle.annotations,
+          feed: 'opened_iq_session',
+        };
+      } catch {
+        /* keep session-only source */
+      }
+    }
+  } else if (allowDemo) {
+    const handle = await ensureDemoSigmfReader({
+      demoDir: options.demoDir,
+      signal: options.signal,
+    });
+    source = {
+      reader: handle.reader,
+      sampleRateHz: handle.sampleRateHz,
+      totalSamples: handle.totalSamples,
+      sourceLabel: handle.sourceLabel,
+      centerFrequencyHz: handle.centerFrequencyHz,
+      annotations: handle.annotations,
+      feed: 'sigmf_data_demo',
+    };
+  } else {
+    throw new Error(
+      'NB Observe: no opened IQ session (open WAV/RAW/SigMF or demo for Main first)',
+    );
+  }
+
+  const handleLike: DemoSigmfHandle = {
+    reader: source.reader,
+    sampleRateHz: source.sampleRateHz,
+    totalSamples: source.totalSamples,
+    sourceLabel: source.sourceLabel,
+    demoDir: '',
+    stem: '',
+    centerFrequencyHz: source.centerFrequencyHz,
+    annotations: source.annotations,
+    metaText: '',
+    dataByteLength: 0,
+  };
+
+  const ann = pickAnnotation(handleLike, options.annotationIndex ?? 0);
   const maxInputSamples =
     options.maxInputSamples ?? NB_OBSERVE_MAX_INPUT_SAMPLES;
   const fallbackLo =
-    options.loOffsetHz ?? deriveLoOffsetHz(handle, ann);
+    options.loOffsetHz ?? deriveLoOffsetHz(handleLike, ann);
   const fallbackDecimation =
-    options.decimation ?? deriveDecimation(handle, ann);
+    options.decimation ?? deriveDecimation(handleLike, ann);
   const fallbackInterpolation = options.interpolation ?? 1;
 
-  // P0#7: prefer explicit broadband drive (active channel/mark); else demo annotation.
-  // Recompute desktop output rate with the real capture Fs (poll may use a hint Fs).
+  // P0#7 / Q7-10: prefer explicit broadband drive (active channel/mark).
   const driveIn = options.broadbandDrive
     ? {
         ...options.broadbandDrive,
         outputSampleRateHz: desktopOutputSampleRateHz(
-          handle.sampleRateHz,
+          source.sampleRateHz,
           options.broadbandDrive.bandwidthHz,
         ),
       }
     : null;
+
+  // Q7-11: UI must not claim NB visual on demo-annotation alone.
+  if (options.requireActiveDrive === true && !driveIn) {
+    throw new Error(
+      'NB Observe: needs_active_mark (select broadband mark/channel for real-marker/real-channel DDC)',
+    );
+  }
+
   const resolved = resolveObserveDdcDrive({
-    sourceCenterFrequencyHz: handle.centerFrequencyHz,
-    sampleRateHz: handle.sampleRateHz,
+    sourceCenterFrequencyHz: source.centerFrequencyHz,
+    sampleRateHz: source.sampleRateHz,
     drive: driveIn,
     fallbackLoOffsetHz: fallbackLo,
     fallbackInterpolation,
@@ -372,7 +473,7 @@ export async function computeNarrowbandObserveDdc(
   const decimation = resolved.decimation;
 
   let { begin, end } = deriveSampleWindow(
-    handle,
+    handleLike,
     ann,
     maxInputSamples,
   );
@@ -385,11 +486,11 @@ export async function computeNarrowbandObserveDdc(
     const maxN = BigInt(Math.max(256, maxInputSamples));
     begin = resolved.sampleBegin;
     end = resolved.sampleEnd;
-    if (end > handle.totalSamples) end = handle.totalSamples;
+    if (end > source.totalSamples) end = source.totalSamples;
     if (begin < 0n) begin = 0n;
     if (end - begin > maxN) end = begin + maxN;
     if (end <= begin) {
-      end = begin + 1n <= handle.totalSamples ? begin + 1n : handle.totalSamples;
+      end = begin + 1n <= source.totalSamples ? begin + 1n : source.totalSamples;
     }
   }
 
@@ -401,15 +502,15 @@ export async function computeNarrowbandObserveDdc(
   const hopSize = Math.max(1, Math.floor(stftFftSize / 4));
 
   const result = await ddcFromChunkedReader({
-    reader: handle.reader,
+    reader: source.reader,
     client: options.client,
-    sampleRateHz: handle.sampleRateHz,
+    sampleRateHz: source.sampleRateHz,
     loOffsetHz,
     interpolation,
     decimation,
     begin,
     end,
-    sourceLabel: handle.sourceLabel,
+    sourceLabel: source.sourceLabel,
     signal: options.signal,
     basebandPsd: {
       fftSize: Math.min(psdFftSize, 4096),
@@ -508,7 +609,7 @@ export async function computeNarrowbandObserveDdc(
   const pipelineLabel = resolved.pipelineLabel;
 
   return {
-    sourceLabel: handle.sourceLabel,
+    sourceLabel: source.sourceLabel,
     pipelineLabel,
     ddcDrive: resolved,
     ddcStatusStamp: resolved.statusStamp,

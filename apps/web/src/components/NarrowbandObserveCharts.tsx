@@ -235,6 +235,13 @@ export function NarrowbandObserveCharts() {
 
   useEffect(() => {
     if (!client) return;
+    // Q7-11: do not paint NB Observe as ready on demo-annotation alone.
+    if (!broadbandDrive) {
+      setResult(null);
+      setError(null);
+      setLoading(false);
+      return;
+    }
     const ac = new AbortController();
     setLoading(true);
     setError(null);
@@ -250,8 +257,9 @@ export function NarrowbandObserveCharts() {
         psdMode === 'frame' && pinnedDwellIndex != null
           ? pinnedDwellIndex
           : undefined,
-      // P0#7: active broadband mark/channel → DDC LO/BW/rate.
+      // P0#7 / Q7-10: active broadband mark/channel → DDC LO/BW/rate.
       broadbandDrive,
+      requireActiveDrive: true,
       signal: ac.signal,
     })
       .then((r) => {
@@ -270,13 +278,21 @@ export function NarrowbandObserveCharts() {
     return () => ac.abort();
   }, [client, waveformMode, psdFft, stftFft, psdMode, pinnedDwellIndex, broadbandDriveKey, broadbandDrive]);
 
+  const needsActiveMark = !broadbandDrive;
   const statusText = error
     ? `真实 DDC 不可用：${error}`
-    : loading && !result
-      ? '正在加载 sigmf_data_demo → 真实 DDC…'
-      : null;
+    : needsActiveMark
+      ? '需要活动宽带标记/通道（real-marker / real-channel）后才跑 NB Observe DDC'
+      : loading && !result
+        ? '正在加载已打开 IQ → 真实 DDC（标记驱动）…'
+        : null;
 
-  const ready = Boolean(result) && !error;
+  const ready =
+    Boolean(result) &&
+    !error &&
+    !needsActiveMark &&
+    (result?.ddcKindAttr === 'real-marker' ||
+      result?.ddcKindAttr === 'real-channel');
 
   // G18: pick plotted PSD from store mode + retained dual series.
   // Statistical mode must ignore any pinned/last-dwell frame series.
@@ -386,9 +402,12 @@ export function NarrowbandObserveCharts() {
       <div
         className="nb-observe-pipeline"
         data-testid="nb-observe-pipeline"
-        data-nb-source="sigmf_data_demo"
+        data-nb-source={result ? 'opened-or-demo-iq' : needsActiveMark ? 'needs_active_mark' : 'pending'}
         data-nb-pipeline="ddc"
-        data-nb-ddc-kind={result?.ddcKindAttr ?? undefined}
+        data-nb-ddc-kind={
+          result?.ddcKindAttr ??
+          (needsActiveMark ? 'needs_active_mark' : undefined)
+        }
         data-nb-ddc-status={result?.ddcStatusStamp ?? undefined}
         data-nb-ddc-drive-id={result?.ddcDrive?.id ?? undefined}
         data-nb-lo-hz={result ? String(Math.round(result.loOffsetHz)) : undefined}
@@ -407,7 +426,7 @@ export function NarrowbandObserveCharts() {
       >
         {result
           ? (result.ddcStatusStamp ?? result.pipelineLabel)
-          : statusText ?? '等待真实 DDC…'}
+          : statusText ?? '等待真实 DDC（需活动标记）'}
       </div>
 
       <div
@@ -427,7 +446,7 @@ export function NarrowbandObserveCharts() {
           testId="nb-panel-waveform"
           ready={ready}
           extraAttrs={{
-            'data-nb-wave-source': 'sigmf_data_demo-ddc',
+            'data-nb-wave-source': result?.ddcKindAttr === 'real-marker' || result?.ddcKindAttr === 'real-channel' ? 'mark-ddc' : 'pending',
             'data-nb-wave-mode': waveformMode,
             'data-g18-nb-multi-view': waveLinkedX == null ? 'false' : 'true',
             'data-g18-linked-cursor': waveLinkedX == null ? 'false' : 'true',
@@ -470,7 +489,7 @@ export function NarrowbandObserveCharts() {
           testId="nb-panel-psd"
           ready={ready && Boolean(result?.psd.y.length)}
           extraAttrs={{
-            'data-nb-psd-source': 'sigmf_data_demo-ddc',
+            'data-nb-psd-source': result?.ddcKindAttr === 'real-marker' || result?.ddcKindAttr === 'real-channel' ? 'mark-ddc' : 'pending',
             'data-nb-psd-mode': psdMode,
             'data-nb-psd-series-kind': psdPlot?.kind,
             'data-nb-psd-bins': psdPlot?.y.length,
@@ -528,7 +547,7 @@ export function NarrowbandObserveCharts() {
         testId="nb-panel-stft"
         ready={ready && Boolean(result && result.stft.frameCount > 0)}
         extraAttrs={{
-          'data-nb-stft-source': 'sigmf_data_demo-ddc',
+          'data-nb-stft-source': result?.ddcKindAttr === 'real-marker' || result?.ddcKindAttr === 'real-channel' ? 'mark-ddc' : 'pending',
           'data-nb-stft-pin': 'true',
           'data-nb-pinned-dwell': pinnedDwellIndex ?? undefined,
           'data-g18-nb-stft-linked-cursor':

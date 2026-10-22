@@ -239,12 +239,16 @@ export async function ensureDemoSigmfReader(options: {
 export type WaveIqSeries = {
   y: Float32Array;
   xDomain: { min: number; max: number; unit: string; label: string };
+  /** Linear |z| RMS amplitude domain (ADC-count equivalent), not dB. */
+  yDomain: { min: number; max: number; unit: string; label: string };
   sourceLabel: string;
   sampleBegin: bigint;
   sampleEnd: bigint;
   points: number;
+  /** Peak of overview y — 0 means empty/silent buffer. */
+  peak: number;
   /** Honest feed tag for AuxChartHost data-* attrs. */
-  feed: 'opened_iq_session' | 'sigmf_data_demo';
+  feed: 'opened_iq_session' | 'sigmf_data_demo' | 'empty_iq_buffer';
   format?: IqFileFormat;
   via?: IqOpenVia;
   fileName?: string;
@@ -402,6 +406,18 @@ export async function readAuxWaveRawIq(options: {
 
   const maxPoints = options.maxPoints ?? DEFAULT_MAX_POINTS;
   const y = iqRmsOverview(response.samples, maxPoints);
+  let peak = 0;
+  for (let i = 0; i < y.length; i++) {
+    const v = Math.abs(y[i]!);
+    if (v > peak) peak = v;
+  }
+  const empty =
+    response.samples.length < 2 ||
+    !(peak > 1e-12) ||
+    response.end <= response.begin;
+  // Linear amplitude domain for WaveformChart (desktop IqRms), not dBFS.
+  const yMax = empty ? 1 : peak * 1.08;
+  const outFeed = empty ? ('empty_iq_buffer' as const) : feed;
 
   return {
     y,
@@ -411,11 +427,18 @@ export async function readAuxWaveRawIq(options: {
       unit: 's',
       label: 'Time',
     },
+    yDomain: {
+      min: 0,
+      max: yMax,
+      unit: '',
+      label: '幅度 RMS (ADC 计数等效)',
+    },
     sourceLabel,
     sampleBegin: response.begin,
     sampleEnd: response.end,
     points: y.length,
-    feed,
+    peak,
+    feed: outFeed,
     format,
     via,
     fileName,

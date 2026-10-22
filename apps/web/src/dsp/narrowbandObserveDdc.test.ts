@@ -188,6 +188,59 @@ describeDemo('narrowbandObserveDdc · sigmf_data_demo', () => {
     );
   });
 
+  it('Q7-11: requireActiveDrive rejects demo-annotation fallback', async () => {
+    const client = createDspWorkerClient({
+      backend: new InProcessAsyncBackend(),
+    });
+    clients.push(client);
+    await expect(
+      computeNarrowbandObserveDdc({
+        client,
+        requireActiveDrive: true,
+        broadbandDrive: null,
+        maxInputSamples: 4096,
+        maxWavePoints: 32,
+      }),
+    ).rejects.toThrow(/needs_active_mark/i);
+  });
+
+  it('Q7-10: active mark drive yields real-marker DDC (not demo-annotation)', async () => {
+    const client = createDspWorkerClient({
+      backend: new InProcessAsyncBackend(),
+    });
+    clients.push(client);
+    const handle = await ensureDemoSigmfReader();
+    const ann = handle.annotations[0]!;
+    expect(ann.freqLowerHz).toBeDefined();
+    expect(ann.freqUpperHz).toBeDefined();
+    const result = await computeNarrowbandObserveDdc({
+      client,
+      requireActiveDrive: true,
+      broadbandDrive: {
+        kind: 'mark',
+        id: 'm-gap',
+        centerFrequencyHz: (ann.freqLowerHz! + ann.freqUpperHz!) / 2,
+        bandwidthHz: Math.abs(ann.freqUpperHz! - ann.freqLowerHz!),
+        outputSampleRateHz: 4e6,
+        sampleBegin: BigInt(Math.floor(ann.sampleStart)),
+        sampleEnd: BigInt(Math.floor(ann.sampleStart + Math.min(ann.sampleCount, 8192))),
+        label: 'gap-mark',
+      },
+      waveformMode: 'rms',
+      maxInputSamples: 8192,
+      maxWavePoints: 64,
+      psdFftSize: 256,
+      stftFftSize: 128,
+    });
+    expect(result.ddcKindAttr).toBe('real-marker');
+    expect(result.ddcStatusStamp).toMatch(/真实 DDC/);
+    expect(result.ddcStatusStamp).not.toMatch(/演示标注/);
+    expect(result.waveform.y.length).toBe(64);
+    expect(result.psd.y.length).toBeGreaterThan(0);
+    expect(result.stft.frameCount).toBeGreaterThan(0);
+  });
+
+
   
 
   it('G18 store mode alone swaps selected plot y (no pinned dwell bleed)', () => {
