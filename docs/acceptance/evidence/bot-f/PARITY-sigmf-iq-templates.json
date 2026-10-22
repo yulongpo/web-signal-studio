@@ -1,0 +1,40 @@
+{
+  "bot": "F",
+  "task": "PARITY_sigmf_iq_templates",
+  "when_asia_shanghai": "2026-10-22",
+  "base_sha": "10ee4cd29cdba2d87cf9dc48fd5da7ff3caf5abe",
+  "branch": "work/bot-f-project-io",
+  "matrix_pass_claimed": false,
+  "desktop_refs": [
+    "infrastructure/import_controller.h",
+    "infrastructure/import_controller.cpp",
+    "infrastructure/format_template_store.h",
+    "infrastructure/format_template_store.cpp",
+    "infrastructure/sigmf_metadata.cpp",
+    "infrastructure/source_metadata.h",
+    "infrastructure/source_metadata.cpp",
+    "infrastructure/raw_sample_reader.h"
+  ],
+  "web_modules": [
+    "packages/file-io/src/sigmf-meta.ts",
+    "packages/project-io/src/format-templates.ts",
+    "packages/project-io/src/import-preview.ts",
+    "packages/project-io/src/import-sigmf-stream.ts",
+    "packages/project-io/src/g19-e2e-hook.ts"
+  ],
+  "b_handoff_apis": [
+    "listBuiltinFormatTemplates",
+    "FormatTemplateStore",
+    "previewSigmfImport",
+    "describeRawIqWithTemplate",
+    "suggestSourceMetadata",
+    "importSigmfStream",
+    "installG19E2eHook"
+  ],
+  "remaining_for_b": [
+    "Add-signal dialog UI chrome",
+    "File picker / FSA",
+    "Wire preview → confirm → importSigmfStream → ProjectTree",
+    "Persist user templates (QSettings analogue)"
+  ]
+}

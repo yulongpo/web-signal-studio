@@ -5,7 +5,8 @@
  *   import { installG19E2eHook } from '@wss/project-io';
  *   installG19E2eHook(window);
  *
- * Does not edit uiStore / ProjectTree - B maps `getTree()` into the left rail.
+ * Does not edit uiStore / ProjectTree — B maps `getTree()` into the left rail.
+ * PARITY: also exposes format templates + SigMF/raw preview for Add-signal wiring.
  */
 
 import type { AnnotationsDocumentJson } from '@wss/contracts';
@@ -20,6 +21,16 @@ import {
   listMarkNodes,
   type EngineeringTreeNode,
 } from './engineering-tree.js';
+import {
+  listBuiltinFormatTemplates,
+  type FormatTemplate,
+} from './format-templates.js';
+import {
+  describeRawIqWithTemplate,
+  previewSigmfImport,
+  type ImportPreviewRow,
+  type SourceSuggestionsJson,
+} from './import-preview.js';
 import {
   importSigmfStream,
   type ImportSigmfStreamResult,
@@ -41,10 +52,13 @@ export interface G19E2eHookState {
   treeLabels: string[];
   lastRow?: ImportStreamRow;
   companionSchema?: string;
+  warnings?: string[];
 }
 
 export interface G19E2eHookApi {
   listAllowedDemoPaths(): string[];
+  /** Desktop builtin format templates for Add-signal. */
+  listFormatTemplates(): FormatTemplate[];
   /** Import SigMF meta+data length (+ optional companion json) into session. */
   importSigmf(input: {
     metaText: string;
@@ -55,6 +69,26 @@ export interface G19E2eHookApi {
     mode?: 'append' | 'replace';
     fileId?: string;
   }): G19E2eHookState;
+  /** Preview only — no project mutation (Add-signal form). */
+  previewSigmf(input: {
+    metaText: string;
+    dataByteLength?: number;
+    companionJsonText?: string;
+    path?: string;
+    displayName?: string;
+    fileId?: string;
+  }): { suggestions: SourceSuggestionsJson; row: ImportPreviewRow };
+  /** Raw IQ preview via builtin/user template id. */
+  previewRawWithTemplate(input: {
+    path: string;
+    dataByteLength: number;
+    sampleRateHz: number;
+    centerFrequencyHz: number;
+    templateId: string;
+    confirmed?: boolean;
+    declaredBandwidthHz?: number;
+    fileId?: string;
+  }): ImportPreviewRow;
   /** Replace annotations doc used for three-source tree (host/B wiring). */
   setAnnotations(doc: AnnotationsDocumentJson | null): G19E2eHookState;
   getState(): G19E2eHookState;
@@ -110,6 +144,7 @@ function toState(
     treeLabels: labels,
     lastRow: result.row,
     companionSchema: result.companionSchema,
+    warnings: result.warnings,
   };
 }
 
@@ -121,6 +156,7 @@ export function createG19E2eHook(): G19E2eHookApi {
       return last;
     },
     listAllowedDemoPaths: () => listAllowedDemoIqPaths(),
+    listFormatTemplates: () => listBuiltinFormatTemplates(),
     importSigmf(input) {
       last = importSigmfStream({
         metaText: input.metaText,
@@ -135,6 +171,28 @@ export function createG19E2eHook(): G19E2eHookApi {
       });
       annotationsOverride = null;
       return toState(last, annotationsOverride);
+    },
+    previewSigmf(input) {
+      return previewSigmfImport({
+        metaText: input.metaText,
+        dataByteLength: input.dataByteLength,
+        companionJsonText: input.companionJsonText,
+        path: input.path ?? SIGMF_DEMO_META_PATH,
+        displayName: input.displayName,
+        fileId: input.fileId,
+      });
+    },
+    previewRawWithTemplate(input) {
+      return describeRawIqWithTemplate({
+        path: input.path,
+        dataByteLength: input.dataByteLength,
+        sampleRateHz: input.sampleRateHz,
+        centerFrequencyHz: input.centerFrequencyHz,
+        templateId: input.templateId,
+        confirmed: input.confirmed ?? true,
+        declaredBandwidthHz: input.declaredBandwidthHz,
+        fileId: input.fileId,
+      });
     },
     setAnnotations(doc) {
       annotationsOverride = doc;
