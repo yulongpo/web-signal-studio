@@ -10,6 +10,7 @@ const dspWasmSrc = path.resolve(rootDir, '../../packages/dsp-wasm/src')
 const fileIoSrc = path.resolve(rootDir, '../../packages/file-io/src')
 const projectIoSrc = path.resolve(rootDir, '../../packages/project-io/src')
 const contractsSrc = path.resolve(rootDir, '../../packages/contracts/src')
+const domainSrc = path.resolve(rootDir, '../../packages/domain/src')
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -27,13 +28,14 @@ export default defineConfig({
       '@wss/file-io': path.resolve(fileIoSrc, 'index.ts'),
       '@wss/project-io': path.resolve(projectIoSrc, 'index.ts'),
       '@wss/contracts': path.resolve(contractsSrc, 'index.ts'),
+      '@wss/domain': path.resolve(domainSrc, 'index.ts'),
     },
   },
   worker: {
     format: 'es',
   },
   optimizeDeps: {
-    exclude: ['@wss/dsp-wasm', '@wss/file-io', '@wss/contracts', '@wss/project-io'],
+    exclude: ['@wss/dsp-wasm', '@wss/file-io', '@wss/contracts', '@wss/project-io', '@wss/domain'],
   },
   server: {
     port: 5173,

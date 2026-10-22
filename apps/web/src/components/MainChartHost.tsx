@@ -75,6 +75,8 @@ function chipLabelFor(kind: DspSourceKind, format?: IqFileFormat | null): string
       return format ? 'DSP: file STFT (' + format + ')' : 'DSP: file STFT';
     case 'fsa-wav-stft':
       return format ? 'DSP: FSA STFT (' + format + ')' : 'DSP: FSA WAV STFT';
+    case 'demo-sigmf-stft':
+      return 'DSP: demo SigMF STFT (sigmf_data_demo)';
     case 'demo-fallback':
       return 'DSP: demo fallback';
     default:
@@ -82,8 +84,10 @@ function chipLabelFor(kind: DspSourceKind, format?: IqFileFormat | null): string
   }
 }
 
-function kindForVia(via: 'fsa' | 'input'): DspSourceKind {
-  return via === 'fsa' ? 'fsa-wav-stft' : 'file-stft-worker';
+function kindForVia(via: 'fsa' | 'input' | 'demo'): DspSourceKind {
+  if (via === 'fsa') return 'fsa-wav-stft';
+  if (via === 'demo') return 'demo-sigmf-stft';
+  return 'file-stft-worker';
 }
 
 function fullViewFor(

@@ -4,7 +4,7 @@
  */
 import type { ChunkedReader } from '@wss/file-io';
 
-export type IqOpenVia = 'fsa' | 'input';
+export type IqOpenVia = 'fsa' | 'input' | 'demo';
 
 /** Distinguishes open path for chip / StatusBar (never invent capture claims). */
 export type IqFileFormat = 'wav' | 'raw' | 'sigmf';
