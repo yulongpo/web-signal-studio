@@ -120,12 +120,12 @@ async function blobToArrayBuffer(blob: Blob, signal?: AbortSignal): Promise<Arra
 
 function abortMessage(err: unknown): OpenIqOutcome | null {
   if (err instanceof DOMException && err.name === 'AbortError') {
-    return { ok: false, reason: 'cancelled', message: 'Aborted' };
+    return { ok: false, reason: 'cancelled', message: '已取消' };
   }
   const name = err instanceof Error ? err.name : '';
   const msg = err instanceof Error ? err.message : String(err);
   if (name === 'AbortError' || /abort|cancel/i.test(msg)) {
-    return { ok: false, reason: 'cancelled', message: msg || 'Cancelled' };
+    return { ok: false, reason: 'cancelled', message: msg || '已取消' };
   }
   return null;
 }
@@ -136,7 +136,7 @@ export async function openIqViaFsa(options: {
 } = {}): Promise<OpenIqOutcome> {
   const caps = detectFsaCapabilities();
   if (!caps.openLocalFile) {
-    return { ok: false, reason: 'unsupported', message: 'File System Access API unavailable' };
+    return { ok: false, reason: 'unsupported', message: '无法使用系统文件选择器（浏览器不支持）' };
   }
   try {
     const opened = await pickAndOpenIqWav({ signal: options.signal });
@@ -150,12 +150,16 @@ export async function openIqViaFsa(options: {
     });
   } catch (err: unknown) {
     if (err instanceof FsaUnsupportedError) {
-      return { ok: false, reason: 'unsupported', message: err.message };
+      return {
+        ok: false,
+        reason: 'unsupported',
+        message: '无法使用系统文件选择器（浏览器不支持）',
+      };
     }
     const cancelled = abortMessage(err);
     if (cancelled) return cancelled;
     const msg = err instanceof Error ? err.message : String(err);
-    return { ok: false, reason: 'error', message: msg || 'Open failed' };
+    return { ok: false, reason: 'error', message: msg || '打开失败' };
   }
 }
 
@@ -241,7 +245,7 @@ export async function openIqFromFiles(
 ): Promise<OpenIqOutcome> {
   const via = options.via ?? 'input';
   if (!files.length) {
-    return { ok: false, reason: 'error', message: 'No file selected' };
+    return { ok: false, reason: 'error', message: '未选择文件' };
   }
 
   try {
@@ -255,7 +259,7 @@ export async function openIqFromFiles(
           ok: false,
           reason: 'error',
           message:
-            'SigMF open needs both .sigmf-meta and .sigmf-data (select both files)',
+            '打开 SigMF 需要同时选择 .sigmf-meta 与 .sigmf-data',
         };
       }
       const displayName = meta.name.replace(/\.sigmf-meta$/i, '');
@@ -287,13 +291,13 @@ export async function openIqFromFiles(
     return {
       ok: false,
       reason: 'error',
-      message: `Unsupported IQ file type: ${first.name}`,
+      message: `不支持的 IQ 文件类型：${first.name}`,
     };
   } catch (err: unknown) {
     const cancelled = abortMessage(err);
     if (cancelled) return cancelled;
     const msg = err instanceof Error ? err.message : String(err);
-    return { ok: false, reason: 'error', message: msg || 'Open failed' };
+    return { ok: false, reason: 'error', message: msg || '打开失败' };
   }
 }
 
@@ -342,7 +346,7 @@ export async function openDemoIqForMainChart(options: {
     return {
       ok: false,
       reason: 'error',
-      message: msg || `Failed to open demo IQ under ${DEFAULT_SIGMF_DATA_DEMO_DIR}`,
+      message: msg || `无法打开演示 IQ（目录 ${DEFAULT_SIGMF_DATA_DEMO_DIR}）`,
     };
   }
 }

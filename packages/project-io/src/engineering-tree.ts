@@ -42,9 +42,10 @@ export const ANNOTATION_SOURCE_TREE_COLORS: Record<AnnotationSourceKind, string>
 };
 
 export const ANNOTATION_SOURCE_TREE_LABELS: Record<AnnotationSourceKind, string> = {
-  ImportedLabel: 'Imported labels',
-  Manual: 'Manual marks',
-  Algorithm: 'Algorithm results',
+  /** Desktop main_window / annotation_evidence_widget @ 17471a6 */
+  ImportedLabel: '原始标签',
+  Manual: '手动标记',
+  Algorithm: '算法结果',
 };
 
 
@@ -58,12 +59,13 @@ export type ChannelSourceRelationCode =
   | 'LegacyNeedsReview';
 
 export const CHANNEL_SOURCE_RELATION_DETAILS: Record<ChannelSourceRelationCode, string> = {
-  Current: 'source current',
-  Changed: 'source changed; keep create snapshot',
-  Missing: 'source deleted or missing',
-  Rejected: 'source quality: ignored',
-  Unconfirmed: 'legacy segment confirm; keep create snapshot',
-  LegacyNeedsReview: 'legacy source needs review',
+  /** Desktop project_tree_presentation.h relationText @ 17471a6 */
+  Current: '来源当前',
+  Changed: '来源已修改；保留创建快照',
+  Missing: '来源已删除或缺失',
+  Rejected: '来源质量：已忽略',
+  Unconfirmed: '旧版段确认记录；保留创建快照',
+  LegacyNeedsReview: '旧版来源待复核',
 };
 
 export function normalizeChannelSourceRelation(
@@ -177,34 +179,52 @@ function fileBadges(file: ProjectFileJson): string[] {
   return badges;
 }
 
-function channelDetail(ch: ProjectChannelJson, file: ProjectFileJson): string {
+/** Desktop DetailRole for channel: Fc · BW (relation/snapshot go to tooltip). */
+function channelDetail(ch: ProjectChannelJson, _file: ProjectFileJson): string {
   const parts: string[] = [];
-  if (ch.centerFrequencyHz != null) parts.push(`CF ${shortRate(ch.centerFrequencyHz)}`);
+  if (ch.centerFrequencyHz != null) parts.push(`Fc ${shortRate(ch.centerFrequencyHz)}`);
   if (ch.bandwidthHz != null) parts.push(`BW ${shortRate(ch.bandwidthHz)}`);
-  if (ch.outputSampleRateHz != null) parts.push(shortRate(ch.outputSampleRateHz, true));
-  if (ch.sourceTime) {
-    parts.push(`src [${ch.sourceTime.begin}, ${ch.sourceTime.end})`);
-  }
-  const rel = channelRelationDetail(ch.sourceRelation);
-  if (rel) parts.push(rel);
-  const snap = ch.sourceSnapshot as { revisionId?: unknown } | undefined;
-  if (snap && typeof snap.revisionId === 'string' && snap.revisionId) {
-    parts.push(`create rev ${snap.revisionId}`);
-  }
-  if (parts.length === 0) {
-    parts.push(`file ${file.metadata.name}`);
-  }
-  return parts.join(' | ');
+  return parts.join(' · ') || (ch.name || '未命名通道');
 }
 
+/** Desktop PresentedToolTipRole-ish for channel (exact rates + relation). */
+function channelTooltip(ch: ProjectChannelJson, file: ProjectFileJson): string {
+  const lines: string[] = [ch.name || '未命名通道'];
+  if (ch.centerFrequencyHz != null) lines.push(`Fc ${ch.centerFrequencyHz} Hz`);
+  if (ch.bandwidthHz != null) lines.push(`BW ${ch.bandwidthHz} Hz`);
+  if (ch.outputSampleRateHz != null) lines.push(`输出 Fs ${ch.outputSampleRateHz} S/s`);
+  if (ch.sourceTime) {
+    lines.push(`源时间 [${ch.sourceTime.begin}, ${ch.sourceTime.end})`);
+  }
+  const rel = channelRelationDetail(ch.sourceRelation);
+  if (rel) lines.push(rel);
+  const snap = ch.sourceSnapshot as { revisionId?: unknown } | undefined;
+  if (snap && typeof snap.revisionId === 'string' && snap.revisionId) {
+    lines.push(`创建修订 ${snap.revisionId}`);
+  } else {
+    lines.push('没有源修订快照');
+  }
+  lines.push(`文件 ${file.metadata.name}`);
+  return lines.join('\n');
+}
+
+/** Desktop DetailRole for file: Fc · Fs */
 function fileDetail(file: ProjectFileJson): string {
   const m = file.metadata;
-  const bits = [
-    shortRate(m.sampleRateHz, true),
-    `CF ${shortRate(m.centerFrequencyHz)}`,
-    `${m.sampleCount} samples`,
+  return `Fc ${shortRate(m.centerFrequencyHz)} · Fs ${shortRate(m.sampleRateHz, true)}`;
+}
+
+function fileTooltip(file: ProjectFileJson, detail: string): string {
+  const m = file.metadata;
+  const lines = [
+    m.name,
+    m.path,
+    `Fc ${m.centerFrequencyHz} Hz`,
+    `Fs ${m.sampleRateHz} S/s`,
+    `样本数 ${m.sampleCount}`,
+    detail,
   ];
-  return bits.join(' | ');
+  return lines.filter(Boolean).join('\n');
 }
 
 function markDetail(ann: AnnotationJson): string {
@@ -254,7 +274,7 @@ function buildMarksBranch(
         title: label,
         kind: 'mark' as const,
         detail,
-        tooltip: `${label} (${kind})\n${detail}`,
+        tooltip: `${label}（${ANNOTATION_SOURCE_TREE_LABELS[kind]}）\n${detail}`,
         sourceTooltip: kind,
         sourceKind: kind,
         color: ANNOTATION_SOURCE_TREE_COLORS[kind],
@@ -276,8 +296,8 @@ function buildMarksBranch(
       sourceKind: kind,
       color: ANNOTATION_SOURCE_TREE_COLORS[kind],
       count: ofKind.length,
-      detail: `${ofKind.length} mark(s)`,
-      tooltip: `${srcLabel}: ${ofKind.length} live`,
+      detail: `${ofKind.length} 个标记`,
+      tooltip: `${srcLabel}\n${ofKind.length} 个有效标记`,
       fileId,
       children: markNodes.length ? markNodes : undefined,
     });
@@ -289,7 +309,7 @@ function buildMarksBranch(
     label: '标注', title: '标注',
     kind: 'marks',
     count: liveCount,
-    detail: `${liveCount} mark(s)`,
+    detail: `${liveCount} 个标记`,
     fileId,
     children: sourceChildren,
   };
@@ -301,9 +321,9 @@ function buildChannelsBranch(file: ProjectFileJson): EngineeringTreeNode | undef
   const available = file.metadata.availableSamples ?? file.metadata.sampleCount;
   return {
     id: `channels:${file.metadata.id}`,
-    label: '通道',
+    label: '窄带通道',
     kind: 'channels',
-    title: '通道',
+    title: '窄带通道',
     count: channels.length,
     fileId: file.metadata.id,
     children: channels.map((ch) => {
@@ -316,7 +336,7 @@ function buildChannelsBranch(file: ProjectFileJson): EngineeringTreeNode | undef
         /* ignore */
       }
       const detail = channelDetail(ch, file);
-      const tooltip = detail;
+      const tooltip = channelTooltip(ch, file);
       return {
         id: ch.id,
         label: ch.name,
@@ -348,7 +368,7 @@ function buildDetectionRunsBranch(file: ProjectFileJson): EngineeringTreeNode | 
       label: runId,
       title: runId,
       kind: 'metadata' as const,
-      detail: `detection run ${i + 1}`,
+      detail: `检测运行 ${i + 1}`,
       fileId: file.metadata.id,
     })),
   };
@@ -385,7 +405,7 @@ function buildFileNode(
     title: file.metadata.name,
     kind: 'file',
     detail,
-    tooltip: `${file.metadata.name}\n${detail}\n${file.metadata.path}`,
+    tooltip: fileTooltip(file, detail),
     sourceTooltip: file.metadata.path,
     badges: fileBadges(file),
     sampleCount: file.metadata.sampleCount,
@@ -455,11 +475,11 @@ export function engineeringTreeFromSummary(
   if (document) return engineeringTreeFromProject(document);
   const fileNodes: EngineeringTreeNode[] = summary.files.map((f) => ({
     id: f.id,
-    label: `${f.name} (${f.sampleCount} samples, ${f.channelCount} ch)`,
+    label: f.name,
     kind: 'file' as const,
     sampleCount: f.sampleCount,
     path: f.path,
-    detail: `${f.sampleCount} samples | ${f.channelCount} ch`,
+    detail: `样本 ${f.sampleCount} · 通道 ${f.channelCount}`,
   }));
   return [
     {

@@ -109,8 +109,9 @@ describe('G19 engineering tree three-source marks (desktop c1f2cce / 17471a6)', 
     const file = tree[0]?.children?.[0]?.children?.[0];
     expect(file?.kind).toBe('file');
     expect(file?.active).toBe(true);
+    expect(file?.detail).toMatch(/Fc /);
+    expect(file?.detail).toMatch(/Fs /);
     expect(file?.detail).toMatch(/S\/s/);
-    expect(file?.detail).toMatch(/400000 samples/);
 
     const marks = file?.children?.find((c) => c.kind === 'marks');
     expect(marks).toBeDefined();
@@ -139,10 +140,11 @@ describe('G19 engineering tree three-source marks (desktop c1f2cce / 17471a6)', 
 
     const channel = channels?.children?.[0];
     expect(channel?.title).toBe('NB-1');
-    expect(channel?.detail).toMatch(/CF /);
-    expect(channel?.detail).toMatch(/source changed/);
-    expect(channel?.detail).toMatch(/create rev rev-create-1/);
-    expect(channel?.tooltip).toBe(channel?.detail);
+    expect(channel?.detail).toMatch(/Fc /);
+    expect(channel?.detail).toMatch(/BW /);
+    expect(channel?.detail).not.toMatch(/来源已修改/);
+    expect(channel?.tooltip).toMatch(/来源已修改/);
+    expect(channel?.tooltip).toMatch(/创建修订 rev-create-1/);
     expect(channel?.sourceTooltip).toBe(CHANNEL_SOURCE_RELATION_DETAILS.Changed);
     expect(channel?.badges).toContain('unread');
 
@@ -151,7 +153,11 @@ describe('G19 engineering tree three-source marks (desktop c1f2cce / 17471a6)', 
     expect(runs?.children?.[0]?.label).toBe('run-alpha');
 
     expect(manual?.title).toBe('manual-a');
-    expect(manual?.tooltip).toContain('Manual');
+    expect(manual?.tooltip).toContain('手动标记');
+    expect(channels?.title).toBe('窄带通道');
+    expect(marks?.children?.[0]?.title).toBe('原始标签');
+    expect(marks?.children?.[1]?.title).toBe('手动标记');
+    expect(marks?.children?.[2]?.title).toBe('算法结果');
   });
 
   it('keeps project-only tree without mark branches when annotations omitted', () => {
