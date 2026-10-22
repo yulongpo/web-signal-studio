@@ -159,6 +159,7 @@ function publishPhysicalSpans(
 export function MainChartHost() {
   const chartMode = useUiStore((s) => s.chartMode);
   const paletteId = useUiStore((s) => s.paletteId);
+  const showColorScale = useUiStore((s) => s.display.showColorScale);
   const level = useUiStore((s) => s.level);
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
   const setMainChartPhysicalSpans = useUiStore((s) => s.setMainChartPhysicalSpans);
@@ -644,6 +645,11 @@ export function MainChartHost() {
         mode={chartMode}
         colormap={colormap}
         levels={{ min: levelMin, max: levelMax }}
+        showColorScale={showColorScale}
+        colorScaleDb={{
+          referenceLevelDb: level.refLevelDb,
+          dynamicRangeDb: level.dynamicRangeDb,
+        }}
         freqHz={freqHz}
         timeSec={chartMode === 'stft' ? navWindowTime : timeSec}
         height="100%"
