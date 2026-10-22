@@ -1,0 +1,55 @@
+{
+  "pack": "web-ab29e28-quality",
+  "tip_web_base": "ab29e281c374a11531fc9df0d5a937f079fa096e",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "evidence_sha_after_commit": "be499055a82ad82890a085ca04cbd8038ddbd5f3",
+  "pass_claimed": false,
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "quality": true,
+  "supplement_of": "web-7969aba-quality",
+  "tree_gate": {
+    "ok": true,
+    "note": "01-project-tree-loaded.png present"
+  },
+  "captures": [
+    "01-project-tree-loaded.png",
+    "02-shell-zh-en-residue.png",
+    "02b-menubar-crop.png",
+    "03-colorbar-waterfall.png",
+    "04-aux-wave-center.png",
+    "04b-aux-chart-crop.png",
+    "desktop-01-primary.png",
+    "desktop-02-wideband.png"
+  ],
+  "gaps": [
+    "03 display-colorscale not visible — PARTIAL (waterfall shot still taken)"
+  ],
+  "absolute_png_paths": [
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\01-project-tree-loaded.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\02-shell-zh-en-residue.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\02b-menubar-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\03-colorbar-waterfall.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\04-aux-wave-center.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\04b-aux-chart-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\desktop-01-primary.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality\\desktop-02-wideband.png"
+  ],
+  "observations": {
+    "tree_gate": {
+      "ok": true,
+      "note": "01-project-tree-loaded.png present"
+    },
+    "shot03_colorbar": {
+      "visible": false,
+      "text": null
+    },
+    "shot04_aux": {
+      "chart": true,
+      "waiting": false,
+      "waitingText": null
+    }
+  },
+  "out_dir": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-ab29e28-quality",
+  "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo"
+}
