@@ -192,6 +192,20 @@ export function NarrowbandObserveCharts() {
   const [result, setResult] = useState<NarrowbandObserveDdcResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // Persist Observe top pane height (desktop observeSplitter default 320/640).
+  const [nbObserveTopH, setNbObserveTopH] = useState(readNbObserveTopH);
+  const onNbObserveTopChange = (px: number) => {
+    const next = Math.min(
+      NB_OBSERVE_TOP_MAX,
+      Math.max(NB_OBSERVE_TOP_MIN, Math.round(px)),
+    );
+    setNbObserveTopH(next);
+    try {
+      localStorage.setItem(NB_OBSERVE_TOP_LS, String(next));
+    } catch {
+      /* ignore quota / private mode */
+    }
+  };
   /** P0#7: fingerprint of active broadband mark/channel from __wssM06. */
   const [broadbandDriveKey, setBroadbandDriveKey] = useState('none');
   const [broadbandDrive, setBroadbandDrive] = useState<ObserveBroadbandDrive | null>(null);
