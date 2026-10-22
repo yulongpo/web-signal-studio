@@ -2,7 +2,7 @@
   "pack": "web-4402810-pixel",
   "baseline_sha": "44028104021a3067fadc0dcc4d827651de3f4579",
   "tip_web_base": "44028104021a3067fadc0dcc4d827651de3f4579",
-  "evidence_sha_after_commit": "PENDING_COMMIT",
+  "evidence_sha_after_commit": "d96b0ad0b5bbdfd31c134ce33b9cba9add9e9063",
   "pass_claimed": false,
   "matrix_pass_claimed": false,
   "ui_parity_pass_claimed": false,
@@ -224,5 +224,6 @@
     "bb": "04-sxs-bb-web-vs-desktop-4k.png",
     "nb": "07-sxs-nb-web-vs-desktop-4k.png",
     "desktop_ref_sha": "17471a6488383b456281d12cb1a6d3d80290205d"
-  }
+  },
+  "tip_sha": "d96b0ad0b5bbdfd31c134ce33b9cba9add9e9063"
 }

@@ -1,6 +1,6 @@
 # web-4402810-pixel BB/NB + desktop sxs 4K (NOT PASS)
 - baseline_sha: 44028104021a3067fadc0dcc4d827651de3f4579
-- tip_sha: PENDING_COMMIT
+- tip_sha: d96b0ad0b5bbdfd31c134ce33b9cba9add9e9063
 - pass_claimed: false
 - viewport: 3840x2160
 - desktop_ref: signal_studio_rebuild@17471a6488383b456281d12cb1a6d3d80290205d

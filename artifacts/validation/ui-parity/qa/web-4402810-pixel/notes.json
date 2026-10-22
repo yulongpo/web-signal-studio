@@ -160,5 +160,7 @@
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\06b-nb-observe-workspace.png",
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\04-sxs-bb-web-vs-desktop-4k.png",
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-4402810-pixel\\07-sxs-nb-web-vs-desktop-4k.png"
-  ]
+  ],
+  "evidence_sha_after_commit": "d96b0ad0b5bbdfd31c134ce33b9cba9add9e9063",
+  "tip_sha": "d96b0ad0b5bbdfd31c134ce33b9cba9add9e9063"
 }
