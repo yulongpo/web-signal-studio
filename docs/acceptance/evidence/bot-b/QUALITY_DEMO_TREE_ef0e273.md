@@ -5,7 +5,7 @@
 | When | 2026-10-22 Asia/Shanghai |
 | Branch | `work/bot-b-ui` |
 | Base | **`ef0e273`** = `ef0e2735cc73fde1f922de15f9a27e72f9bf40db` (GAP_QUALITY merge; includes C HOTFIX) |
-| Tip | _969c266_ |
+| Tip | **3656153** = 36561530509c5f11e11d70468ada30a0505f88f3 |
 | Desktop ref | READ-ONLY ~`17471a6` tree behavior |
 | IQ | `D:\project\signal_studio_rebuild\resources\sigmf_data_demo\0000000.*` only |
 | Rule | **matrix_pass_claimed: false**; no invent DSP / G06 / G17 / Multitaper / Burg |
