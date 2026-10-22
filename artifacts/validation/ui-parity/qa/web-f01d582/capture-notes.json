@@ -1,0 +1,28 @@
+{
+  "tip": "f01d58215aec970e450d88402bb21a4200dc2040",
+  "desktop": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "pass_claimed": false,
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "supersedes": "web-81493fe",
+  "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo",
+  "absolute_png_paths": [
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\01-wideband-shell-stft-strip.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\01b-wideband-shell-waterfall.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\02-pan-zoom-aux-cursor.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\02b-aux-psd.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\03-fixed-segment-ms.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\03b-auto-n-on.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\04-bottom-scale-physical-view.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\04b-bottom-scale-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\05-mode-wheel-live.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\05b-mode-wheel-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\06-menubar-open-iq-stamps.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\06b-menubar-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\06c-sigmf-demo-loaded.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\06d-g10-before-maximize.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582\\06e-g10-after-maximize.png"
+  ],
+  "export_dir": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-f01d582-export"
+}
