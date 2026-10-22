@@ -3,9 +3,9 @@
 | Field | Value |
 |-------|-------|
 | Asia/Shanghai | 2026-10-22 07:55 |
-| Base | `2ce34a9` (rebase onto origin/main after CAO conflict abort) |
+| Base | `6bf49bb` (origin/main; keep D A3 dspAnalysisSamples + B wave33 SegmentMs) |
 | Branch | `work/bot-c-charts` |
-| Tip | `63a5f79` (full `63a5f79c17c229790cda3a1759874e272d2dc1ad`) |
+| Tip | `ef6a0ef` (full `ef6a0efb0c0c00585e19634b6ea376846fddb112`; docs stamp may sit on top) |
 | Desktop ref | `17471a6` / `infrastructure/spectral_analysis.cpp` `bandwidth=frequency.upperHz-frequency.lowerHz`; `plot_widget.cpp` passes `view.frequency` |
 | matrix_pass_claimed | false |
 
