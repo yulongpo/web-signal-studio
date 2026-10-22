@@ -179,9 +179,9 @@ export function SpectrumToolbar() {
           data-testid="btn-open-iq-wav"
           data-native-qfiledialog="false"
           onClick={() => void onOpenIqWav()}
-          title="Open IQ (WAV / RAW / SigMF; FSA WAV when available). Browser file picker / FSA — not native QFileDialog."
+          title="打开 IQ（WAV / RAW / SigMF；可用时 FSA WAV）。浏览器选择器 / FSA，非原生 QFileDialog。"
         >
-          Open IQ
+          打开 IQ
         </button>
         <button
           type="button"
@@ -197,7 +197,7 @@ export function SpectrumToolbar() {
           onClick={onClearIq}
           title="Clear opened IQ and return to synthetic fixture"
         >
-          Clear IQ
+          清除 IQ
         </button>
         <input
           ref={iqInputRef}
@@ -213,7 +213,7 @@ export function SpectrumToolbar() {
         />
         {iqOpenError ? (
           <span className="toolbar-iq-error" data-testid="iq-open-error" title={iqOpenError}>
-            IQ open failed
+            IQ 打开失败
           </span>
         ) : null}
         <button

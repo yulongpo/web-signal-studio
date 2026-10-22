@@ -1,7 +1,11 @@
 ﻿@import "tailwindcss";
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Desktop main_window stylesheet @17471a6: Segoe UI / Microsoft YaHei UI 12px; Consolas for mono. */
+  --wss-font-ui: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  --wss-font-mono: Consolas, "Cascadia Mono", ui-monospace, monospace;
+  font-family: var(--wss-font-ui);
+  font-size: 12px;
   line-height: 1.5;
   font-weight: 400;
   color: #e8edf5;

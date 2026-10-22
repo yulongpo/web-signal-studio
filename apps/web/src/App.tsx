@@ -229,6 +229,7 @@ export default function App() {
           defaultPx={DESKTOP_NAV_DEFAULT}
           onChange={setNavPaneHeightPx}
           testId="splitter-nav-aux"
+          handleWidth={10}
         />
 
         <section className="aux-chart" aria-label="aux-chart" data-testid="aux-chart">
@@ -243,6 +244,7 @@ export default function App() {
 defaultPx={auxDefaultPx}
           onChange={setAuxPaneHeightPx}
           testId="splitter-aux-main"
+          handleWidth={10}
         />
 
         <section className="main-chart" aria-label="main-chart" data-testid="main-chart">

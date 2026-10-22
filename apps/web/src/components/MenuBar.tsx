@@ -19,6 +19,7 @@ import {
   pushRecentProject,
   type RecentProjectEntry,
 } from '../recentProjects';
+import { AddSignalDialog } from './AddSignalDialog';
 
 type MenuId = 'file' | 'edit' | 'view' | 'analysis' | 'tools' | 'help' | null;
 
@@ -90,6 +91,7 @@ export function MenuBar() {
   );
   const [chromeMaximized, setChromeMaximized] = useState(false);
   const [chromeNote, setChromeNote] = useState<string | null>(null);
+  const [addSignalOpen, setAddSignalOpen] = useState(false);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -102,6 +104,7 @@ export function MenuBar() {
       if (e.key === 'Escape') {
         setOpenMenu(null);
         setDialog(null);
+        setAddSignalOpen(false);
       }
     };
     window.addEventListener('mousedown', onDown);
@@ -457,7 +460,7 @@ export function MenuBar() {
                 打开演示工程（样例树）
               </button>
               <div className="menubar-sep" role="separator" />
-              <button type="button" role="menuitem" data-testid="menu-open-iq" data-native-qfiledialog="false" data-g20="browser-picker" title="Browser file picker / FSA WAV; not native QFileDialog" onClick={() => void onOpenIq()}>
+              <button type="button" role="menuitem" data-testid="menu-open-iq" data-native-qfiledialog="false" data-g20="browser-picker" title="浏览器文件选择器 / FSA WAV；非原生 QFileDialog（data-native-qfiledialog=false）" data-add-signal="f-wire" onClick={() => { close(); setAddSignalOpen(true); }}>
                 添加 / 打开信号…
               </button>
                             <button
@@ -467,7 +470,7 @@ export function MenuBar() {
                 onClick={() => void onLoadDemoIq()}
                 title="D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.*"
               >
-                Load wideband demo IQ (sigmf_data_demo)
+                加载宽带演示 IQ（sigmf_data_demo）
               </button>
               <button
                 type="button"
@@ -914,7 +917,7 @@ export function MenuBar() {
       <span className="menubar-spacer" />
       {iqError ? (
         <span className="menubar-iq-error" data-testid="menubar-iq-error" title={iqError}>
-          IQ open failed
+          IQ 打开失败
         </span>
       ) : null}
       {chromeNote ? (
@@ -923,7 +926,7 @@ export function MenuBar() {
         </span>
       ) : null}
       <span className="menubar-hint" data-testid="command-bar">
-        command-bar
+        命令栏
       </span>
       <div className="menubar-window-controls" data-testid="window-controls" role="group" aria-label="window controls">
         <button
@@ -979,6 +982,8 @@ export function MenuBar() {
           e.target.value = '';
         }}
       />
+
+      <AddSignalDialog open={addSignalOpen} onClose={() => setAddSignalOpen(false)} />
 
       {dialog ? (
         <div className="menubar-dialog-backdrop" data-testid="menubar-dialog" role="dialog" aria-modal="true">
