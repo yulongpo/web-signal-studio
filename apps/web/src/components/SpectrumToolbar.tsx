@@ -89,7 +89,7 @@ export function SpectrumToolbar() {
   };
 
   return (
-    <div className="spectrum-toolbar" data-testid="spectrum-toolbar" role="toolbar">
+    <div className="spectrum-toolbar" data-testid="spectrum-toolbar" data-g16-shell="partial" role="toolbar">
       <div className="toolbar-primary">
         <button
           type="button"
@@ -110,7 +110,20 @@ export function SpectrumToolbar() {
           Narrowband
         </button>
         <span className="toolbar-sep" aria-hidden />
-        <button
+        <div
+          className="mode-wheel"
+          data-testid="mode-wheel"
+          data-g16="partial"
+          data-g16-owner="bot-b"
+          data-desktop-main-mode="TimeFrequency|Waterfall"
+          data-desktop-aux-mode="Waveform|Psd"
+          data-matrix="insufficient"
+          data-no-invent="true"
+          role="group"
+          aria-label="Chart mode wheel (desktop MainMode / AuxiliaryMode shell)"
+          title="G16 shell: MainMode TimeFrequency/Waterfall + Aux Waveform/Psd. Enable/disable matrix incomplete — no invent. Chart consumers → C. DSP enum → D N/A."
+        >
+<button
           type="button"
           data-testid="btn-mode-stft"
           data-active={chartMode === 'stft'}
@@ -143,6 +156,7 @@ export function SpectrumToolbar() {
         >
           PSD
         </button>
+        </div>
         <span className="toolbar-sep" aria-hidden />
         <button
           type="button"
