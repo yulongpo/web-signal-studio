@@ -75,6 +75,11 @@ export function MenuBar() {
   const viewHistoryIndex = useUiStore((s) => s.viewHistoryIndex);
   const viewHistoryBack = useUiStore((s) => s.viewHistoryBack);
   const viewHistoryForward = useUiStore((s) => s.viewHistoryForward);
+  /** G12/G15: prefer main-chart Session stack (shared with chart context menu). */
+  const mainViewPastLen = useUiStore((s) => s.mainViewPast.length);
+  const mainViewFutureLen = useUiStore((s) => s.mainViewFuture.length);
+  const mainViewBack = useUiStore((s) => s.mainViewBack);
+  const mainViewForward = useUiStore((s) => s.mainViewForward);
   const fitNavToFull = useUiStore((s) => s.fitNavToFull);
   const restoreDefaultNavView = useUiStore((s) => s.restoreDefaultNavView);
   const statusFileLabel = useUiStore((s) => s.statusFileLabel);
@@ -308,8 +313,19 @@ export function MenuBar() {
     setDialog(null);
   };
 
-  const canViewBack = viewHistoryIndex > 0;
-  const canViewForward = viewHistoryIndex < viewHistory.length - 1;
+  // Desktop: MenuBar + context share session_.canBack/canForward (17471a6).
+  // Prefer mainView stack; fall back to navWindowTime history for nav-only drags.
+  const canViewBack = mainViewPastLen > 0 || viewHistoryIndex > 0;
+  const canViewForward =
+    mainViewFutureLen > 0 || viewHistoryIndex < viewHistory.length - 1;
+  const sharedViewBack = () => {
+    if (mainViewPastLen > 0) mainViewBack();
+    else viewHistoryBack();
+  };
+  const sharedViewForward = () => {
+    if (mainViewFutureLen > 0) mainViewForward();
+    else viewHistoryForward();
+  };
 
   useMenuBarShortcuts({
     onNewProject,
@@ -322,8 +338,8 @@ export function MenuBar() {
     onRedo,
     onDeleteMark,
     onSelectAllMarks,
-    viewHistoryBack,
-    viewHistoryForward,
+    viewHistoryBack: sharedViewBack,
+    viewHistoryForward: sharedViewForward,
     canUndo,
     canRedo,
     canDeleteMark,
@@ -721,11 +737,11 @@ export function MenuBar() {
                             <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-view-back" data-accel="Alt+Left"
+                data-testid="menu-view-back" data-accel="Alt+Left" data-g12-g15-shared-history="true"
                 disabled={!canViewBack}
                 title={canViewBack ? "视图后退" : "No earlier view history"}
                 onClick={() => {
-                  viewHistoryBack();
+                  sharedViewBack();
                   close();
                 }}
               >
@@ -736,11 +752,11 @@ export function MenuBar() {
               <button
                 type="button"
                 role="menuitem"
-                data-testid="menu-view-forward" data-accel="Alt+Right"
+                data-testid="menu-view-forward" data-accel="Alt+Right" data-g12-g15-shared-history="true"
                 disabled={!canViewForward}
                 title={canViewForward ? "视图前进" : "No newer view history"}
                 onClick={() => {
-                  viewHistoryForward();
+                  sharedViewForward();
                   close();
                 }}
               >

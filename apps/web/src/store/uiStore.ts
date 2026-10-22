@@ -108,6 +108,16 @@ export interface UiState {
   /** G15/G01 view navigation history for navWindowTime (max 40). */
   viewHistory: Array<{ min: number; max: number }>;
   viewHistoryIndex: number;
+  /**
+   * G12/G15: main-chart physical view history shared by MenuBar + chart context
+   * (desktop Session::past/future ViewSnapshot @ 17471a6). Plain snap — no invent matrix.
+   */
+  mainViewPast: Array<{ xMin: number; xMax: number; yMin: number; yMax: number }>;
+  mainViewFuture: Array<{ xMin: number; xMax: number; yMin: number; yMax: number }>;
+  mainViewCurrent: { xMin: number; xMax: number; yMin: number; yMax: number } | null;
+  /** Bump + payload so MainChartHost can applyView on MenuBar/context back-forward. */
+  mainViewRestoreSeq: number;
+  mainViewRestore: { xMin: number; xMax: number; yMin: number; yMax: number } | null;
   /** G05 aux pane height (CSS px). */
   auxPaneHeightPx: number;
   /** G05 nav pane height (CSS px). */
@@ -297,6 +307,18 @@ export interface UiState {
   ) => void;
   viewHistoryBack: () => void;
   viewHistoryForward: () => void;
+  setMainViewCurrent: (
+    snap: { xMin: number; xMax: number; yMin: number; yMax: number } | null,
+  ) => void;
+  commitMainViewChange: (before: {
+    xMin: number;
+    xMax: number;
+    yMin: number;
+    yMax: number;
+  }) => void;
+  mainViewBack: () => void;
+  mainViewForward: () => void;
+  resetMainViewHistory: () => void;
   /** Fit nav window to full IQ time (谱图全域 / 适应全部数据). */
   fitNavToFull: () => void;
   /** Restore default nav view + history seed (恢复默认视图). */
@@ -449,6 +471,11 @@ export const useUiStore = create<UiState>((set, get) => ({
   navWindowTime: { min: 0, max: 1 },
   viewHistory: [{ min: 0, max: 1 }],
   viewHistoryIndex: 0,
+  mainViewPast: [],
+  mainViewFuture: [],
+  mainViewCurrent: null,
+  mainViewRestoreSeq: 0,
+  mainViewRestore: null,
   auxPaneHeightPx: 205,
   navPaneHeightPx: 82,
   spectrogramDisplay: null,
@@ -634,6 +661,57 @@ export const useUiStore = create<UiState>((set, get) => ({
       const win = s.viewHistory[idx];
       if (!win) return s;
       return { viewHistoryIndex: idx, navWindowTime: { ...win } };
+    }),
+  setMainViewCurrent: (snap) => set({ mainViewCurrent: snap ? { ...snap } : null }),
+  commitMainViewChange: (before) =>
+    set((s) => {
+      const past = s.mainViewPast.concat([{ ...before }]);
+      const capped = past.length > 40 ? past.slice(past.length - 40) : past;
+      return {
+        mainViewPast: capped,
+        mainViewFuture: [],
+      };
+    }),
+  mainViewBack: () =>
+    set((s) => {
+      if (!s.mainViewCurrent || s.mainViewPast.length === 0) return s;
+      const past = s.mainViewPast.slice();
+      const prev = past.pop();
+      if (!prev) return s;
+      const future = s.mainViewFuture.concat([{ ...s.mainViewCurrent }]);
+      const futureCapped =
+        future.length > 40 ? future.slice(future.length - 40) : future;
+      const seq = s.mainViewRestoreSeq + 1;
+      return {
+        mainViewPast: past,
+        mainViewFuture: futureCapped,
+        mainViewCurrent: { ...prev },
+        mainViewRestore: { ...prev },
+        mainViewRestoreSeq: seq,
+      };
+    }),
+  mainViewForward: () =>
+    set((s) => {
+      if (!s.mainViewCurrent || s.mainViewFuture.length === 0) return s;
+      const future = s.mainViewFuture.slice();
+      const next = future.pop();
+      if (!next) return s;
+      const past = s.mainViewPast.concat([{ ...s.mainViewCurrent }]);
+      const pastCapped = past.length > 40 ? past.slice(past.length - 40) : past;
+      const seq = s.mainViewRestoreSeq + 1;
+      return {
+        mainViewPast: pastCapped,
+        mainViewFuture: future,
+        mainViewCurrent: { ...next },
+        mainViewRestore: { ...next },
+        mainViewRestoreSeq: seq,
+      };
+    }),
+  resetMainViewHistory: () =>
+    set({
+      mainViewPast: [],
+      mainViewFuture: [],
+      mainViewRestore: null,
     }),
   fitNavToFull: () => {
     const full = get().navFullTime;
