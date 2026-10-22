@@ -255,7 +255,7 @@ return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26 wave29 wave33 a3" data-strip-dsp="wave19 wave21 wave25 wave26 wave29 wave33 a3" data-stft-n-drives-compute="wave22" data-stft-segment-ms="wave33" data-dsp-analysis-samples="a3" data-native-qfiledialog="false"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26 wave29 wave33 a3" data-strip-dsp="wave19 wave21 wave25 wave26 wave29 wave33 a3" data-stft-n-drives-compute="wave22" data-stft-segment-ms="wave33" data-dsp-analysis-samples="a3" data-native-qfiledialog="false" data-strip-bw-honesty="a2-visibleBandwidthHz"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -358,7 +358,7 @@ return (
             Detection ROI
           </button>
           <span className="toolbar-sep" aria-hidden />
-          <button type="button" data-testid="btn-open-iq-wav" onClick={() => void onOpenIqWav()}>
+          <button type="button" data-testid="btn-open-iq-wav" data-native-qfiledialog="false" title="Browser file picker / FSA WAV; not native QFileDialog" onClick={() => void onOpenIqWav()}>
             Open IQ
           </button>
           <button type="button" data-testid="btn-clear-iq-wav" onClick={() => clearOpenedIq()}>
@@ -370,7 +370,7 @@ return (
             accept=".wav,.iq,.raw,.ci16,.sigmf-meta,.sigmf-data,audio/wav,audio/x-wav,application/json"
             multiple
             hidden
-            data-testid="input-iq-wav"
+            data-testid="input-iq-wav" data-native-qfiledialog="false"
             onChange={(e) => {
               void onIqFilesPicked(e.target.files);
               e.target.value = '';
@@ -555,7 +555,7 @@ return (
           className="chart-strip-qlabel"
           data-testid="chart-strip-qlabel-segment-ms"
           data-strip-wave="wave25"
-          title="Segment ms derived from fftSize/fs (D dspSegmentMs)"
+          title="Segment ms from resolveAnalysisSamples(visibleBandwidthHz, fs fallback); D dspSegmentMs"
         >
           SegMs
         </span>
@@ -910,8 +910,8 @@ return (
                   data-strip-wave="wave29 wave33"
                 >
                   {stftAutoNbPref
-                    ? "uses resolveAnalysisSamples(bandwidth=fs, points=stftN)"
-                    : "fixed SegmentMs → resolveAnalysisSamples PoT (bandwidth=fs)"}
+                    ? "uses resolveAnalysisSamples(bandwidthHz=visibleBandwidthHz, points=stftN; fs fallback)"
+                    : "fixed SegmentMs → resolveAnalysisSamples PoT (bandwidthHz=visibleBandwidthHz; fs fallback)"}
                 </span>
               </div>
               <div
