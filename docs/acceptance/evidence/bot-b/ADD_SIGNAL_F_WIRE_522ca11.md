@@ -6,7 +6,7 @@
 | Worktree | `D:\project\wss-wt-b` |
 | Branch | `work/bot-b-ui` |
 | Base | **522ca11** = `522ca11b48fcdc6623728579ae741a6df7a4fdb7` (origin/main = merge bot-f a7fb002) |
-| Tip | *(filled at commit)* |
+| Tip | **1f79aab** = 1f79aab79f2238f254d17a63b3ea2409fff1cfe4 |
 | Desktop | SignalImportDialog / ImportController / FormatTemplateStore @17471a6 |
 | matrix_pass_claimed | **false** |
 | ui_parity_pass_claimed | **false** |
