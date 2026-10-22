@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `INCREMENTAL_da9fdab` (Web tip `da9fdab`; audit tip replaces `caaf7c8`). Keep as historical A2 audit. **matrix_pass_claimed: false**.
+
 # INCREMENTAL_0f1183a — A2 visibleBandwidthHz + A5 spectral_settings_json audit (no PASS)
 
 | Field | Value |
