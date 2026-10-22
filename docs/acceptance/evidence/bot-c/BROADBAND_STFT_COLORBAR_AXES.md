@@ -1,7 +1,7 @@
 # Bot-C · Broadband STFT/waterfall visual close (axes + colorScale)
 
 **base:** `ef0e273` (GAP_QUALITY_8f73f69 on main; includes HOTFIX 70a2d9b)
-**tip:** *(filled after push)*
+**tip:** 27671b3
 **matrix_pass_claimed:** false
 **ban:** invent DSP · G06/G17 · G16 enable-matrix · fake PASS
 
