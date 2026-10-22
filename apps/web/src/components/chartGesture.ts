@@ -2,10 +2,11 @@
  * Chart gesture helpers shared by the main host and unit tests.
  * Sample indexes stay decimal strings. Mapping matches HeatmapCanvas margins.
  */
-import { HEATMAP_PLOT_MARGIN } from '@wss/charts/react/plotMargin';
+import { heatmapPlotMargin } from '@wss/charts';
 
 export const VIEW_HISTORY_LIMIT = 40;
-export const PLOT_MARGIN = HEATMAP_PLOT_MARGIN;
+/** Main chart default: colorScale on (desktop right=70). */
+export const PLOT_MARGIN = heatmapPlotMargin(true);
 
 export function pushCapped<T>(stack: readonly T[], item: T, limit = VIEW_HISTORY_LIMIT): T[] {
   const next = stack.concat([item]);

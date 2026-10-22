@@ -206,9 +206,15 @@ export function WaveformChart(props: WaveformChartProps) {
       data-linked-x={linkedX == null ? "" : String(linkedX)}
       data-linked-cursor-pinned={linkedX == null ? "false" : "true"}
       style={{
-        position: "relative",
+        position:
+          typeof height === "string" && height.includes("%")
+            ? "absolute"
+            : "relative",
+        inset:
+          typeof height === "string" && height.includes("%") ? 0 : undefined,
         width: "100%",
         height: typeof height === "number" ? `${height}px` : height,
+        minHeight: 0,
         overflow: "hidden",
         background: "#0f1218",
         ...style,

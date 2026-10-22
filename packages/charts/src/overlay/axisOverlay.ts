@@ -99,6 +99,16 @@ function axisTitle(domain: AxisDomain): string {
  * Independent 2D-canvas axis overlay — separate from WebGL heatmap layer.
  * Tick/title scaling mirrors desktop plot_widget axisScale / displayUnit.
  */
+
+/** Target ~minPxPerTick between major ticks; clamp for aux (small) and 4K (large). */
+export function suggestedTickCount(
+  pixelSpan: number,
+  minPxPerTick = 72,
+): number {
+  const span = Math.max(1, pixelSpan);
+  return Math.max(4, Math.min(18, Math.round(span / minPxPerTick) + 1));
+}
+
 export class AxisOverlay {
   draw(input: AxisOverlayDrawInput): void {
     const {
@@ -135,9 +145,9 @@ export class AxisOverlay {
     ctx.stroke();
 
     ctx.fillStyle = labelStyle;
-    ctx.font = "10px Consolas, ui-monospace, monospace";
+    ctx.font = "11px Consolas, ui-monospace, monospace";
 
-    const xTicks = xAxis.ticks(6);
+    const xTicks = xAxis.ticks(suggestedTickCount(plotR - plotL));
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     for (const v of xTicks) {
@@ -150,7 +160,7 @@ export class AxisOverlay {
       ctx.fillText(formatTick(v, xAxis.mapping.domain), px, plotB + 6);
     }
 
-    const yTicks = yAxis.ticks(6);
+    const yTicks = yAxis.ticks(suggestedTickCount(plotB - plotT));
     ctx.textAlign = "right";
     ctx.textBaseline = "middle";
     for (const v of yTicks) {

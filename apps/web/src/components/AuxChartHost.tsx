@@ -111,6 +111,7 @@ export function AuxChartHost() {
     return (
       <div
         className="chart-host"
+        data-aux-fill="true"
         data-chart-slot="aux"
         data-chart-kind={kind}
         data-aux-ready="true"
@@ -147,6 +148,7 @@ export function AuxChartHost() {
     return (
       <div
         className="chart-host"
+        data-aux-fill="true"
         data-chart-slot="aux"
         data-chart-kind="wave"
         data-aux-ready="false"
@@ -171,6 +173,7 @@ export function AuxChartHost() {
     return (
       <div
         className="chart-host"
+        data-aux-fill="true"
         data-chart-slot="aux"
         data-chart-kind="wave"
         data-aux-ready="false"
@@ -194,6 +197,7 @@ export function AuxChartHost() {
     return (
       <div
         className="chart-host"
+        data-aux-fill="true"
         data-chart-slot="aux"
         data-chart-kind="wave"
         data-aux-ready="false"
@@ -220,6 +224,7 @@ export function AuxChartHost() {
   return (
     <div
       className="chart-host"
+      data-aux-fill="true"
       data-chart-slot="aux"
       data-chart-kind="wave"
       data-aux-ready="true"

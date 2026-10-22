@@ -3,7 +3,10 @@
  * Independent 2D overlay — does not touch WebGL scalar / LUT upload path.
  */
 import { buildLutRgba8, type ColormapName } from "../lut/colormaps.js";
-import { HEATMAP_COLORBAR } from "../react/plotMargin.js";
+import {
+  HEATMAP_COLORBAR,
+  stripOffsetForMargin,
+} from "../react/plotMargin.js";
 
 export type ColorScaleDb = {
   /** Desktop referenceLevelDb (top of bar). */
@@ -35,7 +38,7 @@ function formatDbTick(v: number): string {
 /** dB tick labels for DOM legend / Playwright (top = reference, bottom = ref - range). */
 export function colorScaleTickLabels(
   levelsDb: ColorScaleDb,
-  tickCount = 5,
+  tickCount = 7,
 ): string[] {
   const ref = levelsDb.referenceLevelDb;
   const dyn = Math.max(1e-6, levelsDb.dynamicRangeDb);
@@ -70,7 +73,7 @@ export class ColorbarOverlay {
     const plotB = height - margin.bottom;
     const span = Math.max(1, plotB - plotT - 8);
     const top = plotT + 4;
-    const left = width - HEATMAP_COLORBAR.stripOffsetFromRight;
+    const left = width - stripOffsetForMargin(margin.right);
     const stripW = HEATMAP_COLORBAR.stripWidth;
 
     const lut = buildLutRgba8(colormap, 256);
@@ -92,7 +95,7 @@ export class ColorbarOverlay {
     const dyn = Math.max(1e-6, levelsDb.dynamicRangeDb);
     const n = Math.max(2, tickCount);
     ctx.fillStyle = labelStyle;
-    ctx.font = "10px Consolas, ui-monospace, monospace";
+    ctx.font = "11px Consolas, ui-monospace, monospace";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
     for (let i = 0; i < n; i++) {
