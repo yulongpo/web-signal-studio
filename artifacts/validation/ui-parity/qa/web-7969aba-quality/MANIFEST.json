@@ -1,0 +1,53 @@
+{
+  "pack": "web-7969aba-quality",
+  "tip_web_base": "7969abaa3ed64234f250aa459dec16153666bddf",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "evidence_sha_after_commit": "2f79617905f114b89ae7ec4f29a81bbb28016f19",
+  "pass_claimed": false,
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "quality": true,
+  "tree_gate": {
+    "ok": true,
+    "note": "01-project-tree-demo-loaded.png present with non-trivial size; empty-tree FAIL file absent"
+  },
+  "shot01_vs_03": {
+    "different": true,
+    "h01": "16fcc37c6e3b809148a5c14e56bb58aa7a035d9b50dd4598151b30ce6b665032",
+    "h03": "ba7c38bd037368fa1eecdd5f6e155d4cf2930cc32223a68697c4674872d73fa7"
+  },
+  "captures": [
+    "01-project-tree-demo-loaded.png",
+    "01b-project-tree-crop.png",
+    "02-broadband-shell-stft.png",
+    "03-broadband-waterfall.png",
+    "05-narrowband-observe-three-charts.png",
+    "desktop-01-primary.png",
+    "desktop-02-wideband.png",
+    "desktop-05-narrowband.png",
+    "desktop-05b-nb-regression.png",
+    "desktop-05c-real-iq-wave.png",
+    "desktop-05d-real-iq-psd.png"
+  ],
+  "gaps": [
+    "02 same hash as 01 — soft PARTIAL (STFT may match tree fullpage composition)",
+    "06 NB DDC/pipeline shot missing — PARTIAL (05 Observe present)"
+  ],
+  "absolute_png_paths": [
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\01-project-tree-demo-loaded.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\01b-project-tree-crop.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\02-broadband-shell-stft.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\03-broadband-waterfall.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\05-narrowband-observe-three-charts.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\desktop-01-primary.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\desktop-02-wideband.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\desktop-05-narrowband.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\desktop-05b-nb-regression.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\desktop-05c-real-iq-wave.png",
+    "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality\\desktop-05d-real-iq-psd.png"
+  ],
+  "out_dir": "artifacts\\validation\\ui-parity\\qa\\web-7969aba-quality",
+  "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo",
+  "note": "Salvaged mid-run; 01≠03; NB 05 present; 06 PARTIAL",
+  "branch_tip_sha": "2f79617905f114b89ae7ec4f29a81bbb28016f19"
+}
