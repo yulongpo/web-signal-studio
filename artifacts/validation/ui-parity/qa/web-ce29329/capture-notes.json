@@ -1,0 +1,11 @@
+{
+  "tip": "ce29329c04a220894c7d4a367b203616e6029026",
+  "desktop": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "pass_claimed": false,
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g09_status": "PARTIAL",
+  "data_axis_bind": "physical-view",
+  "delta_t": "0.033536",
+  "delta_f": "1000000"
+}
