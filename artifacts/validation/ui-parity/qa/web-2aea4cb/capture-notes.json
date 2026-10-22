@@ -1,0 +1,11 @@
+{
+  "tip": "2aea4cb34f08f0cc5dc28689d617ff92e81b608a",
+  "desktop": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "pass_claimed": false,
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "a2_a5_ok": true,
+  "a2_zoomed_bw": 200000,
+  "a5_window": "kaiser"
+}
