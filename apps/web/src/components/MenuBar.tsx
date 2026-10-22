@@ -935,6 +935,36 @@ export function MenuBar() {
         </div>
       </div>
 
+      <div
+        className="menubar-mode-chrome"
+        data-testid="menubar-mode-chrome"
+        data-desktop-cite="workspaceModeButton@17471a6"
+        role="group"
+        aria-label="工作区模式"
+      >
+        <button
+          type="button"
+          className="menubar-mode-btn"
+          data-testid="btn-workspace-wideband"
+          data-menubar-mode="wideband"
+          data-active={workspaceMode !== "narrowband"}
+          aria-pressed={workspaceMode !== "narrowband"}
+          onClick={() => setWorkspaceMode("wideband")}
+        >
+          宽带
+        </button>
+        <button
+          type="button"
+          className="menubar-mode-btn"
+          data-testid="btn-workspace-narrowband"
+          data-menubar-mode="narrowband"
+          data-active={workspaceMode === "narrowband"}
+          aria-pressed={workspaceMode === "narrowband"}
+          onClick={() => setWorkspaceMode("narrowband")}
+        >
+          窄带
+        </button>
+      </div>
       <span className="menubar-spacer" />
       {iqError ? (
         <span className="menubar-iq-error" data-testid="menubar-iq-error" title={iqError}>

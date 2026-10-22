@@ -169,13 +169,38 @@ export function NarrowbandWorkspace() {
         <span className="nb-caption" data-testid="nb-caption">
           {hasChannel ? `窄带通道 ${channelLabel}` : '未选择窄带通道'}
         </span>
-        <button
-          type="button"
-          data-testid="nb-return-wideband"
-          onClick={() => setWorkspaceMode('wideband')}
+        <div
+          className="nb-mode-chrome"
+          data-testid="nb-mode-chrome"
+          data-desktop-cite="workspaceModeButton@17471a6"
+          role="group"
+          aria-label="工作区模式"
         >
-          返回宽带
-        </button>
+          <button
+            type="button"
+            data-testid="nb-mode-wideband"
+            data-active="false"
+            aria-pressed={false}
+            onClick={() => setWorkspaceMode('wideband')}
+          >
+            宽带
+          </button>
+          <button
+            type="button"
+            data-testid="nb-mode-narrowband"
+            data-active="true"
+            aria-pressed={true}
+          >
+            窄带
+          </button>
+          <button
+            type="button"
+            data-testid="nb-return-wideband"
+            onClick={() => setWorkspaceMode('wideband')}
+          >
+            返回宽带
+          </button>
+        </div>
       </header>
 
       <div className="nb-chart-toolbar" data-testid="nb-chart-toolbar">
