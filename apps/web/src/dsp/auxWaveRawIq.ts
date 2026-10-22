@@ -1,7 +1,12 @@
 /**
- * Aux Wave raw-IQ path (Bot-D): chunked SigMF read from sigmf_data_demo only.
- * Display uses desktop-style IqRms overview (RMS magnitude per display bucket)
- * from interleaved float32 IQ — not STFT spectrogram envelope.
+ * Aux Wave raw-IQ path (Bot-D): prefer opened IQ via iqFileSession
+ * (WAV / RAW / SigMF ChunkedReader published by openIqForMainChart /
+ * openDemoIqForMainChart). Fallback: sigmf_data_demo chunked read when
+ * allowDemoFallback/demoDir is set (unit tests). AuxChartHost paints
+ * Wave only from an opened session — never a silent demo mismatch.
+ *
+ * Display uses desktop-style IqRms overview (RMS magnitude per display
+ * bucket) from interleaved float32 IQ — not STFT spectrogram envelope.
  *
  * Default demo dir (Windows laptop):
  *   D:\project\signal_studio_rebuild\resources\sigmf_data_demo
@@ -11,6 +16,11 @@ import {
   openSigmfArrayBuffer,
   type ChunkedReader,
 } from '@wss/file-io';
+import {
+  getIqFileSession,
+  type IqFileFormat,
+  type IqOpenVia,
+} from './iqFileSession';
 
 /** Canonical demo capture stem under the demo directory. */
 export const SIGMF_DATA_DEMO_STEM = '0000000';
@@ -233,10 +243,15 @@ export type WaveIqSeries = {
   sampleBegin: bigint;
   sampleEnd: bigint;
   points: number;
+  /** Honest feed tag for AuxChartHost data-* attrs. */
+  feed: 'opened_iq_session' | 'sigmf_data_demo';
+  format?: IqFileFormat;
+  via?: IqOpenVia;
+  fileName?: string;
 };
 
 /**
- * Map linked nav window onto demo sample indices.
+ * Map linked nav window onto sample indices for a ChunkedReader.
  * When spectrogram full span is provided, use proportional mapping so the
  * Wave tracks the nav window even if main IQ duration ≠ demo duration.
  * Otherwise map absolute seconds via demo sampleRateHz.
@@ -317,23 +332,60 @@ const DEFAULT_MAX_POINTS = 2048;
 const MAX_READ_SAMPLES = 256_000;
 
 /**
- * Chunked read of demo SigMF IQ for the linked time window → WaveformChart y.
+ * Chunked read of IQ for the linked time window → WaveformChart y.
+ * Prefer opened iqFileSession (same reader as Main STFT). Optional
+ * demoDir / allowDemoFallback keeps sigmf_data_demo path for tests.
  */
 export async function readAuxWaveRawIq(options: {
   win: { min: number; max: number };
   fullTime?: { min: number; max: number } | null;
   maxPoints?: number;
   demoDir?: string | null;
+  /** When true, fall back to sigmf_data_demo if no session (tests). Default false. */
+  allowDemoFallback?: boolean;
   signal?: AbortSignal;
 }): Promise<WaveIqSeries> {
-  const handle = await ensureDemoSigmfReader({
-    demoDir: options.demoDir,
-    signal: options.signal,
-  });
+  const session = getIqFileSession();
+  const allowDemo = options.allowDemoFallback === true || options.demoDir != null;
+
+  let reader: ChunkedReader;
+  let sampleRateHz: number;
+  let sourceLabel: string;
+  let totalSamples: bigint;
+  let feed: WaveIqSeries['feed'];
+  let format: IqFileFormat | undefined;
+  let via: IqOpenVia | undefined;
+  let fileName: string | undefined;
+
+  if (session) {
+    reader = session.reader;
+    sampleRateHz = session.sampleRateHz;
+    sourceLabel = session.sourceLabel;
+    totalSamples = reader.availablePrefix().availableSamples;
+    feed = 'opened_iq_session';
+    format = session.format;
+    via = session.via;
+    fileName = session.fileName;
+  } else if (allowDemo) {
+    const handle = await ensureDemoSigmfReader({
+      demoDir: options.demoDir,
+      signal: options.signal,
+    });
+    reader = handle.reader;
+    sampleRateHz = handle.sampleRateHz;
+    sourceLabel = handle.sourceLabel;
+    totalSamples = handle.totalSamples;
+    feed = 'sigmf_data_demo';
+  } else {
+    throw new Error(
+      'Aux Wave: no opened IQ session (open WAV/RAW/SigMF or demo for Main chart first)',
+    );
+  }
+
   const { begin, end } = windowToDemoSampleRange(
     options.win,
-    handle.totalSamples,
-    handle.sampleRateHz,
+    totalSamples,
+    sampleRateHz,
     options.fullTime ?? null,
   );
 
@@ -342,7 +394,7 @@ export async function readAuxWaveRawIq(options: {
     readEnd = begin + BigInt(MAX_READ_SAMPLES);
   }
 
-  const response = await handle.reader.read({
+  const response = await reader.read({
     begin,
     end: readEnd,
     signal: options.signal,
@@ -357,11 +409,15 @@ export async function readAuxWaveRawIq(options: {
       min: options.win.min,
       max: options.win.max,
       unit: 's',
-      label: '源文件时间 (s)',
+      label: 'Time',
     },
-    sourceLabel: handle.sourceLabel,
+    sourceLabel,
     sampleBegin: response.begin,
     sampleEnd: response.end,
     points: y.length,
+    feed,
+    format,
+    via,
+    fileName,
   };
 }

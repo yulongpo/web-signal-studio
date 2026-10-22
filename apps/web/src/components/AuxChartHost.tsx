@@ -1,10 +1,11 @@
 /**
  * Bot-C G04 host: aux Wave/PSD for `chart-aux` slot.
  * PSD = max-across-time from main spectrogram (display only).
- * Wave = raw IQ from sigmf_data_demo via chunked @wss/file-io (IqRms overview),
- *        not STFT time-envelope / not demod.
+ * Wave = raw IQ from opened iqFileSession (same ChunkedReader as Main
+ *        STFT) via Bot-D readAuxWaveRawIq — IqRms overview, not STFT
+ *        envelope / not demod. No silent sigmf_data_demo when no session.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { WaveformChart } from '@wss/charts/WaveformChart';
 import { useUiStore } from '../store/uiStore';
 import { derivePsdInWindow } from '../dsp/chartDisplayDerive';
@@ -12,6 +13,19 @@ import {
   readAuxWaveRawIq,
   type WaveIqSeries,
 } from '../dsp/auxWaveRawIq';
+import {
+  getIqFileEpoch,
+  getIqFileSession,
+  subscribeIqFileSession,
+} from '../dsp/iqFileSession';
+
+function useIqFileEpoch(): number {
+  return useSyncExternalStore(
+    subscribeIqFileSession,
+    getIqFileEpoch,
+    getIqFileEpoch,
+  );
+}
 
 export function AuxChartHost() {
   const kind = useUiStore((s) => s.auxChartKind);
@@ -19,6 +33,8 @@ export function AuxChartHost() {
   const snap = useUiStore((s) => s.spectrogramDisplay);
   const linkedCursor = useUiStore((s) => s.linkedCursor);
   const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
+  const iqEpoch = useIqFileEpoch();
+  const iqSession = getIqFileSession();
 
   const psdSeries = useMemo(() => {
     if (kind !== 'psd') return null;
@@ -32,6 +48,12 @@ export function AuxChartHost() {
 
   useEffect(() => {
     if (kind !== 'wave') return;
+    if (!iqSession) {
+      setWaveSeries(null);
+      setWaveError(null);
+      setWaveLoading(false);
+      return;
+    }
     const ac = new AbortController();
     setWaveLoading(true);
     setWaveError(null);
@@ -40,6 +62,7 @@ export function AuxChartHost() {
       win,
       fullTime,
       signal: ac.signal,
+      allowDemoFallback: false,
     })
       .then((series) => {
         if (ac.signal.aborted) return;
@@ -51,11 +74,19 @@ export function AuxChartHost() {
         const msg = err instanceof Error ? err.message : String(err);
         if (/abort/i.test(msg)) return;
         setWaveSeries(null);
-        setWaveError(msg || 'sigmf_data_demo read failed');
+        setWaveError(msg || 'opened IQ read failed');
         setWaveLoading(false);
       });
     return () => ac.abort();
-  }, [kind, win.min, win.max, snap?.timeSec.min, snap?.timeSec.max]);
+  }, [
+    kind,
+    win.min,
+    win.max,
+    snap?.timeSec.min,
+    snap?.timeSec.max,
+    iqEpoch,
+    iqSession?.epoch,
+  ]);
 
   if (kind === 'psd') {
     if (!psdSeries) {
@@ -111,7 +142,31 @@ export function AuxChartHost() {
     );
   }
 
-  // Wave = raw IQ (sigmf_data_demo)
+  // Wave = opened IQ session (iqFileSession)
+  if (!iqSession) {
+    return (
+      <div
+        className="chart-host"
+        data-chart-slot="aux"
+        data-chart-kind="wave"
+        data-aux-ready="false"
+        data-aux-wave-source="none"
+        data-aux-wave-feed="needs_opened_iq"
+        data-testid="aux-chart-waiting"
+        style={{
+          display: 'grid',
+          placeItems: 'center',
+          color: '#9aa7b5',
+          fontSize: 12,
+          padding: 8,
+          textAlign: 'center',
+        }}
+      >
+        Aux Wave waits for opened IQ (same file as Main STFT) — open WAV/RAW/SigMF or load demo
+      </div>
+    );
+  }
+
   if (waveLoading && !waveSeries) {
     return (
       <div
@@ -119,8 +174,9 @@ export function AuxChartHost() {
         data-chart-slot="aux"
         data-chart-kind="wave"
         data-aux-ready="false"
-        data-aux-wave-source="sigmf_data_demo"
-        data-aux-wave-feed="sigmf_data_demo_only"
+        data-aux-wave-source={iqSession.format}
+        data-aux-wave-feed="opened_iq_session"
+        data-aux-wave-via={iqSession.via}
         data-testid="aux-chart-waiting"
         style={{
           display: 'grid',
@@ -129,7 +185,7 @@ export function AuxChartHost() {
           fontSize: 12,
         }}
       >
-        Loading raw IQ (sigmf_data_demo)…
+        {`Loading raw IQ (${iqSession.fileName})…`}
       </div>
     );
   }
@@ -141,8 +197,9 @@ export function AuxChartHost() {
         data-chart-slot="aux"
         data-chart-kind="wave"
         data-aux-ready="false"
-        data-aux-wave-source="sigmf_data_demo"
-        data-aux-wave-feed="sigmf_data_demo_only"
+        data-aux-wave-source={iqSession.format}
+        data-aux-wave-feed="opened_iq_session"
+        data-aux-wave-via={iqSession.via}
         data-testid="aux-chart-waiting"
         style={{
           display: 'grid',
@@ -155,7 +212,7 @@ export function AuxChartHost() {
       >
         {waveError
           ? `Raw IQ unavailable: ${waveError}`
-          : 'Aux Wave feeds sigmf_data_demo only (not opened IQ) — waiting/unavailable'}
+          : `Waiting for raw IQ (${iqSession.fileName})…`}
       </div>
     );
   }
@@ -167,8 +224,9 @@ export function AuxChartHost() {
       data-chart-kind="wave"
       data-aux-ready="true"
       data-aux-points={waveSeries.y.length}
-      data-aux-wave-source="sigmf_data_demo"
-        data-aux-wave-feed="sigmf_data_demo_only"
+      data-aux-wave-source={waveSeries.format ?? iqSession.format}
+      data-aux-wave-feed={waveSeries.feed}
+      data-aux-wave-via={waveSeries.via ?? iqSession.via}
       data-aux-wave-label={waveSeries.sourceLabel}
       data-g18-linked-cursor={linkedCursor.pinned ? 'true' : 'false'}
       title={`Aux Wave: raw IQ IqRms · ${waveSeries.sourceLabel}`}
