@@ -13,6 +13,10 @@ import {
   type NarrowbandObserveDdcResult,
 } from '../dsp/narrowbandObserveDdc';
 import {
+  readBroadbandDriveFromM06,
+  type ObserveBroadbandDrive,
+} from '../dsp/narrowbandObserveMarkerDdc';
+import {
   cssToTimeFreq,
   frameIndexFromPlotX,
   PLOT_MARGIN,
@@ -188,6 +192,32 @@ export function NarrowbandObserveCharts() {
   const [result, setResult] = useState<NarrowbandObserveDdcResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  /** P0#7: fingerprint of active broadband mark/channel from __wssM06. */
+  const [broadbandDriveKey, setBroadbandDriveKey] = useState('none');
+  const [broadbandDrive, setBroadbandDrive] = useState<ObserveBroadbandDrive | null>(null);
+
+  // Poll M06 selection so observe DDC re-runs when active mark/channel changes.
+  useEffect(() => {
+    const tick = () => {
+      // sampleRate for rate formula; 20e6 is only used for drive resolve fingerprint
+      // when demo handle is not yet open — computeNarrowbandObserveDdc re-resolves
+      // with the real handle Fs. Prefer last result Fs when available.
+      const fsHint = 20_000_000;
+      const drive = readBroadbandDriveFromM06(fsHint);
+      const key = drive
+        ? `${drive.kind}:${drive.id}:${drive.centerFrequencyHz}:${drive.bandwidthHz}:${drive.outputSampleRateHz}:${drive.sampleBegin ?? ''}:${drive.sampleEnd ?? ''}`
+        : 'none';
+      setBroadbandDriveKey(key);
+      setBroadbandDrive(drive);
+    };
+    tick();
+    const id = window.setInterval(tick, 500);
+    window.addEventListener('focus', tick);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener('focus', tick);
+    };
+  }, []);
 
   useEffect(() => {
     if (!client) return;
@@ -206,6 +236,8 @@ export function NarrowbandObserveCharts() {
         psdMode === 'frame' && pinnedDwellIndex != null
           ? pinnedDwellIndex
           : undefined,
+      // P0#7: active broadband mark/channel → DDC LO/BW/rate.
+      broadbandDrive,
       signal: ac.signal,
     })
       .then((r) => {
@@ -222,7 +254,7 @@ export function NarrowbandObserveCharts() {
         setLoading(false);
       });
     return () => ac.abort();
-  }, [client, waveformMode, psdFft, stftFft, psdMode, pinnedDwellIndex]);
+  }, [client, waveformMode, psdFft, stftFft, psdMode, pinnedDwellIndex, broadbandDriveKey, broadbandDrive]);
 
   const statusText = error
     ? `DDC unavailable: ${error}`
@@ -342,12 +374,25 @@ export function NarrowbandObserveCharts() {
         data-testid="nb-observe-pipeline"
         data-nb-source="sigmf_data_demo"
         data-nb-pipeline="ddc"
+        data-nb-ddc-kind={result?.ddcKindAttr ?? undefined}
+        data-nb-ddc-status={result?.ddcStatusStamp ?? undefined}
+        data-nb-ddc-drive-id={result?.ddcDrive?.id ?? undefined}
         data-nb-lo-hz={result ? String(Math.round(result.loOffsetHz)) : undefined}
         data-nb-decimation={result ? String(result.decimation) : undefined}
+        data-nb-center-hz={
+          result?.ddcDrive?.centerFrequencyHz != null
+            ? String(Math.round(result.ddcDrive.centerFrequencyHz))
+            : undefined
+        }
+        data-nb-bw-hz={
+          result?.ddcDrive?.bandwidthHz != null
+            ? String(Math.round(result.ddcDrive.bandwidthHz))
+            : undefined
+        }
         title={result?.pipelineLabel}
       >
         {result
-          ? result.pipelineLabel
+          ? (result.ddcStatusStamp ?? result.pipelineLabel)
           : statusText ?? 'Waiting for DDC…'}
       </div>
 
