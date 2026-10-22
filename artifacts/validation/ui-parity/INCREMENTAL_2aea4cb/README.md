@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `INCREMENTAL_555d001` (Web tip `555d001`; audit tip replaces `49439b2`). Prior tip also merged main @ `b7cab97`. **matrix_pass_claimed: false**.
+
 # INCREMENTAL_2aea4cb — A3 strip stamp MET (supersedes da9fdab / 41f69c1) (no PASS)
 
 | Field | Value |
