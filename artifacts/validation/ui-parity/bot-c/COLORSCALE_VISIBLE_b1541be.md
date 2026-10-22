@@ -1,7 +1,7 @@
 # Bot-C · COLORSCALE_VISIBLE (display-colorscale DOM)
 
 **baseline_main:** `b1541be9dc22db41a60abf66d985c6ab3275de47` (origin/main @ rebase)
-**tip:** (see git HEAD after commit)
+**tip:** `7123862c9d1104e5813d1eb0881d5f2b6081aa69`
 **branch:** `work/bot-c-charts`
 **matrix_pass_claimed:** false
 **pass_claimed:** false
