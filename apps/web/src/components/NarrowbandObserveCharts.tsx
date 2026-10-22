@@ -271,9 +271,9 @@ export function NarrowbandObserveCharts() {
   }, [client, waveformMode, psdFft, stftFft, psdMode, pinnedDwellIndex, broadbandDriveKey, broadbandDrive]);
 
   const statusText = error
-    ? `DDC unavailable: ${error}`
+    ? `真实 DDC 不可用：${error}`
     : loading && !result
-      ? 'Loading sigmf_data_demo → DDC…'
+      ? '正在加载 sigmf_data_demo → 真实 DDC…'
       : null;
 
   const ready = Boolean(result) && !error;
@@ -407,7 +407,7 @@ export function NarrowbandObserveCharts() {
       >
         {result
           ? (result.ddcStatusStamp ?? result.pipelineLabel)
-          : statusText ?? 'Waiting for DDC…'}
+          : statusText ?? '等待真实 DDC…'}
       </div>
 
       <div
