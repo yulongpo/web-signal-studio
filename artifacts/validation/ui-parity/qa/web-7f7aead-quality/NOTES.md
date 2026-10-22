@@ -1,6 +1,6 @@
 # web-7f7aead-quality BB/NB XOR + colorscale 4K (NOT PASS)
 - baseline_sha: 7f7aead43b066ff8332d6e4ddc023db3ddc64f08
-- tip_sha: 43656f432e5ecf7ce5e35fdba9189ad3e1cc9b48
+- tip_sha: a4dbd85363fe819cbdad374a2e795f940e75a260 (pack fe75780d587fd6fba245eafe76ca011e5259a7af)
 - pass_claimed: false
 - viewport: 3840x2160
 - contains: C 29d29df/0396f85 + B c676a15
