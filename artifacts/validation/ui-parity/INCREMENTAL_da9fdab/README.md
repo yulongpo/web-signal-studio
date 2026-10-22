@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `INCREMENTAL_2aea4cb` (Web tip `2aea4cb`; audit tip replaces `41f69c1`). Keep as historical A5 MET audit. **matrix_pass_claimed: false**.
+
 # INCREMENTAL_da9fdab — A5 open/save MET + A2 retained (supersedes 0f1183a / caaf7c8) (no PASS)
 
 | Field | Value |
