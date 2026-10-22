@@ -1,5 +1,5 @@
 /**
- * A2 / G02: display bandwidth for desktop auto N/B (17471a6).
+ * A2 / G02: display bandwidth for desktop N/B sizing (auto + fixed SegmentMs; 17471a6).
  *
  * Desktop `makeSpectralAnalysisPlan` uses
  * `bandwidth = view.frequency.upperHz - view.frequency.lowerHz`

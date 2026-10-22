@@ -27,6 +27,7 @@ import {
 } from '../dsp/computeMainSpectrogram';
 import { computeFileSpectrogram } from '../dsp/computeFileSpectrogram';
 import { visibleBandwidthHz } from '../dsp/visibleBandwidthHz';
+import { physicalSpansFromView } from '../dsp/physicalViewSpans';
 import {
   getIqFileEpoch,
   getIqFileOpenBusy,
@@ -107,11 +108,26 @@ function cloneView(view: ViewState): ViewState {
   return { xDomain: { ...view.xDomain }, yDomain: { ...view.yDomain } };
 }
 
+function publishPhysicalSpans(
+  mode: 'stft' | 'waterfall',
+  view: ViewState,
+  publish: (spans: {
+    timeSec: { min: number; max: number };
+    freqHz: { min: number; max: number };
+    chartMode: 'stft' | 'waterfall';
+  }) => void,
+): void {
+  const spans = physicalSpansFromView(mode, view);
+  publish({ ...spans, chartMode: mode });
+}
+
+
 export function MainChartHost() {
   const chartMode = useUiStore((s) => s.chartMode);
   const paletteId = useUiStore((s) => s.paletteId);
   const level = useUiStore((s) => s.level);
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
+  const setMainChartPhysicalSpans = useUiStore((s) => s.setMainChartPhysicalSpans);
   const linkedCursor = useUiStore((s) => s.linkedCursor);
   const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
   const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
@@ -155,7 +171,7 @@ export function MainChartHost() {
   );
 
   const [spec, setSpec] = useState<ChartSpec | null>(null);
-  /** A2: view freq span for auto-N bandwidthHz (desktop upper-lower); null until seeded. */
+  /** A2: view freq span for bandwidthHz (auto-N + fixed SegmentMs); null until seeded. */
   const [analysisBandwidthHz, setAnalysisBandwidthHz] = useState<number | null>(null);
   const [dspSource, setDspSource] = useState<DspSourceKind>('loading');
   const [settledEpoch, setSettledEpoch] = useState(-1);
@@ -187,8 +203,8 @@ export function MainChartHost() {
     const kaiserBeta = stftKaiserBetaPref;
     const removeMean = stftRemoveMeanPref;
     const autoNb = stftAutoNbPref;
-    // Wave33 A1: fixed SegmentMs when auto-N off. A2 still uses full-band fs
-    // (no visible-span store key — C owns chart freq view; do not dual-write).
+    // Wave33 A1: fixed SegmentMs when auto-N off.
+    // A2 residual: same visibleBandwidthHz for fixed SegmentMs (fs fallback); no STFT-DDC.
 
     const run = async () => {
       if (session) {
@@ -216,7 +232,11 @@ export function MainChartHost() {
               }
             : {
                 segmentMilliseconds: stftSegmentMsPref,
-                bandwidthHz: session.sampleRateHz,
+                // A2 residual: visible freq span (same as auto-N); fallback fs.
+                bandwidthHz:
+                  analysisBandwidthHz != null && analysisBandwidthHz > 0
+                    ? analysisBandwidthHz
+                    : session.sampleRateHz,
                 analysisPoints: fftSize,
               }),
         });
@@ -273,7 +293,11 @@ export function MainChartHost() {
             }
           : {
               segmentMilliseconds: stftSegmentMsPref,
-              bandwidthHz: 1_000_000,
+              // A2 residual: visible freq span (same as auto-N); fallback fs.
+              bandwidthHz:
+                analysisBandwidthHz != null && analysisBandwidthHz > 0
+                  ? analysisBandwidthHz
+                  : 1_000_000,
               analysisPoints: fftSize,
             }),
       });
@@ -387,7 +411,8 @@ export function MainChartHost() {
   useEffect(() => {
     const fsHz = sampleRateHz > 0 ? sampleRateHz : 1_000_000;
     setAnalysisBandwidthHz(visibleBandwidthHz(chartMode, fitted, fsHz));
-  }, [fitted, chartMode, sampleRateHz]);
+    publishPhysicalSpans(chartMode, fitted, setMainChartPhysicalSpans);
+  }, [fitted, chartMode, sampleRateHz, setMainChartPhysicalSpans]);
 
   useEffect(() => {
     const el = hostRef.current;
@@ -577,16 +602,18 @@ export function MainChartHost() {
         onViewChange={(view) => {
           currentViewRef.current = view;
           setLiveView(view);
+          publishPhysicalSpans(chartMode, view, setMainChartPhysicalSpans);
         }}
         onViewCommit={(before) => {
           historyRef.current = pushCapped(historyRef.current, before);
           futureRef.current = [];
           setNavRev((n) => n + 1);
-          // A2: commit visible freq span → auto-N bandwidthHz (desktop file->view.frequency).
+          // A2: commit visible freq span -> bandwidthHz (auto-N + fixed SegmentMs).
           const fsHz = sampleRateHz > 0 ? sampleRateHz : 1_000_000;
           setAnalysisBandwidthHz(
             visibleBandwidthHz(chartMode, currentViewRef.current, fsHz),
           );
+          publishPhysicalSpans(chartMode, currentViewRef.current, setMainChartPhysicalSpans);
         }}
         onBoxCommit={onBoxCommit}
         onCursor={({ xValue, yValue }) => {

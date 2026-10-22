@@ -129,6 +129,15 @@ export interface UiState {
   levelDraft: LevelSettings | null;
   displayDraft: DisplaySettings | null;
   statusCursor: { timeLabel: string; freqLabel: string };
+  /**
+   * G09 D4 (Bot-C): live PhysicalAxis time/freq spans from main chart view.
+   * BottomScaleChrome deltaT/deltaF bind; null until MainChartHost seeds.
+   */
+  mainChartPhysicalSpans: {
+    timeSec: { min: number; max: number };
+    freqHz: { min: number; max: number };
+    chartMode: ChartMode;
+  } | null;
   /** G18 multi-chart linked cursor (Main/Aux sync; not rail scrubber). */
   linkedCursor: LinkedCursorState;
   statusFileLabel: string;
@@ -313,6 +322,13 @@ export interface UiState {
   revertLevelDraft: () => void;
   revertDisplayDraft: () => void;
   setStatusCursor: (timeLabel: string, freqLabel: string) => void;
+  setMainChartPhysicalSpans: (
+    spans: {
+      timeSec: { min: number; max: number };
+      freqHz: { min: number; max: number };
+      chartMode: ChartMode;
+    } | null,
+  ) => void;
   pinLinkedCursor: (opts: {
     source: LinkedCursorPinSource;
     timeSec?: number;
@@ -481,6 +497,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   levelDraft: null,
   displayDraft: null,
   statusCursor: { timeLabel: '—', freqLabel: '—' },
+  mainChartPhysicalSpans: null,
   linkedCursor: {
     pinned: false,
     timeSec: 0,
@@ -742,6 +759,7 @@ export const useUiStore = create<UiState>((set, get) => ({
 
   setStatusCursor: (timeLabel, freqLabel) =>
     set({ statusCursor: { timeLabel, freqLabel } }),
+  setMainChartPhysicalSpans: (spans) => set({ mainChartPhysicalSpans: spans }),
   pinLinkedCursor: (opts) =>
     set((st) => {
       const prev = st.linkedCursor;

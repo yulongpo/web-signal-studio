@@ -1,10 +1,13 @@
 /**
- * G09 D4 — BottomPanel scale / range readout chrome (Bot-B).
- * Mirrors rebuild@17471a6 main_window viewData_ / cursor meta (ΔT / ΔF),
- * not PlotWidget axis tick paint (Bot-C axis bind).
+ * G09 D4 — BottomPanel scale / range readout chrome (Bot-B shell).
+ * Mirrors rebuild@17471a6 main_window viewData_ / cursor meta (ΔT / ΔF).
+ * Bot-C bind: ΔT/ΔF from mainChartPhysicalSpans (PhysicalAxis live view);
+ * fallback to navWindowTime + spectrogramDisplay when spans unset.
+ * Plot tick *paint* remains AxisOverlay on HeatmapCanvas (already MET).
  */
 import { useMemo } from 'react';
 import { useUiStore } from '../store/uiStore';
+import { spanAbs } from '../dsp/physicalViewSpans';
 
 function fmtSpan(v: number, kind: 'time' | 'freq'): string {
   if (!Number.isFinite(v) || v < 0) return '—';
@@ -24,16 +27,27 @@ export function BottomScaleChrome() {
   const spectrogramDisplay = useUiStore((s) => s.spectrogramDisplay);
   const statusCursor = useUiStore((s) => s.statusCursor);
   const chartMode = useUiStore((s) => s.chartMode);
+  const physicalSpans = useUiStore((s) => s.mainChartPhysicalSpans);
 
-  const deltaT = useMemo(
-    () => Math.max(0, navWindowTime.max - navWindowTime.min),
-    [navWindowTime.min, navWindowTime.max],
-  );
+  const bound = physicalSpans != null;
+
+  const deltaT = useMemo(() => {
+    if (physicalSpans) {
+      const t = spanAbs(physicalSpans.timeSec);
+      return Number.isFinite(t) ? Math.max(0, t) : 0;
+    }
+    return Math.max(0, navWindowTime.max - navWindowTime.min);
+  }, [physicalSpans, navWindowTime.min, navWindowTime.max]);
+
   const deltaF = useMemo(() => {
+    if (physicalSpans) {
+      const f = spanAbs(physicalSpans.freqHz);
+      return Number.isFinite(f) ? f : null;
+    }
     const f = spectrogramDisplay?.freqHz;
     if (!f || !Number.isFinite(f.max) || !Number.isFinite(f.min)) return null;
     return Math.abs(f.max - f.min);
-  }, [spectrogramDisplay]);
+  }, [physicalSpans, spectrogramDisplay]);
 
   const viewLabel = useMemo(() => {
     const tPart = `ΔT ${fmtSpan(deltaT, 'time')}`;
@@ -48,10 +62,10 @@ export function BottomScaleChrome() {
       data-testid="bottom-scale-chrome"
       data-object-name="viewData"
       data-g09="partial"
-      data-g09-owner="bot-b"
-      data-axis-bind="deferred-to-c"
+      data-g09-owner="bot-b+c"
+      data-axis-bind={bound ? 'physical-view' : 'deferred-await-host'}
       data-chart-mode={chartMode}
-      title="G09 scale chrome: view ΔT/ΔF from uiStore (navWindowTime + spectrogramDisplay). Plot axis ticks → Bot-C."
+      title="G09: ΔT/ΔF from mainChartPhysicalSpans (C PhysicalAxis bind) with B chrome shell. Tick paint = AxisOverlay."
     >
       <span
         className="bottom-scale-view"
@@ -59,6 +73,7 @@ export function BottomScaleChrome() {
         data-object-name="viewData"
         data-delta-t={String(deltaT)}
         data-delta-f={deltaF == null ? '' : String(deltaF)}
+        data-axis-bind={bound ? 'physical-view' : 'deferred-await-host'}
       >
         {viewLabel}
       </span>
@@ -75,9 +90,9 @@ export function BottomScaleChrome() {
       <span
         className="bottom-scale-honesty muted"
         data-testid="bottom-scale-honesty"
-        data-axis-bind="deferred-to-c"
+        data-axis-bind={bound ? 'physical-view' : 'deferred-await-host'}
       >
-        axis ticks → C
+        {bound ? 'axis bind: physical-view' : 'axis bind: await host'}
       </span>
     </div>
   );

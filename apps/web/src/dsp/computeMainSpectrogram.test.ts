@@ -73,6 +73,28 @@ describe('computeMainSpectrogram', () => {
       computeMainSpectrogram({ client, signal: ac.signal, fftSize: 256, hopSize: 64 }),
     ).rejects.toMatchObject({ name: 'AbortError' });
   });
+
+  // A2 residual: fixed SegmentMs consumes bandwidthHz (visible span), not fs-only.
+  it('fixed SegmentMs: narrower bandwidthHz changes resolved fftSize vs full fs', async () => {
+    const client = createDspWorkerClient({ backend: new InProcessAsyncBackend() });
+    clients.push(client);
+    const base = {
+      client,
+      fftSize: 256,
+      hopSize: 64,
+      sampleRateHz: 1_000_000,
+      segmentMilliseconds: 10,
+      analysisPoints: 256 as const,
+    };
+    const full = await computeMainSpectrogram({ ...base, bandwidthHz: 1_000_000 });
+    const narrow = await computeMainSpectrogram({ ...base, bandwidthHz: 100_000 });
+    expect(full.autoNb).toBe(false);
+    expect(narrow.autoNb).toBe(false);
+    expect(full.segmentMilliseconds).toBe(10);
+    expect(narrow.segmentMilliseconds).toBe(10);
+    // Narrower band → more resolveAnalysisSamples decimation → smaller analysis rate/fft.
+    expect(narrow.fftSize).toBeLessThan(full.fftSize);
+  });
 });
 
 describe('spectrogram helpers', () => {
