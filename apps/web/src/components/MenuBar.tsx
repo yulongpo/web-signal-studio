@@ -358,7 +358,7 @@ export function MenuBar() {
       data-testid="menubar"
       data-variant="command-bar"
       data-menubar-shortcuts="wave23"
-      data-g08-shortcuts="wave23"
+      data-g08-shortcuts="wave23 wave33" data-g08-soft="broadband-gap" data-g08-accel-inventory="Ctrl+N|Ctrl+O|Ctrl+S|Ctrl+Z|Ctrl+Y|Del|Ctrl+A|Alt+Left|Alt+Right" data-g08-desktop-cite="MainWindow::buildMenus@17471a6" data-g10-soft="esc-dialog-overflow"
       role="menubar"
       aria-label="application menu"
       style={{ height: 34 }}
@@ -433,7 +433,7 @@ export function MenuBar() {
                 打开演示工程（样例树）
               </button>
               <div className="menubar-sep" role="separator" />
-              <button type="button" role="menuitem" data-testid="menu-open-iq" onClick={() => void onOpenIq()}>
+              <button type="button" role="menuitem" data-testid="menu-open-iq" data-native-qfiledialog="false" data-g20="browser-picker" title="Browser file picker / FSA WAV; not native QFileDialog" onClick={() => void onOpenIq()}>
                 添加 / 打开信号…
               </button>
               <button
@@ -929,7 +929,7 @@ export function MenuBar() {
         accept=".wav,.iq,.raw,.ci16,.sigmf-meta,.sigmf-data,audio/wav,audio/x-wav,application/json"
         multiple
         hidden
-        data-testid="menubar-input-iq"
+        data-testid="menubar-input-iq" data-native-qfiledialog="false"
         onChange={(e) => {
           void onIqFilesPicked(e.target.files);
           e.target.value = '';
@@ -940,7 +940,7 @@ export function MenuBar() {
         type="file"
         accept="application/json,.json"
         hidden
-        data-testid="menubar-input-project"
+        data-testid="menubar-input-project" data-native-qfiledialog="false"
         onChange={(e) => {
           onOpenProjectFile(e.target.files?.[0]);
           e.target.value = '';

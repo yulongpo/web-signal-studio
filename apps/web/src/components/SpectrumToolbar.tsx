@@ -89,7 +89,7 @@ export function SpectrumToolbar() {
   };
 
   return (
-    <div className="spectrum-toolbar" data-testid="spectrum-toolbar" data-g16-shell="partial" role="toolbar">
+    <div className="spectrum-toolbar" data-testid="spectrum-toolbar" data-native-qfiledialog="false" data-g16-shell="partial" role="toolbar">
       <div className="toolbar-primary">
         <button
           type="button"
@@ -163,8 +163,9 @@ export function SpectrumToolbar() {
         <button
           type="button"
           data-testid="btn-open-iq-wav"
+          data-native-qfiledialog="false"
           onClick={() => void onOpenIqWav()}
-          title="Open IQ (WAV / RAW / SigMF; FSA WAV when available)"
+          title="Open IQ (WAV / RAW / SigMF; FSA WAV when available). Browser file picker / FSA — not native QFileDialog."
         >
           Open IQ
         </button>
@@ -182,7 +183,7 @@ export function SpectrumToolbar() {
           accept=".wav,.iq,.raw,.ci16,.sigmf-meta,.sigmf-data,audio/wav,audio/x-wav,application/json"
           multiple
           hidden
-          data-testid="input-iq-wav"
+          data-testid="input-iq-wav" data-native-qfiledialog="false"
           onChange={(e) => {
             void onIqFilesPicked(e.target.files);
             e.target.value = '';

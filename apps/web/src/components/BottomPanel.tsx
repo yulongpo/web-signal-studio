@@ -1422,6 +1422,10 @@ export function BottomPanel() {
                     className="bottom-detect-worker-status"
                     data-testid="bottom-detect-worker-status"
                     data-online={detectCapabilities ? 'true' : 'false'}
+                    data-native-worker="false"
+                    data-g07-soft="broadband-gap"
+                    data-feed-source="local-compute"
+                    title="LocalCompute caps/feed only — not Qt DetectionWorker"
                   >
                     <span data-testid="bottom-detect-worker-protocol">
                       protocol: {detectCapabilities?.protocolVersion ?? '—'}
@@ -1539,7 +1543,9 @@ export function BottomPanel() {
                       data-testid="bottom-detect-inspector"
                       data-worker-chrome="wave17 wave33"
                       data-native-worker="false"
+                      data-g07-soft="broadband-gap"
                       data-progress-source="local-compute-status-json"
+                      data-inspector-fields="kind|status|progress|runId|history|blocks|params|result|error|created|updated|uiMessages|feed"
                     >
                       <div>
                         <dt>kind</dt>
