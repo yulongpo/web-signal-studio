@@ -1,5 +1,5 @@
 ﻿import { describe, expect, it, vi } from "vitest";
-import { ColorbarOverlay } from "./colorbarOverlay.js";
+import { ColorbarOverlay, colorScaleTickLabels } from "./colorbarOverlay.js";
 import { HEATMAP_COLORBAR } from "../react/plotMargin.js";
 
 function mockCtx() {
@@ -41,5 +41,13 @@ describe("ColorbarOverlay (desktop colorScale)", () => {
     const stroke = calls.find((c) => c.op === "strokeRect");
     expect(stroke?.args[0]).toBe(left + 0.5);
     void vi;
+  });
+});
+
+describe("colorScaleTickLabels", () => {
+  it("returns top=reference and bottom=ref-dynamicRange labels", () => {
+    expect(
+      colorScaleTickLabels({ referenceLevelDb: -20, dynamicRangeDb: 70 }, 5),
+    ).toEqual(["-20", "-38", "-55", "-73", "-90"]);
   });
 });
