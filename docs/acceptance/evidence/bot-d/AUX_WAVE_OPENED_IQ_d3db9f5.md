@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
-| Base | `d3db9f5` (origin/main incl. C BROADBAND_STFT_COLORBAR_AXES) |
-| Tip | TIP_SHA_PENDING |
+| Base | `9799e20` (rebased; work started from d3db9f5 / C colorbar) |
+| Tip | `5e7eb26` |
 | Branch | `work/bot-d-dsp` |
 | matrix_pass_claimed | **false** |
 | Ban | invent DSP · fake PASS · silent demo-vs-main mismatch |
