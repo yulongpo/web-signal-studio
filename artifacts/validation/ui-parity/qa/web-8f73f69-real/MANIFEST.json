@@ -1,0 +1,156 @@
+{
+  "pack": "web-8f73f69-real",
+  "tip_web_base": "8f73f69461c044fc8bce3cc6efbc4f0903e0af06",
+  "tip_desktop_compare": "17471a6488383b456281d12cb1a6d3d80290205d",
+  "evidence_sha_after_commit": "f0ed2f7c30ec49a7e81bc8655048c5fc4283e387",
+  "pass_claimed": false,
+  "matrix_pass_claimed": false,
+  "ui_parity_pass_claimed": false,
+  "g06_g17_claimed": false,
+  "sigmf_demo_dir": "D:/project/signal_studio_rebuild/resources/sigmf_data_demo",
+  "out_dir": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real",
+  "load_via": {
+    "via": "input-iq (menu-load-demo skipped to avoid hang)"
+  },
+  "captures": [
+    "desktop-01-primary.png",
+    "desktop-03-wideband-stft.png",
+    "desktop-03b-wideband-gpu.png",
+    "desktop-05-narrowband.png",
+    "desktop-05b-nb-chart-regression.png",
+    "desktop-05c-real-iq-wave.png",
+    "desktop-05d-real-iq-psd.png",
+    "desktop-04-wideband-baseline.png",
+    "01-project-tree-cn-demo-loaded.png",
+    "01b-project-tree-crop.png",
+    "02-add-signal-dialog.png",
+    "02b-add-signal-dialog-crop.png",
+    "03-broadband-shell-stft-cjk-en.png",
+    "04-broadband-waterfall.png",
+    "06a-broadband-mark-before-nb.png",
+    "05-narrowband-PARTIAL.png"
+  ],
+  "desktop_pairs": [
+    {
+      "web": null,
+      "desktop": "desktop-01-primary.png",
+      "note": "01/02",
+      "src": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\desktop-17471a6\\desktop-primary-screen.png"
+    },
+    {
+      "web": null,
+      "desktop": "desktop-03-wideband-stft.png",
+      "note": "03",
+      "src": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\desktop-17471a6\\ref-wideband-release.png"
+    },
+    {
+      "web": null,
+      "desktop": "desktop-03b-wideband-gpu.png",
+      "note": "03b",
+      "src": "D:\\project\\signal_studio_rebuild\\artifacts\\chart-regression\\signal-studio-release-gpu-screen2-4k-150.png"
+    },
+    {
+      "web": null,
+      "desktop": "desktop-05-narrowband.png",
+      "note": "05",
+      "src": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\desktop-17471a6\\ref-narrowband-release.png"
+    },
+    {
+      "web": null,
+      "desktop": "desktop-05b-nb-chart-regression.png",
+      "note": "05b",
+      "src": "D:\\project\\signal_studio_rebuild\\artifacts\\chart-regression\\signal-studio-narrowband-release-gpu-screen2-4k-150.png"
+    },
+    {
+      "web": null,
+      "desktop": "desktop-05c-real-iq-wave.png",
+      "note": "05c",
+      "src": "D:\\project\\signal_studio_rebuild\\artifacts\\chart-regression\\real-iq-waveform.png"
+    },
+    {
+      "web": null,
+      "desktop": "desktop-05d-real-iq-psd.png",
+      "note": "05d",
+      "src": "D:\\project\\signal_studio_rebuild\\artifacts\\chart-regression\\real-iq-psd.png"
+    },
+    {
+      "web": null,
+      "desktop": "desktop-04-wideband-baseline.png",
+      "note": "04",
+      "src": "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\baseline\\desktop-ref-wideband-release.png"
+    },
+    {
+      "web": "01-project-tree-cn-demo-loaded.png",
+      "desktop": "desktop-01-primary.png",
+      "note": "tree vs desktop primary"
+    },
+    {
+      "web": "02-add-signal-dialog.png",
+      "desktop": "desktop-01-primary.png",
+      "note": "add-signal soft"
+    },
+    {
+      "web": "03-broadband-shell-stft-cjk-en.png",
+      "desktop": "desktop-03-wideband-stft.png",
+      "note": "STFT vs desktop WB"
+    },
+    {
+      "web": "04-broadband-waterfall.png",
+      "desktop": "desktop-04-wideband-baseline.png",
+      "note": "waterfall vs desktop"
+    }
+  ],
+  "gaps": [
+    "05/06 PARTIAL: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByTestId('workspace-narrowband')\nExpected: visible\nTimeout: 8000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByTestId('workspace-narrowband') with timeout 8000ms\u001b[22m\n\u001b[2m  - waiting for getByTestId('workspace-narrowband')\u001b[22m\n"
+  ],
+  "skipped": [
+    "G06/G17 — not invented"
+  ],
+  "absolute_png_paths": [
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-01-primary.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-03-wideband-stft.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-03b-wideband-gpu.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-05-narrowband.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-05b-nb-chart-regression.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-05c-real-iq-wave.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-05d-real-iq-psd.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\desktop-04-wideband-baseline.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\01-project-tree-cn-demo-loaded.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\01b-project-tree-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\02-add-signal-dialog.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\02b-add-signal-dialog-crop.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\03-broadband-shell-stft-cjk-en.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\04-broadband-waterfall.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\06a-broadband-mark-before-nb.png",
+    "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-8f73f69-real\\05-narrowband-PARTIAL.png"
+  ],
+  "observations": {
+    "load": {
+      "via": "input-iq (menu-load-demo skipped to avoid hang)"
+    },
+    "shot01": {
+      "dsp_source": "file-stft-worker",
+      "iq_format": "sigmf",
+      "tree_snippet": "工程树\n样例\n\n尚未打开工程。\n\n加载样例树，或打开原生工程 JSON（IQ 仅 sigmf_data_demo）。\n\n打开文件…\n打开粘贴的 JSON",
+      "has_cjk": true
+    },
+    "shot02": {
+      "file_pick": "skipped-soft-only",
+      "dialog_visible": true,
+      "data_add_signal": "f-wire",
+      "title": "添加信号"
+    },
+    "shot03": {
+      "chart_mode": "stft",
+      "has_cjk": true,
+      "has_en": true
+    },
+    "shot04": {
+      "chart_mode": "waterfall"
+    },
+    "shot06_mark_before": {
+      "mark_count": "0"
+    }
+  },
+  "note": "add-signal soft only; menu-load-demo skipped (hang); input-iq used"
+}
