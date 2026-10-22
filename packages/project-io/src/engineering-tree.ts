@@ -286,7 +286,7 @@ function buildMarksBranch(
   const liveCount = marks.filter((m) => m.deleted !== true).length;
   return {
     id: `marks:${fileId}`,
-    label: 'Marks',
+    label: '标注', title: '标注',
     kind: 'marks',
     count: liveCount,
     detail: `${liveCount} mark(s)`,
@@ -301,9 +301,9 @@ function buildChannelsBranch(file: ProjectFileJson): EngineeringTreeNode | undef
   const available = file.metadata.availableSamples ?? file.metadata.sampleCount;
   return {
     id: `channels:${file.metadata.id}`,
-    label: 'Channels',
+    label: '通道',
     kind: 'channels',
-    title: 'Channels',
+    title: '通道',
     count: channels.length,
     fileId: file.metadata.id,
     children: channels.map((ch) => {
@@ -338,8 +338,8 @@ function buildDetectionRunsBranch(file: ProjectFileJson): EngineeringTreeNode | 
   if (runs.length === 0) return undefined;
   return {
     id: `detectionRuns:${file.metadata.id}`,
-    label: 'Detection runs',
-    title: 'Detection runs',
+    label: '检测运行',
+    title: '检测运行',
     kind: 'detectionRuns',
     count: runs.length,
     fileId: file.metadata.id,
@@ -428,12 +428,12 @@ export function engineeringTreeFromSession(
       label: document.name,
       kind: 'project',
       count: document.files.length,
-      detail: `${document.files.length} file(s)`,
+      detail: `${document.files.length} 个文件`,
       active: true,
       children: [
         {
           id: 'folder-iq',
-          label: 'IQ Files',
+          label: 'IQ 文件', title: 'IQ 文件',
           kind: 'folder',
           count: fileNodes.length,
           children: fileNodes,
@@ -469,7 +469,7 @@ export function engineeringTreeFromSummary(
       children: [
         {
           id: 'folder-iq',
-          label: 'IQ Files',
+          label: 'IQ 文件', title: 'IQ 文件',
           kind: 'folder',
           children: fileNodes,
         },

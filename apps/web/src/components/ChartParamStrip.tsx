@@ -358,11 +358,11 @@ return (
             Detection ROI
           </button>
           <span className="toolbar-sep" aria-hidden />
-          <button type="button" data-testid="btn-open-iq-wav" data-native-qfiledialog="false" title="Browser file picker / FSA WAV; not native QFileDialog" onClick={() => void onOpenIqWav()}>
-            Open IQ
+          <button type="button" data-testid="btn-open-iq-wav" data-native-qfiledialog="false" title="浏览器文件选择器 / FSA WAV；非原生 QFileDialog（data-native-qfiledialog=false）" onClick={() => void onOpenIqWav()}>
+            打开 IQ
           </button>
           <button type="button" data-testid="btn-clear-iq-wav" onClick={() => clearOpenedIq()}>
-            Clear IQ
+            清除 IQ
           </button>
           <input
             ref={iqInputRef}
@@ -378,7 +378,7 @@ return (
           />
           {iqOpenError ? (
             <span className="toolbar-iq-error" data-testid="iq-open-error" title={iqOpenError}>
-              IQ open failed
+              IQ 打开失败
             </span>
           ) : null}
         </div>
@@ -1099,7 +1099,7 @@ return (
               </div>
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-iq">
                 <span className="chart-strip-qlabel">IQ</span>
-                <span className="muted">Open IQ / Clear IQ</span>
+                <span className="muted">打开 IQ / 清除 IQ</span>
               </div>
               <div className="overflow-item overflow-qlabel-only" data-testid="overflow-qlabel-workspace">
                 <span className="chart-strip-qlabel">工作区</span>

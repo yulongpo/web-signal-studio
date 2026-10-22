@@ -61,7 +61,7 @@ describe.runIf(demoPresent)('G19–G20 SigMF demo import stream (HH-laptop demo)
     const tree = result.tree;
     expect(tree[0]?.kind).toBe('project');
     const iqFolder = tree[0]?.children?.[0];
-    expect(iqFolder?.label).toBe('IQ Files');
+    expect(iqFolder?.label).toBe('IQ 文件');
     expect(iqFolder?.children?.[0]?.kind).toBe('file');
     expect(iqFolder?.children?.[0]?.sampleCount).toBe('400000');
 

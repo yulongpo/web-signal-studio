@@ -457,7 +457,7 @@ export function MenuBar() {
                 打开演示工程（样例树）
               </button>
               <div className="menubar-sep" role="separator" />
-              <button type="button" role="menuitem" data-testid="menu-open-iq" data-native-qfiledialog="false" data-g20="browser-picker" title="Browser file picker / FSA WAV; not native QFileDialog" onClick={() => void onOpenIq()}>
+              <button type="button" role="menuitem" data-testid="menu-open-iq" data-native-qfiledialog="false" data-g20="browser-picker" title="浏览器文件选择器 / FSA WAV；非原生 QFileDialog（data-native-qfiledialog=false）" onClick={() => void onOpenIq()}>
                 添加 / 打开信号…
               </button>
                             <button
@@ -467,7 +467,7 @@ export function MenuBar() {
                 onClick={() => void onLoadDemoIq()}
                 title="D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.*"
               >
-                Load wideband demo IQ (sigmf_data_demo)
+                加载宽带演示 IQ（sigmf_data_demo）
               </button>
               <button
                 type="button"
@@ -914,7 +914,7 @@ export function MenuBar() {
       <span className="menubar-spacer" />
       {iqError ? (
         <span className="menubar-iq-error" data-testid="menubar-iq-error" title={iqError}>
-          IQ open failed
+          IQ 打开失败
         </span>
       ) : null}
       {chromeNote ? (
@@ -923,7 +923,7 @@ export function MenuBar() {
         </span>
       ) : null}
       <span className="menubar-hint" data-testid="command-bar">
-        command-bar
+        命令栏
       </span>
       <div className="menubar-window-controls" data-testid="window-controls" role="group" aria-label="window controls">
         <button

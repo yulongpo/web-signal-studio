@@ -17,12 +17,17 @@ import {
 
 const FFT_OPTIONS = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536] as const;
 
-const PAGES: { id: NarrowbandPageId; label: string; testId: string }[] = [
+/** CAO P1#8: product surface default = Observe three charts only. */
+const PRODUCT_PAGES: { id: NarrowbandPageId; label: string; testId: string }[] = [
   { id: 'observe', label: '信号观察', testId: 'nb-page-observe' },
+];
+/** Demoted entries — kept for honesty shells; not inventing G06/G17 content. */
+const DEMOTED_PAGES: { id: NarrowbandPageId; label: string; testId: string }[] = [
   { id: 'modulation', label: '调制分析', testId: 'nb-page-modulation' },
   { id: 'deepLearning', label: '深度学习识别', testId: 'nb-page-deep-learning' },
-  { id: 'demodulation', label: '解调工作区', testId: 'nb-page-demodulation' },
+  { id: 'demodulation', label: '解调工作台', testId: 'nb-page-demodulation' },
 ];
+const PAGES = [...PRODUCT_PAGES, ...DEMOTED_PAGES];
 
 function ChartPanel({
   title,
@@ -68,6 +73,14 @@ export function NarrowbandWorkspace() {
   const projectSummary = useUiStore((s) => s.projectSummary);
 
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const [demotedUnlocked, setDemotedUnlocked] = useState(false);
+
+  // CAO P1#8: keep product default on Observe; demoted pages only after explicit unlock.
+  useEffect(() => {
+    if (!demotedUnlocked && page !== 'observe') {
+      setPage('observe');
+    }
+  }, [page, demotedUnlocked, setPage]);
   const overflowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,7 +101,7 @@ export function NarrowbandWorkspace() {
       channelLabel !== '' &&
       channelLabel !== '–');
   const dataStatus = hasChannel
-    ? `通道 ${channelLabel} · 文件 ${fileLabel} · G06：observe/mod/demod←DDC；识别 BLOCKED`
+    ? `通道 ${channelLabel} · 文件 ${fileLabel} · Observe：真实 DDC；降级页/识别 BLOCKED`
     : '观察/调制/解调可用 sigmf_data_demo→DDC；识别页 BLOCKED（不生成伪候选）';
   const onStftChange = (n: number) => {
     setStftFft(n);
@@ -99,6 +112,8 @@ export function NarrowbandWorkspace() {
     <div
       className="narrowband-workspace"
       data-testid="workspace-narrowband"
+      data-nb-product-surface="observe-only"
+      data-cao-p1-8="observe-three-charts"
       data-nb-page={page}
       data-nb-psd-fft={psdFft}
       data-nb-psd-mode={psdMode}
@@ -109,8 +124,14 @@ export function NarrowbandWorkspace() {
       data-nb-grid={grid ? 'true' : 'false'}
     >
       <header className="nb-header" data-testid="workspace-narrowband-header">
-        <div className="nb-page-tabs" role="tablist" aria-label="narrowband pages">
-          {PAGES.map((p) => (
+        <div
+          className="nb-page-tabs"
+          role="tablist"
+          aria-label="narrowband pages"
+          data-nb-product-surface="observe-only"
+          data-cao-p1-8="observe-three-charts"
+        >
+          {PRODUCT_PAGES.map((p) => (
             <button
               key={p.id}
               type="button"
@@ -123,6 +144,27 @@ export function NarrowbandWorkspace() {
               {p.label}
             </button>
           ))}
+          <details className="nb-demoted-pages" data-testid="nb-demoted-pages" data-demoted="true">
+            <summary title="CAO P1#8：产品面默认仅 Observe 三图；调制/解调/深度学习为降级入口，不发明 G06/G17">
+              {'更多页面（降级）'}
+            </summary>
+            <div className="nb-demoted-page-list" role="group" aria-label="demoted narrowband pages">
+              {DEMOTED_PAGES.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  role="tab"
+                  data-testid={p.testId}
+                  data-demoted="true"
+                  data-active={page === p.id}
+                  aria-selected={page === p.id}
+                  onClick={() => { setDemotedUnlocked(true); setPage(p.id); }}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </details>
         </div>
         <span className="nb-caption" data-testid="nb-caption">
           {hasChannel ? `窄带通道 ${channelLabel}` : '未选择窄带通道'}

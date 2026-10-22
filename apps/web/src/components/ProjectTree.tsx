@@ -305,15 +305,15 @@ function TreeNodeView({
 const SAMPLE_FALLBACK: EngineeringTreeNode[] = [
   {
     id: 'proj-sample',
-    label: 'Demo Project',
-    title: 'Demo Project',
+    label: '演示工程',
+    title: '演示工程',
     kind: 'project',
     count: 2,
     children: [
       {
         id: 'folder-iq',
-        label: 'IQ Files',
-        title: 'IQ Files',
+        label: 'IQ 文件',
+        title: 'IQ 文件',
         kind: 'folder',
         children: [
           {
@@ -337,8 +337,8 @@ const SAMPLE_FALLBACK: EngineeringTreeNode[] = [
       },
       {
         id: 'folder-channels',
-        label: 'Channels',
-        title: 'Channels',
+        label: '通道',
+        title: '通道',
         kind: 'channels',
         count: 1,
         children: [
@@ -350,7 +350,7 @@ const SAMPLE_FALLBACK: EngineeringTreeNode[] = [
             detail: 'Fc 915 M · BW 200 k',
             badges: ['diff'],
             sourceTooltip: 'source changed; keep create snapshot',
-            tooltip: 'NB-1\nsource changed; keep create snapshot',
+            tooltip: 'NB-1\n来源已修改；保留创建快照',
           },
         ],
       },

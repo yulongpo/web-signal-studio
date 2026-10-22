@@ -1,3 +1,24 @@
+
+/* PARITY fonts: YaHei + Consolas (~12px chrome) vs desktop main_window @17471a6 — Bot-B P0 */
+html, body, #root, .app-shell, .menubar, .panel, .bottom-panel, .chart-strip, .project-tree, .narrowband-workspace {
+  font-family: var(--wss-font-ui, "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif);
+}
+.menubar.command-bar,
+.chart-strip,
+.spectrum-toolbar,
+.bottom-tabs,
+.panel-header {
+  font-size: 12px;
+}
+.chart-strip {
+  height: 28px;
+  max-height: 28px;
+  box-sizing: border-box;
+}
+code, pre, .mono, .tree-detail, .menubar-hint, .status-bar, .bottom-log, .chart-strip-qlabel-value {
+  font-family: var(--wss-font-mono, Consolas, "Cascadia Mono", ui-monospace, monospace);
+}
+
 ﻿html,
 body,
 #root {
@@ -3135,4 +3156,39 @@ span[data-editable-col]:hover {
 }
 .mode-wheel[data-g16='partial'] {
   outline: 1px dashed #3d5a74;
+}
+
+
+/* CAO P1#8 — demoted NB pages (Observe-only product surface) */
+.nb-demoted-pages {
+  margin-left: 8px;
+  font-size: 11px;
+  color: #91a9c0;
+}
+.nb-demoted-pages > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 2px 6px;
+  border: 1px dashed #324b67;
+  border-radius: 3px;
+}
+.nb-demoted-pages > summary::-webkit-details-marker { display: none; }
+.nb-demoted-page-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.nb-demoted-page-list button[data-demoted='true'] {
+  opacity: 0.75;
+  font-size: 11px;
+  background: #152436;
+  border: 1px solid #324b67;
+  color: #a8bdd3;
+  padding: 2px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.nb-page-tabs[data-nb-product-surface='observe-only'] {
+  align-items: center;
 }
