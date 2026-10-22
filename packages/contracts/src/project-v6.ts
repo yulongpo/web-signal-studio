@@ -75,6 +75,7 @@ export interface FileMetadataJson {
 export interface ProjectFileJson {
   metadata: FileMetadataJson;
   view?: ViewRangeJson;
+  /** Opaque display blob. A5: may include spectral_settings_json / spectrogramSettings / stftSize. */
   display?: Record<string, unknown>;
   channels?: ProjectChannelJson[];
   selectedMarkIds?: string[];
