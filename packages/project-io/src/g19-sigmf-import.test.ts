@@ -111,7 +111,7 @@ describe.runIf(demoPresent)('G19–G20 SigMF demo import stream (HH-laptop demo)
     expect(state.markNodeCount).toBeGreaterThanOrEqual(4);
     const fileNode = hook.getTree()[0]?.children?.[0]?.children?.[0];
     expect(fileNode?.kind).toBe('file');
-    expect(fileNode?.detail ?? '').toMatch(/400000 samples/);
+    expect(fileNode?.sampleCount).toBe('400000');
     expect(fileNode?.children?.some((c) => c.kind === 'marks')).toBe(true);
 
     const target: Record<string, unknown> = {};

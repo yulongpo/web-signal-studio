@@ -104,6 +104,15 @@ export {
 } from './import-sigmf-stream.js';
 
 export {
+  importRawStream,
+  importRawWithTemplate,
+  sampleFormatToDatatypeLabel,
+  validateRawAcquisition,
+  type ImportRawStreamInput,
+  type ImportRawStreamResult,
+} from './import-raw-stream.js';
+
+export {
   WSS_G19_HOOK_KEY,
   createG19E2eHook,
   installG19E2eHook,
