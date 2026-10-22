@@ -1,3 +1,4 @@
+> Bot-A `2026-10-22 08:14` Asia/Shanghai: Web **`555d001`** — D4/D5 PARTIAL; next **C** axis tick + G16 consumers. A2/A3/A5 MET. G02 PARTIAL. G06/G17 BLOCKED. See `INCREMENTAL_555d001/`. **No PASS.**
 > Bot-A `2026-10-22 08:08` Asia/Shanghai: Web **`2aea4cb`** — supersedes 41f69c1. A3 MET; A2/A5 MET. G02 PARTIAL. G06/G17 BLOCKED. D4/D5 owners B(+C). See `INCREMENTAL_2aea4cb/`. **No PASS.**
 > Bot-A `2026-10-22 08:06` Asia/Shanghai: Web **`da9fdab`** — supersedes caaf7c8. A5 MET; A2 MET. G02 PARTIAL. G06/G17 BLOCKED. See `INCREMENTAL_da9fdab/`. **No PASS.**
 > Bot-A `2026-10-22 08:04` Asia/Shanghai: Web **`0f1183a`** — A2 MET; A5 schema MET / B open-save OPEN. G02 PARTIAL. G06/G17 BLOCKED. See `INCREMENTAL_0f1183a/`. **No PASS.**
