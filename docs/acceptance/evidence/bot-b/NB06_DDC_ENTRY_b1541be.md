@@ -5,7 +5,7 @@
 | When | 2026-10-22 Asia/Shanghai |
 | Base | **b1541be** = b1541be9dc22db41a60abf66d985c6ab3275de47 (origin/main after fetch) |
 | Branch | work/bot-b-ui |
-| Tip | *(this commit)* |
+| Tip | **bd4f874** = bd4f874757cd29d627b1ea86bf0ca2d49ae855f2 |
 | Desktop | **17471a6** |
 | Status | PARTIAL — UI entry clickable; residual EN on Observe pipeline chrome cleared; no PASS |
 | matrix_pass_claimed | **false** |
@@ -73,6 +73,10 @@ Kept (honesty / tests / tech tokens): `pipelineLabel` still contains `not demod`
 
 ## Deliver
 
-- Tip: *(git HEAD after commit)*
+- feature_sha (fix): **bd4f874** = bd4f874757cd29d627b1ea86bf0ca2d49ae855f2
+- base_sha: **b1541be** = b1541be9dc22db41a60abf66d985c6ab3275de47
+- parent: b1541be9dc22db41a60abf66d985c6ab3275de47
+
+- Tip: **bd4f874** = bd4f874757cd29d627b1ea86bf0ca2d49ae855f2
 - Evidence: `docs/acceptance/evidence/bot-b/NB06_DDC_ENTRY_b1541be.md`
 - matrix_pass_claimed=false
