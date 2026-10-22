@@ -17,8 +17,11 @@ import {
   openProjectFromJsonText,
   saveProjectToJsonText,
   summarizeLoadedProject,
+  applySpectralChromePrefsToProject,
+  readSpectralChromePrefsFromFile,
   type ProjectSessionSummary,
   type ProjectSessionHookApi,
+  type SpectralChromePrefs,
 } from '@wss/project-io';
 import type {
   ActiveTool,
@@ -360,6 +363,55 @@ export interface UiState {
       autoNb?: boolean;
     } | null,
   ) => void;
+}
+
+
+/** A5: chrome prefs snapshot for spectral_settings_json (landable fields only). */
+const STFT_SEGMENT_MS_ALLOWED = [0.1, 1, 10, 100] as const;
+
+function spectralChromePrefsFromState(s: {
+  stftWindowPref: SpectralWindowName;
+  stftOverlapPref: number;
+  stftSegmentMsPref: number;
+  stftKaiserBetaPref: number;
+  stftAutoNbPref: boolean;
+  stftRemoveMeanPref: boolean;
+  stftN: number;
+}): SpectralChromePrefs {
+  return {
+    stftWindowPref: s.stftWindowPref,
+    stftOverlapPref: s.stftOverlapPref,
+    stftSegmentMsPref: s.stftSegmentMsPref,
+    stftKaiserBetaPref: s.stftKaiserBetaPref,
+    stftAutoNbPref: s.stftAutoNbPref,
+    stftRemoveMeanPref: s.stftRemoveMeanPref,
+    stftN: s.stftN,
+  };
+}
+
+/** Apply file.display spectral_settings_json → uiStore chrome (no Multitaper/Burg invent). */
+function chromePatchFromSpectralPrefs(prefs: SpectralChromePrefs): Partial<UiState> {
+  const seg = prefs.stftSegmentMsPref;
+  const segOk =
+    typeof seg === 'number' &&
+    Number.isFinite(seg) &&
+    (STFT_SEGMENT_MS_ALLOWED as readonly number[]).includes(seg);
+  const patch: Partial<UiState> = {
+    stftWindowPref: prefs.stftWindowPref,
+    stftOverlapPref: Number.isFinite(prefs.stftOverlapPref)
+      ? Math.min(Math.max(prefs.stftOverlapPref, 0), 0.999999)
+      : 0.75,
+    stftKaiserBetaPref: Number.isFinite(prefs.stftKaiserBetaPref)
+      ? Math.min(Math.max(prefs.stftKaiserBetaPref, 0), 30)
+      : DEFAULT_KAISER_BETA,
+    stftAutoNbPref: Boolean(prefs.stftAutoNbPref),
+    stftRemoveMeanPref: Boolean(prefs.stftRemoveMeanPref),
+  };
+  if (segOk) patch.stftSegmentMsPref = seg;
+  if (prefs.stftN != null && Number.isFinite(prefs.stftN) && prefs.stftN >= 32) {
+    patch.stftN = Math.floor(prefs.stftN);
+  }
+  return patch;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -802,6 +854,16 @@ export const useUiStore = create<UiState>((set, get) => ({
       const activeFile =
         summary.files.find((f) => f.id === summary.activeFileId) ?? summary.files[0];
       const sampleEnd = activeFile?.sampleCount ?? DEFAULT_DETECT_SAMPLE_RANGE.end;
+      // A5: spectral_settings_json → chrome prefs (active / first file).
+      const activeDocFile =
+        opened.document.files.find((f) => f.metadata.id === summary.activeFileId) ??
+        opened.document.files[0];
+      const spectralPrefs = activeDocFile
+        ? readSpectralChromePrefsFromFile(activeDocFile)
+        : undefined;
+      const spectralPatch = spectralPrefs
+        ? chromePatchFromSpectralPrefs(spectralPrefs)
+        : {};
       set({
         projectDocument: opened.document,
         projectSummary: summary,
@@ -817,6 +879,7 @@ export const useUiStore = create<UiState>((set, get) => ({
         statusCursor: { timeLabel: '0.000 s', freqLabel: '—' },
         detectSampleRange: { start: '0', end: sampleEnd },
         detectSampleRangeSource: 'file',
+        ...spectralPatch,
       });
       return { ok: true as const };
     } catch (err) {
@@ -827,9 +890,16 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
 
   saveProjectJsonText: () => {
-    const doc = get().projectDocument;
+    const state = get();
+    let doc = state.projectDocument;
     if (!doc) return null;
     try {
+      // A5: chrome prefs → file.display.spectral_settings_json (+ desktop bridge).
+      if (doc.files.length > 0) {
+        const prefs = spectralChromePrefsFromState(state);
+        doc = applySpectralChromePrefsToProject(doc, prefs);
+        set({ projectDocument: doc, projectError: null });
+      }
       return saveProjectToJsonText(doc, { pretty: true });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
