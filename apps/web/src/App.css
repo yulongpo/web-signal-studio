@@ -1292,7 +1292,7 @@ body,
 }
 .app-shell-rail-collapsed .app-shell-body,
 .app-shell.app-shell-rail-collapsed .app-shell-body {
-  grid-template-columns: 278px 1fr 48px;
+  grid-template-columns: 278px 1fr 38px;
 }
 .menubar.command-bar {
   flex: 0 0 34px;
@@ -2417,7 +2417,7 @@ body,
   background: #53bcf0;
 }
 .app-shell-rail-collapsed .app-shell-body[data-shell-resizable='true'] {
-  grid-template-columns: var(--shell-left-w, 278px) 6px 1fr 48px;
+  grid-template-columns: var(--shell-left-w, 278px) 6px 1fr 38px;
 }
 .app-shell-rail-collapsed .shell-col-resize-right {
   display: none;
@@ -3212,4 +3212,87 @@ span[data-editable-col]:hover {
 }
 .nb-page-tabs[data-nb-product-surface='observe-only'] {
   align-items: center;
+}
+
+
+/* Bot-B: MenuBar persistent WB/NB mode chrome (desktop workspaceModeButton @17471a6) */
+.menubar-mode-chrome {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 10px;
+  padding: 2px;
+  border: 1px solid #314963;
+  border-radius: 4px;
+  background: #0e1a2a;
+  flex: 0 0 auto;
+}
+.menubar-mode-btn {
+  border: 0;
+  background: transparent;
+  color: #b4c8dc;
+  font: 12px/1.2 "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.menubar-mode-btn:hover {
+  background: #263d56;
+  color: #dbe8f8;
+}
+.menubar-mode-btn[data-active='true'] {
+  background: #2a6bed;
+  color: #fff;
+}
+.nb-mode-chrome {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+.nb-mode-chrome button {
+  background: #1c2633;
+  color: #d5e6f5;
+  border: 1px solid #2c3b4f;
+  border-radius: 4px;
+  padding: 3px 10px;
+  cursor: pointer;
+  font: 12px/1.2 "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+}
+.nb-mode-chrome button[data-active='true'] {
+  background: #2a6bed;
+  border-color: #2a6bed;
+}
+.nb-mode-chrome button[data-testid='nb-return-wideband'] {
+  margin-left: 4px;
+}
+/* Bot-B: desktop enforceLayout collapsed rail = 38px (was 48) */
+.app-shell-rail-collapsed .app-shell-body,
+.app-shell.app-shell-rail-collapsed .app-shell-body {
+  grid-template-columns: var(--shell-left-w, 278px) 6px 1fr 38px;
+}
+.app-shell-rail-collapsed .app-shell-body[data-shell-resizable='true'] {
+  grid-template-columns: var(--shell-left-w, 278px) 6px 1fr 38px;
+}
+.app-shell-body[data-shell-left-collapsed='true'] .project-tree .panel-header,
+.app-shell-body[data-shell-left-collapsed='true'] .project-tree .tree-body {
+  visibility: hidden;
+}
+.app-shell-body[data-shell-auto-hide-left='true'] .shell-col-resize-left,
+.app-shell-body[data-shell-auto-hide-right='true'] .shell-col-resize-right {
+  display: none;
+}
+
+/* Bot-B: auto-threshold hide (enforceLayout w<=990/1150) forces rail chrome like user-collapse */
+.app-shell-body[data-shell-auto-hide-right='true'] .right-rail .rail-body {
+  display: none !important;
+}
+.app-shell-body[data-shell-auto-hide-right='true'] .right-rail {
+  overflow: hidden;
+}
+.app-shell-body[data-shell-auto-hide-left='true'] .project-tree .tree-scroll,
+.app-shell-body[data-shell-auto-hide-left='true'] .project-tree .panel-body,
+.app-shell-body[data-shell-auto-hide-left='true'] .project-tree [data-testid='project-tree-body'] {
+  display: none !important;
 }
