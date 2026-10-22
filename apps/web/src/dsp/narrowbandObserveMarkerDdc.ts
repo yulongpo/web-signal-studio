@@ -342,7 +342,7 @@ export function resolveObserveDdcDrive(input: {
       fs,
       d.outputSampleRateHz,
     );
-    const kindLabel = d.kind === 'channel' ? 'channel' : 'marker';
+    const kindLabel = d.kind === 'channel' ? '通道' : '标记';
     const statusStamp = `真实 DDC · ${kindLabel} ${d.id}`;
     const pipelineLabel = `sigmf_data_demo → 真实 DDC (${kindLabel} ${d.id}, Fc ${d.centerFrequencyHz.toFixed(0)} Hz, BW ${d.bandwidthHz.toFixed(0)} Hz, LO ${loOffsetHz.toFixed(0)} Hz, R=${interpolation}/${decimation}) · not demod · no Multitaper/Burg`;
     return {
@@ -375,8 +375,8 @@ export function resolveObserveDdcDrive(input: {
     interpolation,
     decimation,
     outputSampleRateHz: fs / decimation,
-    statusStamp: '真实 DDC · demo-annotation (no active broadband mark/channel)',
-    pipelineLabel: `sigmf_data_demo → 真实 DDC (demo-annotation, LO ${lo.toFixed(0)} Hz, R=${interpolation}/${decimation}) · not demod · no Multitaper/Burg`,
+    statusStamp: '真实 DDC · 演示标注（无活动宽带标记/通道）',
+    pipelineLabel: `sigmf_data_demo → 真实 DDC (演示标注, LO ${lo.toFixed(0)} Hz, R=${interpolation}/${decimation}) · not demod · no Multitaper/Burg`,
     ddcKindAttr: 'real-demo-annotation',
   };
 }

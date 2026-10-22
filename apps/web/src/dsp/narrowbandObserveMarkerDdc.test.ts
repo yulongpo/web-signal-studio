@@ -154,7 +154,7 @@ describe('P0#7 resolveObserveDdcDrive LO + honest stamp', () => {
     expect(r.decimation).toBe(5);
     expect(r.ddcKindAttr).toBe('real-marker');
     expect(r.statusStamp).toContain('真实 DDC');
-    expect(r.statusStamp).toContain('marker m1');
+    expect(r.statusStamp).toContain('标记 m1');
     expect(r.pipelineLabel).toContain('真实 DDC');
     expect(r.pipelineLabel).toContain('no Multitaper/Burg');
     expect(r.pipelineLabel).not.toContain('Bluestein');
@@ -173,6 +173,6 @@ describe('P0#7 resolveObserveDdcDrive LO + honest stamp', () => {
     expect(r.loOffsetHz).toBe(12345);
     expect(r.ddcKindAttr).toBe('real-demo-annotation');
     expect(r.statusStamp).toContain('真实 DDC');
-    expect(r.statusStamp).toContain('demo-annotation');
+    expect(r.statusStamp).toContain('演示标注');
   });
 });

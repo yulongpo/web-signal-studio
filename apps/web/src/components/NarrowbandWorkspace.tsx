@@ -101,7 +101,7 @@ export function NarrowbandWorkspace() {
       channelLabel !== '' &&
       channelLabel !== '–');
   const dataStatus = hasChannel
-    ? `通道 ${channelLabel} · 文件 ${fileLabel} · Observe：真实 DDC；降级页/识别 BLOCKED`
+    ? `通道 ${channelLabel} · 文件 ${fileLabel} · 信号观察：真实 DDC；降级页/识别 BLOCKED`
     : '观察/调制/解调可用 sigmf_data_demo→DDC；识别页 BLOCKED（不生成伪候选）';
   const onStftChange = (n: number) => {
     setStftFft(n);
