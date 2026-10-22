@@ -34,7 +34,7 @@ const HELP_MOUSE = [
 ].join('\n\n');
 
 const ABOUT_TEXT =
-  'Web Signal Studio — Bot-B shell chrome.\n对齐桌面 Signal Studio A1.4.3 菜单意图（buildMenus）。\n本页不为验收 PASS 声明。';
+  '信号工作室 · Bot-B 壳层。\n对齐桌面 Signal Studio A1.4.3 菜单意图（buildMenus）。\n本页不为验收 PASS 声明。';
 
 function downloadText(filename: string, text: string) {
   const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
@@ -412,11 +412,11 @@ export function MenuBar() {
       style={{ height: 34 }}
     >
       <div className="menubar-brand brand-v2" data-testid="menubar-brand" data-brand="BrandV2">
-        <span className="menubar-brand-mark" data-testid="title-brand-icon" aria-hidden>
-          SS
+        <span className="menubar-brand-mark" data-testid="title-brand-icon" aria-hidden title="信号工作室">
+          信号
         </span>
         <span className="menubar-brand-text" data-testid="title-brand-wordmark">
-          Signal Studio
+          信号工作室
         </span>
         <span className="menubar-brand-version" data-testid="title-brand-version">
           A1.4.3 · 交互可靠性优化

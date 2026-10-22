@@ -3,7 +3,7 @@
  * Hosts Bot-C embeddables: NavChartHost / AuxChartHost / VerticalSplitter / MainChartHost.
  * Desktop parity: workspaceStack swaps BB graphSplitter XOR NarrowbandWorkspace (no mix).
  * Chrome (nav segments + zoom/pause; aux/spec param strips) is Bot-B — not reimplemented charts.
- * Splitter defaults align rebuild enforceLayout: nav=82 / aux=205 (short window aux=176).
+ * Splitter defaults align rebuild enforceLayout: nav=82 / aux=205 (short window aux=176).\n * PIXEL_SHELL / GAP_QUALITY_7f7aead Q7-01..05: fill 100vh, 4K rails, scopeBar, mid CSS vars for C.
  */
 import { type CSSProperties, useEffect, useState } from 'react';
 import './App.css';
@@ -20,6 +20,7 @@ import { NavChrome } from './components/NavChrome';
 import { AuxParamStrip, SpecParamStrip } from './components/ChartParamStrip';
 import { NarrowbandWorkspace } from './components/NarrowbandWorkspace';
 import { MenuBar } from './components/MenuBar';
+import { ScopeBar } from './components/ScopeBar';
 import { VerticalSplitter } from '@wss/charts/VerticalSplitter';
 import { useUiStore } from './store/uiStore';
 import {
@@ -34,12 +35,26 @@ import {
   SHELL_RIGHT_HIDE_MAX,
   SHELL_LEFT_COMPACT_MAX,
   computeShellRailWidths,
+  isPhysical4K,
 } from './shellRailLayout';
+import {
+  SHELL_NAV_DEFAULT_PX,
+  SHELL_AUX_DEFAULT_PX,
+  SHELL_AUX_SHORT_PX,
+  SHELL_SHORT_WINDOW_H,
+  SHELL_NAV_MIN_PX,
+  SHELL_NAV_MAX_PX,
+  SHELL_AUX_MIN_PX,
+  SHELL_AUX_MAX_PX,
+  SHELL_SPLIT_HANDLE_PX,
+  applyShellMidCssVars,
+  auxDefaultForHeight,
+} from './shellMidLayout';
 
-const DESKTOP_NAV_DEFAULT = 82;
-const DESKTOP_AUX_DEFAULT = 205;
-const SHORT_WINDOW_AUX = 176;
-const SHORT_WINDOW_H = 900;
+const DESKTOP_NAV_DEFAULT = SHELL_NAV_DEFAULT_PX;
+const DESKTOP_AUX_DEFAULT = SHELL_AUX_DEFAULT_PX;
+const SHORT_WINDOW_AUX = SHELL_AUX_SHORT_PX;
+const SHORT_WINDOW_H = SHELL_SHORT_WINDOW_H;
 
 
 const SHELL_COL_KEY = 'wss.shellColumns.v1';
@@ -90,6 +105,7 @@ export default function App() {
   }, []);
   const collapsedStore = useUiStore((s) => s.rightPanelCollapsed);
   const setRightPanelCollapsed = useUiStore((s) => s.setRightPanelCollapsed);
+  const physical4k = isPhysical4K({ windowWidth });
   const railWidths = computeShellRailWidths({
     windowWidth,
     leftPreferred: shellCols.left,
@@ -97,6 +113,7 @@ export default function App() {
     leftUserCollapsed: shellCols.leftCollapsed,
     // Store OR shellCols — RightRail toggle only flips store; edge double-click flips both.
     rightUserCollapsed: shellCols.rightCollapsed || collapsedStore,
+    physical4k,
   });
   const leftColPx = railWidths.leftPx;
   const rightColPx = railWidths.rightPx;
@@ -109,7 +126,12 @@ export default function App() {
     }
     document.documentElement.style.setProperty('--shell-left-w', `${shellCols.left}px`);
     document.documentElement.style.setProperty('--shell-right-w', `${shellCols.right}px`);
+    applyShellMidCssVars();
   }, [shellCols]);
+
+  useEffect(() => {
+    applyShellMidCssVars();
+  }, []);
 
   const startResize = (side: 'left' | 'right', clientX0: number) => {
     const startLeft = shellCols.leftCollapsed ? LEFT_DEFAULT : shellCols.left;
@@ -145,8 +167,7 @@ export default function App() {
 
   // Short-window aux default 176 (rebuild note); otherwise 205.
   useEffect(() => {
-    const short = window.innerHeight < SHORT_WINDOW_H;
-    const auxDefault = short ? SHORT_WINDOW_AUX : DESKTOP_AUX_DEFAULT;
+    const auxDefault = auxDefaultForHeight(window.innerHeight);
     const s = useUiStore.getState();
     if (s.auxPaneHeightPx === DESKTOP_AUX_DEFAULT || s.auxPaneHeightPx === SHORT_WINDOW_AUX || s.auxPaneHeightPx === 160) {
       setAuxPaneHeightPx(auxDefault);
@@ -157,8 +178,8 @@ export default function App() {
   }, [setAuxPaneHeightPx, setNavPaneHeightPx]);
 
   const auxDefaultPx =
-    typeof window !== 'undefined' && window.innerHeight < SHORT_WINDOW_H
-      ? SHORT_WINDOW_AUX
+    typeof window !== 'undefined'
+      ? auxDefaultForHeight(window.innerHeight)
       : DESKTOP_AUX_DEFAULT;
 
   return (
@@ -181,6 +202,8 @@ export default function App() {
         data-shell-left-tier={railWidths.leftTier}
         data-shell-rail-collapsed-px={String(SHELL_RAIL_COLLAPSED_PX)}
         data-shell-desktop-cite="enforceLayout@17471a6"
+        data-shell-physical-4k={physical4k ? 'true' : 'false'}
+        data-shell-gap-cite="GAP_QUALITY_7f7aead"
         style={{
           gridTemplateColumns: railWidths.hideRight
             ? `${leftColPx}px ${railWidths.leftResizeVisible ? '6px' : '0px'} 1fr ${rightColPx}px`
@@ -257,14 +280,18 @@ export default function App() {
         }
         style={
           workspaceMode === 'narrowband'
-            ? undefined
+            ? ({
+                ['--shell-split-handle' as string]: `${SHELL_SPLIT_HANDLE_PX}px`,
+              } as CSSProperties)
             : ({
                 ['--nav-pane-h' as string]: `${navPaneHeightPx}px`,
                 ['--aux-pane-h' as string]: `${auxPaneHeightPx}px`,
+                ['--shell-split-handle' as string]: `${SHELL_SPLIT_HANDLE_PX}px`,
               } as CSSProperties)
         }
       >
         {/* Desktop workspaceStack_: BB graphSplitter XOR NarrowbandWorkspace — never nest. */}
+        <ScopeBar />
         {workspaceMode === 'narrowband' ? (
           <section
             className="main-chart main-chart-nb"
@@ -285,12 +312,12 @@ export default function App() {
 
             <VerticalSplitter
               sizePx={navPaneHeightPx}
-              minPx={62}
-              maxPx={128}
+              minPx={SHELL_NAV_MIN_PX}
+              maxPx={SHELL_NAV_MAX_PX}
               defaultPx={DESKTOP_NAV_DEFAULT}
               onChange={setNavPaneHeightPx}
               testId="splitter-nav-aux"
-              handleWidth={10}
+              handleWidth={SHELL_SPLIT_HANDLE_PX}
             />
 
             <section className="aux-chart" aria-label="aux-chart" data-testid="aux-chart">
@@ -300,12 +327,12 @@ export default function App() {
 
             <VerticalSplitter
               sizePx={auxPaneHeightPx}
-              minPx={116}
-              maxPx={360}
+              minPx={SHELL_AUX_MIN_PX}
+              maxPx={SHELL_AUX_MAX_PX}
               defaultPx={auxDefaultPx}
               onChange={setAuxPaneHeightPx}
               testId="splitter-aux-main"
-              handleWidth={10}
+              handleWidth={SHELL_SPLIT_HANDLE_PX}
             />
 
             <section className="main-chart" aria-label="main-chart" data-testid="main-chart">

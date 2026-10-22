@@ -500,12 +500,12 @@ export const useUiStore = create<UiState>((set, get) => ({
   bottomPanelHeightPx: (() => {
     try {
       const raw = localStorage.getItem('wss.bottomPanelHeight.v1');
-      if (raw == null) return 150;
+      if (raw == null) return 260;
       const n = Number(raw);
-      if (!Number.isFinite(n)) return 150;
+      if (!Number.isFinite(n)) return 260;
       return Math.max(100, Math.min(500, Math.round(n)));
     } catch {
-      return 150;
+      return 260;
     }
   })(),
   shellLogLines: ['Web shell ready · G07 bottom panel (no PASS)'],

@@ -23,16 +23,22 @@ code, pre, .mono, .tree-detail, .menubar-hint, .status-bar, .bottom-log, .chart-
 body,
 #root {
   height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
 }
 
 .app-shell {
-  /* G01: flex column; grid moves to .app-shell-body */
+  /* G01 + GAP Q7-01: fill viewport — ban top-pinned sparse shell on 4K */
   height: 100%;
-  background: #0f1419;
-  color: #e7ecf1;
-  font: 13px/1.4 system-ui, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #0b1422;
+  color: #dbe8f8;
+  font: 12px/1.4 "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-shell-rail-collapsed {
@@ -149,12 +155,15 @@ body,
 .workspace.workspace-split {
   /* nav | split | aux | split | main | status 鈥?no always-on SpectrumToolbar row */
   grid-template-rows:
+    
+    var(--shell-scope-h, 35px)
     var(--nav-pane-h, 82px)
-    6px
+    var(--shell-split-handle, 10px)
     var(--aux-pane-h, 205px)
-    6px
-    1fr
-    28px;
+    var(--shell-split-handle, 10px)
+    minmax(80px, 1fr)
+    auto
+    var(--shell-status-h, 28px);
 }
 
 .workspace.workspace-split .global-nav {
@@ -170,9 +179,11 @@ body,
 .workspace.workspace-nb {
   /* nb charts | bottom dock | status */
   grid-template-rows:
-    1fr
+    
+    var(--shell-scope-h, 35px)
+    minmax(80px, 1fr)
     auto
-    28px;
+    var(--shell-status-h, 28px);
 }
 
 .workspace.workspace-nb .main-chart.main-chart-nb {
@@ -3295,4 +3306,189 @@ span[data-editable-col]:hover {
 .app-shell-body[data-shell-auto-hide-left='true'] .project-tree .panel-body,
 .app-shell-body[data-shell-auto-hide-left='true'] .project-tree [data-testid='project-tree-body'] {
   display: none !important;
+}
+
+
+/* ===== PIXEL_SHELL_4K / GAP_QUALITY_7f7aead Q7-01..05 (Bot-B, no PASS) ===== */
+/* PIXEL_SHELL_4K_FILL */
+.app-shell > .app-shell-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  align-self: stretch;
+}
+.app-shell-body > .workspace,
+.app-shell-body > .workspace.workspace-split,
+.app-shell-body > .workspace.workspace-nb {
+  height: 100%;
+  min-height: 0;
+  align-self: stretch;
+}
+.workspace.workspace-split .main-chart,
+.workspace.workspace-nb .main-chart.main-chart-nb {
+  min-height: 80px;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.workspace.workspace-split .main-chart .chart-host,
+.workspace.workspace-split .main-chart .chart-host-live,
+.workspace.workspace-nb .main-chart .chart-host,
+.workspace.workspace-nb .main-chart .chart-host-live {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  background: #121f32;
+}
+/* Kill placeholder min-heights that leave black bands under empty/loading charts */
+.workspace .chart-placeholder,
+.workspace .chart-placeholder-tall {
+  min-height: 0;
+  height: 100%;
+  flex: 1 1 auto;
+}
+
+/* Desktop scopeBar @17471a6 — 35px primary page chrome */
+.scope-bar {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  height: var(--shell-scope-h, 35px);
+  max-height: var(--shell-scope-h, 35px);
+  background: #122034;
+  border-bottom: 1px solid #223752;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.scope-mode-btn {
+  border: 1px solid #2b4055;
+  border-radius: 4px;
+  background: #1a4e76;
+  color: #bdebff;
+  font: 12px/1.2 "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  padding: 4px 12px;
+  height: 28px;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+.scope-mode-btn[data-active='true'] {
+  background: #1b5883;
+  color: #cdefff;
+}
+.scope-mode-btn[data-active='false'] {
+  background: #152538;
+  color: #9cbbd2;
+  border-color: #37566c;
+}
+.scope-project {
+  font: 10px/1.2 "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  color: #819ab2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.scope-spacer { flex: 1 1 auto; }
+.scope-meta {
+  font: 11px/1.2 Consolas, "Cascadia Mono", ui-monospace, monospace;
+  color: #8db5d3;
+  flex: 0 0 auto;
+}
+.scope-mode-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #2b445f;
+  border-radius: 4px;
+  background: #0c192a;
+  flex: 0 0 auto;
+}
+.scope-seg-btn {
+  border: 0;
+  background: transparent;
+  color: #b4c8dc;
+  font: 12px/1.2 "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.scope-seg-btn:hover { background: #263d56; color: #dbe8f8; }
+.scope-seg-btn[data-active='true'] {
+  background: #1b5883;
+  color: #cdefff;
+}
+
+/* Graph area padding like desktop graphLayout margins 5 */
+.workspace.workspace-split .global-nav,
+.workspace.workspace-split .aux-chart,
+.workspace.workspace-split .main-chart {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+.workspace.workspace-split .global-nav { margin-top: 5px; }
+.workspace.workspace-split .main-chart { margin-bottom: 0; }
+.workspace.workspace-split {
+  background: #0d1725;
+}
+
+/* Q7-03 tree / chrome density on large viewports */
+@media (min-width: 2560px) {
+  .project-tree,
+  .right-rail,
+  .menubar.command-bar,
+  .scope-bar,
+  .chart-strip,
+  .bottom-panel {
+    font-size: 13px;
+  }
+  .tree-row {
+    min-height: 30px;
+  }
+  .tree-row-twoline {
+    min-height: 48px;
+  }
+  .tree-label {
+    font-size: 13px;
+  }
+  .tree-detail,
+  .tree-badge-chip {
+    font-size: 12px;
+  }
+}
+@media (min-width: 3200px) {
+  .project-tree,
+  .right-rail,
+  .menubar.command-bar,
+  .scope-bar {
+    font-size: 14px;
+  }
+  .tree-row { min-height: 32px; }
+  .tree-row-twoline { min-height: 50px; }
+  .tree-label { font-size: 14px; }
+}
+
+/* Q7-05 denser tree rows vs sparse web */
+.project-tree .tree-row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  gap: 4px;
+}
+.project-tree .tree-row-group {
+  min-height: 25px;
+}
+.project-tree .tree-source-kind[data-redundant='true'] {
+  display: none;
+}
+
+/* MenuBar mode chrome — desktop primary habit (support ScopeBar) */
+.menubar-mode-chrome {
+  border-color: #2b445f;
+  background: #0c192a;
+}
+.menubar-mode-btn[data-active='true'] {
+  background: #1b5883;
+  color: #cdefff;
 }

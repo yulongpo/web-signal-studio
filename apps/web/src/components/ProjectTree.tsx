@@ -296,18 +296,27 @@ function TreeNodeView({
                   {node.count}
                 </span>
               ) : null}
-              {node.sourceKind ? (
-                <span
-                  className="tree-source-kind"
-                  data-testid={`tree-source-${node.id}`}
-                  data-source-kind={node.sourceKind}
-                  data-source-cn={
-                    SOURCE_KIND_CN[node.sourceKind as keyof typeof SOURCE_KIND_CN] ?? node.sourceKind
-                  }
-                >
-                  {SOURCE_KIND_CN[node.sourceKind as keyof typeof SOURCE_KIND_CN] ?? node.sourceKind}
-                </span>
-              ) : null}
+              {node.sourceKind ? (() => {
+                const srcCn =
+                  SOURCE_KIND_CN[node.sourceKind as keyof typeof SOURCE_KIND_CN] ??
+                  node.sourceKind;
+                const redundant =
+                  node.kind === 'annotationSource' ||
+                  title === srcCn ||
+                  title.includes(srcCn);
+                return (
+                  <span
+                    className="tree-source-kind"
+                    data-testid={`tree-source-${node.id}`}
+                    data-source-kind={node.sourceKind}
+                    data-source-cn={srcCn}
+                    data-redundant={redundant ? 'true' : 'false'}
+                    hidden={redundant}
+                  >
+                    {srcCn}
+                  </span>
+                );
+              })() : null}
             </span>
             {detail || (node.badges && node.badges.length > 0) ? (
               <span className="tree-detail-line">
