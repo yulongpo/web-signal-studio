@@ -1,6 +1,6 @@
 # web-7f7aead-quality BB/NB XOR + colorscale 4K (NOT PASS)
 - baseline_sha: 7f7aead43b066ff8332d6e4ddc023db3ddc64f08
-- tip_sha: PENDING_COMMIT
+- tip_sha: 43656f432e5ecf7ce5e35fdba9189ad3e1cc9b48
 - pass_claimed: false
 - viewport: 3840x2160
 - contains: C 29d29df/0396f85 + B c676a15

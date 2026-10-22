@@ -103,5 +103,7 @@
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-7f7aead-quality\\03-broadband-stft-4k.png",
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-7f7aead-quality\\05-narrowband-observe-4k.png",
     "D:\\project\\wss-wt-g\\artifacts\\validation\\ui-parity\\qa\\web-7f7aead-quality\\06-nb-ddc-pipeline-state.png"
-  ]
+  ],
+  "tip_sha": "43656f432e5ecf7ce5e35fdba9189ad3e1cc9b48",
+  "evidence_sha_after_commit": "43656f432e5ecf7ce5e35fdba9189ad3e1cc9b48"
 }
