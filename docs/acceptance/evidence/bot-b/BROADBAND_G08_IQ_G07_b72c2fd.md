@@ -5,7 +5,7 @@
 | When | 2026-10-22 Asia/Shanghai |
 | Branch | work/bot-b-ui |
 | Base | **b72c2fdd8f3f7014b728df0f3848571b4bb7ac0d** (b72c2fd) = origin/main BROADBAND_GAP merge |
-| Tip | **7b688f5153f1e471a8215263a9a529b2b49eb602** (7b688f5) |
+| Tip | **eb81effac22ae853ede403cf2db0b51c3071f349** (eb81eff) |
 | Desktop | 17471a6 read-only signal_studio_rebuild |
 | Owner | Bot-B (WSS-前端B) |
 | matrix_pass_claimed | **false** |
