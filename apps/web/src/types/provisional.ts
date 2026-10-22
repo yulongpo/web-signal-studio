@@ -54,6 +54,7 @@ export type DspSourceKind =
   | 'synthetic-stft-worker'
   | 'file-stft-worker'
   | 'fsa-wav-stft'
+  | 'demo-sigmf-stft'
   | 'demo-fallback';
 
 

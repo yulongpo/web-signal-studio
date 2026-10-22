@@ -8,6 +8,7 @@ import { useUiStore } from '../store/uiStore';
 import {
   clearOpenedIq,
   detectFsaCapabilities,
+  openDemoIqForMainChart,
   openIqFromFiles,
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
@@ -86,6 +87,19 @@ export function SpectrumToolbar() {
   const onClearIq = () => {
     setIqOpenError(null);
     clearOpenedIq();
+  };
+
+  const onLoadDemoIq = async () => {
+    setIqOpenError(null);
+    beginIqFileOpen();
+    try {
+      const outcome = await openDemoIqForMainChart();
+      if (!outcome.ok && outcome.reason !== 'cancelled') {
+        setIqOpenError(outcome.message);
+      }
+    } finally {
+      endIqFileOpen();
+    }
   };
 
   return (
@@ -168,6 +182,14 @@ export function SpectrumToolbar() {
           title="Open IQ (WAV / RAW / SigMF; FSA WAV when available). Browser file picker / FSA — not native QFileDialog."
         >
           Open IQ
+        </button>
+        <button
+          type="button"
+          data-testid="btn-load-demo-iq"
+          onClick={() => void onLoadDemoIq()}
+          title="D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.*"
+        >
+          Load demo IQ
         </button>
         <button
           type="button"

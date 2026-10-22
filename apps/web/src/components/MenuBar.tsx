@@ -9,6 +9,7 @@ import { asProjectSessionHook, useUiStore } from '../store/uiStore';
 import {
   clearOpenedIq,
   detectFsaCapabilities,
+  openDemoIqForMainChart,
   openIqFromFiles,
   openIqViaFsa,
 } from '../dsp/openIqForMainChart';
@@ -154,6 +155,13 @@ export function MenuBar() {
     if (!list || list.length === 0) return;
     setIqError(null);
     const outcome = await openIqFromFiles(Array.from(list));
+    if (!outcome.ok && outcome.reason !== 'cancelled') setIqError(outcome.message);
+  };
+
+  const onLoadDemoIq = async () => {
+    close();
+    setIqError(null);
+    const outcome = await openDemoIqForMainChart();
     if (!outcome.ok && outcome.reason !== 'cancelled') setIqError(outcome.message);
   };
 
@@ -451,6 +459,15 @@ export function MenuBar() {
               <div className="menubar-sep" role="separator" />
               <button type="button" role="menuitem" data-testid="menu-open-iq" data-native-qfiledialog="false" data-g20="browser-picker" title="Browser file picker / FSA WAV; not native QFileDialog" onClick={() => void onOpenIq()}>
                 添加 / 打开信号…
+              </button>
+                            <button
+                type="button"
+                role="menuitem"
+                data-testid="menu-load-demo-iq"
+                onClick={() => void onLoadDemoIq()}
+                title="D:/project/signal_studio_rebuild/resources/sigmf_data_demo/0000000.*"
+              >
+                Load wideband demo IQ (sigmf_data_demo)
               </button>
               <button
                 type="button"

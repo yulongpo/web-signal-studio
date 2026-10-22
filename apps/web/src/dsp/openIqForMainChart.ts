@@ -20,6 +20,11 @@ import {
   type IqOpenVia,
   type IqFileFormat,
 } from './iqFileSession';
+import {
+  DEFAULT_SIGMF_DATA_DEMO_DIR,
+  SIGMF_DATA_DEMO_STEM,
+  ensureDemoSigmfReader,
+} from './auxWaveRawIq';
 
 /** Default sample rate when RAW has no sidecar meta (explicit UI default). */
 export const DEFAULT_RAW_SAMPLE_RATE_HZ = 1_000_000;
@@ -36,6 +41,9 @@ export type OpenIqOutcome =
   | { ok: false; reason: 'cancelled' | 'unsupported' | 'error'; message: string };
 
 function fileSourceLabel(fileName: string, via: IqOpenVia, format: IqFileFormat): string {
+  if (via === 'demo') {
+    return `sigmf_data_demo disk (${DEFAULT_SIGMF_DATA_DEMO_DIR}\\${fileName})`;
+  }
   const viaBit = via === 'fsa' ? 'FSA' : 'file input';
   switch (format) {
     case 'raw':
@@ -301,6 +309,42 @@ export async function openIqFromFileBlob(
     signal: options.signal,
     via: 'input',
   });
+}
+
+
+/**
+ * One-shot load of the allowlisted wideband demo SigMF into the main-chart
+ * IQ session (Detect / Main STFT). Path is ONLY
+ * D:\\project\\signal_studio_rebuild\\resources\\sigmf_data_demo\\0000000.*
+ * — never invents IQ; uses ensureDemoSigmfReader (Vite /@fs or node:fs).
+ */
+export async function openDemoIqForMainChart(options: {
+  signal?: AbortSignal;
+  demoDir?: string | null;
+} = {}): Promise<OpenIqOutcome> {
+  try {
+    const handle = await ensureDemoSigmfReader({
+      demoDir: options.demoDir,
+      signal: options.signal,
+    });
+    const fileName = `${SIGMF_DATA_DEMO_STEM}.sigmf-data`;
+    return publish({
+      reader: handle.reader,
+      sampleRateHz: handle.sampleRateHz,
+      fileName,
+      via: 'demo',
+      format: 'sigmf',
+    });
+  } catch (err: unknown) {
+    const cancelled = abortMessage(err);
+    if (cancelled) return cancelled;
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      ok: false,
+      reason: 'error',
+      message: msg || `Failed to open demo IQ under ${DEFAULT_SIGMF_DATA_DEMO_DIR}`,
+    };
+  }
 }
 
 export function clearOpenedIq(): void {
