@@ -10,6 +10,7 @@ import {
   datatypeToSampleFormat,
   makeSyntheticSigmfMeta,
   parseSigmfMeta,
+  SigmfMetaError,
 } from './sigmf-meta.js';
 import { openSigmfArrayBuffer } from './sigmf-reader.js';
 
@@ -91,23 +92,50 @@ describe('SigMF meta + reader (synthetic fixtures)', () => {
     expect(cf.componentEncoding).toBe(ComponentEncoding.Float32);
   });
 
-  it('parses synthetic SigMF JSON with offset and sample_rate', () => {
+  it('rejects desktop-unsupported u16 datatype (no guess)', () => {
+    expect(() => datatypeToSampleFormat('cu16_le')).toThrow(SigmfMetaError);
+    expect(() => datatypeToSampleFormat('ci16')).toThrow(/endian required/);
+  });
+
+  it('parses synthetic SigMF: offset is external, header_bytes is disk', () => {
     const doc = makeSyntheticSigmfMeta({
       datatype: 'ci16_le',
       sampleRateHz: 1_024_000,
       frequencyHz: 915e6,
       offsetBytes: 8,
+      headerBytes: 16,
       trailingBytes: 4,
     });
     const parsed = parseSigmfMeta(JSON.stringify(doc));
     expect(parsed.datatype).toBe('ci16_le');
     expect(parsed.sampleRateHz).toBe(1_024_000);
     expect(parsed.centerFrequencyHz).toBe(915e6);
+    // Desktop: core:offset ≠ disk header
+    expect(parsed.externalSampleOffset).toBe('8');
     expect(parsed.datasetOffsetBytes).toBe('8');
+    expect(parsed.format.headerBytes).toBe('16');
     expect(parsed.format.trailerBytes).toBe('4');
+    expect(parsed.warnings.some((w) => w.includes('外部样本编号'))).toBe(true);
+    expect(parsed.provenance).toMatch(/^SigMF 1\.0\.0$/);
   });
 
-  it('openSigmfArrayBuffer reads synthetic dataset via meta', async () => {
+  it('requires version / captures / annotations like desktop', () => {
+    expect(() =>
+      parseSigmfMeta({
+        global: { 'core:datatype': 'ci16_le', 'core:version': '2.0.0' },
+        captures: [{ 'core:sample_start': 0 }],
+        annotations: [],
+      }),
+    ).toThrow(/version/);
+    expect(() =>
+      parseSigmfMeta({
+        global: { 'core:datatype': 'ci16_le', 'core:version': '1.0.0' },
+        captures: [{ 'core:sample_start': 0 }],
+      }),
+    ).toThrow(/annotations/);
+  });
+
+  it('openSigmfArrayBuffer uses capture header_bytes for disk skip', async () => {
     const sampleCount = 32;
     const header = 8;
     const trailer = 0;
@@ -116,7 +144,7 @@ describe('SigMF meta + reader (synthetic fixtures)', () => {
       datatype: 'ci16_le',
       sampleRateHz: 1e6,
       frequencyHz: 100e6,
-      offsetBytes: header,
+      headerBytes: header,
     });
     const handle = openSigmfArrayBuffer({
       id: 'synthetic-sigmf',
@@ -126,6 +154,7 @@ describe('SigMF meta + reader (synthetic fixtures)', () => {
       dataPathStub: 'synthetic://fixtures/two-tone.sigmf-data',
     });
     expect(handle.meta.sampleRateHz).toBe(1e6);
+    expect(handle.meta.format.headerBytes).toBe('8');
     expect(handle.dataPathStub).toContain('synthetic');
     const prefix = handle.reader.availablePrefix();
     expect(sampleIndexToDecimal(prefix.totalSamples)).toBe(String(sampleCount));

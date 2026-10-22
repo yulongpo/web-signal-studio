@@ -132,3 +132,32 @@ export {
   type SpectralChromePrefs,
 } from './spectral-settings-json.js';
 
+/** PARITY: desktop FormatTemplateStore + Add-signal preview surface for Bot-B. */
+export {
+  FORMAT_TEMPLATES_FORMAT,
+  FORMAT_TEMPLATES_VERSION,
+  listBuiltinFormatTemplates,
+  getFormatTemplateById,
+  encodeSampleFormatDesktop,
+  decodeSampleFormatDesktop,
+  encodeFormatTemplatesJson,
+  decodeFormatTemplatesJson,
+  FormatTemplateStore,
+  type FormatTemplate,
+  type DesktopSampleFormatJson,
+  type FormatTemplatesDocumentJson,
+} from './format-templates.js';
+
+export {
+  suggestFromFilename,
+  suggestFromSigmfMeta,
+  suggestSourceMetadata,
+  describeRawIqForImport,
+  describeRawIqWithTemplate,
+  previewSigmfImport,
+  type ImportPreviewStatus,
+  type SourceSuggestionsJson,
+  type ImportPreviewRow,
+  type DescribeRawIqInput,
+  type PreviewSigmfInput,
+} from './import-preview.js';

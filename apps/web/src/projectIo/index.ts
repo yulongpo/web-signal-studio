@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Thin re-export surface so apps/web can import project open/save without
  * scattering `@wss/project-io` deep imports. Bot-F owns this folder;
  * Bot-B owns uiStore / shell UI wiring that calls these primitives.
@@ -54,4 +54,20 @@ export {
   applySpectralChromePrefsToProject,
   type SpectralSettingsJson,
   type SpectralChromePrefs,
+  // PARITY Add-signal handoff (Bot-B)
+  listBuiltinFormatTemplates,
+  getFormatTemplateById,
+  FormatTemplateStore,
+  encodeFormatTemplatesJson,
+  decodeFormatTemplatesJson,
+  suggestFromFilename,
+  suggestFromSigmfMeta,
+  suggestSourceMetadata,
+  describeRawIqForImport,
+  describeRawIqWithTemplate,
+  previewSigmfImport,
+  type FormatTemplate,
+  type SourceSuggestionsJson,
+  type ImportPreviewRow,
+  type ImportStreamRow,
 } from '@wss/project-io';

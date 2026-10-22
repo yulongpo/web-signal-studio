@@ -206,6 +206,8 @@ describe('M-02 SigMF meta + chunked data boundaries (synthetic)', () => {
     expect(parsed.sampleRateHz).toBe(1_024_000);
     expect(parsed.centerFrequencyHz).toBe(915e6);
     expect(parsed.datasetOffsetBytes).toBe('8');
+    expect(parsed.externalSampleOffset).toBe('8');
+    expect(parsed.format.headerBytes).toBe('0');  // offset != disk header
     expect(parsed.format.trailerBytes).toBe('4');
   });
 
@@ -217,7 +219,7 @@ describe('M-02 SigMF meta + chunked data boundaries (synthetic)', () => {
       datatype: 'ci16_le',
       sampleRateHz: 1e6,
       frequencyHz: 100e6,
-      offsetBytes: header,
+      headerBytes: header,
       description: 'SYNTHETIC fixture M-02 SigMF pair — not a real capture',
     });
     const handle = openSigmfArrayBuffer({

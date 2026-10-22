@@ -1,10 +1,13 @@
 /**
  * G19-G20 import stream: add a SigMF source into a native project document
- * (desktop ImportController.add semantics - append a file row; do not wipe
+ * (desktop ImportController.add semantics — append a file row; do not wipe
  * an existing project unless mode is replace).
  *
  * IQ bytes stay outside project-io; callers pass meta text + data byte length
  * (and optionally open via @wss/file-io openSigmfArrayBuffer for charting).
+ *
+ * PARITY deepen: parse fields follow desktop readSigmfMetadata
+ * (offset ≠ disk header; header_bytes from first capture; warnings/provenance).
  */
 
 import {
@@ -16,6 +19,7 @@ import {
   type AnnotationsDocumentJson,
   type ProjectDocumentJson,
   type ProjectFileJson,
+  type SampleFormatDescriptor,
 } from '@wss/contracts';
 import { bytesPerFrame, parseSigmfMeta } from '@wss/file-io';
 import { assertAllowedDemoIqPath, isAllowedDemoIqPath } from './demo-iq-paths.js';
@@ -24,7 +28,14 @@ import { ProjectIoError } from './load-project.js';
 
 export type ImportStreamMode = 'append' | 'replace';
 
-export type ImportStreamStatus = 'Pending' | 'Ready' | 'Failed';
+/** Desktop ImportStatus subset used by the stream (no SourceLoader poll yet). */
+export type ImportStreamStatus =
+  | 'Pending'
+  | 'Reading'
+  | 'Ready'
+  | 'Partial'
+  | 'Failed'
+  | 'Cancelled';
 
 export interface ImportStreamRow {
   id: string;
@@ -37,9 +48,19 @@ export interface ImportStreamRow {
   /** Canonical decimal sample count. */
   sampleCount: string;
   datatype: string;
+  sampleFormat?: SampleFormatDescriptor;
+  /** External core:offset (not disk header). */
+  externalSampleOffset?: string;
   error?: string;
+  metadataError?: string;
   /** Provenance note (desktop ImportRow.provenance analogue). */
   provenance: string;
+  /** Concatenated desktop-style warnings. */
+  warnings?: string;
+  confirmed?: boolean;
+  selected?: boolean;
+  acquisitionKnown?: boolean;
+  committed?: boolean;
 }
 
 export interface ImportSigmfStreamInput {
@@ -50,7 +71,7 @@ export interface ImportSigmfStreamInput {
   /** Optional companion rfbench / desktop .json meta beside the pair. */
   companionJsonText?: string;
   displayName?: string;
-  /** Source path recorded on FileMetadata.path - must be allowlisted when enforceDemoPath. */
+  /** Source path recorded on FileMetadata.path — must be allowlisted when enforceDemoPath. */
   path: string;
   /** Existing project to append into (ignored when mode=replace). */
   project?: ProjectDocumentJson;
@@ -70,6 +91,8 @@ export interface ImportSigmfStreamResult {
   row: ImportStreamRow;
   /** Parsed companion schema if provided (e.g. rfbench-v1). */
   companionSchema?: string;
+  /** Desktop-parity parse warnings. */
+  warnings: string[];
 }
 
 function emptyProject(name = 'imported'): ProjectDocumentJson {
@@ -244,6 +267,7 @@ export function importSigmfStream(input: ImportSigmfStreamInput): ImportSigmfStr
   const rawAnn = Array.isArray(parsed.raw.annotations) ? parsed.raw.annotations : [];
   annotations.annotations = sigmfAnnotationsToMarks(fileId, rawAnn);
 
+  const acquisitionKnown = sampleRateHz > 0 && Number.isFinite(centerFrequencyHz);
   const row: ImportStreamRow = {
     id: fileId,
     displayName: fileEntry.metadata.name,
@@ -254,10 +278,17 @@ export function importSigmfStream(input: ImportSigmfStreamInput): ImportSigmfStr
     centerFrequencyHz,
     sampleCount,
     datatype: parsed.datatype,
+    sampleFormat: parsed.format,
+    externalSampleOffset: parsed.externalSampleOffset,
     provenance:
-      enforce && isAllowedDemoIqPath(input.path)
-        ? 'sigmf_data_demo allowlist'
-        : 'user-supplied path',
+      (enforce && isAllowedDemoIqPath(input.path)
+        ? 'sigmf_data_demo allowlist · '
+        : 'user-supplied path · ') + parsed.provenance,
+    warnings: parsed.warnings.join(''),
+    confirmed: true,
+    selected: true,
+    acquisitionKnown,
+    committed: false,
   };
 
   return {
@@ -266,5 +297,6 @@ export function importSigmfStream(input: ImportSigmfStreamInput): ImportSigmfStr
     tree: engineeringTreeFromProject(project),
     row,
     companionSchema,
+    warnings: parsed.warnings,
   };
 }
