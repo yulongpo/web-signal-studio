@@ -114,6 +114,8 @@ export function SpecParamStrip() {
   const dspFftOverlap = useUiStore((s) => s.dspFftOverlap);
   const dspFftHopSize = useUiStore((s) => s.dspFftHopSize);
   const dspFftSizeActive = useUiStore((s) => s.dspFftSizeActive);
+  /** D A3: post-resolve pre-PoT analysis window; distinct from dspFftSizeActive. */
+  const dspAnalysisSamples = useUiStore((s) => s.dspAnalysisSamples);
   const dspSpectralMethod = useUiStore((s) => s.dspSpectralMethod);
   const dspSegmentMs = useUiStore((s) => s.dspSegmentMs);
   const dspSpectrumStatistic = useUiStore((s) => s.dspSpectrumStatistic);
@@ -220,6 +222,10 @@ export function SpecParamStrip() {
     dspFftSizeActive == null || !Number.isFinite(dspFftSizeActive)
       ? '—'
       : String(dspFftSizeActive);
+  const analysisSamplesLabel =
+    dspAnalysisSamples == null || !Number.isFinite(dspAnalysisSamples)
+      ? '—'
+      : String(dspAnalysisSamples);
   const methodLabel = dspSpectralMethod ?? '—';
   const segmentMsLabel =
     dspSegmentMs == null || !Number.isFinite(dspSegmentMs)
@@ -245,7 +251,7 @@ return (
     <header
       className="chart-strip chart-strip-main"
       data-testid="chart-strip-main"
-      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26 wave29 wave33" data-strip-dsp="wave19 wave21 wave25 wave26 wave29 wave33" data-stft-n-drives-compute="wave22" data-stft-segment-ms="wave33" data-native-qfiledialog="false"
+      data-strip-nuance="wave9" data-strip-wave="wave11 wave14 wave19 wave21 wave22 wave25 wave26 wave29 wave33 a3" data-strip-dsp="wave19 wave21 wave25 wave26 wave29 wave33 a3" data-stft-n-drives-compute="wave22" data-stft-segment-ms="wave33" data-dsp-analysis-samples="a3" data-native-qfiledialog="false"
       data-variant="chart-header"
       data-toolbar-habit="retired-aux-main"
     >
@@ -455,6 +461,38 @@ return (
           data-strip-partial={dspFftSizeActive == null ? 'true' : 'false'}
         >
           {fftActiveLabel}
+        </span>
+        <span
+          className="chart-strip-qlabel"
+          data-testid="chart-strip-qlabel-analysis-samples"
+          data-strip-wave="a3"
+          data-distinct-from="dspFftSizeActive"
+          title="Post-resolve analysis samples (uiStore.dspAnalysisSamples) — pre-PoT; distinct from FFTn/dspFftSizeActive"
+        >
+          AN
+        </span>
+        <span
+          className="chart-strip-qlabel chart-strip-qlabel-value"
+          data-testid="chart-strip-qlabel-analysis-samples-value"
+          data-strip-wave="a3"
+          data-dsp-analysis-samples={
+            dspAnalysisSamples == null ? '' : String(dspAnalysisSamples)
+          }
+          data-dsp-fft-size-active={
+            dspFftSizeActive == null ? '' : String(dspFftSizeActive)
+          }
+          data-same-as-fft={
+            dspAnalysisSamples != null &&
+            dspFftSizeActive != null &&
+            dspAnalysisSamples === dspFftSizeActive
+              ? 'true'
+              : 'false'
+          }
+          data-strip-empty={dspAnalysisSamples == null ? 'true' : 'false'}
+          data-strip-partial={dspAnalysisSamples == null ? 'true' : 'false'}
+          title="dspAnalysisSamples (post-resolve pre-PoT) vs dspFftSizeActive (PoT FFT)"
+        >
+          {analysisSamplesLabel}
         </span>
 
         <span
@@ -835,6 +873,39 @@ return (
                   {stftAutoNbPref
                     ? "uses resolveAnalysisSamples(bandwidth=fs, points=stftN)"
                     : "fixed SegmentMs → resolveAnalysisSamples PoT (bandwidth=fs)"}
+                </span>
+              </div>
+              <div
+                className="overflow-item overflow-qlabel-only"
+                data-testid="overflow-spectral-analysis-samples"
+                data-strip-wave="a3"
+                data-distinct-from="dspFftSizeActive"
+                title="D A3: dspAnalysisSamples (post-resolve pre-PoT) ≠ dspFftSizeActive (PoT)"
+              >
+                <span className="chart-strip-qlabel" data-testid="overflow-qlabel-analysis-samples">
+                  AnalysisN
+                </span>
+                <span
+                  className="muted"
+                  data-testid="overflow-analysis-samples"
+                  data-dsp-analysis-samples={
+                    dspAnalysisSamples == null ? '' : String(dspAnalysisSamples)
+                  }
+                  data-dsp-fft-size-active={
+                    dspFftSizeActive == null ? '' : String(dspFftSizeActive)
+                  }
+                  data-same-as-fft={
+                    dspAnalysisSamples != null &&
+                    dspFftSizeActive != null &&
+                    dspAnalysisSamples === dspFftSizeActive
+                      ? 'true'
+                      : 'false'
+                  }
+                >
+                  {analysisSamplesLabel}
+                  {dspFftSizeActive != null
+                    ? ` (FFTn=${fftActiveLabel})`
+                    : ''}
                 </span>
               </div>
               <label
