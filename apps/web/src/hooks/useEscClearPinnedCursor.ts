@@ -37,7 +37,7 @@ export function useEscClearPinnedCursor(): void {
       if (e.key !== 'Escape') return;
       if (e.defaultPrevented) return;
       if (openTempLayer) return; // TempLayers owns Esc (revert+close)
-      if (activeTool === 'roi') return; // MainChartHost ROI Esc owns cancel
+      if (activeTool === 'detection-roi') return; // MainChartHost ROI Esc owns cancel
       if (hasBlockingModal()) return;
       if (isEditingField(e.target)) return;
       const cleared = clearActivePinnedCursor();

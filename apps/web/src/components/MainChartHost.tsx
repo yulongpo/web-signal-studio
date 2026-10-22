@@ -26,6 +26,7 @@ import {
   type MainSpectrogramResult,
 } from '../dsp/computeMainSpectrogram';
 import { computeFileSpectrogram } from '../dsp/computeFileSpectrogram';
+import { visibleBandwidthHz } from '../dsp/visibleBandwidthHz';
 import {
   getIqFileEpoch,
   getIqFileOpenBusy,
@@ -154,6 +155,8 @@ export function MainChartHost() {
   );
 
   const [spec, setSpec] = useState<ChartSpec | null>(null);
+  /** A2: view freq span for auto-N bandwidthHz (desktop upper-lower); null until seeded. */
+  const [analysisBandwidthHz, setAnalysisBandwidthHz] = useState<number | null>(null);
   const [dspSource, setDspSource] = useState<DspSourceKind>('loading');
   const [settledEpoch, setSettledEpoch] = useState(-1);
   const [iqFormat, setIqFormat] = useState<IqFileFormat | null>(null);
@@ -204,9 +207,11 @@ export function MainChartHost() {
           ...(autoNb
             ? {
                 segmentMilliseconds: 0 as const,
-                // Full-band IQ: display bandwidth = fs (desktop upper-lower).
-                // Job A: no uiStore visible-bandwidth key; C owns chart freq span.
-                bandwidthHz: session.sampleRateHz,
+                // A2: visible freq span (desktop view.frequency upper-lower); fallback fs.
+                bandwidthHz:
+                  analysisBandwidthHz != null && analysisBandwidthHz > 0
+                    ? analysisBandwidthHz
+                    : session.sampleRateHz,
                 analysisPoints: fftSize,
               }
             : {
@@ -260,7 +265,10 @@ export function MainChartHost() {
         ...(autoNb
           ? {
               segmentMilliseconds: 0 as const,
-              bandwidthHz: 1_000_000,
+              bandwidthHz:
+                analysisBandwidthHz != null && analysisBandwidthHz > 0
+                  ? analysisBandwidthHz
+                  : 1_000_000,
               analysisPoints: fftSize,
             }
           : {
@@ -304,7 +312,7 @@ export function MainChartHost() {
     });
 
     return () => ac.abort();
-  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, stftKaiserBetaPref, stftAutoNbPref, stftRemoveMeanPref, stftSegmentMsPref, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
+  }, [client, iqEpoch, stftN, stftWindowPref, stftOverlapPref, stftKaiserBetaPref, stftAutoNbPref, stftRemoveMeanPref, stftSegmentMsPref, analysisBandwidthHz, setDspSourceStore, setDspFftAnalysisParams, setStatusFileLabel]);
 
   const binCount = spec?.binCount ?? FALLBACK_BINS;
   const frameCount = spec?.frameCount ?? FALLBACK_FRAMES;
@@ -374,6 +382,12 @@ export function MainChartHost() {
     setViewCommand(null);
     setNavRev((n) => n + 1);
   }, [fitted]);
+
+  // A2: seed analysis bandwidth from full/fitted freq span (desktop view.frequency).
+  useEffect(() => {
+    const fsHz = sampleRateHz > 0 ? sampleRateHz : 1_000_000;
+    setAnalysisBandwidthHz(visibleBandwidthHz(chartMode, fitted, fsHz));
+  }, [fitted, chartMode, sampleRateHz]);
 
   useEffect(() => {
     const el = hostRef.current;
@@ -568,6 +582,11 @@ export function MainChartHost() {
           historyRef.current = pushCapped(historyRef.current, before);
           futureRef.current = [];
           setNavRev((n) => n + 1);
+          // A2: commit visible freq span → auto-N bandwidthHz (desktop file->view.frequency).
+          const fsHz = sampleRateHz > 0 ? sampleRateHz : 1_000_000;
+          setAnalysisBandwidthHz(
+            visibleBandwidthHz(chartMode, currentViewRef.current, fsHz),
+          );
         }}
         onBoxCommit={onBoxCommit}
         onCursor={({ xValue, yValue }) => {

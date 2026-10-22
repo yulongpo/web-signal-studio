@@ -205,14 +205,8 @@ export function NarrowbandObserveCharts() {
             ? { y: result.psdFrame, kind: 'frame-stft' as const }
             : { y: result.psd.y, kind: result.psdSeriesKind };
 
-  // RF axis offset for PSD/STFT labels when freqMode === 'rf' (display only).
-  const rfOffset =
-    freqMode === 'rf' && result
-      ? result.loOffsetHz +
-        (typeof result.inputSampleRateHz === 'number' ? 0 : 0)
-      : 0;
-  // For RF mode we shift displayed freq by capture center is not available here;
-  // show baseband + LO as "RF-relative" offset around LO (honest: LO-centered).
+  // RF axis: display-only LO-centered shift via result.loOffsetHz (no unused rfOffset).
+  // Capture center not available here; honest LO-relative labels.
   const psdXDomain = result
     ? {
         min: result.psd.xDomain.min + (freqMode === 'rf' ? result.loOffsetHz : 0),
