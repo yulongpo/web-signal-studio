@@ -16,6 +16,10 @@ import {
 import { buildLutRgba8, type ColormapName } from "../lut/colormaps.js";
 import { PhysicalAxis } from "../axis/physicalAxis.js";
 import { AxisOverlay } from "../overlay/axisOverlay.js";
+import {
+  ColorbarOverlay,
+  type ColorScaleDb,
+} from "../overlay/colorbarOverlay.js";
 import { CursorOverlay, type CursorOverlayState } from "../overlay/cursorOverlay.js";
 import { applyCanvasDpr, resolveDevicePixelRatio } from "../dpi/canvasSizing.js";
 import {
@@ -54,6 +58,10 @@ export interface HeatmapCanvasProps {
   orientation?: HeatmapOrientation;
   colormap?: ColormapName;
   levels?: { min: number; max: number };
+  /** Desktop colorScale strip; host wires uiStore.display.showColorScale. */
+  showColorScale?: boolean;
+  /** dB annotations for the colorScale strip. */
+  colorScaleDb?: ColorScaleDb;
   xDomain?: { min: number; max: number; unit?: string; label?: string };
   yDomain?: { min: number; max: number; unit?: string; label?: string };
   className?: string;
@@ -134,6 +142,8 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     orientation = "stft",
     colormap = "viridis",
     levels: levelsProp,
+    showColorScale = false,
+    colorScaleDb,
     xDomain = { min: 0, max: 1, label: "X" },
     yDomain = { min: 0, max: 1, label: "Y" },
     className,
@@ -162,6 +172,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
   const handleRef = useRef<WebGL2ContextHandle | null>(null);
   const rendererRef = useRef<HeatmapRenderer | null>(null);
   const axisOverlay = useRef(new AxisOverlay()).current;
+  const colorbarOverlay = useRef(new ColorbarOverlay()).current;
   const cursorOverlay = useRef(new CursorOverlay()).current;
   const preview = useRef<PreviewRefineController | null>(null);
   const dragRef = useRef<{
@@ -491,6 +502,16 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
         xAxis,
         yAxis,
       });
+      if (showColorScale && colorScaleDb) {
+        colorbarOverlay.draw({
+          ctx: axisCtx,
+          width: cssW,
+          height: cssH,
+          margin: MARGIN,
+          colormap,
+          levelsDb: colorScaleDb,
+        });
+      }
     }
 
     const cCtx = cursorCanvas.getContext("2d");
@@ -540,6 +561,9 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
     widthBins,
     heightBins,
     colormap,
+    showColorScale,
+    colorScaleDb?.referenceLevelDb,
+    colorScaleDb?.dynamicRangeDb,
     levels.min,
     levels.max,
     view.xDomain.min,
@@ -848,6 +872,7 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
       data-view-y-max={view.yDomain.max}
       data-interaction-mode={interactionMode}
       data-webgl-state={webglState}
+      data-color-scale={showColorScale ? "true" : "false"}
       data-dpr="1"
       data-buffer-width="0"
       data-buffer-height="0"

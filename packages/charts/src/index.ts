@@ -132,6 +132,13 @@ export {
 } from "./overlay/axisOverlay.js";
 
 export {
+  ColorbarOverlay,
+  type ColorScaleDb,
+  type ColorbarOverlayDrawInput,
+} from "./overlay/colorbarOverlay.js";
+
+
+export {
   CursorOverlay,
   type CursorOverlayState,
   type CursorOverlayDrawInput,

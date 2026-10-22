@@ -120,6 +120,7 @@ export function AuxChartHost() {
         data-chart-kind="wave"
         data-aux-ready="false"
         data-aux-wave-source="sigmf_data_demo"
+        data-aux-wave-feed="sigmf_data_demo_only"
         data-testid="aux-chart-waiting"
         style={{
           display: 'grid',
@@ -141,6 +142,7 @@ export function AuxChartHost() {
         data-chart-kind="wave"
         data-aux-ready="false"
         data-aux-wave-source="sigmf_data_demo"
+        data-aux-wave-feed="sigmf_data_demo_only"
         data-testid="aux-chart-waiting"
         style={{
           display: 'grid',
@@ -153,7 +155,7 @@ export function AuxChartHost() {
       >
         {waveError
           ? `Raw IQ unavailable: ${waveError}`
-          : 'Waiting for raw IQ (sigmf_data_demo)…'}
+          : 'Aux Wave feeds sigmf_data_demo only (not opened IQ) — waiting/unavailable'}
       </div>
     );
   }
@@ -166,6 +168,7 @@ export function AuxChartHost() {
       data-aux-ready="true"
       data-aux-points={waveSeries.y.length}
       data-aux-wave-source="sigmf_data_demo"
+        data-aux-wave-feed="sigmf_data_demo_only"
       data-aux-wave-label={waveSeries.sourceLabel}
       data-g18-linked-cursor={linkedCursor.pinned ? 'true' : 'false'}
       title={`Aux Wave: raw IQ IqRms · ${waveSeries.sourceLabel}`}
