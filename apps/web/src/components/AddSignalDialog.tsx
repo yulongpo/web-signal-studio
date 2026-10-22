@@ -7,6 +7,7 @@
 import { useMemo, useRef, useState } from 'react';
 import {
   describeRawIqWithTemplate,
+  importRawWithTemplate,
   importSigmfStream,
   listBuiltinFormatTemplates,
   previewSigmfImport,
@@ -296,15 +297,54 @@ export function AddSignalDialog({ open, onClose }: AddSignalDialogProps) {
 
       if (kind === 'raw') {
         if (!confirmed || !previewRow || previewRow.status !== 'Ready') {
-          setError('请勾选确认采样结构/采集参数，并使预览为就绪后再导入图表。');
+          setError('请勾选确认采样结构、采集参数，并使预览为就绪后再导入。');
           return;
         }
+        const primary = picked[0];
+        if (!primary) {
+          setError('缺少 RAW 文件');
+          return;
+        }
+        const existingRaw = useUiStore.getState().projectDocument;
+        const rawResult = importRawWithTemplate({
+          path: primary.name,
+          dataByteLength: primary.size,
+          sampleRateHz,
+          centerFrequencyHz,
+          templateId,
+          confirmed: true,
+          displayName: primary.name,
+          mode: existingRaw ? 'append' : 'replace',
+          project: existingRaw ?? undefined,
+        });
+        const rawSummary = summarizeLoadedProject({
+          document: rawResult.project,
+          version: 6,
+        });
+        const rawActive =
+          rawSummary.files.find((f) => f.id === rawSummary.activeFileId) ?? rawSummary.files[0];
+        useUiStore.setState({
+          projectDocument: rawResult.project,
+          projectSummary: rawSummary,
+          projectError: null,
+          projectSource: 'json',
+          projectHasSample: false,
+          statusFileLabel: rawActive?.name ?? rawSummary.name,
+          statusChannelLabel: rawActive ? `${rawActive.channelCount} ch` : '—',
+          detectSampleRange: {
+            start: '0',
+            end: rawActive?.sampleCount ?? '0',
+          },
+          detectSampleRangeSource: 'file',
+        });
         const outcome = await openIqFromFiles(picked);
         if (!outcome.ok && outcome.reason !== 'cancelled') {
           setError(outcome.message);
           return;
         }
-        setNote(`RAW 预览就绪（模板 ${templateId}）；已打开到主图。工程行写入待 F RAW commit API。`);
+        setNote(
+          `已确认导入 RAW：${rawResult.row.displayName}（样本 ${rawResult.row.sampleCount}，模板 ${templateId}）。工程树已更新。`,
+        );
         close();
         return;
       }

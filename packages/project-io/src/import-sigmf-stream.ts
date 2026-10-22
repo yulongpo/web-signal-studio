@@ -1,13 +1,13 @@
 /**
  * G19-G20 import stream: add a SigMF source into a native project document
- * (desktop ImportController.add semantics — append a file row; do not wipe
+ * (desktop ImportController.add semantics 鈥?append a file row; do not wipe
  * an existing project unless mode is replace).
  *
  * IQ bytes stay outside project-io; callers pass meta text + data byte length
  * (and optionally open via @wss/file-io openSigmfArrayBuffer for charting).
  *
  * PARITY deepen: parse fields follow desktop readSigmfMetadata
- * (offset ≠ disk header; header_bytes from first capture; warnings/provenance).
+ * (offset 鈮?disk header; header_bytes from first capture; warnings/provenance).
  */
 
 import {
@@ -41,7 +41,7 @@ export interface ImportStreamRow {
   id: string;
   displayName: string;
   path: string;
-  format: 'sigmf';
+  format: 'sigmf' | 'raw';
   status: ImportStreamStatus;
   sampleRateHz: number;
   centerFrequencyHz: number;
@@ -71,7 +71,7 @@ export interface ImportSigmfStreamInput {
   /** Optional companion rfbench / desktop .json meta beside the pair. */
   companionJsonText?: string;
   displayName?: string;
-  /** Source path recorded on FileMetadata.path — must be allowlisted when enforceDemoPath. */
+  /** Source path recorded on FileMetadata.path 鈥?must be allowlisted when enforceDemoPath. */
   path: string;
   /** Existing project to append into (ignored when mode=replace). */
   project?: ProjectDocumentJson;
@@ -282,8 +282,8 @@ export function importSigmfStream(input: ImportSigmfStreamInput): ImportSigmfStr
     externalSampleOffset: parsed.externalSampleOffset,
     provenance:
       (enforce && isAllowedDemoIqPath(input.path)
-        ? 'sigmf_data_demo allowlist · '
-        : 'user-supplied path · ') + parsed.provenance,
+        ? 'sigmf_data_demo allowlist 路 '
+        : 'user-supplied path 路 ') + parsed.provenance,
     warnings: parsed.warnings.join(''),
     confirmed: true,
     selected: true,

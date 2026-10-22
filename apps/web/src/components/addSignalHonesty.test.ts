@@ -22,6 +22,7 @@ describe('Add-signal F wire honesty', () => {
     expect(t).toContain('previewSigmfImport');
     expect(t).toContain('describeRawIqWithTemplate');
     expect(t).toContain('importSigmfStream');
+    expect(t).toContain('importRawWithTemplate');
     expect(t).toContain('enforceDemoPath: false');
     expect(t).not.toContain('ACCEPTANCE PASS');
   });

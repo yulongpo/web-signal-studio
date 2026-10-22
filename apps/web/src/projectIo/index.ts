@@ -24,6 +24,8 @@ export {
   type M06SessionSnapshot,
   type M06E2eHookApi,
   importSigmfStream,
+  importRawStream,
+  importRawWithTemplate,
   createG19E2eHook,
   installG19E2eHook,
   WSS_G19_HOOK_KEY,

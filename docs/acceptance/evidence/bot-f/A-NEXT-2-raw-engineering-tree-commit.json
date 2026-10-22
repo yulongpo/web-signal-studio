@@ -1,0 +1,31 @@
+{
+  "id": "A-NEXT-2-RAW-ENGINEERING-TREE-COMMIT",
+  "bot": "bot-f",
+  "when_asia_shanghai": "2026-10-22",
+  "base_origin_main": "8f73f69461c044fc8bce3cc6efbc4f0903e0af06",
+  "branch": "work/bot-f-project-io",
+  "matrix_pass_claimed": false,
+  "desktop_refs": [
+    "infrastructure/import_controller.cpp",
+    "infrastructure/raw_sample_reader.cpp",
+    "ui/import/signal_import_dialog.cpp"
+  ],
+  "apis": [
+    "importRawStream",
+    "importRawWithTemplate",
+    "validateRawAcquisition",
+    "sampleFormatToDatatypeLabel",
+    "__wssG19.importRaw",
+    "__wssG19.importRawWithTemplate"
+  ],
+  "before": "RAW preview-only via describeRawIqWithTemplate; no project/tree commit",
+  "after": "Confirmed RAW lands in project session + engineering tree like importSigmfStream",
+  "honest_gaps": [
+    "no SourceLoader poll / navigationEnvelope",
+    "no QFileInfo readable check (byteLength from caller)",
+    "no WAV container re-check on commit",
+    "ChannelLayout not on SampleFormatDescriptor",
+    "remainder-byte truncate warning vs desktop hard error possible"
+  ],
+  "b_handoff": "importRawWithTemplate + AddSignalDialog RAW confirm + __wssG19.importRawWithTemplate"
+}
