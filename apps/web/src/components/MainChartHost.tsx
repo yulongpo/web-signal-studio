@@ -27,6 +27,7 @@ import {
 } from '../dsp/computeMainSpectrogram';
 import { computeFileSpectrogram } from '../dsp/computeFileSpectrogram';
 import { visibleBandwidthHz } from '../dsp/visibleBandwidthHz';
+import { physicalSpansFromView } from '../dsp/physicalViewSpans';
 import {
   getIqFileEpoch,
   getIqFileOpenBusy,
@@ -107,11 +108,26 @@ function cloneView(view: ViewState): ViewState {
   return { xDomain: { ...view.xDomain }, yDomain: { ...view.yDomain } };
 }
 
+function publishPhysicalSpans(
+  mode: 'stft' | 'waterfall',
+  view: ViewState,
+  publish: (spans: {
+    timeSec: { min: number; max: number };
+    freqHz: { min: number; max: number };
+    chartMode: 'stft' | 'waterfall';
+  }) => void,
+): void {
+  const spans = physicalSpansFromView(mode, view);
+  publish({ ...spans, chartMode: mode });
+}
+
+
 export function MainChartHost() {
   const chartMode = useUiStore((s) => s.chartMode);
   const paletteId = useUiStore((s) => s.paletteId);
   const level = useUiStore((s) => s.level);
   const setStatusCursor = useUiStore((s) => s.setStatusCursor);
+  const setMainChartPhysicalSpans = useUiStore((s) => s.setMainChartPhysicalSpans);
   const linkedCursor = useUiStore((s) => s.linkedCursor);
   const pinLinkedCursor = useUiStore((s) => s.pinLinkedCursor);
   const clearActivePinnedCursor = useUiStore((s) => s.clearActivePinnedCursor);
@@ -395,7 +411,8 @@ export function MainChartHost() {
   useEffect(() => {
     const fsHz = sampleRateHz > 0 ? sampleRateHz : 1_000_000;
     setAnalysisBandwidthHz(visibleBandwidthHz(chartMode, fitted, fsHz));
-  }, [fitted, chartMode, sampleRateHz]);
+    publishPhysicalSpans(chartMode, fitted, setMainChartPhysicalSpans);
+  }, [fitted, chartMode, sampleRateHz, setMainChartPhysicalSpans]);
 
   useEffect(() => {
     const el = hostRef.current;
@@ -585,6 +602,7 @@ export function MainChartHost() {
         onViewChange={(view) => {
           currentViewRef.current = view;
           setLiveView(view);
+          publishPhysicalSpans(chartMode, view, setMainChartPhysicalSpans);
         }}
         onViewCommit={(before) => {
           historyRef.current = pushCapped(historyRef.current, before);
@@ -595,6 +613,7 @@ export function MainChartHost() {
           setAnalysisBandwidthHz(
             visibleBandwidthHz(chartMode, currentViewRef.current, fsHz),
           );
+          publishPhysicalSpans(chartMode, currentViewRef.current, setMainChartPhysicalSpans);
         }}
         onBoxCommit={onBoxCommit}
         onCursor={({ xValue, yValue }) => {
