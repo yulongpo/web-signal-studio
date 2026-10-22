@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `INCREMENTAL_0df7960` (Web tip `0df7960`; audit tip replaces `007e2b0`). Prior tip also merged main @ `7fec50c`. **matrix_pass_claimed: false**.
+
 # INCREMENTAL_bf2fa8d — D4 axis-bind deepen + SegmentMs MET + D5 live (no PASS)
 
 | Field | Value |
