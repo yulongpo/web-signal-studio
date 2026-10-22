@@ -67,10 +67,10 @@ export function TempLayers() {
           className="temp-layer-panel"
           data-testid="temp-layer-level"
           role="dialog"
-          aria-label="Level settings"
+          aria-label="电平设置"
         >
           <header className="temp-layer-header">
-            <strong>Level</strong>
+            <strong>电平</strong>
             <button
               type="button"
               className="btn-ghost"
@@ -115,7 +115,7 @@ export function TempLayers() {
               checked={levelDraft.autoAdapt}
               onChange={(e) => updateLevelDraft({ autoAdapt: e.target.checked })}
             />
-            <span>Auto adapt</span>
+            <span>自动适配电平</span>
           </label>
           <div className="temp-layer-actions">
             <button
@@ -123,7 +123,7 @@ export function TempLayers() {
               data-testid="level-apply"
               onClick={() => commitLevelDraft()}
             >
-              Apply (Enter)
+              应用（Enter）
             </button>
           </div>
         </div>
@@ -139,10 +139,10 @@ export function TempLayers() {
           className="temp-layer-panel"
           data-testid="temp-layer-display"
           role="dialog"
-          aria-label="Display settings"
+          aria-label="显示设置"
         >
           <header className="temp-layer-header">
-            <strong>Display</strong>
+            <strong>显示</strong>
             <button
               type="button"
               className="btn-ghost"
@@ -153,7 +153,7 @@ export function TempLayers() {
             </button>
           </header>
           <label className="temp-field">
-            <span>Frequency mode</span>
+            <span>频率模式</span>
             <select
               data-testid="display-freq-mode"
               value={displayDraft.freqMode}
@@ -163,8 +163,8 @@ export function TempLayers() {
                 })
               }
             >
-              <option value="rf">RF</option>
-              <option value="baseband">Baseband</option>
+              <option value="rf">射频频率</option>
+              <option value="baseband">基带频率</option>
             </select>
           </label>
           <label className="temp-field temp-field-check">
@@ -174,7 +174,7 @@ export function TempLayers() {
               checked={displayDraft.showGrid}
               onChange={(e) => updateDisplayDraft({ showGrid: e.target.checked })}
             />
-            <span>Show grid</span>
+            <span>显示网格</span>
           </label>
           <label className="temp-field temp-field-check">
             <input
@@ -185,7 +185,7 @@ export function TempLayers() {
                 updateDisplayDraft({ showColorScale: e.target.checked })
               }
             />
-            <span>Color scale</span>
+            <span>色标</span>
           </label>
           <div className="temp-layer-actions">
             <button
@@ -193,7 +193,7 @@ export function TempLayers() {
               data-testid="display-apply"
               onClick={() => commitDisplayDraft()}
             >
-              Apply (Enter)
+              应用（Enter）
             </button>
           </div>
         </div>

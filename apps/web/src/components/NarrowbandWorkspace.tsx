@@ -193,7 +193,7 @@ export function NarrowbandWorkspace() {
           </select>
         </label>
         <label className="nb-field">
-          <span>PSD FFT</span>
+          <span>PSD N</span>
           <select
             data-testid="nb-select-psd-fft"
             value={psdFft}
@@ -207,7 +207,7 @@ export function NarrowbandWorkspace() {
           </select>
         </label>
         <label className="nb-field">
-          <span>PSD模式</span>
+          <span>PSD 模式</span>
           <select
             data-testid="nb-select-psd-mode"
             value={psdMode}
@@ -218,7 +218,7 @@ export function NarrowbandWorkspace() {
           </select>
         </label>
                 <label className="nb-field" data-testid="nb-field-context-frame-psd">
-          <span>contextFramePsd</span>
+          <span>驻留帧谱</span>
           <button
             type="button"
             data-testid="nb-btn-context-frame-psd"
@@ -317,7 +317,7 @@ export function NarrowbandWorkspace() {
             onChange={(e) => setFreqMode(e.target.value as 'baseband' | 'rf')}
           >
             <option value="baseband">基带</option>
-            <option value="rf">RF</option>
+            <option value="rf">射频</option>
           </select>
         </label>
         <label className="nb-field nb-field-check">
@@ -341,7 +341,7 @@ export function NarrowbandWorkspace() {
           {overflowOpen ? (
             <div className="overflow-menu" data-testid="nb-overflow-menu" role="menu">
               <label className="overflow-item">
-                <span>STFT N（overflow）</span>
+                <span>STFT N</span>
                 <select
                   data-testid="nb-overflow-stft-fft"
                   value={stftFft}
@@ -355,14 +355,14 @@ export function NarrowbandWorkspace() {
                 </select>
               </label>
               <label className="overflow-item">
-                <span>频率（overflow）</span>
+                <span>频率</span>
                 <select
                   data-testid="nb-overflow-freq-mode"
                   value={freqMode}
                   onChange={(e) => setFreqMode(e.target.value as 'baseband' | 'rf')}
                 >
                   <option value="baseband">基带</option>
-                  <option value="rf">RF</option>
+                  <option value="rf">射频</option>
                 </select>
               </label>
               <label className="overflow-item nb-field-check">

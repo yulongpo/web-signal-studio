@@ -262,7 +262,7 @@ function DisplayPage() {
         data-testid="btn-open-level-layer"
         onClick={() => openLayer('level')}
       >
-        打开 Level层
+        打开电平层
       </button>
       <button
         type="button"
