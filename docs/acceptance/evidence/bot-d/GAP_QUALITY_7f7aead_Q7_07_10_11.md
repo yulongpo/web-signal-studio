@@ -3,8 +3,10 @@
 | Field | Value |
 |-------|-------|
 | When | 2026-10-22 Asia/Shanghai |
-| Base | 27e3e29 (PIXEL B on main; rebase again if C STFT tip lands before push) |
-| Tip | TBD |
+| Base | `6e78061` (includes C STFT/fill `64151d7` + B PIXEL) |
+| Tip | feat `f1ed98f` / docs `671fbf2` |
+1ed98f = 
+1ed98fb6bfe16995f249e73ba1ce6772a40f948 |
 | Branch | work/bot-d-dsp |
 | matrix_pass_claimed | **false** |
 | Ban | invent Multitaper/Burg/G06 eye · fake PASS · silent demo-annotation NB claim |
