@@ -1,6 +1,7 @@
 /**
  * PROVISIONAL - Bot-B Web UI shell composition.
  * Hosts Bot-C embeddables: NavChartHost / AuxChartHost / VerticalSplitter / MainChartHost.
+ * Desktop parity: workspaceStack swaps BB graphSplitter XOR NarrowbandWorkspace (no mix).
  * Chrome (nav segments + zoom/pause; aux/spec param strips) is Bot-B — not reimplemented charts.
  * Splitter defaults align rebuild enforceLayout: nav=82 / aux=205 (short window aux=176).
  */
@@ -205,56 +206,77 @@ export default function App() {
         />
 
       <main
-        className="workspace workspace-split"
+        className={
+          workspaceMode === 'narrowband'
+            ? 'workspace workspace-nb'
+            : 'workspace workspace-split'
+        }
         data-testid="workspace"
         data-workspace-mode={workspaceMode}
+        data-chart-partition={
+          workspaceMode === 'narrowband'
+            ? 'narrowband-only'
+            : 'broadband-nav-aux-main'
+        }
         style={
-          {
-            ['--nav-pane-h' as string]: `${navPaneHeightPx}px`,
-            ['--aux-pane-h' as string]: `${auxPaneHeightPx}px`,
-          } as CSSProperties
+          workspaceMode === 'narrowband'
+            ? undefined
+            : ({
+                ['--nav-pane-h' as string]: `${navPaneHeightPx}px`,
+                ['--aux-pane-h' as string]: `${auxPaneHeightPx}px`,
+              } as CSSProperties)
         }
       >
-        <div className="global-nav" aria-label="global-nav" data-testid="global-nav">
-          <NavChrome />
-          <div className="nav-chart-slot" data-testid="nav-chart-slot">
-            <NavChartHost />
-          </div>
-        </div>
-
-        <VerticalSplitter
-          sizePx={navPaneHeightPx}
-          minPx={62}
-          maxPx={128}
-          defaultPx={DESKTOP_NAV_DEFAULT}
-          onChange={setNavPaneHeightPx}
-          testId="splitter-nav-aux"
-          handleWidth={10}
-        />
-
-        <section className="aux-chart" aria-label="aux-chart" data-testid="aux-chart">
-          <AuxParamStrip />
-          <AuxChartHost />
-        </section>
-
-        <VerticalSplitter
-          sizePx={auxPaneHeightPx}
-          minPx={116}
-          maxPx={360}
-defaultPx={auxDefaultPx}
-          onChange={setAuxPaneHeightPx}
-          testId="splitter-aux-main"
-          handleWidth={10}
-        />
-
-        <section className="main-chart" aria-label="main-chart" data-testid="main-chart">
-          <SpecParamStrip />
-          {workspaceMode === 'narrowband' ? (
+        {/* Desktop workspaceStack_: BB graphSplitter XOR NarrowbandWorkspace — never nest. */}
+        {workspaceMode === 'narrowband' ? (
+          <section
+            className="main-chart main-chart-nb"
+            aria-label="main-chart"
+            data-testid="main-chart"
+            data-chart-stack="narrowband"
+          >
             <NarrowbandWorkspace />
-          ) : (
-            <MainChartHost />
-          )}
-        </section>
+          </section>
+        ) : (
+          <>
+            <div className="global-nav" aria-label="global-nav" data-testid="global-nav">
+              <NavChrome />
+              <div className="nav-chart-slot" data-testid="nav-chart-slot">
+                <NavChartHost />
+              </div>
+            </div>
+
+            <VerticalSplitter
+              sizePx={navPaneHeightPx}
+              minPx={62}
+              maxPx={128}
+              defaultPx={DESKTOP_NAV_DEFAULT}
+              onChange={setNavPaneHeightPx}
+              testId="splitter-nav-aux"
+              handleWidth={10}
+            />
+
+            <section className="aux-chart" aria-label="aux-chart" data-testid="aux-chart">
+              <AuxParamStrip />
+              <AuxChartHost />
+            </section>
+
+            <VerticalSplitter
+              sizePx={auxPaneHeightPx}
+              minPx={116}
+              maxPx={360}
+              defaultPx={auxDefaultPx}
+              onChange={setAuxPaneHeightPx}
+              testId="splitter-aux-main"
+              handleWidth={10}
+            />
+
+            <section className="main-chart" aria-label="main-chart" data-testid="main-chart">
+              <SpecParamStrip />
+              <MainChartHost />
+            </section>
+          </>
+        )}
 
         <BottomPanel />
         <StatusBar />

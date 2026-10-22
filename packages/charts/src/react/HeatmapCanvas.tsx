@@ -18,6 +18,7 @@ import { PhysicalAxis } from "../axis/physicalAxis.js";
 import { AxisOverlay } from "../overlay/axisOverlay.js";
 import {
   ColorbarOverlay,
+  colorScaleTickLabels,
   type ColorScaleDb,
 } from "../overlay/colorbarOverlay.js";
 import { CursorOverlay, type CursorOverlayState } from "../overlay/cursorOverlay.js";
@@ -44,7 +45,7 @@ import {
   type InteractionCursor,
 } from "../interaction/chartHitZone.js";
 import { formatPhysicalCaptionPair } from "../axis/physicalCaption.js";
-import { HEATMAP_PLOT_MARGIN } from "./plotMargin.js";
+import { HEATMAP_COLORBAR, HEATMAP_PLOT_MARGIN } from "./plotMargin.js";
 import {
   extractDisplayGrid,
   suggestExtractOutSize,
@@ -961,6 +962,68 @@ export function HeatmapCanvas(props: HeatmapCanvasProps) {
           </div>
         );
       })()}
+
+      {/* Desktop colorScale DOM legend: Playwright display-colorscale + tick text.
+          Canvas ColorbarOverlay still paints the LUT strip; this node is the visible control. */}
+      {showColorScale && colorScaleDb ? (
+        <div
+          data-testid="display-colorscale"
+          data-color-scale-dom="true"
+          aria-label="color scale"
+          style={{
+            position: "absolute",
+            right: 0,
+            top: MARGIN.top,
+            bottom: MARGIN.bottom,
+            width: MARGIN.right,
+            zIndex: 2,
+            pointerEvents: "none",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "stretch",
+            justifyContent: "flex-start",
+            paddingLeft: Math.max(
+              0,
+              MARGIN.right - HEATMAP_COLORBAR.stripOffsetFromRight,
+            ),
+            boxSizing: "border-box",
+          }}
+        >
+          <div
+            data-testid="display-colorscale-strip"
+            style={{
+              width: HEATMAP_COLORBAR.stripWidth,
+              marginTop: 4,
+              marginBottom: 4,
+              flexShrink: 0,
+              border: "1px solid rgba(129,151,177,0.95)",
+              background:
+                "linear-gradient(to bottom, #fde725, #5ec962, #21918c, #3b528b, #440154)",
+            }}
+          />
+          <div
+            data-testid="display-colorscale-ticks"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              marginLeft: HEATMAP_COLORBAR.labelGap,
+              marginTop: 4,
+              marginBottom: 4,
+              font: "10px Consolas, ui-monospace, monospace",
+              color: "rgba(186,213,235,0.95)",
+              lineHeight: 1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {colorScaleTickLabels(colorScaleDb).map((t, i) => (
+              <span key={`tick-${i}`}>{t}</span>
+            ))}
+            <span>dB</span>
+          </div>
+        </div>
+      ) : null}
+
       {boxCss ? (
         <div
           data-testid="chart-box-select"
