@@ -6,7 +6,7 @@
 | Gap | BROADBAND_GAP #9 (Bot-A plan item 9: demo IQ / fixtures) |
 | Branch | `work/bot-e-broadband-gap9-fixtures` |
 | Base tip | `f01d58215aec970e450d88402bb21a4200dc2040` (`origin/main`) |
-| HEAD tip | `959de2ea96fe1d12c12adea9013c6f857c592943` |
+| Feature tip | `87f27253431852c486e9d4d9ab5233b3eb98f162` |
 | matrix_pass_claimed | **false** |
 | ui_parity_pass_claimed | **false** |
 | Recognition | unchanged — no fake FFSCN/SCN invent; Detect still gated on real IQ + caps |
@@ -115,4 +115,6 @@ No IQ binaries copied into the web tree.
 | | SHA |
 |--|-----|
 | base | `f01d58215aec970e450d88402bb21a4200dc2040` |
-| HEAD | `959de2ea96fe1d12c12adea9013c6f857c592943` |
+| feature_tip | `87f27253431852c486e9d4d9ab5233b3eb98f162` |
+
+Authoritative tip = `git rev-parse work/bot-e-broadband-gap9-fixtures` after push; feature content tip above.
