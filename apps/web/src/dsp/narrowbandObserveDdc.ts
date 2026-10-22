@@ -13,6 +13,12 @@ import {
 } from './auxWaveRawIq';
 import { ddcFromChunkedReader } from './ddcFromChunkedReader';
 import { fftshiftFrame, normalizePower01 } from './computeMainSpectrogram';
+import {
+  resolveObserveDdcDrive,
+  desktopOutputSampleRateHz,
+  type ObserveBroadbandDrive,
+  type ResolvedObserveDdcDrive,
+} from './narrowbandObserveMarkerDdc';
 
 /** Cap input IQ samples so one observe paint stays interactive. */
 export const NB_OBSERVE_MAX_INPUT_SAMPLES = 65_536;
@@ -39,6 +45,11 @@ export type NarrowbandObserveDdcOptions = {
   signal?: AbortSignal;
   /** Prefer this annotation index when deriving LO/window (default 0). */
   annotationIndex?: number;
+  /**
+   * P0#7: broadband active mark/channel drive (desktop Session channel).
+   * When set, LO/BW/rate/window come from this — not invented demo index alone.
+   */
+  broadbandDrive?: ObserveBroadbandDrive | null;
 };
 
 export type NarrowbandObserveDdcResult = {
@@ -54,6 +65,12 @@ export type NarrowbandObserveDdcResult = {
   sampleBegin: bigint;
   sampleEnd: bigint;
   annotationLabel?: string;
+  /** P0#7 honest drive resolution (marker/channel/demo-annotation). */
+  ddcDrive: ResolvedObserveDdcDrive;
+  /** Honest short stamp for UI: 真实 DDC · … */
+  ddcStatusStamp: string;
+  /** data-nb-ddc-kind */
+  ddcKindAttr: ResolvedObserveDdcDrive['ddcKindAttr'];
   waveform: {
     y: Float32Array;
     xDomain: { min: number; max: number; unit: string; label: string };
@@ -322,18 +339,59 @@ export async function computeNarrowbandObserveDdc(
     signal: options.signal,
   });
   const ann = pickAnnotation(handle, options.annotationIndex ?? 0);
-  const loOffsetHz =
-    options.loOffsetHz ?? deriveLoOffsetHz(handle, ann);
-  const interpolation = options.interpolation ?? 1;
-  const decimation =
-    options.decimation ?? deriveDecimation(handle, ann);
   const maxInputSamples =
     options.maxInputSamples ?? NB_OBSERVE_MAX_INPUT_SAMPLES;
-  const { begin, end } = deriveSampleWindow(
+  const fallbackLo =
+    options.loOffsetHz ?? deriveLoOffsetHz(handle, ann);
+  const fallbackDecimation =
+    options.decimation ?? deriveDecimation(handle, ann);
+  const fallbackInterpolation = options.interpolation ?? 1;
+
+  // P0#7: prefer explicit broadband drive (active channel/mark); else demo annotation.
+  // Recompute desktop output rate with the real capture Fs (poll may use a hint Fs).
+  const driveIn = options.broadbandDrive
+    ? {
+        ...options.broadbandDrive,
+        outputSampleRateHz: desktopOutputSampleRateHz(
+          handle.sampleRateHz,
+          options.broadbandDrive.bandwidthHz,
+        ),
+      }
+    : null;
+  const resolved = resolveObserveDdcDrive({
+    sourceCenterFrequencyHz: handle.centerFrequencyHz,
+    sampleRateHz: handle.sampleRateHz,
+    drive: driveIn,
+    fallbackLoOffsetHz: fallbackLo,
+    fallbackInterpolation,
+    fallbackDecimation,
+  });
+
+  const loOffsetHz = resolved.loOffsetHz;
+  const interpolation = resolved.interpolation;
+  const decimation = resolved.decimation;
+
+  let { begin, end } = deriveSampleWindow(
     handle,
     ann,
     maxInputSamples,
   );
+  // When mark/channel supplies a sample window, prefer it (still capped).
+  if (
+    resolved.sampleBegin != null &&
+    resolved.sampleEnd != null &&
+    resolved.sampleEnd > resolved.sampleBegin
+  ) {
+    const maxN = BigInt(Math.max(256, maxInputSamples));
+    begin = resolved.sampleBegin;
+    end = resolved.sampleEnd;
+    if (end > handle.totalSamples) end = handle.totalSamples;
+    if (begin < 0n) begin = 0n;
+    if (end - begin > maxN) end = begin + maxN;
+    if (end <= begin) {
+      end = begin + 1n <= handle.totalSamples ? begin + 1n : handle.totalSamples;
+    }
+  }
 
   const psdFftSize = options.psdFftSize ?? 1024;
   const stftFftSize = options.stftFftSize ?? 256;
@@ -447,11 +505,14 @@ export async function computeNarrowbandObserveDdc(
     };
   }
 
-  const pipelineLabel = `sigmf_data_demo → DDC (LO ${loOffsetHz.toFixed(0)} Hz, R=${interpolation}/${decimation}) · not demod`;
+  const pipelineLabel = resolved.pipelineLabel;
 
   return {
     sourceLabel: handle.sourceLabel,
     pipelineLabel,
+    ddcDrive: resolved,
+    ddcStatusStamp: resolved.statusStamp,
+    ddcKindAttr: resolved.ddcKindAttr,
     loOffsetHz,
     interpolation,
     decimation,
